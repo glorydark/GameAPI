@@ -1,4 +1,4 @@
-# Title
+# GameAPI
 
 A brand-new plugin for Nukkitx.
 
