@@ -1,6 +1,9 @@
 package gameapi.arena;
 
 import cn.nukkit.Server;
+import cn.nukkit.level.Level;
+import cn.nukkit.level.generator.Flat;
+import cn.nukkit.level.generator.Generator;
 import gameapi.MainClass;
 import gameapi.utils.FileHandler;
 
@@ -8,7 +11,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class Arena {
-    public static Boolean saveWorld(cn.nukkit.level.Level world){
+    public static Boolean saveWorld(Level world){
         String rootPath = Server.getInstance().getDataPath()+"/worlds/"+world.getName()+"/";
         String savePath = MainClass.path+"/worlds/"+world.getName()+"/";
         try {
@@ -55,4 +58,13 @@ public class Arena {
     public static void createVoidWorld(String worldname){
         Server.getInstance().generateLevel(worldname);
     }
+
+    /* 钻石大陆
+    public static void createDIYWorld(String worldname){
+        Generator.addGenerator(FlatDIY.class, "DIY", Generator.TYPE_FLAT);
+        Server.getInstance().generateLevel(worldname,0, Generator.getGenerator("DIY"));
+        Server.getInstance().loadLevel(worldname);
+    }
+
+     */
 }

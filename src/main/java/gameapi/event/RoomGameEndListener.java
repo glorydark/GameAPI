@@ -9,27 +9,26 @@ import gameapi.room.RoomStatus;
 
 public class RoomGameEndListener extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private static Room room;
+    private final Room room;
 
     public static HandlerList getHandlers() {
         return handlers;
     }
 
     public RoomGameEndListener(Room room){
-        RoomGameEndListener.room = room;
-        if (room.time >= room.gameWaitTime) {
-            if(room.roundCache <= room.MaxRound) {
-                room.roomStatus = RoomStatus.ROOM_STATUS_Ceremony;
-                Server.getInstance().getPluginManager().callEvent(new RoomCeremonyEvent(room));
-                room.time = 0;
+        this.room = room;
+        if (room.getTime() >= room.getWaitTime()) {
+            if(room.getRound() <= room.getMaxRound()) {
+                room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
+                room.setTime(0);
             }else{
-                room.roomStatus = RoomStatus.ROOM_STATUS_NextRoundPreStart;
+                room.setRoomStatus(RoomStatus.ROOM_STATUS_NextRoundPreStart);
                 Server.getInstance().getPluginManager().callEvent(new RoomNextRoundPreStartEvent(room));
             }
         }else {
-            room.time++;
-            for (Player p : room.players) {
-                p.sendActionBar("颁奖典礼还有" + (room.gameWaitTime - room.time) + "秒开始！");
+            room.setTime(room.getTime()+1);
+            for (Player p : room.getPlayers()) {
+                p.sendActionBar("颁奖典礼还有" + (room.getWaitTime() - room.getTime()) + "秒开始！");
             }
         }
     }

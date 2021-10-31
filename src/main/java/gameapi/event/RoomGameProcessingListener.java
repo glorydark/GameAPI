@@ -4,29 +4,32 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.event.Event;
 import cn.nukkit.event.HandlerList;
+import gameapi.inventory.Inventory;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
-import gameapi.sound.Sound;
 
 public class RoomGameProcessingListener extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private static Room room;
+    private final Room room;
 
     public static HandlerList getHandlers() {
         return handlers;
     }
 
     public RoomGameProcessingListener(Room room){
-        RoomGameProcessingListener.room = room;
-        if (room.time >= room.gameTime) {
-            room.roomStatus = RoomStatus.ROOM_STATUS_GameEnd;
-            room.time = 0;
-            Server.getInstance().getPluginManager().callEvent(new RoomGameEndEvent(room));
-            for (Player p : room.players) {
-               Sound.playResourcePackOggMusic(p, "game_over");
+        this.room = room;
+        if (room.getTime() >= room.getGameTime()) {
+            room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd);
+            room.setTime(0);
+            for(Player player:room.getPlayers()){
+                Inventory.loadBag(player);
+                player.setGamemode(0,false);
             }
+            Server.getInstance().getPluginManager().callEvent(new RoomGameEndEvent(room));
         }else{
-            room.time++;
+            if(!room.getRoomRule().noTimeLimit) {
+                room.setTime(room.getTime() + 1);
+            }
         }
     }
 

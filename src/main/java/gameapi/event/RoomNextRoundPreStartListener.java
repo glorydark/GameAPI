@@ -10,23 +10,23 @@ import gameapi.room.RoomStatus;
 
 public class RoomNextRoundPreStartListener extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private static Room room;
+    private final Room room;
 
     public static HandlerList getHandlers() {
         return handlers;
     }
 
     public RoomNextRoundPreStartListener(Room room){
-        RoomNextRoundPreStartListener.room = room;
-        if (room.time >= room.gameWaitTime) {
-            room.roomStatus = RoomStatus.ROOM_STATUS_Ceremony;
-            room.time = 0;
+        this.room = room;
+        if (room.getTime() >= room.getWaitTime()) {
+            room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony);
+            room.setTime(0);
         } else {
-            for (Player p : room.players) {
-                p.sendActionBar("下一场游戏开始还剩" + (room.gameWaitTime - room.time) + "秒");
+            for (Player p : room.getPlayers()) {
+                p.sendActionBar("下一场游戏开始还剩" + (room.getWaitTime() - room.getTime()) + "秒");
             }
-            room.time++;
-            room.roomStatus = RoomStatus.ROOM_STATUS_PreStart;
+            room.setTime(room.getTime()+1);
+            room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart);
             Server.getInstance().getPluginManager().callEvent(new RoomPreStartEvent(room));
         }
     }

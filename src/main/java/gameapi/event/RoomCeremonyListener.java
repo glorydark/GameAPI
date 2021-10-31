@@ -8,30 +8,24 @@ import cn.nukkit.event.HandlerList;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 public class RoomCeremonyListener extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private static Room room;
+    private final Room room;
 
     public static HandlerList getHandlers() {
         return handlers;
     }
 
     public RoomCeremonyListener(Room room){
-        RoomCeremonyListener.room = room;
-        if (room.time >= room.ceremonyTime) {
+        this.room = room;
+        if (room.getTime() >= room.getCeremonyTime()) {
+            room.setRoomStatus(RoomStatus.ROOM_STATUS_End);
+            room.setTime(0);
             Server.getInstance().getPluginManager().callEvent(new RoomEndEvent(room));
-            room.time = 0;
-            room.roomStatus = RoomStatus.ROOM_STATUS_WAIT;
-            room.players = new ArrayList<>();
-            room.teamCache = new HashMap<>();
-            room.roundCache = 0;
         } else {
-            room.time++;
-            for (Player p : room.players) {
-                p.sendActionBar("颁奖典礼结束还剩" + (room.ceremonyTime - room.time) + "秒！");
+            room.setTime(room.getTime()+1);
+            for (Player p : room.getPlayers()) {
+                p.sendActionBar("颁奖典礼结束还剩" + (room.getCeremonyTime() - room.getTime()) + "秒！");
             }
         }
     }

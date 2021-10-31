@@ -10,21 +10,21 @@ import gameapi.room.RoomStatus;
 
 public class RoomWaitListener extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private static Room room;
+    private final Room room;
 
     public static HandlerList getHandlers() {
         return handlers;
     }
 
     public RoomWaitListener(Room room){
-        RoomWaitListener.room = room;
-        room.time = 0;
-        room.roundCache = 0;
-        for (Player p : room.players) {
+        this.room = room;
+        room.setTime(0);
+        room.setRound(0);
+        for (Player p : room.getPlayers()) {
             p.sendActionBar("正在等待玩家");
         }
-        if (room.players.size() >= room.minPlayer) {
-            room.roomStatus = RoomStatus.ROOM_STATUS_PreStart;
+        if (room.getPlayers().size() >= room.getMinPlayer()) {
+            room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart);
             Server.getInstance().getPluginManager().callEvent(new RoomPreStartEvent(room));
         }
     }

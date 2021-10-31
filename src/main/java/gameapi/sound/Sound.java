@@ -26,11 +26,11 @@ public class Sound {
     public static void playResourcePackOggMusic(Player player, String filename){
         PlaySoundPacket pk = new PlaySoundPacket();
         pk.name = filename;
-        pk.x = (int) player.x;
-        pk.y = (int) player.y;
-        pk.z = (int) player.z;
-        pk.volume = (float) 1.0;
-        pk.pitch = (float) 1.0;
+        pk.x = player.getFloorX();
+        pk.y = player.getFloorY();
+        pk.z = player.getFloorZ();
+        pk.volume = 1;
+        pk.pitch = 1;
         player.dataPacket(pk);
     }
 

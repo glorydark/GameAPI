@@ -8,19 +8,18 @@ import gameapi.sound.Sound;
 
 public class RoomGameStartEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private static Room room;
+    private final Room room;
 
     public static HandlerList getHandlers() {
         return handlers;
     }
 
     public RoomGameStartEvent(Room room){
-        RoomGameStartEvent.room = room;
-        room.roundCache++;
-        for (Player p : room.players) {
-            p.setGamemode(room.roomRule.gamemode);
+        this.room = room;
+        room.setRound(room.getRound()+1);
+        for (Player p : room.getPlayers()) {
+            p.setGamemode(room.getRoomRule().gamemode);
             p.sendTitle("游戏开始", "Game Start!");
-            Sound.playResourcePackOggMusic(p, "game_begin");
         }
     }
 

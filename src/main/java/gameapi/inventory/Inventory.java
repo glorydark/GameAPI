@@ -3,15 +3,16 @@ package gameapi.inventory;
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.utils.Config;
 import com.sun.org.glassfish.gmbal.Description;
+import gameapi.MainClass;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.List;
 
-@Description("Author: Ruok") //引用若水的NBT物品保存代码
+@Description("Original Author: Ruok") //引用若水的NBT物品保存代码
 
 public class Inventory {
-    public static LinkedHashMap<Player, ArrayList<String>> playerBag = new LinkedHashMap<>();
 
     private static byte[] hexStringToBytes(String hexString) {
         if (hexString == null || hexString.equals("")) {
@@ -49,7 +50,7 @@ public class Inventory {
     }
 
     public static void saveBag(Player gamePlayer) {
-        ArrayList<String> bag = new ArrayList<>();
+        List<String> bag = new ArrayList<>();
         for (int i = 0; i < gamePlayer.getInventory().getSize() + 4; i++) {
             Item item = gamePlayer.getInventory().getItem(i);
             String nbt = "null";
@@ -58,22 +59,42 @@ public class Inventory {
             }
             bag.add(item.getId() + "-" + item.getDamage() + "-" + item.getCount() + "-" + nbt);
         }
-        playerBag.put(gamePlayer, bag);
+        savePlayerBagConfig(gamePlayer,bag);
         gamePlayer.getInventory().clearAll();
     }
 
     public static void loadBag(Player gamePlayer) {
-        gamePlayer.getInventory().clearAll();
-        ArrayList<String> bag = playerBag.get(gamePlayer);
-        for (int i = 0; i < gamePlayer.getInventory().getSize() + 4; i++) {
-            String[] a = bag.get(i).split("-");
-            Item item = new Item(Integer.parseInt(a[0]), Integer.parseInt(a[1]), Integer.parseInt(a[2]));
-            if (!a[3].equals("null")) {
-                CompoundTag tag = Item.parseCompoundTag(hexStringToBytes(a[3]));
-                item.setNamedTag(tag);
+        List<String> bag = getPlayerBagConfig(gamePlayer);
+        if(bag != null && bag.size()>0) {
+            gamePlayer.getInventory().clearAll();
+            for (int i = 0; i < gamePlayer.getInventory().getSize() + 4; i++) {
+                String[] a = bag.get(i).split("-");
+                Item item = new Item(Integer.parseInt(a[0]), Integer.parseInt(a[1]), Integer.parseInt(a[2]));
+                if (!a[3].equals("null")) {
+                    CompoundTag tag = Item.parseCompoundTag(hexStringToBytes(a[3]));
+                    item.setNamedTag(tag);
+                }
+                gamePlayer.getInventory().setItem(i, item);
             }
-            gamePlayer.getInventory().setItem(i, item);
+            removePlayerBagConfig(gamePlayer);
         }
-        playerBag.remove(gamePlayer);
+    }
+
+    public static List<String> getPlayerBagConfig(Player player){
+        Config config = new Config(MainClass.path+"/players/"+player.getName()+".yml",Config.YAML);
+        if(!config.exists("bagCache")){ return null;}
+        return new ArrayList<>(config.getStringList("bagCache"));
+    }
+
+    public static void savePlayerBagConfig(Player player,List<String> content){
+        Config config = new Config(MainClass.path+"/players/"+player.getName()+".yml",Config.YAML);
+        config.set("bagCache",content);
+        config.save();
+    }
+
+    public static void removePlayerBagConfig(Player player){
+        Config config = new Config(MainClass.path+"/players/"+player.getName()+".yml",Config.YAML);
+        config.remove("bagCache");
+        config.save();
     }
 }

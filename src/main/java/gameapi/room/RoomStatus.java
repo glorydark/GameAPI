@@ -8,4 +8,5 @@ public enum RoomStatus {
     ROOM_STATUS_GameEnd,
     ROOM_STATUS_Ceremony,
     ROOM_STATUS_NextRoundPreStart,
+    ROOM_STATUS_End,
 }
