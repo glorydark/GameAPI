@@ -21,7 +21,7 @@ public class RoomWaitListener extends Event {
         room.setTime(0);
         room.setRound(0);
         for (Player p : room.getPlayers()) {
-            p.sendActionBar("正在等待玩家");
+            p.sendActionBar("§l§e正在等待玩家 【"+room.getPlayers().size()+"/"+room.getMinPlayer()+"】");
         }
         if (room.getPlayers().size() >= room.getMinPlayer()) {
             room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart);

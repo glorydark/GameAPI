@@ -2,18 +2,20 @@ package gameapi.room;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.block.Block;
-import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import com.sun.istack.internal.NotNull;
 import gameapi.MainClass;
+import gameapi.arena.Arena;
 import gameapi.event.PlayerJoinRoomEvent;
 import gameapi.event.PlayerLeaveRoomEvent;
 import gameapi.inventory.Inventory;
-import gameapi.task.AsyncBlockCleanTask;
+import javafx.geometry.Pos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class Room {
     private String roomName = null;
@@ -32,18 +34,82 @@ public class Room {
     private Position waitSpawn = new Position();
     private Position startSpawn = new Position();
     private Position endSpawn = new Position();
+    private String waitLevel;
+    private String startLevel;
+    private String endLevel;
     private HashMap<String, List<Player>> teamCache = new HashMap<>();
-    private LinkedList<Block> placeBlocks = new LinkedList<>();
-    private LinkedList<Block> breakBlocks = new LinkedList<>();
-    private LinkedList<Entity> explodeEntity = new LinkedList<>();
-    private HashMap<Player, Float> playersHealth = new HashMap<>();
+    private final HashMap<Player, Float> playersHealth = new HashMap<>();
+    private String roomLevelBackup;
+    private String roomPlayLevel;
+    private final LinkedHashMap<Player, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
 
-    public Room(RoomRule roomRule, int round){
+    public Room(RoomRule roomRule, String roomLevelBackup, String roomPlayLevel, int round){
         this.MaxRound = round;
         this.roomRule = roomRule;
+        this.roomLevelBackup = roomLevelBackup;
+        this.roomPlayLevel = roomPlayLevel;
     }
 
-    public static void addTeam(Room room ,String string, @NotNull List<Player> players){
+    public String getWaitLevel() {
+        return waitLevel;
+    }
+
+    public String getStartLevel() {
+        return startLevel;
+    }
+
+    public String getEndLevel() {
+        return endLevel;
+    }
+
+    public Object getPlayerProperties(Player player, String key) {
+        if(playerProperties.containsKey(player)){
+            return playerProperties.get(player).getOrDefault(key, "null");
+        }else{
+            return "null";
+        }
+    }
+
+    public void setPlayerProperties(Player player, String key, String value) {
+        if(playerProperties.containsKey(player)){
+            if(playerProperties.get(player).containsKey(key)){
+                LinkedHashMap<String, Object> cache = playerProperties.get(player);
+                cache.put(key, value);
+                playerProperties.put(player, cache);
+            }else{
+                LinkedHashMap<String, Object> cache = new LinkedHashMap<>();
+                cache.put(key, value);
+                playerProperties.put(player, cache);
+            }
+        }else{
+            LinkedHashMap<String, Object> cache = new LinkedHashMap<>();
+            cache.put(key, value);
+            playerProperties.put(player, cache);
+        }
+    }
+
+    public void setRoomPlayLevel(String roomPlayLevel) {
+        this.roomPlayLevel = roomPlayLevel;
+    }
+
+    public String getRoomPlayLevel() {
+        return roomPlayLevel;
+    }
+
+    public String getRoomLevelBackup() {
+        return roomLevelBackup;
+    }
+
+    public void setRoomLevelBackup(String roomLevelBackup) {
+        this.roomLevelBackup = roomLevelBackup;
+    }
+
+    private void initLevel() {
+        this.getStartSpawn().level.setThundering(false);
+        this.getStartSpawn().level.setRaining(false);
+    }
+
+    public static void addTeam(Room room , String string, @NotNull List<Player> players){
         room.teamCache.put(string,players);
     }
 
@@ -111,63 +177,17 @@ public class Room {
     }
 
     public void resetAll(){
-        Server.getInstance().getScheduler().scheduleAsyncTask(MainClass.plugin,new AsyncBlockCleanTask(this));
+        //Server.getInstance().getScheduler().scheduleAsyncTask(MainClass.plugin,new AsyncBlockCleanTask(this));
         for(Player player: players){
             Inventory.loadBag(player);
         }
         this.players = new ArrayList<>();
-        this.roomStatus = RoomStatus.ROOM_STATUS_WAIT;
         this.roundCache = 0;
         this.teamCache = new HashMap<>();
         this.time = 0;
-    }
-
-    public LinkedList<Block> getBreakBlocks() {
-        return breakBlocks;
-    }
-
-    public LinkedList<Block> getPlaceBlocks() {
-        return placeBlocks;
-    }
-
-    public void setBreakBlocks(LinkedList<Block> breakBlocks) {
-        this.breakBlocks = breakBlocks;
-    }
-
-    public void setPlaceBlocks(LinkedList<Block> placeBlocks) {
-        this.placeBlocks = placeBlocks;
-    }
-
-    public void addBreakBlock(Block block) {
-        this.breakBlocks.add(block);
-    }
-
-    public void addPlaceBlock(Block block) {
-        this.placeBlocks.add(block);
-    }
-
-    public void addBreakBlocks(List<Block> block) {
-        this.breakBlocks.addAll(block);
-    }
-
-    public void addPlaceBlocks(List<Block> block) {
-        this.placeBlocks.addAll(block);
-    }
-
-    public void removeBreakBlock(Block block) {
-        this.breakBlocks.remove(block);
-    }
-
-    public void removePlaceBlock(Block block) {
-        this.placeBlocks.remove(block);
-    }
-
-    public void removeBreakBlocks(List<Block> block) {
-        this.breakBlocks.removeAll(block);
-    }
-
-    public void removePlaceBlocks(List<Block> block) {
-        this.placeBlocks.removeAll(block);
+        Arena.reloadLevel(this);
+        initLevel();
+        this.roomStatus = RoomStatus.ROOM_STATUS_WAIT;
     }
 
     public void setTime(int time) {
@@ -196,26 +216,59 @@ public class Room {
 
     public void setWaitSpawn(Position waitSpawn) {
         this.waitSpawn = waitSpawn;
+        waitLevel = waitSpawn.getLevel().getName();
     }
 
     public Position getWaitSpawn() {
-        return waitSpawn;
+        if(waitSpawn.getLevel() == null){
+            Level level = Server.getInstance().getLevelByName(waitLevel);
+            if(level != null) {
+                Position position = Position.fromObject(waitSpawn, level);
+                return position;
+            }else{
+                return Position.fromObject(Server.getInstance().getDefaultLevel().getSafeSpawn(), null);
+            }
+        }else{
+            return waitSpawn;
+        }
     }
 
     public void setEndSpawn(Position endSpawn) {
         this.endSpawn = endSpawn;
+        endLevel = endSpawn.getLevel().getName();
     }
 
     public Position getEndSpawn() {
-        return endSpawn;
+        if(endSpawn.getLevel() == null){
+            Level level = Server.getInstance().getLevelByName(endLevel);
+            if(level != null) {
+                Position position = Position.fromObject(endSpawn, level);
+                return position;
+            }else{
+                return Position.fromObject(Server.getInstance().getDefaultLevel().getSafeSpawn(), null);
+            }
+        }else{
+            return endSpawn;
+        }
     }
 
     public Position getStartSpawn() {
-        return startSpawn;
+        if(startSpawn.getLevel() == null){
+            Level level = Server.getInstance().getLevelByName(startLevel);
+            if(level != null) {
+                Position position = Position.fromObject(startSpawn, level);
+                return position;
+            }else{
+                return Position.fromObject(Server.getInstance().getDefaultLevel().getSafeSpawn(), null);
+            }
+        }else{
+            return startSpawn;
+        }
     }
 
     public void setStartSpawn(Position startSpawn) {
         this.startSpawn = startSpawn;
+        startLevel = startSpawn.getLevel().getName();
     }
 
     public void setTeamCache(HashMap<String, List<Player>> teamCache) {
@@ -334,22 +387,6 @@ public class Room {
         this.players = players;
     }
 
-    public LinkedList<Entity> getExplodeEntity() {
-        return this.explodeEntity;
-    }
-
-    public void setExplodeEntity(LinkedList<Entity> explodeEntity) {
-        this.explodeEntity = explodeEntity;
-    }
-
-    public void addExplodeEntity(Entity entity) {
-        this.explodeEntity.add(entity);
-    }
-
-    public void removeExplodeEntity(Entity entity) {
-        this.explodeEntity.remove(entity);
-    }
-
     public float getPlayerHealth(Player player) {
         if(playersHealth.containsKey(player)){
             return playersHealth.get(player);
@@ -363,9 +400,7 @@ public class Room {
     }
 
     public void resetAllPlayersHealth(float health) {
-        for(Player player:this.playersHealth.keySet()){
-            this.playersHealth.put(player,health);
-        }
+        this.playersHealth.replaceAll((p, v) -> health);
     }
 
     public void addPlayerHealth(Player player,float add){

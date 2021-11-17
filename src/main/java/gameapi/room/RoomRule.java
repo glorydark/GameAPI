@@ -12,7 +12,6 @@ public class RoomRule {
     public List<Integer> canBreakBlocks = new ArrayList<>();
     public List<Integer> canPlaceBlocks = new ArrayList<>();
     public Boolean allowDamagePlayer = false;
-    public Boolean noDropDamage = true;
     public Boolean noTimeLimit = false;
     public Boolean antiExplosion = true;
     public Boolean allowEntityExplosionDamage = false;
@@ -26,6 +25,8 @@ public class RoomRule {
     public Boolean allowProjectTileDamage = false;
     public Boolean allowSuffocationDamage = false;
     public float defaultHealth = 20;
+    public Boolean allowSkill = false;
+    public Boolean allowFoodLevelChange = true;
 
 
     public RoomRule(Integer gamemode){

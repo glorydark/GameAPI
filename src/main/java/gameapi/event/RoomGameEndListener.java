@@ -18,13 +18,20 @@ public class RoomGameEndListener extends Event {
     public RoomGameEndListener(Room room){
         this.room = room;
         if (room.getTime() >= room.getWaitTime()) {
-            if(room.getRound() <= room.getMaxRound()) {
-                room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
+            room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony);
+            Server.getInstance().getPluginManager().callEvent(new RoomCeremonyEvent(room));
+            room.setTime(0);
+            /*
+            if(room.getRound() >= room.getMaxRound()) {
+                room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony);
+                Server.getInstance().getPluginManager().callEvent(new RoomCeremonyEvent(room));
                 room.setTime(0);
             }else{
                 room.setRoomStatus(RoomStatus.ROOM_STATUS_NextRoundPreStart);
                 Server.getInstance().getPluginManager().callEvent(new RoomNextRoundPreStartEvent(room));
             }
+
+             */
         }else {
             room.setTime(room.getTime()+1);
             for (Player p : room.getPlayers()) {

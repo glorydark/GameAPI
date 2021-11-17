@@ -1,11 +1,14 @@
 package gameapi.utils;
 
+import cn.nukkit.Server;
+import cn.nukkit.utils.Config;
+import cn.nukkit.utils.ConfigSection;
 import com.sun.org.glassfish.gmbal.Description;
 import gameapi.MainClass;
 
 import java.util.*;
 
-@Description("Author: lt-name") //引用若水的NBT物品保存代码
+@Description("Author: lt-name")
 
 public class GameRecord {
 
@@ -13,12 +16,8 @@ public class GameRecord {
         if(MainClass.gameRecord.containsKey(gameName)){
             return MainClass.gameRecord.get(gameName);
         }else{
-            return new TreeMap<>();
+            return new LinkedHashMap<>();
         }
-    }
-
-    public static void setGameRecordAll(String gameName, Map<String, Object> map){
-        MainClass.gameRecord.put(gameName,map);
     }
 
     public static Map<String, Integer> getGameRecordRankingList(String gameName, String comparedKey){
@@ -39,39 +38,45 @@ public class GameRecord {
     }
 
     public static void addGameRecord(String gameName, String player, String key, Integer add){
-        Map<String, Object> allData = getGameRecordAll(gameName);
+        Map<String, Object> allData = getGameRecordAll(gameName); // o1 -> o2
+        Map<String, Object> playerData;
         if(allData.containsKey(player)) {
-            Map<String, Object> data = (Map<String, Object>) allData.get(player);
-            if(data.containsKey(key)){
-                data.put(key,(Integer)data.get(key) + add);
+            playerData = (Map<String, Object>) allData.get(player);
+            if(playerData.containsKey(key)){
+                playerData.put(key,(Integer)playerData.get(key) + add);
             }else{
-                data.put(key,add);
+                playerData.put(key,add);
             }
-            allData.put(player,data);
-        }else{
-            Map<String, Object> playerData = new TreeMap<>();
-            playerData.put(key,add);
-            allData.put(player,playerData);
+        }else {
+            playerData = new LinkedHashMap<>();
+            playerData.put(key, add);
         }
-        setGameRecordAll(gameName,allData);
+        allData.put(player,playerData);
+        MainClass.gameRecord.put(gameName, allData);
+        Config config = new Config(MainClass.path + "/gameRecords/"+gameName+".yml",Config.YAML);
+        config.set(player, playerData);
+        config.save();
     }
 
     public static void reduceGameRecord(String gameName, String player, String key, Integer reduce){
         Map<String, Object> allData = getGameRecordAll(gameName);
+        Map<String, Object> playerData;
         if(allData.containsKey(player)) {
-            Map<String, Object> data = (Map<String, Object>) allData.get(player);
-            if(data.containsKey(key)){
-                data.put(key,(Integer)data.get(key) - reduce);
+            playerData = (Map<String, Object>) allData.get(player);
+            if(playerData.containsKey(key)){
+                playerData.put(key,(Integer)playerData.get(key) - reduce);
             }else{
-                data.put(key,-reduce);
+                playerData.put(key,-reduce);
             }
-            allData.put(player,data);
         }else{
-            Map<String, Object> playerData = new TreeMap<>();
+            playerData = new LinkedHashMap<>();
             playerData.put(key,-reduce);
-            allData.put(player,playerData);
         }
-        setGameRecordAll(gameName,allData);
+        allData.put(player,playerData);
+        MainClass.gameRecord.put(gameName, allData);
+        Config config = new Config(MainClass.path + "/gameRecords/"+gameName+".yml",Config.YAML);
+        config.set(player, playerData);
+        config.save();
     }
 
     public static int getGameRecord(String gameName, String player, String key){

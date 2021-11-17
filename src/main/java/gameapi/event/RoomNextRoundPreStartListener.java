@@ -23,7 +23,7 @@ public class RoomNextRoundPreStartListener extends Event {
             room.setTime(0);
         } else {
             for (Player p : room.getPlayers()) {
-                p.sendActionBar("下一场游戏开始还剩" + (room.getWaitTime() - room.getTime()) + "秒");
+                p.sendActionBar("§l§e下一场游戏开始还剩 §l§6" + (room.getWaitTime() - room.getTime()) + " §l§e秒");
             }
             room.setTime(room.getTime()+1);
             room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart);

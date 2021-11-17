@@ -16,11 +16,6 @@ public class RoomGameStartEvent extends Event {
 
     public RoomGameStartEvent(Room room){
         this.room = room;
-        room.setRound(room.getRound()+1);
-        for (Player p : room.getPlayers()) {
-            p.setGamemode(room.getRoomRule().gamemode);
-            p.sendTitle("游戏开始", "Game Start!");
-        }
     }
 
     public Room getRoom(){ return room;}

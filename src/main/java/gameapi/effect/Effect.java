@@ -19,4 +19,16 @@ public class Effect {
         effectParse.setAmplifier(effect.level);
         return effectParse;
     }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public Integer getDuration() {
+        return duration;
+    }
 }

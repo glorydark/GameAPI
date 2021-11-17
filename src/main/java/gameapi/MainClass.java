@@ -1,18 +1,18 @@
 package gameapi;
 
-import cn.nukkit.Server;
 import cn.nukkit.event.Listener;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
-import gameapi.arena.Arena;
 import gameapi.event.PlayerEvent;
 import gameapi.room.Room;
+import gameapi.sound.SoundTest;
 import gameapi.task.RoomTask;
 
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -31,19 +31,15 @@ public class MainClass extends PluginBase implements Listener {
     public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
     public static HashMap<String, Integer> format = new HashMap<>();
 
-    static {
-        //format.put("properties", 0);
-        //format.put("con", 0);
-        //format.put("conf", 0);
-        //format.put("config", 0);
-        //format.put("js", 1);
-        format.put("json", 1);
-        format.put("yml", 2);
-        format.put("yaml", 2);
-        //format.put("txt", 5);
-        //format.put("list", 5);
-        //format.put("enum", 5);
-    }
+    //此处引用lt-name的CrystalWar内的复原地图部分源码
+    public static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(
+            0,
+            Integer.MAX_VALUE,
+            5,
+            TimeUnit.SECONDS,
+            new SynchronousQueue<>(),
+            task -> new Thread(task, "GameAPI Restore World Thread")
+    );
 
     @Override
     public void onEnable() {
@@ -56,6 +52,7 @@ public class MainClass extends PluginBase implements Listener {
         this.getLogger().info("DGameAPI Enabled!");
         this.getServer().getScheduler().scheduleRepeatingTask(plugin,new RoomTask(),20);
         this.getServer().getPluginManager().registerEvents(new PlayerEvent(),this);
+        this.getServer().getCommandMap().register("",new SoundTest("gamesound"));
     }
 
     @Override
@@ -71,16 +68,18 @@ public class MainClass extends PluginBase implements Listener {
         if(files != null && files.length > 0){
             for(File file:files){
                 String fileName = file.getName().split("\\.")[0];
-                String formatString = file.getName().split("\\.")[1];
+                //String formatString = file.getName().split("\\.")[1];
                 Config config;
-                Integer checkFormat;
+                /*Integer checkFormat;
                 if(format.containsKey(formatString)) {
                     checkFormat = format.get(formatString);
                 }else{
                     this.getLogger().error("Unable to deal with the gameRecord File["+file.getName()+"]because of unsupported format!");
                     return;
                 }
-                config = new Config(file.getPath(),checkFormat);
+
+                 */
+                config = new Config(file.getPath(), Config.YAML);
                 if(config != null) {
                     gameRecord.put(fileName, config.getAll());
                 }else{
