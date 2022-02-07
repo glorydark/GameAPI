@@ -46,9 +46,6 @@ public class PlayerEvent implements Listener {
                 p.sendMessage("玩家" + event.getPlayer().getName() + "退出了本房间");
             }
             room.removePlayer(event.getPlayer(),false);
-            if(room.getPlayers().size() < 1){
-                room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
-            }
         }
     }
 
@@ -100,37 +97,40 @@ public class PlayerEvent implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerDropItemEvent(PlayerDropItemEvent event){
-        for (Room room:MainClass.RoomHashMap){
-            if(room.getPlayers().contains(event.getPlayer())) {
-                if (room.getRoomRule().noDropItem) {
-                    event.setCancelled(true);
-                    return;
-                }
+        Room room = Room.getRoom(event.getPlayer());
+        if(room != null){
+            if (room.getRoomRule().noDropItem) {
+                event.setCancelled(true);
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void ExplodeEvent(EntityExplodeEvent event){
-        Room room = Room.getRoom(event.getPosition().level);
-        if(room != null){
-            if(room.getRoomRule().antiExplosion){
-                event.getEntity().kill();
-                event.setCancelled(true);
-            }
+        for (Room room:MainClass.RoomHashMap) {
+            if(room != null && room.getStartSpawn().level.getName().equals(event.getPosition().level.getName())){
+                if(room.getRoomRule().antiExplosion){
+                    event.getEntity().kill();
+                    event.setCancelled(true);
+                }
             /*else {
                 room.addBreakBlocks(event.getBlockList());
             }*/
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void ExplodePrimeEvent(ExplosionPrimeEvent event){
-        Room room = Room.getRoom(event.getEntity().getLevel());
-        if(room != null) {
-            if (room.getRoomRule().antiExplosion) {
-                event.getEntity().kill();
-                event.setCancelled(true);
+        for (Room room:MainClass.RoomHashMap) {
+            if(room != null && room.getStartSpawn().level.getName().equals(event.getEntity().getLevel().getName())){
+                if(room.getRoomRule().antiExplosion){
+                    event.getEntity().kill();
+                    event.setCancelled(true);
+                }
+            /*else {
+                room.addBreakBlocks(event.getBlockList());
+            }*/
             }
         }
     }
@@ -313,9 +313,7 @@ public class PlayerEvent implements Listener {
                 List<Level> arenas = new LinkedList<>();
                 arenas.add(room.getWaitSpawn().getLevel());
                 arenas.add(room.getStartSpawn().getLevel());
-                if (arenas.contains(fromLevel) && arenas.contains(toLevel)) {
-                    return;
-                }else if (arenas.contains(fromLevel) && arenas.contains(toLevel)) {
+                if (!arenas.contains(fromLevel) && !arenas.contains(toLevel)) {
                     event.setCancelled(true);
                     player.sendMessage("§c请使用命令加入/退出游戏房间！");
                 }

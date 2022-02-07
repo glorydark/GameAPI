@@ -10,7 +10,7 @@ import gameapi.MainClass;
 import java.util.ArrayList;
 import java.util.List;
 
-@Description("Original Author: Ruok") //引用若水的NBT物品保存代码
+@Description("Original Author: SmallAsWater") //引用若水的NBT物品保存代码
 
 public class Inventory {
 
@@ -57,7 +57,7 @@ public class Inventory {
             if (item.hasCompoundTag()) {
                 nbt = bytesToHexString(item.getCompoundTag());
             }
-            bag.add(item.getId() + "-" + item.getDamage() + "-" + item.getCount() + "-" + nbt);
+            bag.add(item.getId() + ":" + item.getDamage() + ":" + item.getCount() + ":" + nbt);
         }
         savePlayerBagConfig(gamePlayer,bag);
         gamePlayer.getInventory().clearAll();
@@ -68,9 +68,13 @@ public class Inventory {
         if(bag != null && bag.size()>0) {
             gamePlayer.getInventory().clearAll();
             for (int i = 0; i < gamePlayer.getInventory().getSize() + 4; i++) {
-                String[] a = bag.get(i).split("-");
+                String[] a = bag.get(i).split(":");
                 Item item = new Item(Integer.parseInt(a[0]), Integer.parseInt(a[1]), Integer.parseInt(a[2]));
-                if (!a[3].equals("null")) {
+                if(item == null){
+                    MainClass.plugin.getLogger().error("Can not get the Item:" + bag.get(i));
+                    continue;
+                }
+                if (a.length>2 && !a[3].equals("null")) {
                     CompoundTag tag = Item.parseCompoundTag(hexStringToBytes(a[3]));
                     item.setNamedTag(tag);
                 }

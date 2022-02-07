@@ -5,7 +5,10 @@ import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.form.element.ElementLabel;
+import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.form.window.FormWindowCustom;
+import cn.nukkit.network.protocol.ModalFormRequestPacket;
+import gameapi.FormWindowFactory;
 import gameapi.MainClass;
 
 public class SoundTest extends Command {
@@ -44,11 +47,10 @@ public class SoundTest extends Command {
                     }
                     break;
                 case "test":
-                    if(strings.length > 2) {
+                    if(strings.length > 1) {
                         Player player = Server.getInstance().getPlayer(strings[1]);
-                        FormWindowCustom custom = new FormWindowCustom("server_form");
-                        custom.addElement(new ElementLabel("233"));
-                        player.showFormWindow(custom);
+                        FormWindowFactory factory = new FormWindowFactory();
+                        player.showFormWindow(factory);
 
                     }
                     break;

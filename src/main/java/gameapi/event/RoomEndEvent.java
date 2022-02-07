@@ -20,7 +20,6 @@ public class RoomEndEvent extends Event {
 
     public RoomEndEvent(Room room){
         this.room = room;
-        room.setRoomStatus(RoomStatus.ROOM_MapInitializing);
         room.resetAll();
     }
 

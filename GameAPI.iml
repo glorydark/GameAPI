@@ -10,7 +10,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="nukkit-B903" level="project" />
+    <orderEntry type="library" name="GameAPI" level="project" />
     <orderEntry type="library" name="ScoreboardAPI-1.3-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="nk_#947" level="project" />
+    <orderEntry type="library" name="CrystalWars-0.4.2" level="project" />
   </component>
 </module>

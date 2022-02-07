@@ -10,7 +10,6 @@ import gameapi.arena.Arena;
 import gameapi.event.PlayerJoinRoomEvent;
 import gameapi.event.PlayerLeaveRoomEvent;
 import gameapi.inventory.Inventory;
-import javafx.geometry.Pos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +24,7 @@ public class Room {
     private int maxPlayer = 2; //最大人数
     private int minPlayer = 16; //最少人数
     private int waitTime = 10; //等待时间
-    private int gameWaitTime = 3; //开始/结束缓冲时间
+    private int gameWaitTime = 10; //开始/结束缓冲时间
     private int gameTime = 10; //游戏开始时间
     private int ceremonyTime = 10; //颁奖典礼时间
     private int MaxRound; //回合数
@@ -40,14 +39,14 @@ public class Room {
     private HashMap<String, List<Player>> teamCache = new HashMap<>();
     private final HashMap<Player, Float> playersHealth = new HashMap<>();
     private String roomLevelBackup;
-    private String roomPlayLevel;
-    private final LinkedHashMap<Player, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
+    private final String gameName;
+    private LinkedHashMap<Player, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
 
-    public Room(RoomRule roomRule, String roomLevelBackup, String roomPlayLevel, int round){
+    public Room(String gameName, RoomRule roomRule, String roomLevelBackup, int round){
         this.MaxRound = round;
         this.roomRule = roomRule;
         this.roomLevelBackup = roomLevelBackup;
-        this.roomPlayLevel = roomPlayLevel;
+        this.gameName = gameName;
     }
 
     public String getWaitLevel() {
@@ -64,13 +63,13 @@ public class Room {
 
     public Object getPlayerProperties(Player player, String key) {
         if(playerProperties.containsKey(player)){
-            return playerProperties.get(player).getOrDefault(key, "null");
+            return playerProperties.get(player).getOrDefault(key, null);
         }else{
-            return "null";
+            return null;
         }
     }
 
-    public void setPlayerProperties(Player player, String key, String value) {
+    public void setPlayerProperties(Player player, String key, Object value) {
         if(playerProperties.containsKey(player)){
             if(playerProperties.get(player).containsKey(key)){
                 LinkedHashMap<String, Object> cache = playerProperties.get(player);
@@ -88,14 +87,6 @@ public class Room {
         }
     }
 
-    public void setRoomPlayLevel(String roomPlayLevel) {
-        this.roomPlayLevel = roomPlayLevel;
-    }
-
-    public String getRoomPlayLevel() {
-        return roomPlayLevel;
-    }
-
     public String getRoomLevelBackup() {
         return roomLevelBackup;
     }
@@ -105,8 +96,18 @@ public class Room {
     }
 
     private void initLevel() {
-        this.getStartSpawn().level.setThundering(false);
-        this.getStartSpawn().level.setRaining(false);
+        Level level;
+        if(startSpawn == null || !startSpawn.isValid()){
+            level = Server.getInstance().getLevelByName(startLevel);
+        }else{
+            level = startSpawn.getLevel();
+        }
+        if(level == null){
+            MainClass.plugin.getLogger().error("Can not find the level!");
+            return;
+        }
+        level.setThundering(false);
+        level.setRaining(false);
     }
 
     public static void addTeam(Room room , String string, @NotNull List<Player> players){
@@ -122,25 +123,50 @@ public class Room {
     }
 
     public Boolean addPlayer(Player player){
+        RoomStatus roomStatus = this.getRoomStatus();
+        if(roomStatus != RoomStatus.ROOM_STATUS_WAIT && roomStatus != RoomStatus.ROOM_STATUS_PreStart){
+            player.sendMessage("房间游戏已经开始！");
+            return false;
+        }
         if(this.players.size() < this.maxPlayer){
             if(this.players.contains(player)){
+                player.sendMessage("您已经在房间中了！");
                 return false;
             }else{
                 Server.getInstance().getPluginManager().callEvent(new PlayerJoinRoomEvent(this,player));
                 Inventory.saveBag(player);
+                playerProperties.put(player, new LinkedHashMap<>());
                 this.players.add(player);
+                for(Player p: this.players){
+                    p.sendMessage(player.getName() + " §l§a加入房间 【"+this.players.size()+"/"+this.maxPlayer+"】");
+                }
                 return true;
             }
         }
         return false;
     }
 
-    public void removePlayer(Player player,Boolean saveBag){
+    public void setStartLevel(String startLevel) {
+        this.startLevel = startLevel;
+    }
+
+    public void removePlayer(Player player, Boolean saveBag){
         Server.getInstance().getPluginManager().callEvent(new PlayerLeaveRoomEvent(this,player));
         Inventory.loadBag(player);
+        player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn(), null);
         this.players.remove(player);
     }
 
+    public static Room getRoom(String gameName, Player p){
+        for(Room room: MainClass.RoomHashMap){
+            if(room.players.contains(p) && room.gameName.equals(gameName)){
+                return room;
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("This method is not provided for other plugins development!")
     public static Room getRoom(Player p){
         for(Room room: MainClass.RoomHashMap){
             if(room.players.contains(p)){
@@ -150,41 +176,49 @@ public class Room {
         return null;
     }
 
-    public static Room getRoom(Level level){
+    public static Room getRoom(String gameName, String roomName){
         for(Room room: MainClass.RoomHashMap){
-            if(room.startSpawn.level.equals(level)){
+            if(room.roomName.equals(roomName) && room.gameName.equals(gameName)){
                 return room;
             }
         }
         return null;
     }
 
-    public static Room getRoom(String roomName){
-        for(Room room: MainClass.RoomHashMap){
-            if(room.roomName.equals(roomName)){
-                return room;
-            }
-        }
-        return null;
-    }
-
-    public void reset(){
+    public void detectToReset(Boolean resetMap){
         this.players = new ArrayList<>();
-        this.roomStatus = RoomStatus.ROOM_STATUS_WAIT;
         this.roundCache = 0;
         this.teamCache = new HashMap<>();
         this.time = 0;
+        if(resetMap) {
+            if(this.getRoomStatus() != RoomStatus.ROOM_MapInitializing && this.getRoomStatus() != RoomStatus.ROOM_STATUS_WAIT) {
+                MainClass.plugin.getLogger().alert("检测到房间内无玩家，正在重置地图，房间:"+this.getRoomName());
+                if(Arena.reloadLevel(this)){
+                    initLevel();
+                }
+            }
+        }
+        this.roomStatus = RoomStatus.ROOM_STATUS_WAIT;
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 
     public void resetAll(){
         //Server.getInstance().getScheduler().scheduleAsyncTask(MainClass.plugin,new AsyncBlockCleanTask(this));
         for(Player player: players){
             Inventory.loadBag(player);
+            Server.getInstance().getPluginManager().callEvent(new PlayerLeaveRoomEvent(this,player));
+            player.teleport(getEndSpawn(), null);
         }
         this.players = new ArrayList<>();
         this.roundCache = 0;
         this.teamCache = new HashMap<>();
         this.time = 0;
+        this.playerProperties = new LinkedHashMap<>();
+        MainClass.plugin.getLogger().alert("检测到房间游戏结束，正在重置地图，房间:"+this.getRoomName());
+        this.setRoomStatus(RoomStatus.ROOM_MapInitializing);
         Arena.reloadLevel(this);
         initLevel();
         this.roomStatus = RoomStatus.ROOM_STATUS_WAIT;
@@ -220,16 +254,11 @@ public class Room {
     }
 
     public Position getWaitSpawn() {
-        if(waitSpawn.getLevel() == null){
-            Level level = Server.getInstance().getLevelByName(waitLevel);
-            if(level != null) {
-                Position position = Position.fromObject(waitSpawn, level);
-                return position;
-            }else{
-                return Position.fromObject(Server.getInstance().getDefaultLevel().getSafeSpawn(), null);
-            }
+        Level level = Server.getInstance().getLevelByName(waitLevel);
+        if(level != null) {
+            return Position.fromObject(waitSpawn, level);
         }else{
-            return waitSpawn;
+            return Server.getInstance().getDefaultLevel().getSafeSpawn();
         }
     }
 
@@ -239,30 +268,20 @@ public class Room {
     }
 
     public Position getEndSpawn() {
-        if(endSpawn.getLevel() == null){
-            Level level = Server.getInstance().getLevelByName(endLevel);
-            if(level != null) {
-                Position position = Position.fromObject(endSpawn, level);
-                return position;
-            }else{
-                return Position.fromObject(Server.getInstance().getDefaultLevel().getSafeSpawn(), null);
-            }
+        Level level = Server.getInstance().getLevelByName(endLevel);
+        if(level != null) {
+            return Position.fromObject(endSpawn, level);
         }else{
-            return endSpawn;
+            return Server.getInstance().getDefaultLevel().getSafeSpawn();
         }
     }
 
     public Position getStartSpawn() {
-        if(startSpawn.getLevel() == null){
-            Level level = Server.getInstance().getLevelByName(startLevel);
-            if(level != null) {
-                Position position = Position.fromObject(startSpawn, level);
-                return position;
-            }else{
-                return Position.fromObject(Server.getInstance().getDefaultLevel().getSafeSpawn(), null);
-            }
+        Level level = Server.getInstance().getLevelByName(startLevel);
+        if(level != null) {
+            return Position.fromObject(startSpawn, level);
         }else{
-            return startSpawn;
+            return Server.getInstance().getDefaultLevel().getSafeSpawn();
         }
     }
 

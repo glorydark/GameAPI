@@ -21,12 +21,14 @@ public class RoomReadyStartListener extends Event {
 
     public RoomReadyStartListener(Room room){
         this.room = room;
-        if (room.getTime() >= room.getWaitTime()) {
+        if (room.getTime() >= room.getGameWaitTime()) {
             room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart);
             room.setTime(0);
             room.setRound(room.getRound() + 1);
-            for(Player p:room.getPlayers()){
-                p.teleport(Position.fromObject(room.getStartSpawn().getLocation(), Server.getInstance().getLevelByName(room.getRoomPlayLevel())));
+            if(room.getStartSpawn().isValid()) {
+                for (Player p : room.getPlayers()) {
+                    p.teleportImmediate(room.getStartSpawn().getLocation());
+                }
             }
             room.setRound(room.getRound()+1);
             for (Player p : room.getPlayers()) {
@@ -36,10 +38,10 @@ public class RoomReadyStartListener extends Event {
             Server.getInstance().getPluginManager().callEvent(new RoomGameStartEvent(room));
         } else {
             for (Player p : room.getPlayers()) {
-                Integer lastSec = room.getWaitTime() - room.getTime();
+                Integer lastSec = room.getGameWaitTime() - room.getTime();
                 if(lastSec > 10) {
                     p.getLevel().addSound(p.getPosition(), Sound.NOTE_HARP);
-                    p.sendActionBar("§l§e游戏开始还剩 §l§6" + (room.getWaitTime() - room.getTime()) + " §l§e秒");
+                    p.sendActionBar("§l§e游戏开始还剩 §l§6" + (room.getGameWaitTime() - room.getTime()) + " §l§e秒");
                 }else{
                     if(lastSec == 1){
                         p.getLevel().addSound(p.getPosition(), Sound.NOTE_FLUTE);

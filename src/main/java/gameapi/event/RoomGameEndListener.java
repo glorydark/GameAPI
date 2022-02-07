@@ -17,7 +17,7 @@ public class RoomGameEndListener extends Event {
 
     public RoomGameEndListener(Room room){
         this.room = room;
-        if (room.getTime() >= room.getWaitTime()) {
+        if (room.getTime() >= room.getGameWaitTime()) {
             room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony);
             Server.getInstance().getPluginManager().callEvent(new RoomCeremonyEvent(room));
             room.setTime(0);
@@ -35,7 +35,7 @@ public class RoomGameEndListener extends Event {
         }else {
             room.setTime(room.getTime()+1);
             for (Player p : room.getPlayers()) {
-                p.sendActionBar("颁奖典礼还有" + (room.getWaitTime() - room.getTime()) + "秒开始！");
+                p.sendActionBar("§l§e颁奖典礼还有 §l§6" + (room.getGameWaitTime() - room.getTime()) + " §l§e秒开始！");
             }
         }
     }

@@ -21,18 +21,10 @@ public class MainClass extends PluginBase implements Listener {
     public static List<Room> RoomHashMap = Collections.synchronizedList(new ArrayList<>()); //房间状态
     public static String path = null;
     public static Plugin plugin = null;
-    public static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
-            Runtime.getRuntime().availableProcessors(),
-            Runtime.getRuntime().availableProcessors() * 2,
-            5,
-            TimeUnit.SECONDS,
-            new ArrayBlockingQueue<>(Runtime.getRuntime().availableProcessors() * 4),
-            new ThreadPoolExecutor.DiscardPolicy());
     public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
-    public static HashMap<String, Integer> format = new HashMap<>();
 
     //此处引用lt-name的CrystalWar内的复原地图部分源码
-    public static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(
+    public static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
             0,
             Integer.MAX_VALUE,
             5,
@@ -50,7 +42,7 @@ public class MainClass extends PluginBase implements Listener {
         file1.mkdir();
         loadAllGameRecord();
         this.getLogger().info("DGameAPI Enabled!");
-        this.getServer().getScheduler().scheduleRepeatingTask(plugin,new RoomTask(),20);
+        this.getServer().getScheduler().scheduleRepeatingTask(plugin ,new RoomTask(),20);
         this.getServer().getPluginManager().registerEvents(new PlayerEvent(),this);
         this.getServer().getCommandMap().register("",new SoundTest("gamesound"));
     }
@@ -80,18 +72,14 @@ public class MainClass extends PluginBase implements Listener {
 
                  */
                 config = new Config(file.getPath(), Config.YAML);
-                if(config != null) {
-                    gameRecord.put(fileName, config.getAll());
-                }else{
-                    this.getLogger().error("Unable to deal with the gameRecord File["+file.getName()+"]because of unsupported format!");
-                    return;
-                }
+                gameRecord.put(fileName, config.getAll());
             }
         }
     }
 
     @Override
     public void onDisable() {
+        THREAD_POOL_EXECUTOR.shutdown();
         this.getLogger().info("DGameAPI Disabled!");
     }
 }

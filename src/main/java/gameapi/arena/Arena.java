@@ -2,10 +2,8 @@ package gameapi.arena;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
-import cn.nukkit.level.Position;
-import cn.nukkit.level.generator.Flat;
-import cn.nukkit.level.generator.Generator;
 import gameapi.MainClass;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
@@ -74,16 +72,16 @@ public class Arena {
 
      */
 
-    public static void reloadLevel(Room room){
+    public static Boolean reloadLevel(Room room){
         Level level = Server.getInstance().getLevelByName(room.getStartLevel());
         if(level == null){
             MainClass.plugin.getLogger().error("§c游戏房间: "+ room.getRoomName() +"地图还原失败！请检查文件权限！");
-            return;
+            return false;
         }
         String levelName = level.getName();
         if(level.getPlayers().values().size() > 0){
             for(Player p:level.getPlayers().values()){
-                p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+                p.teleportImmediate(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             }
         }
         if(level.getPlayers().values().size() > 0){
@@ -91,23 +89,32 @@ public class Arena {
                 p.kick("Due to a unprecedented error,please rejoin the server");
             }
         }
+        for(Entity e: level.getEntities()){
+            e.kill();
+            e.close();
+        }
         Server.getInstance().unloadLevel(level, true);
         File levelFile = new File(Server.getInstance().getFilePath() + "/worlds/" + levelName);
         File backup = new File(MainClass.path + "/worlds/" + room.getRoomLevelBackup());
         if (!backup.exists()) {
             MainClass.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图备份不存在！还原失败！");
-            return;
         }
         CompletableFuture.runAsync(() -> {
             if (FileUtil.deleteFile(levelFile) && FileUtil.copyDir(backup, levelFile)) {
-                Server.getInstance().loadLevel(levelName);
-                room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
-                MainClass.plugin.getLogger().info("§a游戏房间: " + levelName + " 地图还原完成！");
-            }else {
+                if(Server.getInstance().loadLevel(levelName) && Server.getInstance().isLevelLoaded(levelName)) {
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
+                    MainClass.plugin.getLogger().info("§a游戏房间: " + levelName + " 地图还原完成！");
+                }else{
+                    MainClass.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图还原失败！请检查文件权限！");
+                    MainClass.RoomHashMap.remove(room);
+                    return;
+                }
+            } else {
                 MainClass.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图还原失败！请检查文件权限！");
                 MainClass.RoomHashMap.remove(room);
                 return;
             }
-        }, MainClass.EXECUTOR);
+        }, MainClass.THREAD_POOL_EXECUTOR);
+        return true;
     }
 }
