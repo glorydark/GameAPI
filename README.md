@@ -2,7 +2,7 @@
 
 如果刚入门的nk开发者对小游戏有兴趣，可以大致看一下本源码。在我刚刚学习开发插件不久，我研究了一下name的murdermystery（当时还没有gamecore），然后编写成的这个小游戏前置，因此技术水平不会太高，同时也有很多地方需要改进。
 
-当你大致能够理解房间的运作、房间功能的实现、房间事件的触发等内容后，您可以选择阅读SoBadFish的Gamedemo，进行进阶学习！（https://github.com/SoBadFish/GameDemo）
+当你大致能够理解房间的运作、房间功能的实现、房间事件的触发等内容后，您可以选择阅读SoBadFish的Gamedemo，进行进阶学习！[点我前往](https://github.com/SoBadFish/GameDemo)
 
 非常感谢小窝内大家对本前置的测试，同时也希望本插件的源码对各位有帮助！
 
