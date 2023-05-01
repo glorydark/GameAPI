@@ -72,7 +72,7 @@ public class FileUtil {
                 }
                 return true;
             }else {
-                Utils.copyFile(from, to);
+                return false;
             }
         } catch (Exception e) {
             e.printStackTrace();

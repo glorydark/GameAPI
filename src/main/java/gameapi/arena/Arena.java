@@ -152,30 +152,32 @@ public class Arena {
         File backup = new File(GameAPI.path + "/worlds/" + room.getRoomLevelBackup());
         if (!backup.exists()) {
             GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图备份不存在！还原失败！");
+            room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
         }
-        Server.getInstance().unloadLevel(level, true);
-        //lt-name CrystalWars
-        CompletableFuture.runAsync(() -> {
-            if (FileUtil.delete(levelFile) && FileUtil.copy(backup, newLevelFile)) {
-                if (Server.getInstance().loadLevel(newName)) {
-                    if (Server.getInstance().isLevelLoaded(newName)) {
-                        Level loadLevel = Server.getInstance().getLevelByName(newName);
-                        room.setPlayLevel(loadLevel);
-                        data.forEach(roomLevelData -> {
-                            roomLevelData.resetLevel(loadLevel);
-                        });
-                        GameAPI.plugin.getLogger().info("§a游戏房间: " + levelName + " 地图还原完成！");
+        if(Server.getInstance().unloadLevel(level, true)) {
+            //lt-name CrystalWars
+            CompletableFuture.runAsync(() -> {
+                if (FileUtil.delete(levelFile) && FileUtil.copy(backup, newLevelFile)) {
+                    if (Server.getInstance().loadLevel(newName)) {
+                        if (Server.getInstance().isLevelLoaded(newName)) {
+                            Level loadLevel = Server.getInstance().getLevelByName(newName);
+                            room.setPlayLevel(loadLevel);
+                            data.forEach(roomLevelData -> {
+                                roomLevelData.resetLevel(loadLevel);
+                            });
+                            GameAPI.plugin.getLogger().info("§a游戏房间: " + levelName + " 地图还原完成！");
+                        }
+                    } else {
+                        GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图还原失败！请检查文件权限！");
+                        room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
+                        //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
                     }
                 } else {
                     GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图还原失败！请检查文件权限！");
                     room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                     //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
                 }
-            } else {
-                GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图还原失败！请检查文件权限！");
-                room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
-                //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
-            }
-        }, GameAPI.THREAD_POOL_EXECUTOR);
+            }, GameAPI.THREAD_POOL_EXECUTOR);
+        }
     }
 }

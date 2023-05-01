@@ -9,7 +9,6 @@ import cn.nukkit.network.protocol.TextPacket;
 import com.google.common.base.Strings;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 

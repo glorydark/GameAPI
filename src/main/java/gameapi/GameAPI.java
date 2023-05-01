@@ -14,11 +14,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import gameapi.arena.Arena;
-import gameapi.entity.EntityTools;
-import gameapi.listener.PlayerEventListener;
-import gameapi.listener.base.BaseGameRegistry;
-import gameapi.room.Room;
 import gameapi.commands.Commands;
+import gameapi.entity.EntityTools;
+import gameapi.event.player.RoomPlayerJoinEvent;
+import gameapi.listener.PlayerEventListener;
+import gameapi.listener.TestListener;
+import gameapi.listener.base.GameListenerRegistry;
+import gameapi.room.Room;
 import gameapi.task.RoomTask;
 import gameapi.utils.GsonAdapter;
 
@@ -50,9 +52,6 @@ public class GameAPI extends PluginBase implements Listener {
     public static int entityRefreshIntervals = 100;
 
     public static boolean saveBag;
-
-    public static BaseGameRegistry registry;
-
     //此处引用lt-name的CrystalWar内的复原地图部分源码
     public static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
             0,
@@ -67,7 +66,6 @@ public class GameAPI extends PluginBase implements Listener {
     public void onEnable() {
         path = this.getDataFolder().getPath();
         plugin = this;
-        registry = new BaseGameRegistry();
         this.getDataFolder().mkdir();
         this.saveDefaultConfig();
         this.saveResource("rankings.yml");
@@ -82,6 +80,8 @@ public class GameAPI extends PluginBase implements Listener {
         loadAllRankingListEntities();
         this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(),20, true);
         this.getServer().getPluginManager().registerEvents(new PlayerEventListener(),this);
+        GameListenerRegistry.registerEvents("test", new TestListener(), this);
+        GameListenerRegistry.callEvent("test", new RoomPlayerJoinEvent(null, null));
         this.getServer().getCommandMap().register("",new Commands("gameapi"));
         Server.getInstance().getScheduler().scheduleRepeatingTask(this, ()->{
             List<Player> players = new ArrayList<>(debug);
@@ -165,6 +165,7 @@ public class GameAPI extends PluginBase implements Listener {
         RoomHashMap.clear();
         playerRoomHashMap.clear();
         gameRecord.clear();
+        GameListenerRegistry.clearAllRegisters();
         this.getLogger().info("DGameAPI Disabled!");
     }
 

@@ -2,20 +2,16 @@ package gameapi.listener;
 
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.event.Event;
-import cn.nukkit.event.HandlerList;
+import gameapi.GameAPI;
+import gameapi.event.Cancellable;
+import gameapi.event.RoomEvent;
 import gameapi.event.room.RoomPreStartEvent;
+import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 
-public class RoomNextRoundPreStartListener extends Event {
-    private static final HandlerList handlers = new HandlerList();
+public class RoomNextRoundPreStartListener extends RoomEvent implements Cancellable {
     private final Room room;
-
-    public static HandlerList getHandlers() {
-        return handlers;
-    }
 
     public RoomNextRoundPreStartListener(Room room){
         this.room = room;
@@ -28,7 +24,7 @@ public class RoomNextRoundPreStartListener extends Event {
             }
             room.setTime(room.getTime()+1);
             room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart);
-            Server.getInstance().getPluginManager().callEvent(new RoomPreStartEvent(room));
+            GameListenerRegistry.callEvent(room, new RoomPreStartEvent(room));
         }
     }
 

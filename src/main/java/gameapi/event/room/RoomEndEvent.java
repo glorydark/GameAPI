@@ -1,20 +1,14 @@
 package gameapi.event.room;
 
-import cn.nukkit.event.Cancellable;
-import cn.nukkit.event.Event;
-import cn.nukkit.event.HandlerList;
+import gameapi.event.Cancellable;
+import gameapi.event.RoomEvent;
 import gameapi.room.Room;
 
 /**
  * @author Glorydark
  */
-public class RoomEndEvent extends Event implements Cancellable {
-    private static final HandlerList handlers = new HandlerList();
+public class RoomEndEvent extends RoomEvent implements Cancellable {
     private final Room room;
-
-    public static HandlerList getHandlers() {
-        return handlers;
-    }
 
     public RoomEndEvent(Room room){
         this.room = room;

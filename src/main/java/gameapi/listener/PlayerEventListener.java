@@ -17,8 +17,9 @@ import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.entity.EntityTools;
 import gameapi.entity.TextEntity;
-import gameapi.event.base.RoomPlayerDeathEvent;
+import gameapi.event.player.RoomPlayerDeathEvent;
 import gameapi.inventory.InventoryTools;
+import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.utils.AdvancedLocation;
@@ -169,7 +170,7 @@ public class PlayerEventListener implements Listener {
                 if(room1.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                     RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(room1, (Player) entity, event.getCause());
                     //Server.getInstance().getPluginManager().callEvent(ev);
-                    GameAPI.registry.callEvent(room1.getGameName(), ev);
+                    GameListenerRegistry.callEvent(room1.getGameName(), ev);
                     if (!ev.isCancelled()) {
                         entity.setHealth(entity.getMaxHealth());
                         room1.setSpectator((Player) entity, room1.getRoomRule().allowSpectatorMode, true);

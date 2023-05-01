@@ -2,7 +2,6 @@ package gameapi.room;
 
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import gameapi.room.Room;
 import gameapi.utils.AdvancedLocation;
 import lombok.Getter;
 import lombok.Setter;

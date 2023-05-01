@@ -1,21 +1,17 @@
-package gameapi.event.base;
+package gameapi.event.player;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.event.Cancellable;
-import cn.nukkit.event.Event;
-import cn.nukkit.event.HandlerList;
 import cn.nukkit.event.entity.EntityDamageEvent;
+import gameapi.event.Cancellable;
 import gameapi.listener.PlayerEventListener;
 import gameapi.room.Room;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RoomPlayerDeathEvent extends Event implements Cancellable {
-    private static final HandlerList handlers = new HandlerList();
+public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable {
     private final Room room;
     private final Player player;
 
@@ -23,11 +19,7 @@ public class RoomPlayerDeathEvent extends Event implements Cancellable {
 
     private final List<PlayerEventListener.DamageSource> assistingDamageSource;
 
-    private EntityDamageEvent.DamageCause cause;
-
-    public static HandlerList getHandlers() {
-        return handlers;
-    }
+    private final EntityDamageEvent.DamageCause cause;
 
     public RoomPlayerDeathEvent(Room room, Player player, EntityDamageEvent.DamageCause cause){
         this.room = room;

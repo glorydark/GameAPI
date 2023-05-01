@@ -5,17 +5,16 @@ import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.network.protocol.SetTitlePacket;
 import cn.nukkit.utils.TextFormat;
-import com.google.common.base.Strings;
 import gameapi.GameAPI;
 import gameapi.arena.Arena;
-import gameapi.event.base.RoomPlayerJoinEvent;
-import gameapi.event.base.RoomPlayerPreJoinEvent;
-import gameapi.event.base.RoomPlayerLeaveEvent;
-import gameapi.event.base.RoomPlayerRespawnEvent;
+import gameapi.event.player.RoomPlayerJoinEvent;
+import gameapi.event.player.RoomPlayerLeaveEvent;
+import gameapi.event.player.RoomPlayerPreJoinEvent;
+import gameapi.event.player.RoomPlayerRespawnEvent;
 import gameapi.event.room.*;
 import gameapi.inventory.InventoryTools;
+import gameapi.listener.base.GameListenerRegistry;
 import gameapi.utils.AdvancedLocation;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,7 +48,7 @@ public class Room {
     private int round = 0;
     private int time = 0; //时间记录
 
-    private boolean preStartPass = false;
+    private boolean preStartPass = true;
 
     private List<Player> spectators = new ArrayList<>();
 
@@ -229,7 +228,7 @@ public class Room {
                 return false;
             }else{
                 RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this,player);
-                Server.getInstance().getPluginManager().callEvent(ev);
+                GameListenerRegistry.callEvent(gameName, ev);
                 if(!ev.isCancelled()) {
                     GameAPI.playerRoomHashMap.put(player, this);
                     InventoryTools.saveBag(player);
@@ -241,7 +240,7 @@ public class Room {
                     for (Player p : this.players) {
                         p.sendMessage(player.getName() + " §l§a加入房间 【" + this.players.size() + "/" + this.maxPlayer + "】");
                     }
-                    Server.getInstance().getPluginManager().callEvent(new RoomPlayerJoinEvent(this, player));
+                    GameListenerRegistry.callEvent(gameName, new RoomPlayerJoinEvent(this, player));
                 }
                 return true;
             }
@@ -251,8 +250,8 @@ public class Room {
 
     public void removePlayer(Player player, Boolean saveBag){
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this,player);
-        Server.getInstance().getPluginManager().callEvent(ev);
-        //GameAPI.registry.callEvent(this.getGameName(), ev);
+        GameListenerRegistry.callEvent(gameName, ev);
+        //GameListenerRegistry.callEvent(this.getGameName(), ev);
         if(!ev.isCancelled()) {
             player.getInventory().clearAll();
             if (saveBag) {
@@ -341,19 +340,19 @@ public class Room {
         if(callEvent){
             switch (status){
                 case ROOM_STATUS_GameReadyStart:
-                    Server.getInstance().getPluginManager().callEvent(new RoomReadyStartEvent(this));
+                    GameListenerRegistry.callEvent(gameName, new RoomReadyStartEvent(this));
                     break;
                 case ROOM_STATUS_PreStart:
-                    Server.getInstance().getPluginManager().callEvent(new RoomPreStartEvent(this));
+                    GameListenerRegistry.callEvent(gameName, new RoomPreStartEvent(this));
                     break;
                 case ROOM_STATUS_GameStart:
-                    Server.getInstance().getPluginManager().callEvent(new RoomGameStartEvent(this));
+                    GameListenerRegistry.callEvent(gameName, new RoomGameStartEvent(this));
                     break;
                 case ROOM_STATUS_GameEnd:
-                    Server.getInstance().getPluginManager().callEvent(new RoomGameEndEvent(this));
+                    GameListenerRegistry.callEvent(gameName, new RoomGameEndEvent(this));
                     break;
                 case ROOM_STATUS_Ceremony:
-                    Server.getInstance().getPluginManager().callEvent(new RoomCeremonyEvent(this));
+                    GameListenerRegistry.callEvent(gameName, new RoomCeremonyEvent(this));
                     break;
             }
         }
@@ -365,9 +364,9 @@ public class Room {
         //Server.getInstance().getScheduler().scheduleAsyncTask(MainClass.plugin,new AsyncBlockCleanTask(this));
         for(Player player: players){
             RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this,player);
-            Server.getInstance().getPluginManager().callEvent(ev);
+            GameListenerRegistry.callEvent(gameName, ev);
             player.getInventory().clearAll();
-            //GameAPI.registry.callEvent(this.getGameName(), ev);
+            //GameListenerRegistry.callEvent(this.getGameName(), ev);
             InventoryTools.loadBag(player);
             AdvancedLocation location = getEndSpawn();
             location.teleport(player);
@@ -622,8 +621,8 @@ public class Room {
             if(roomRule.allowRespawn){
                 RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player);
                 Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, ()->{
-                    Server.getInstance().getPluginManager().callEvent(ev);
-                    //GameAPI.registry.callEvent(this.getGameName(), ev);
+                    GameListenerRegistry.callEvent(gameName, ev);
+                    //GameListenerRegistry.callEvent(this.getGameName(), ev);
                     if(!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                         player.sendTitle("您已复活");
                         player.setGamemode(0);

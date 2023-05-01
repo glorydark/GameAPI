@@ -1,19 +1,15 @@
 package gameapi.listener;
 
 
-import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.event.Event;
 import cn.nukkit.event.HandlerList;
-import cn.nukkit.utils.TextFormat;
-import gameapi.event.room.RoomReadyStartEvent;
+import gameapi.event.Cancellable;
+import gameapi.event.RoomEvent;
 import gameapi.room.Room;
-import gameapi.room.RoomStatus;
 
 /**
  * @author Glorydark
  */
-public class RoomPreStartListener extends Event {
+public class RoomPreStartListener extends RoomEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final Room room;
 

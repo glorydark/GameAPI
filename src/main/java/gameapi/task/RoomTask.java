@@ -1,9 +1,7 @@
 package gameapi.task;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.level.Sound;
-import cn.nukkit.network.protocol.SetTitlePacket;
 import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
@@ -11,6 +9,7 @@ import gameapi.event.room.*;
 import gameapi.fireworkapi.CreateFireworkApi;
 import gameapi.inventory.InventoryTools;
 import gameapi.listener.*;
+import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.scoreboard.ScoreboardTools;
@@ -46,7 +45,7 @@ public class RoomTask extends AsyncTask {
                     room.detectToReset();
                     return true;
                 }
-                Server.getInstance().getPluginManager().callEvent(new RoomWaitListener(room));
+                GameListenerRegistry.callEvent(room, new RoomWaitListener(room));
                 this.execute(room, ListenerStatusType.Wait);
                 break;
             case ROOM_STATUS_GameEnd:
@@ -54,7 +53,7 @@ public class RoomTask extends AsyncTask {
                     room.detectToReset();
                     return true;
                 }
-                Server.getInstance().getPluginManager().callEvent(new RoomGameEndListener(room));
+                GameListenerRegistry.callEvent(room, new RoomGameEndListener(room));
                 this.execute(room, ListenerStatusType.GameEnd);
                 break;
             case ROOM_STATUS_Ceremony:
@@ -62,7 +61,7 @@ public class RoomTask extends AsyncTask {
                     room.detectToReset();
                     return true;
                 }
-                Server.getInstance().getPluginManager().callEvent(new RoomCeremonyListener(room));
+                GameListenerRegistry.callEvent(room, new RoomCeremonyListener(room));
                 this.execute(room, ListenerStatusType.Ceremony);
                 break;
             case ROOM_STATUS_PreStart:
@@ -70,7 +69,7 @@ public class RoomTask extends AsyncTask {
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
                     return true;
                 }
-                Server.getInstance().getPluginManager().callEvent(new RoomPreStartListener(room));
+                GameListenerRegistry.callEvent(room, new RoomPreStartListener(room));
                 this.execute(room, ListenerStatusType.PreStart);
                 break;
             case ROOM_STATUS_GameStart:
@@ -86,7 +85,7 @@ public class RoomTask extends AsyncTask {
                             }
                         });
                         if (hasPlayer.get() < 2) {
-                            Server.getInstance().getPluginManager().callEvent(new RoomGameEndEvent(room));
+                            GameListenerRegistry.callEvent(room, new RoomGameEndEvent(room));
                             room.setTime(0);
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd, false);
                             for(Player player:room.getPlayers()){
@@ -101,12 +100,12 @@ public class RoomTask extends AsyncTask {
                             for(Player player:room.getPlayers()){
                                 player.getInventory().clearAll();
                             }
-                            Server.getInstance().getPluginManager().callEvent(new RoomGameEndEvent(room));
+                            GameListenerRegistry.callEvent(room, new RoomGameEndEvent(room));
                             return true;
                         }
                     }
                 }
-                Server.getInstance().getPluginManager().callEvent(new RoomGameProcessingListener(room));
+                GameListenerRegistry.callEvent(room, new RoomGameProcessingListener(room));
                 this.execute(room, ListenerStatusType.InGame);
                 break;
             case ROOM_STATUS_GameReadyStart:
@@ -114,11 +113,11 @@ public class RoomTask extends AsyncTask {
                     room.detectToReset();
                     return true;
                 }
-                Server.getInstance().getPluginManager().callEvent(new RoomReadyStartListener(room));
+                GameListenerRegistry.callEvent(room, new RoomReadyStartListener(room));
                 this.execute(room, ListenerStatusType.ReadyStart);
                 break;
             case ROOM_STATUS_NextRoundPreStart:
-                Server.getInstance().getPluginManager().callEvent(new RoomNextRoundPreStartListener(room));
+                GameListenerRegistry.callEvent(room, new RoomNextRoundPreStartListener(room));
                 this.execute(room, ListenerStatusType.ReadyStart);
                 break;
         }
@@ -147,10 +146,10 @@ public class RoomTask extends AsyncTask {
         switch (type){
             case Wait:
                 if (room.getPlayers().size() >= room.getMinPlayer()) {
-                    if(room.getRoomRule().needPreStartPass && room.isPreStartPass()){
+                    if(!room.getRoomRule().needPreStartPass || room.isPreStartPass()){
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart, false);
                         RoomPreStartEvent ev = new RoomPreStartEvent(room);
-                        Server.getInstance().getPluginManager().callEvent(ev);
+                        GameListenerRegistry.callEvent(room, ev);
                         if(!ev.isCancelled()){
                             room.setTime(0);
                             room.setRound(0);
@@ -165,7 +164,7 @@ public class RoomTask extends AsyncTask {
             case PreStart:
                 if (room.getTime() >= room.getWaitTime()) {
                     RoomReadyStartEvent ev = new RoomReadyStartEvent(room);
-                    Server.getInstance().getPluginManager().callEvent(ev);
+                    GameListenerRegistry.callEvent(room, ev);
                     if(!ev.isCancelled()){
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_GameReadyStart, false);
                         room.setTime(0);
@@ -186,7 +185,7 @@ public class RoomTask extends AsyncTask {
             case ReadyStart:
                 if (room.getTime() >= room.getGameWaitTime()) {
                     RoomGameStartEvent ev = new RoomGameStartEvent(room);
-                    Server.getInstance().getPluginManager().callEvent(new RoomGameStartEvent(room));
+                    GameListenerRegistry.callEvent(room, new RoomGameStartEvent(room));
                     if(!ev.isCancelled()) {
                         room.setTime(0);
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart, false);
@@ -215,7 +214,6 @@ public class RoomTask extends AsyncTask {
                         }
                         room.setRound(room.getRound() + 1);
                         for (Player p : room.getPlayers()) {
-                            p.getInventory().clearAll();
                             p.getFoodData().reset();
                             p.setGamemode(room.getRoomRule().gameMode);
                             p.sendTitle("§l§e 游戏开始!", "Game Start!");
@@ -276,7 +274,7 @@ public class RoomTask extends AsyncTask {
             case InGame:
                 if (room.getTime() >= room.getGameTime()) {
                     RoomGameEndEvent ev = new RoomGameEndEvent(room);
-                    Server.getInstance().getPluginManager().callEvent(ev);
+                    GameListenerRegistry.callEvent(room, ev);
                     if(!ev.isCancelled()) {
                         room.setTime(0);
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd, false);
@@ -297,14 +295,14 @@ public class RoomTask extends AsyncTask {
                 if (room.getTime() >= room.getGameEndTime()) {
                     if(room.getRound() == room.getMaxRound()) {
                         RoomCeremonyEvent ev = new RoomCeremonyEvent(room);
-                        Server.getInstance().getPluginManager().callEvent(ev);
+                        GameListenerRegistry.callEvent(room, ev);
                         if (!ev.isCancelled()) {
                             room.setTime(0);
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony, false);
                         }
                     }else{
                         RoomNextRoundPreStartEvent ev = new RoomNextRoundPreStartEvent(room);
-                        Server.getInstance().getPluginManager().callEvent(ev);
+                        GameListenerRegistry.callEvent(room, ev);
                         if (!ev.isCancelled()) {
                             room.setTime(0);
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_NextRoundPreStart, false);
@@ -322,7 +320,7 @@ public class RoomTask extends AsyncTask {
             case Ceremony:
                 if (room.getTime() >= room.getCeremonyTime()) {
                     RoomEndEvent ev = new RoomEndEvent(room);
-                    Server.getInstance().getPluginManager().callEvent(ev);
+                    GameListenerRegistry.callEvent(room, ev);
                     if(!ev.isCancelled()){
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_End, false);
                         room.setTime(0);

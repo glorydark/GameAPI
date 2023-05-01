@@ -1,24 +1,23 @@
 package gameapi.listener.base;
 
 import cn.nukkit.event.Cancellable;
-import cn.nukkit.event.Event;
 import cn.nukkit.event.EventPriority;
-import cn.nukkit.event.Listener;
-import cn.nukkit.plugin.EventExecutor;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.EventException;
 import gameapi.annotation.Future;
+import gameapi.event.RoomEvent;
+import gameapi.listener.base.annotations.GameListener;
 
 @Future
-public class RoomRegisteredListener {
-    private final Listener listener;
+public class RoomListener implements GameListener {
+    private final GameListener listener;
     private final EventPriority priority;
     private final Plugin plugin;
-    private final EventExecutor executor;
+    private final MethodGameEventExecutor executor;
     private final boolean ignoreCancelled;
     private final String gameName;
 
-    public RoomRegisteredListener(String gameName, Listener listener, EventExecutor executor, EventPriority priority, Plugin plugin, boolean ignoreCancelled) {
+    public RoomListener(String gameName, GameListener listener, MethodGameEventExecutor executor, EventPriority priority, Plugin plugin, boolean ignoreCancelled) {
         this.listener = listener;
         this.priority = priority;
         this.plugin = plugin;
@@ -27,7 +26,7 @@ public class RoomRegisteredListener {
         this.gameName = gameName;
     }
 
-    public Listener getListener() {
+    public GameListener getListener() {
         return this.listener;
     }
 
@@ -39,7 +38,7 @@ public class RoomRegisteredListener {
         return this.priority;
     }
 
-    public void callEvent(String gameName, Event event) throws EventException {
+    public void callEvent(String gameName, RoomEvent event) throws EventException {
         if(!gameName.equals(getGameName())){
             return;
         }

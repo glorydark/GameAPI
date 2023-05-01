@@ -1,10 +1,13 @@
 package gameapi.effect;
 
 import cn.nukkit.Player;
+import cn.nukkit.potion.Effect;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Glorydark
@@ -32,25 +35,22 @@ public class EasyEffect {
         this.id = id;
         this.amplifier = amplifier;
         this.duration = duration;
-        this.name = cn.nukkit.potion.Effect.getEffect(id).getName();
+        this.name = Effect.getEffect(id).getName();
     }
 
     public void giveEffect(Player player){
-        if(version == 1){
-            cn.nukkit.potion.Effect effect = cn.nukkit.potion.Effect.getEffect(id);
+        Effect effect = Effect.getEffect(id);
+        if(version == 1) {
             effect.setDuration(duration);
             effect.setAmplifier(amplifier);
-            player.addEffect(effect);
-            return;
+        } else if(version == 2) {
+            effect.setColor(rgb[0], rgb[1], rgb[2]);
+            effect.setVisible(visible);
+            effect.setAmplifier(amplifier);
+            effect.setDuration(duration);
+            effect.setAmbient(ambient);
         }
-        if(version == 2) {
-            cn.nukkit.potion.Effect give = new cn.nukkit.potion.Effect(id, name, rgb[0], rgb[1], rgb[2]);
-            give.setVisible(visible);
-            give.setAmplifier(amplifier);
-            give.setDuration(duration);
-            give.setAmbient(ambient);
-            player.addEffect(give);
-        }
+        player.addEffect(effect);
     }
 
     public EasyEffect(Map<String, Object> map){

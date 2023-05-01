@@ -1,23 +1,14 @@
 package gameapi.listener;
 
-import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.event.Event;
-import cn.nukkit.event.HandlerList;
-import gameapi.event.room.RoomGameEndEvent;
+import gameapi.event.Cancellable;
+import gameapi.event.RoomEvent;
 import gameapi.room.Room;
-import gameapi.room.RoomStatus;
 
 /**
  * @author Glorydark
  */
-public class RoomGameProcessingListener extends Event {
-    private static final HandlerList handlers = new HandlerList();
+public class RoomGameProcessingListener extends RoomEvent implements Cancellable {
     private final Room room;
-
-    public static HandlerList getHandlers() {
-        return handlers;
-    }
 
     public RoomGameProcessingListener(Room room){
         this.room = room;
