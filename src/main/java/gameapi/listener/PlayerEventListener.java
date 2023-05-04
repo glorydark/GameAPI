@@ -17,15 +17,19 @@ import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.entity.EntityTools;
 import gameapi.entity.TextEntity;
+import gameapi.event.player.RoomEntityDamageByEntityEvent;
+import gameapi.event.player.RoomPlayerChatEvent;
 import gameapi.event.player.RoomPlayerDeathEvent;
 import gameapi.inventory.InventoryTools;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
+import gameapi.room.RoomChatData;
 import gameapi.room.RoomStatus;
 import gameapi.utils.AdvancedLocation;
 import lombok.Data;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Glorydark
@@ -84,10 +88,11 @@ public class PlayerEventListener implements Listener {
         if(room != null){
             if(room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart){
                 event.setCancelled(true);
-            }
-            if(!room.getRoomRule().allowPlaceBlock) {
-                if (!room.getRoomRule().canPlaceBlocks.contains(event.getBlock().getId()+":"+event.getBlock().getDamage())) {
-                    event.setCancelled(true);
+            }else{
+                if(!room.getRoomRule().allowPlaceBlock) {
+                    if (!room.getRoomRule().canPlaceBlocks.contains(event.getBlock().getId()+":"+event.getBlock().getDamage())) {
+                        event.setCancelled(true);
+                    }
                 }
             }
         }
@@ -215,6 +220,16 @@ public class PlayerEventListener implements Listener {
                     }
                 }
             }
+            RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, event);
+            GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
+            if(roomEntityDamageByEntityEvent.isCancelled()){
+                event.setCancelled(true);
+            }else{
+                EntityDamageByEntityEvent entityDamageByEntityEvent = roomEntityDamageByEntityEvent.getEvent();
+                event.setDamage(entityDamageByEntityEvent.getDamage());
+                event.setKnockBack(entityDamageByEntityEvent.getKnockBack());
+                event.setAttackCooldown(entityDamageByEntityEvent.getAttackCooldown());
+            }
         }
     }
 
@@ -278,13 +293,15 @@ public class PlayerEventListener implements Listener {
         }
     }
 
+    /*
     @EventHandler(priority = EventPriority.MONITOR)
     public void onGameModeChange(PlayerGameModeChangeEvent event) {
         Level level = event.getPlayer() == null ? null : event.getPlayer().getLevel();
         if (level != null && Room.getRoom(event.getPlayer()) != null) {
-            event.setCancelled(false);
+            event.setCancelled(true);
         }
     }
+     */
 
     @EventHandler
     public void FlyEvent(PlayerToggleFlightEvent event){
@@ -312,5 +329,28 @@ public class PlayerEventListener implements Listener {
                 entity.spawnTo((Player) event.getEntity());
             }
         }
+    }
+
+    @EventHandler
+    public void PlayerChatEvent(PlayerChatEvent event){
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
+        if (room == null) {
+            // Player is not in game, so the server will send the message to the players who are not in game.
+            List<Player> gamePlayers = new ArrayList<>(GameAPI.playerRoomHashMap.keySet());
+            event.setRecipients(Server.getInstance().getOnlinePlayers().values().stream()
+                    .filter(p -> GameAPI.playerRoomHashMap.get(p) == null).collect(Collectors.toSet()));
+            return;
+        }
+        // Player is in game, so we trigger RoomPlayerChatEvent.
+        RoomPlayerChatEvent chatEvent = new RoomPlayerChatEvent(room, player, new RoomChatData(player.getName(), event.getMessage()));
+        GameListenerRegistry.callEvent(room, chatEvent);
+        if(!chatEvent.isCancelled()){
+            String msg = "[" + room.getRoomName() + "] " + chatEvent.getRoomChatData().getDefaultChatMsg();
+            for (Player roomPlayer : room.getPlayers()) {
+                roomPlayer.sendMessage(msg);
+            }
+        }
+        event.setCancelled(true);
     }
 }

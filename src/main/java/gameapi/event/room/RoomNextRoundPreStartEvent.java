@@ -8,10 +8,9 @@ import gameapi.room.Room;
  * @author Glorydark
  */
 public class RoomNextRoundPreStartEvent extends RoomEvent implements Cancellable {
-    private final Room room;
+
     public RoomNextRoundPreStartEvent(Room room){
         this.room = room;
     }
 
-    public Room getRoom(){ return room;}
 }

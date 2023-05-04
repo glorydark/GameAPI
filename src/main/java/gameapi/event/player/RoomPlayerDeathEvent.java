@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable {
-    private final Room room;
-    private final Player player;
 
     private final PlayerEventListener.DamageSource lastDamageSource;
 
@@ -37,12 +35,6 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
         sortedSources.remove(lastDamageSource);
         this.assistingDamageSource = sortedSources;
         this.cause = cause;
-    }
-
-    public Room getRoom(){ return room;}
-
-    public Player getPlayer() {
-        return this.player;
     }
 
     public Player getLastDamageSource() {

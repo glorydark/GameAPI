@@ -16,9 +16,7 @@ import com.google.gson.stream.JsonReader;
 import gameapi.arena.Arena;
 import gameapi.commands.Commands;
 import gameapi.entity.EntityTools;
-import gameapi.event.player.RoomPlayerJoinEvent;
 import gameapi.listener.PlayerEventListener;
-import gameapi.listener.TestListener;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.task.RoomTask;
@@ -44,6 +42,7 @@ public class GameAPI extends PluginBase implements Listener {
     public static ConcurrentHashMap<String, List<Room>> RoomHashMap = new ConcurrentHashMap<>(); //房间状态
     public static HashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
     public static String path = null;
+
     public static Plugin plugin = null;
     public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
 
@@ -80,8 +79,8 @@ public class GameAPI extends PluginBase implements Listener {
         loadAllRankingListEntities();
         this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(),20, true);
         this.getServer().getPluginManager().registerEvents(new PlayerEventListener(),this);
-        GameListenerRegistry.registerEvents("test", new TestListener(), this);
-        GameListenerRegistry.callEvent("test", new RoomPlayerJoinEvent(null, null));
+        //GameListenerRegistry.registerEvents("test", new TestListener(), this);
+        //GameListenerRegistry.callEvent("test", new RoomPlayerJoinEvent(null, null));
         this.getServer().getCommandMap().register("",new Commands("gameapi"));
         Server.getInstance().getScheduler().scheduleRepeatingTask(this, ()->{
             List<Player> players = new ArrayList<>(debug);

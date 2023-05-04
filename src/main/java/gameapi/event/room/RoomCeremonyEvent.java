@@ -8,11 +8,9 @@ import gameapi.room.Room;
  * @author Glorydark
  */
 public class RoomCeremonyEvent extends RoomEvent implements Cancellable {
-    private final Room room;
 
     public RoomCeremonyEvent(Room room){
         this.room = room;
     }
 
-    public Room getRoom(){ return room;}
 }

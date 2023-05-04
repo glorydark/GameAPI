@@ -8,16 +8,12 @@ import cn.nukkit.level.Location;
 import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.arena.Arena;
-import gameapi.event.player.RoomPlayerJoinEvent;
-import gameapi.event.player.RoomPlayerLeaveEvent;
-import gameapi.event.player.RoomPlayerPreJoinEvent;
-import gameapi.event.player.RoomPlayerRespawnEvent;
+import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.inventory.InventoryTools;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.utils.AdvancedLocation;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,8 +22,7 @@ import java.util.stream.Collectors;
 /**
  * @author Glorydark
  */
-@Getter
-@Setter
+@Data
 public class Room {
 
     private Boolean temporary = false;
@@ -64,7 +59,9 @@ public class Room {
     private List<String> winConsoleCommands = new ArrayList<>();
     private List<String> loseConsoleCommands = new ArrayList<>();
     private LinkedHashMap<String, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
-    private LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>(); //储存房间数据
+    private LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>(); // Save data for the room' extra configuration.
+
+    private List<RoomChatData> chatDataList = new ArrayList<>(); // Save data of room's chat history.
 
     public Room(String gameName, RoomRule roomRule, String roomLevelBackup, int round) {
         this.MaxRound = round;
@@ -295,10 +292,12 @@ public class Room {
     }
 
     public void detectToReset(){
+        new ArrayList<>(this.spectators).forEach(this::removeSpectator);
         this.players = new ArrayList<>();
         this.round = 0;
         this.playerProperties = new LinkedHashMap<>();
         this.playersHealth = new HashMap<>();
+        this.chatDataList = new ArrayList<>();
         this.time = 0;
         this.getTeamCache().forEach((key, value) -> value.resetAll());
         if(this.getRoomStatus() != RoomStatus.ROOM_MapInitializing && this.getRoomStatus() != RoomStatus.ROOM_STATUS_WAIT) {
@@ -313,12 +312,9 @@ public class Room {
             if(this.temporary){
                 this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
                 GameAPI.plugin.getLogger().alert("检测到房间内无玩家，正在删除房间:" + this.getRoomName());
-                if (startSpawn.size() > 0) {
-                    String levelName = this.getPlayLevel().getName();
-                    if(this.getPlayLevel().unload(true)) {
-                        Arena.delWorldByName(levelName);
-                    }
-                }
+                String levelName = this.getPlayLevel().getName();
+                Arena.unloadLevel(this, this.getPlayLevel());
+                Arena.delWorldByName(levelName);
                 List<Room> rooms = GameAPI.RoomHashMap.getOrDefault(this.getGameName(), new ArrayList<>());
                 GameAPI.RoomHashMap.put(this.getGameName(), rooms);
             }else {
@@ -362,6 +358,7 @@ public class Room {
     public void resetAll(){
         this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
         //Server.getInstance().getScheduler().scheduleAsyncTask(MainClass.plugin,new AsyncBlockCleanTask(this));
+        new ArrayList<>(this.spectators).forEach(this::removeSpectator);
         for(Player player: players){
             RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this,player);
             GameListenerRegistry.callEvent(gameName, ev);
@@ -379,19 +376,8 @@ public class Room {
         this.time = 0;
         this.playerProperties = new LinkedHashMap<>();
         this.teamCache.forEach((s, team) -> team.resetAll());
+        this.chatDataList = new ArrayList<>();
         if(!this.temporary) {
-            for(Entity entity: this.getStartSpawn().get(0).getLevel().getEntities()){
-                if(entity instanceof Player){
-                    Player p = ((Player) entity);
-                    p.teleportImmediate(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation());
-                    if(p.getGamemode() == 3){
-                        p.setGamemode(0);
-                    }
-                }else{
-                    entity.kill();
-                    entity.close();
-                }
-            }
             if (this.resetMap) {
                 GameAPI.plugin.getLogger().alert("检测到房间游戏结束，正在重置地图，房间:" + this.getRoomName());
                 Arena.reloadLevel(this);
@@ -402,13 +388,10 @@ public class Room {
         }else{
             this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
             GameAPI.plugin.getLogger().alert("检测到房间内无玩家，正在删除房间:" + this.getRoomName());
-            if (startSpawn.size() > 0) {
-                Level level = startSpawn.get(0).getLevel();
-                String levelName = level.getName();
-                if(level.unload(true)) {
-                    Arena.delWorldByName(levelName);
-                }
-            }
+            Level level = this.getPlayLevel();
+            String levelName = level.getName();
+            Arena.unloadLevel(this, level);
+            Arena.delWorldByName(levelName);
             List<Room> rooms = GameAPI.RoomHashMap.getOrDefault(this.getGameName(), new ArrayList<>());
             GameAPI.RoomHashMap.put(this.getGameName(), rooms);
         }
@@ -416,7 +399,7 @@ public class Room {
 
     public void initRoom(){
         this.roomStatus = RoomStatus.ROOM_STATUS_WAIT;
-        GameAPI.plugin.getLogger().error(roomName+" 成功还原地图！");
+        GameAPI.plugin.getLogger().info(roomName+" 成功还原地图！");
     }
 
     public AdvancedLocation getLocationByString(String string){
@@ -541,30 +524,6 @@ public class Room {
         return players;
     }
 
-    @Override
-    public String toString() {
-        return "{" +
-                "\"temporary\":" + temporary +
-                ", \"resetMap\":" + resetMap +
-                ", \"roomName\":" + "\"" + roomName + "\"" +
-                ", \"roomStatus\":" + "\"" + roomStatus + "\"" +
-                ", \"maxPlayer\":" + maxPlayer +
-                ", \"minPlayer\":" + minPlayer +
-                ", \"waitTime\":" + waitTime +
-                ", \"gameWaitTime\":" + gameWaitTime +
-                ", \"gameTime\":" + gameTime +
-                ", \"ceremonyTime\":" + ceremonyTime +
-                ", \"MaxRound\":" + MaxRound +
-                ", \"round\":" + round +
-                ", \"time\":" + time +
-                ", \"playersHealth\":" + playersHealth +
-                ", \"roomLevelBackup\":" + "\"" + roomLevelBackup + "\"" +
-                ", \"gameName\":" + "\"" + gameName  + "\"" +
-                ", \"winConsoleCommands\":" + winConsoleCommands +
-                ", \"loseConsoleCommands\":" + loseConsoleCommands +
-                '}';
-    }
-
     public float getPlayerHealth(Player player) {
         if(playersHealth.containsKey(player)){
             return playersHealth.get(player);
@@ -597,15 +556,37 @@ public class Room {
         }
     }
 
+    public boolean removeSpectator(Player player){
+        RoomSpectatorLeaveEvent roomSpectatorLeaveEvent = new RoomSpectatorLeaveEvent(this, player, Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation());
+        GameListenerRegistry.callEvent(this, roomSpectatorLeaveEvent);
+        if(roomSpectatorLeaveEvent.isCancelled()) {
+            return false;
+        }
+        player.setGamemode(0);
+        player.teleportImmediate(roomSpectatorLeaveEvent.getReturnLocation());
+        player.sendMessage("您已退出旁观者！");
+        return spectators.remove(player);
+    }
+
     public void setSpectator(Player player, boolean setMode, boolean dead){
+        if(!dead){
+            RoomSpectatorJoinEvent roomSpectatorJoinEvent = new RoomSpectatorJoinEvent(this, player);
+            GameListenerRegistry.callEvent(this, roomSpectatorJoinEvent);
+            if(roomSpectatorJoinEvent.isCancelled()) {
+                return;
+            }
+        }
+        processJoinSpectator(player, setMode, dead);
+    }
+
+    private void processJoinSpectator(Player player, boolean setMode, boolean dead){
         player.getInventory().clearAll();
         if(setMode) {
-            player.setGamemode(3, false);
+            player.setGamemode(3);
         }else{
-            player.setGamemode(0, false);
+            player.setGamemode(0);
         }
         player.setHealth(player.getMaxHealth());
-        spectators.add(player);
         if(this.getSpectatorSpawn().size() != 0){
             Random random = new Random(this.getSpectatorSpawn().size());
             AdvancedLocation location = this.getSpectatorSpawn().get(random.nextInt(this.getSpectatorSpawn().size()));
@@ -627,10 +608,13 @@ public class Room {
                         player.sendTitle("您已复活");
                         player.setGamemode(0);
                         teleportToSpawn(player);
-                        spectators.remove(player);
+                        //spectators.remove(player);
                     }
                 }, roomRule.respawnCoolDownTick);
             }
+        }else{
+            spectators.add(player);
+            player.sendMessage("您已加入旁观者！");
         }
     }
 
@@ -656,5 +640,29 @@ public class Room {
             AdvancedLocation location = this.startSpawn.get(0);
             location.teleport(p);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "\"temporary\":" + temporary +
+                ", \"resetMap\":" + resetMap +
+                ", \"roomName\":" + "\"" + roomName + "\"" +
+                ", \"roomStatus\":" + "\"" + roomStatus + "\"" +
+                ", \"maxPlayer\":" + maxPlayer +
+                ", \"minPlayer\":" + minPlayer +
+                ", \"waitTime\":" + waitTime +
+                ", \"gameWaitTime\":" + gameWaitTime +
+                ", \"gameTime\":" + gameTime +
+                ", \"ceremonyTime\":" + ceremonyTime +
+                ", \"MaxRound\":" + MaxRound +
+                ", \"round\":" + round +
+                ", \"time\":" + time +
+                ", \"playersHealth\":" + playersHealth +
+                ", \"roomLevelBackup\":" + "\"" + roomLevelBackup + "\"" +
+                ", \"gameName\":" + "\"" + gameName  + "\"" +
+                ", \"winConsoleCommands\":" + winConsoleCommands +
+                ", \"loseConsoleCommands\":" + loseConsoleCommands +
+                '}';
     }
 }

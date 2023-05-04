@@ -1,6 +1,7 @@
 package gameapi.utils;
 
 import cn.nukkit.utils.Utils;
+import gameapi.GameAPI;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,16 +31,17 @@ public class FileUtil {
                     if (getFile.isDirectory()) {
                         delete(getFile);
                     }else if (!getFile.delete()) {
-                        throw new IOException("文件: " + getFile.getName() + " 删除失败！");
+                        GameAPI.plugin.getLogger().error("文件: " + getFile.getName() + " 删除失败！");
                     }
                 }
             }
             if (!file.delete()) {
-                throw new IOException("文件: " + file.getName() + " 删除失败！");
+                GameAPI.plugin.getLogger().error("文件: " + file.getName() + " 删除失败！");
             }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            GameAPI.plugin.getLogger().error("文件: " + file.getName() + " 删除出现问题，请手动修复！");
+            //e.printStackTrace();
         }
         return false;
     }
@@ -79,5 +81,4 @@ public class FileUtil {
         }
         return false;
     }
-
 }

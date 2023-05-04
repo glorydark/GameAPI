@@ -125,8 +125,7 @@ public class Arena {
         room.initRoom();
     }
 
-    public static void reloadLevelByName(Room room, String levelName, List<RoomLevelData> data){
-        Level level = Server.getInstance().getLevelByName(levelName);
+    public static void unloadLevel(Room room, Level level){
         if (level == null) {
             GameAPI.plugin.getLogger().error("§c游戏房间: " + room.getRoomName() + "地图不存在！");
             room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
@@ -146,6 +145,14 @@ public class Arena {
             e.kill();
             e.close();
         }
+        level.setTickRate(Server.getInstance().getTick() + 20);
+        level.tickRateCounter = 20;
+        Server.getInstance().unloadLevel(level, true);
+    }
+
+    public static void reloadLevelByName(Room room, String levelName, List<RoomLevelData> data){
+        Level level = Server.getInstance().getLevelByName(levelName);
+        unloadLevel(room, level);
         File levelFile = new File(Server.getInstance().getFilePath() + "/worlds/" + levelName);
         String newName = room.getGameName() + "_" + room.getRoomLevelBackup() + "_" + UUID.randomUUID();
         File newLevelFile = new File(Server.getInstance().getFilePath() + "/worlds/" + newName);
@@ -154,30 +161,29 @@ public class Arena {
             GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图备份不存在！还原失败！");
             room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
         }
-        if(Server.getInstance().unloadLevel(level, true)) {
-            //lt-name CrystalWars
-            CompletableFuture.runAsync(() -> {
-                if (FileUtil.delete(levelFile) && FileUtil.copy(backup, newLevelFile)) {
-                    if (Server.getInstance().loadLevel(newName)) {
-                        if (Server.getInstance().isLevelLoaded(newName)) {
-                            Level loadLevel = Server.getInstance().getLevelByName(newName);
-                            room.setPlayLevel(loadLevel);
-                            data.forEach(roomLevelData -> {
-                                roomLevelData.resetLevel(loadLevel);
-                            });
-                            GameAPI.plugin.getLogger().info("§a游戏房间: " + levelName + " 地图还原完成！");
-                        }
-                    } else {
-                        GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图还原失败！请检查文件权限！");
-                        room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
-                        //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
+        //CrystalWar Arena.java
+        CompletableFuture.runAsync(() -> {
+            if (FileUtil.delete(levelFile) && FileUtil.copy(backup, newLevelFile)) {
+                if (Server.getInstance().loadLevel(newName)) {
+                    if (Server.getInstance().isLevelLoaded(newName)) {
+                        Level loadLevel = Server.getInstance().getLevelByName(newName);
+                        room.setPlayLevel(loadLevel);
+                        room.initRoom();
+                        data.forEach(roomLevelData -> {
+                            roomLevelData.resetLevel(loadLevel);
+                        });
+                        GameAPI.plugin.getLogger().info("§a游戏房间: " + levelName + " 地图还原完成！");
                     }
                 } else {
                     GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图还原失败！请检查文件权限！");
                     room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                     //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
                 }
-            }, GameAPI.THREAD_POOL_EXECUTOR);
-        }
+            } else {
+                GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图还原失败！请检查文件权限！");
+                room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
+                //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
+            }
+        }, GameAPI.THREAD_POOL_EXECUTOR);
     }
 }
