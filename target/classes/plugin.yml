@@ -5,3 +5,7 @@ api: "1.0.0"
 author: glorydark
 description: GameAPI
 load: POSTWORLD
+depend:
+  - ScoreboardPlugin
+softdepend:
+  - Tips

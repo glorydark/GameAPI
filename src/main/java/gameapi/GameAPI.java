@@ -47,9 +47,7 @@ public class GameAPI extends PluginBase implements Listener {
     public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
 
     public static List<Player> debug = new ArrayList<>();
-
     public static int entityRefreshIntervals = 100;
-
     public static boolean saveBag;
     //此处引用lt-name的CrystalWar内的复原地图部分源码
     public static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(

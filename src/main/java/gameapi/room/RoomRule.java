@@ -28,7 +28,6 @@ public class RoomRule {
     public Boolean allowProjectTileDamage = false;
     public Boolean allowSuffocationDamage = false;
     public float defaultHealth = 20;
-    public Boolean allowSkill = false;
     public Boolean allowFoodLevelChange = true;
     public Boolean allowRespawn = false;
     public int respawnCoolDownTick = 20;
@@ -64,7 +63,6 @@ public class RoomRule {
                 ", allowProjectTileDamage=" + allowProjectTileDamage +
                 ", allowSuffocationDamage=" + allowSuffocationDamage +
                 ", defaultHealth=" + defaultHealth +
-                ", allowSkill=" + allowSkill +
                 ", allowFoodLevelChange=" + allowFoodLevelChange +
                 ", allowRespawn=" + allowRespawn +
                 ", respawnCoolDownTick=" + respawnCoolDownTick +

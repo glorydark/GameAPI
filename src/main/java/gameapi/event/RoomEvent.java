@@ -2,7 +2,6 @@ package gameapi.event;
 
 import gameapi.listener.base.exceptions.GameEventException;
 import gameapi.room.Room;
-import lombok.Getter;
 
 public abstract class RoomEvent {
     protected String eventName = null;

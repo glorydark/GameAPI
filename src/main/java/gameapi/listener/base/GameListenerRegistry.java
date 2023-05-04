@@ -6,7 +6,7 @@ import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.PluginException;
 import gameapi.annotation.Future;
 import gameapi.event.RoomEvent;
-import gameapi.listener.base.annotations.GameListener;
+import gameapi.listener.base.interfaces.GameListener;
 import gameapi.room.Room;
 
 import java.lang.reflect.Method;

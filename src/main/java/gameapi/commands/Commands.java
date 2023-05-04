@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Sound;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
@@ -184,6 +185,11 @@ public class Commands extends Command {
                     }else{
                         commandSender.sendMessage("§cNo Loaded Games Existed");
                     }
+                    break;
+                case "unloadworld":
+                    commandSender.sendMessage("已加载世界：");
+                    Level level = Server.getInstance().getLevelByName(strings[1]);
+                    level.unload(true);
                     break;
             }
         }

@@ -13,7 +13,8 @@ import gameapi.event.room.*;
 import gameapi.inventory.InventoryTools;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.utils.AdvancedLocation;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +23,8 @@ import java.util.stream.Collectors;
 /**
  * @author Glorydark
  */
-@Data
+@Getter
+@Setter
 public class Room {
 
     private Boolean temporary = false;
