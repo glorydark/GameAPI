@@ -145,8 +145,6 @@ public class Arena {
             e.kill();
             e.close();
         }
-        level.setTickRate(Server.getInstance().getTick() + 20);
-        level.tickRateCounter = 20;
         Server.getInstance().unloadLevel(level, true);
     }
 

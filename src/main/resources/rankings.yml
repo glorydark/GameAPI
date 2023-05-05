@@ -1,4 +1,11 @@
 refresh_interval: 10
+format:
+  title: "%gameName% 排行榜"
+  score_show_format: "[%rank%] %player%: %score%"
+  champion_prefix: "§6"
+  runnerUp_prefix: "§e"
+  secondRunnerUp_prefix: "§a"
+  no_data: "§a§l暂无数据"
 list:
   - game_name: "DRecknessHero"
     compared_type: "win"
