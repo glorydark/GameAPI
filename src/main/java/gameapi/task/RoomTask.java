@@ -311,9 +311,9 @@ public class RoomTask extends AsyncTask {
                 }else {
                     room.setTime(room.getTime()+1);
                     if(room.getRound() == room.getMaxRound()){
-                        SmartTools.sendActionbar(room.getPlayers(), "§l§e颁奖典礼还有 §l§6" + (room.getGameWaitTime() - room.getTime()) + " §l§e秒开始！");
+                        SmartTools.sendActionbar(room.getPlayers(), "§l§e颁奖典礼还有 §l§6" + (room.getGameEndTime() - room.getTime()) + " §l§e秒开始！");
                     }else{
-                        SmartTools.sendActionbar(room.getPlayers(), "§l§e距下一局还有 §l§6" + (room.getGameWaitTime() - room.getTime()) + " §l§e秒开始！");
+                        SmartTools.sendActionbar(room.getPlayers(), "§l§e距下一局还有 §l§6" + (room.getGameEndTime() - room.getTime()) + " §l§e秒开始！");
                     }
                 }
                 break;

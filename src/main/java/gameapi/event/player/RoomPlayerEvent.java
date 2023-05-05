@@ -5,6 +5,7 @@ import gameapi.event.Cancellable;
 import gameapi.event.RoomEvent;
 
 public abstract class RoomPlayerEvent extends RoomEvent implements Cancellable {
+
     protected Player player;
 
     public RoomPlayerEvent() {

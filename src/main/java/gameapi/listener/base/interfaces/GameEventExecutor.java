@@ -1,4 +1,4 @@
-package gameapi.listener.base.annotations;
+package gameapi.listener.base.interfaces;
 
 import gameapi.event.RoomEvent;
 import gameapi.listener.base.exceptions.GameEventException;

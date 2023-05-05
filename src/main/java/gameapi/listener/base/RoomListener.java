@@ -6,7 +6,7 @@ import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.EventException;
 import gameapi.annotation.Future;
 import gameapi.event.RoomEvent;
-import gameapi.listener.base.annotations.GameListener;
+import gameapi.listener.base.interfaces.GameListener;
 
 @Future
 public class RoomListener implements GameListener {

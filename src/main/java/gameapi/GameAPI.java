@@ -8,20 +8,20 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import gameapi.arena.Arena;
-import gameapi.commands.Commands;
+import gameapi.commands.BaseCommands;
 import gameapi.entity.EntityTools;
-import gameapi.event.player.RoomPlayerJoinEvent;
 import gameapi.listener.PlayerEventListener;
-import gameapi.listener.TestListener;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.task.RoomTask;
+import gameapi.utils.GameRecord;
 import gameapi.utils.GsonAdapter;
 
 import java.io.File;
@@ -44,13 +44,12 @@ public class GameAPI extends PluginBase implements Listener {
     public static ConcurrentHashMap<String, List<Room>> RoomHashMap = new ConcurrentHashMap<>(); //房间状态
     public static HashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
     public static String path = null;
+
     public static Plugin plugin = null;
     public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
 
     public static List<Player> debug = new ArrayList<>();
-
     public static int entityRefreshIntervals = 100;
-
     public static boolean saveBag;
     //此处引用lt-name的CrystalWar内的复原地图部分源码
     public static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
@@ -77,35 +76,51 @@ public class GameAPI extends PluginBase implements Listener {
         saveBag = config.getBoolean("save_bag", false);
         //loadSkills();
         loadAllGameRecord();
+        if(new File(path+"/rankings.yml").exists()){
+            Config rankingConfig = new Config(path+"/rankings.yml", Config.YAML);
+            /*
+                Allow users to customize ranking format.
+             */
+            if(rankingConfig.exists("format")){
+                GameRecord.RankingFormat rankingFormat = new GameRecord.RankingFormat(rankingConfig.getString("title"), rankingConfig.getString("score_show_format"), rankingConfig.getString("champion_prefix"), rankingConfig.getString("runnerUp_prefix"), rankingConfig.getString("secondRunnerUp_prefix"), rankingConfig.getString("no_data"));
+                GameRecord.setRankingFormat(rankingFormat);
+            }
+        }
         loadAllRankingListEntities();
         this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(),20, true);
         this.getServer().getPluginManager().registerEvents(new PlayerEventListener(),this);
-        GameListenerRegistry.registerEvents("test", new TestListener(), this);
-        GameListenerRegistry.callEvent("test", new RoomPlayerJoinEvent(null, null));
-        this.getServer().getCommandMap().register("",new Commands("gameapi"));
-        Server.getInstance().getScheduler().scheduleRepeatingTask(this, ()->{
-            List<Player> players = new ArrayList<>(debug);
-            players.forEach(player -> {
-                if(player == null || !player.isOnline()){ debug.remove(player); return;}
-                DecimalFormat df = new DecimalFormat("#0.00");
-                String line1 = "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName();
-                String line2 = "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw);
-                Item item = player.getInventory().getItemInHand();
-                String line3 = "手持物品id: [" + item.getId() + ":" + item.getDamage() + "] 数量:" + item.getCount();
-                Block block = player.getTargetBlock(32);
-                        String line4;
-                        String line5;
-                        if(block != null) {
-                            line4 = "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 方块名称:" + block.getName();
-                            line5 = "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]";
-                        }else{
-                            line4 = "所指方块id: [无] 方块名称:无";
-                            line5 = "所指方块位置: [无]";
+        //GameListenerRegistry.registerEvents("test", new TestListener(), this);
+        //GameListenerRegistry.callEvent("test", new RoomPlayerJoinEvent(null, null));
+        this.getServer().getCommandMap().register("",new BaseCommands("gameapi"));
+        Server.getInstance().getScheduler().scheduleAsyncTask(this, new AsyncTask() {
+            @Override
+            public void onRun() {
+                if(System.currentTimeMillis() % 500 != 0){
+                    return;
+                }
+                List<Player> players = new ArrayList<>(debug);
+                players.forEach(player -> {
+                            if(player == null || !player.isOnline()){ debug.remove(player); return;}
+                            DecimalFormat df = new DecimalFormat("#0.00");
+                            String line1 = "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName();
+                            String line2 = "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw);
+                            Item item = player.getInventory().getItemInHand();
+                            String line3 = "手持物品id: [" + item.getId() + ":" + item.getDamage() + "] 数量:" + item.getCount();
+                            Block block = player.getTargetBlock(32);
+                            String line4;
+                            String line5;
+                            if(block != null) {
+                                line4 = "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 方块名称:" + block.getName();
+                                line5 = "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]";
+                            }else{
+                                line4 = "所指方块id: [无] 方块名称:无";
+                                line5 = "所指方块位置: [无]";
+                            }
+                            player.sendActionBar(line1 + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n" + line5);
                         }
-                        player.sendActionBar(line1 + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n" + line5);
-                    }
-            );
-        }, 5, true);
+                );
+            }
+        });
         this.getLogger().info("§aDGameAPI Enabled!");
     }
     @Override

@@ -14,16 +14,25 @@ import java.util.Date;
 
 public class SmartTools {
     //https://blog.csdn.net/weixin_39975055/article/details/115082818
-    public static String dateToString(Date date) {
-        String str = "yyyyMMdd_hhmmss";
-        SimpleDateFormat format = new SimpleDateFormat(str);
-        return format.format(date);
 
+    @Deprecated
+    public static String dateToString(Date date) {
+        return dateToString(date, "yyyyMMdd_hhmmss");
     }
+
+    public static String dateToString(Date date, String formatString) {
+        SimpleDateFormat format = new SimpleDateFormat(formatString);
+        return format.format(date);
+    }
+
     //https://blog.csdn.net/weixin_39975055/article/details/115082818
+    @Deprecated
     public static Date stringToDate(String string) {
-        String str = "yyyy-MM-dd-hh-mm-ss";
-        SimpleDateFormat format = new SimpleDateFormat(str);
+        return stringToDate(string, "yyyy-MM-dd-hh-mm-ss");
+    }
+
+    public static Date stringToDate(String string, String dateFormat) {
+        SimpleDateFormat format = new SimpleDateFormat(dateFormat);
         Date date = new Date();
         try {
             date = format.parse(string);

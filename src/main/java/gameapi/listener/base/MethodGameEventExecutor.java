@@ -1,9 +1,9 @@
 package gameapi.listener.base;
 
 import gameapi.event.RoomEvent;
-import gameapi.listener.base.annotations.GameEventExecutor;
-import gameapi.listener.base.annotations.GameListener;
 import gameapi.listener.base.exceptions.GameEventException;
+import gameapi.listener.base.interfaces.GameEventExecutor;
+import gameapi.listener.base.interfaces.GameListener;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

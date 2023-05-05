@@ -2,9 +2,7 @@ package gameapi.event;
 
 import gameapi.listener.base.exceptions.GameEventException;
 import gameapi.room.Room;
-import lombok.Getter;
 
-@Getter
 public abstract class RoomEvent {
     protected String eventName = null;
     private boolean isCancelled = false;
@@ -40,5 +38,9 @@ public abstract class RoomEvent {
         } else {
             this.isCancelled = value;
         }
+    }
+
+    public Room getRoom() {
+        return room;
     }
 }

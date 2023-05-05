@@ -2,7 +2,7 @@ package gameapi.listener;
 
 import gameapi.GameAPI;
 import gameapi.event.player.RoomPlayerJoinEvent;
-import gameapi.listener.base.annotations.GameListener;
+import gameapi.listener.base.interfaces.GameListener;
 
 public class TestListener implements GameListener {
 

@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Sound;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
@@ -23,8 +24,8 @@ import java.util.*;
  * @author Glorydark
  * For in-game test
  */
-public class Commands extends Command {
-    public Commands(String name) {
+public class BaseCommands extends Command {
+    public BaseCommands(String name) {
         super(name);
     }
 
@@ -152,8 +153,12 @@ public class Commands extends Command {
                         Room room = Room.getRoom(strings[1], strings[2]);
                         if(room != null){
                             for (Player player : room.getPlayers()) {
-                                player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
-                                player.sendMessage("该对局已重新开始！");
+                                if(player.isOnline()){
+                                    player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
+                                    player.sendMessage("该对局已重新开始！");
+                                }else{
+                                    commandSender.sendMessage("玩家未在线，玩家名："+player.getName());
+                                }
                             }
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart);
                             commandSender.sendMessage("Room Restarted!");
@@ -184,6 +189,11 @@ public class Commands extends Command {
                     }else{
                         commandSender.sendMessage("§cNo Loaded Games Existed");
                     }
+                    break;
+                case "unloadworld":
+                    commandSender.sendMessage("已加载世界：");
+                    Level level = Server.getInstance().getLevelByName(strings[1]);
+                    level.unload(true);
                     break;
             }
         }

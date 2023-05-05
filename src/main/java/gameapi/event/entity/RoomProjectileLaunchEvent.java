@@ -1,0 +1,16 @@
+package gameapi.event.entity;
+
+import cn.nukkit.entity.Entity;
+import cn.nukkit.level.MovingObjectPosition;
+import gameapi.event.Cancellable;
+import gameapi.room.Room;
+
+public class RoomProjectileLaunchEvent extends RoomEntityEvent implements Cancellable {
+
+
+    public RoomProjectileLaunchEvent(Room room, Entity entity){
+        this.room = room;
+        this.entity = entity;
+    }
+
+}
