@@ -4,12 +4,21 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockAir;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.item.EntityFallingBlock;
 import cn.nukkit.lang.TextContainer;
 import cn.nukkit.lang.TranslationContainer;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Location;
+import cn.nukkit.level.ParticleEffect;
+import cn.nukkit.level.particle.Particle;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.nbt.tag.DoubleTag;
+import cn.nukkit.nbt.tag.FloatTag;
+import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.SetTitlePacket;
 import cn.nukkit.network.protocol.TextPacket;
 import com.google.common.base.Strings;
@@ -210,5 +219,39 @@ public class SmartTools {
         bb.forEach((i, i1, i2) -> {
             level.setBlock(i, i1, i2, block, false, false);
         });
+    }
+
+    @Experimental
+    public static synchronized void destroyAreaBlocks(AxisAlignedBB bb, Level level, ParticleEffect particleEffect){
+        Block block = Block.get(0);
+        if(particleEffect != null){
+            bb.forEach((i, i1, i2) -> {
+                level.setBlock(i, i1, i2, block, false, false);
+                level.addParticleEffect(new Location(i, i1, i2, level), particleEffect);
+            });
+        }else{
+            bb.forEach((i, i1, i2) -> {
+                level.setBlock(i, i1, i2, block, false, false);
+            });
+        }
+    }
+
+    @Experimental
+    public static synchronized void fallingAndDestroyAreaBlocks(AxisAlignedBB bb, Level level){
+        Block air = Block.get(0);
+        bb.forEach((i, i1, i2) -> {
+            fallBlock(level.getBlock(i, i1, i2));
+            level.setBlock(i, i1, i2, air, false, false);
+        });
+
+    }
+
+    @Experimental
+    public static void fallBlock(Block block){
+        CompoundTag nbt = (new CompoundTag()).putList((new ListTag("Pos")).add(new DoubleTag("", block.x + 0.5)).add(new DoubleTag("", block.y)).add(new DoubleTag("", block.z + 0.5))).putList((new ListTag("Motion")).add(new DoubleTag("", 0.0)).add(new DoubleTag("", 0.0)).add(new DoubleTag("", 0.0))).putList((new ListTag("Rotation")).add(new FloatTag("", 0.0F)).add(new FloatTag("", 0.0F))).putInt("TileID", block.getId()).putByte("Data", block.getDamage());
+        EntityFallingBlock fall = (EntityFallingBlock) Entity.createEntity("FallingSand", block.getLevel().getChunk((int)block.x >> 4, (int)block.z >> 4), nbt, new Object[0]);
+        if (fall != null) {
+            fall.spawnToAll();
+        }
     }
 }

@@ -3,12 +3,14 @@ package gameapi;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.AsyncTask;
+import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -61,7 +63,7 @@ public class GameAPI extends PluginBase implements Listener {
             task -> new Thread(task, "GameAPI Restore World Thread")
     );
 
-    private static List<String> loadedGame = new ArrayList<>();
+    protected static List<String> loadedGame = new ArrayList<>();
 
     @Override
     public void onEnable() {
@@ -94,35 +96,34 @@ public class GameAPI extends PluginBase implements Listener {
         //GameListenerRegistry.registerEvents("test", new TestListener(), this);
         //GameListenerRegistry.callEvent("test", new RoomPlayerJoinEvent(null, null));
         this.getServer().getCommandMap().register("",new BaseCommands("gameapi"));
-        Server.getInstance().getScheduler().scheduleAsyncTask(this, new AsyncTask() {
+        Server.getInstance().getScheduler().scheduleRepeatingTask(this, new NukkitRunnable() {
             @Override
-            public void onRun() {
-                if(System.currentTimeMillis() % 500 != 0){
-                    return;
-                }
+            public void run() {
                 List<Player> players = new ArrayList<>(debug);
                 players.forEach(player -> {
-                            if(player == null || !player.isOnline()){ debug.remove(player); return;}
-                            DecimalFormat df = new DecimalFormat("#0.00");
-                            String line1 = "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName();
-                            String line2 = "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw);
-                            Item item = player.getInventory().getItemInHand();
-                            String line3 = "手持物品id: [" + item.getId() + ":" + item.getDamage() + "] 数量:" + item.getCount();
-                            Block block = player.getTargetBlock(32);
-                            String line4;
-                            String line5;
-                            if(block != null) {
-                                line4 = "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 方块名称:" + block.getName();
-                                line5 = "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]";
-                            }else{
-                                line4 = "所指方块id: [无] 方块名称:无";
-                                line5 = "所指方块位置: [无]";
-                            }
-                            player.sendActionBar(line1 + "\n" + line2 + "\n" + line3 + "\n" + line4 + "\n" + line5);
+                        if (player == null || !player.isOnline()) {
+                            debug.remove(player);
+                            return;
                         }
+                        DecimalFormat df = new DecimalFormat("#0.00");
+                        String out = "GameAPI Debug\n";
+                        out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
+                        out +=  "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
+                        Item item = player.getInventory().getItemInHand();
+                        out += "手持物品id: [" + item.getId() + ":" + item.getDamage() + "] 数量:" + item.getCount() + "\n";
+                        Block block = player.getTargetBlock(32);
+                        if (block != null) {
+                            out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 方块名称:" + block.getName() + "\n";
+                            out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
+                        } else {
+                            out += "所指方块id: [无] 方块名称:无"  + "\n";
+                            out += "所指方块位置: [无]"  + "\n";
+                        }
+                        player.sendActionBar(out);
+                }
                 );
             }
-        });
+        }, 5);
         this.getLogger().info("§aDGameAPI Enabled!");
     }
     @Override

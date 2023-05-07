@@ -7,6 +7,8 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Sound;
+import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.nbt.tag.Tag;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
@@ -31,7 +33,7 @@ public class BaseCommands extends Command {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
-        if (!commandSender.isOp()) {
+        if (!commandSender.isOp() && commandSender.isPlayer()) {
             return false;
         }
         if (strings.length > 0) {
@@ -168,11 +170,11 @@ public class BaseCommands extends Command {
                     }
                     break;
                 case "status":
-                    commandSender.sendMessage("获取游戏房间状态ing...");
+                    commandSender.sendMessage("Getting the status of rooms...");
                     List<String> games = new ArrayList<>(GameAPI.RoomHashMap.keySet());
                     if(games.size() > 0){
                         for(String game: games){
-                            commandSender.sendMessage("游戏名称【"+ game+"】房间信息：");
+                            commandSender.sendMessage("房间【"+ game+"】信息：");
                             List<Room> rooms = GameAPI.RoomHashMap.get(game);
                             if(rooms.size() > 0){
                                 for(Room room: rooms){
@@ -183,17 +185,23 @@ public class BaseCommands extends Command {
                                     }
                                 }
                             }else{
-                                commandSender.sendMessage("§c该游戏无房间！");
+                                commandSender.sendMessage("§cNo rooms of this game have been loaded！");
                             }
                         }
                     }else{
-                        commandSender.sendMessage("§cNo Loaded Games Existed");
+                        commandSender.sendMessage("§cNo loaded games existed");
                     }
                     break;
-                case "unloadworld":
-                    commandSender.sendMessage("已加载世界：");
-                    Level level = Server.getInstance().getLevelByName(strings[1]);
-                    level.unload(true);
+                case "opstart":
+                    if(strings.length == 3){
+                        Room room = Room.getRoom(strings[1], strings[2]);
+                        if(room != null){
+                            room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart);
+                            commandSender.sendMessage("The room has gained the authorization to start now! Current Status: ROOM_STATUS_PreStart");
+                        }else{
+                            commandSender.sendMessage("Room Not Found!");
+                        }
+                    }
                     break;
             }
         }
