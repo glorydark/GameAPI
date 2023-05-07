@@ -61,6 +61,8 @@ public class GameAPI extends PluginBase implements Listener {
             task -> new Thread(task, "GameAPI Restore World Thread")
     );
 
+    private static List<String> loadedGame = new ArrayList<>();
+
     @Override
     public void onEnable() {
         path = this.getDataFolder().getPath();
@@ -174,7 +176,7 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onDisable() {
-        RoomHashMap.keySet().forEach(s -> Arena.delWorld(s));
+        loadedGame.forEach(s -> Arena.delWorld(s));
         EntityTools.closeAll();
         THREAD_POOL_EXECUTOR.shutdown();
         RoomHashMap.clear();
@@ -197,5 +199,13 @@ public class GameAPI extends PluginBase implements Listener {
         config.setAll(save);
         config.save();
         return true;
+    }
+
+    public static void addLoadedGame(String gameName){
+        loadedGame.add(gameName);
+    }
+
+    public static void removeLoadedGame(String gameName){
+        loadedGame.remove(gameName);
     }
 }

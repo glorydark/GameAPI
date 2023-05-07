@@ -4,7 +4,10 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
+import cn.nukkit.math.NukkitMath;
+import cn.nukkit.utils.Utils;
 import gameapi.GameAPI;
+import gameapi.annotation.Experimental;
 import gameapi.room.Room;
 import gameapi.room.RoomLevelData;
 import gameapi.room.RoomStatus;
@@ -125,6 +128,7 @@ public class Arena {
         room.initRoom();
     }
 
+    @Experimental
     public static void unloadLevel(Room room, Level level){
         if (level == null) {
             GameAPI.plugin.getLogger().error("§c游戏房间: " + room.getRoomName() + "地图不存在！");
@@ -133,6 +137,14 @@ public class Arena {
         }
         if (level.getPlayers().values().size() > 0) {
             for (Player p : level.getPlayers().values()) {
+                // TO DO: Solving the tick error when unloading the levels.
+                p.getLevel().unregisterChunkLoader(p, p.getChunkX(), p.getChunkZ());
+                for(long id : new ArrayList<>(p.usedChunks.keySet())) {
+                    p.usedChunks.remove(id);
+                }
+                for(Long id: new ArrayList<>(level.getChunkEntities(p.getChunkX(), p.getChunkZ()).keySet())){
+                    level.getChunkEntities(p.getChunkX(), p.getChunkZ()).remove(id);
+                }
                 p.teleportImmediate(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             }
         }
@@ -145,6 +157,10 @@ public class Arena {
             e.kill();
             e.close();
         }
+        // Goal: Solving the tick error when unloading the levels.
+        level.setTickRate(level.getTickRate() - 1);
+        level.tickRateCounter = level.getTickRate();
+        level.getProvider().close();
         Server.getInstance().unloadLevel(level, true);
     }
 

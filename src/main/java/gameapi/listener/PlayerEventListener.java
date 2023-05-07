@@ -388,7 +388,6 @@ public class PlayerEventListener implements Listener {
         Room room = Room.getRoom(player);
         if (room == null) {
             // Player is not in game, so the server will send the message to the players who are not in game.
-            List<Player> gamePlayers = new ArrayList<>(GameAPI.playerRoomHashMap.keySet());
             event.setRecipients(Server.getInstance().getOnlinePlayers().values().stream()
                     .filter(p -> GameAPI.playerRoomHashMap.get(p) == null).collect(Collectors.toSet()));
             return;

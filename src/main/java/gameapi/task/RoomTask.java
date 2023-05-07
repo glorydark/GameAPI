@@ -18,6 +18,7 @@ import gameapi.utils.SmartTools;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -127,14 +128,11 @@ public class RoomTask extends AsyncTask {
     @Override
     public void onRun() {
         if (GameAPI.RoomHashMap.size() > 0) {
-            //int counts = 0;
-            for (String key : GameAPI.RoomHashMap.keySet()) {
-                //counts+=entry.getValue().size();
-                List<Room> rooms = new ArrayList<>(GameAPI.RoomHashMap.get(key));
+            for(Map.Entry<String, List<Room>> entry : GameAPI.RoomHashMap.entrySet()){
+                List<Room> rooms = new ArrayList<>(entry.getValue());
                 for(Room room: rooms) {
-                    //System.out.println(room.getRoomStatus());
                     if(!checkState(room)){
-                        GameAPI.RoomHashMap.get(key).remove(room);
+                        GameAPI.RoomHashMap.get(entry.getKey()).remove(room);
                     }
                 }
             }
