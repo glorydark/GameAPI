@@ -41,11 +41,20 @@ public class AdvancedLocation {
     public void teleport(Player player){
         if(location == null || !location.isValid()){ return; }
         Location out;
-        if (version == 1) {
-            out = new Location(location.getX(), location.getY(), location.getZ(), yaw, pitch);
-            out.setLevel(location.getLevel());
-        }else{
-            out = location;
+        switch (version){
+            case 1:
+                out = new Location(location.getX(), location.getY(), location.getZ(), yaw, pitch);
+                out.setLevel(location.getLevel());
+                break;
+            case 2:
+                out = new Location(location.getX(), location.getY(), location.getZ(), yaw, pitch, headYaw);
+                out.setLevel(location.getLevel());
+                break;
+            default:
+            case 0:
+                out = new Location(location.getX(), location.getY(), location.getZ(), player.getYaw(), player.getPitch(), player.getHeadYaw());
+                out.setLevel(location.getLevel());
+                break;
         }
         player.teleportImmediate(out, null);
     }

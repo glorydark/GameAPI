@@ -2,11 +2,18 @@ package gameapi.utils;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockAir;
 import cn.nukkit.lang.TextContainer;
 import cn.nukkit.lang.TranslationContainer;
+import cn.nukkit.level.Level;
+import cn.nukkit.math.AxisAlignedBB;
+import cn.nukkit.math.SimpleAxisAlignedBB;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.SetTitlePacket;
 import cn.nukkit.network.protocol.TextPacket;
 import com.google.common.base.Strings;
+import gameapi.annotation.Experimental;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -190,5 +197,18 @@ public class SmartTools {
         }
 
         Server.broadcastPacket(players, pk);
+    }
+
+    @Experimental
+    public static AxisAlignedBB getArea(int startX, int startY, int startZ, int endX, int endY, int endZ){
+        return new SimpleAxisAlignedBB(new Vector3(startX, startY, startZ), new Vector3(endX, endY, endZ));
+    }
+
+    @Experimental
+    public static synchronized void removeAreaBlocks(AxisAlignedBB bb, Level level){
+        Block block = Block.get(0);
+        bb.forEach((i, i1, i2) -> {
+            level.setBlock(i, i1, i2, block, false, false);
+        });
     }
 }

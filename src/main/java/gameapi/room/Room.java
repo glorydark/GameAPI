@@ -294,6 +294,7 @@ public class Room {
     }
 
     public void detectToReset(){
+        this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
         new ArrayList<>(this.spectators).forEach(this::removeSpectator);
         this.players = new ArrayList<>();
         this.round = 0;
@@ -311,7 +312,6 @@ public class Room {
             }
         }
         if(this.temporary){
-            this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
             GameAPI.plugin.getLogger().alert("检测到房间内无玩家，正在删除房间:" + this.getRoomName());
             if(this.getPlayLevel() != null) {
                 String levelName = this.getPlayLevel().getName();
@@ -384,12 +384,12 @@ public class Room {
             if (this.resetMap) {
                 GameAPI.plugin.getLogger().alert("检测到房间游戏结束，正在重置地图，房间:" + this.getRoomName());
                 Arena.reloadLevel(this);
+                this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
             } else {
                 GameAPI.plugin.getLogger().alert("检测到房间内无玩家，正在重置房间:" + this.getRoomName());
                 this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
             }
         }else{
-            this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
             GameAPI.plugin.getLogger().alert("检测到房间内无玩家，正在删除房间:" + this.getRoomName());
             Level level = this.getPlayLevel();
             if(level != null){
@@ -400,11 +400,6 @@ public class Room {
             List<Room> rooms = GameAPI.RoomHashMap.getOrDefault(this.getGameName(), new ArrayList<>());
             GameAPI.RoomHashMap.put(this.getGameName(), rooms);
         }
-    }
-
-    public void initRoom(){
-        this.roomStatus = RoomStatus.ROOM_STATUS_WAIT;
-        GameAPI.plugin.getLogger().info(roomName+" 成功初始化地图！");
     }
 
     public AdvancedLocation getLocationByString(String string){

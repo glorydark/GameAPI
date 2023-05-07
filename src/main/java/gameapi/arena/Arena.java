@@ -125,7 +125,6 @@ public class Arena {
                 reloadLevelByName(room, levelName, strings.get(levelName));
             }
         }
-        room.initRoom();
     }
 
     @Experimental
@@ -137,27 +136,28 @@ public class Arena {
         }
         if (level.getPlayers().values().size() > 0) {
             for (Player p : level.getPlayers().values()) {
-                // TO DO: Solving the tick error when unloading the levels.
+                // Experimental: Solving the tick error when unloading the levels in PM1E.
                 p.getLevel().unregisterChunkLoader(p, p.getChunkX(), p.getChunkZ());
                 for(long id : new ArrayList<>(p.usedChunks.keySet())) {
-                    p.usedChunks.remove(id);
+                    if(level.getChunks().containsKey(id)) {
+                        p.usedChunks.remove(id);
+                    }
                 }
-                for(Long id: new ArrayList<>(level.getChunkEntities(p.getChunkX(), p.getChunkZ()).keySet())){
-                    level.getChunkEntities(p.getChunkX(), p.getChunkZ()).remove(id);
+                for (Entity e : level.getEntities()) {
+                    e.getViewers().clear();
+                    e.kill();
+                    e.close();
                 }
                 p.teleportImmediate(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             }
         }
         if (level.getPlayers().values().size() > 0) {
             for (Player p : level.getPlayers().values()) {
-                p.kick("Due to a unprecedented error, please rejoin the server");
+                //p.kick("Due to a unprecedented error, please rejoin the server");
+                p.teleportImmediate(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             }
         }
-        for (Entity e : level.getEntities()) {
-            e.kill();
-            e.close();
-        }
-        // Goal: Solving the tick error when unloading the levels.
+        // Experimental: Solving the tick error when unloading the levels in PM1E.
         level.setTickRate(level.getTickRate() - 1);
         level.tickRateCounter = level.getTickRate();
         level.getProvider().close();
@@ -182,14 +182,13 @@ public class Arena {
                     if (Server.getInstance().isLevelLoaded(newName)) {
                         Level loadLevel = Server.getInstance().getLevelByName(newName);
                         room.setPlayLevel(loadLevel);
-                        room.initRoom();
                         data.forEach(roomLevelData -> {
                             roomLevelData.resetLevel(loadLevel);
                         });
-                        GameAPI.plugin.getLogger().info("§a游戏房间: " + levelName + " 地图还原完成！");
+                        GameAPI.plugin.getLogger().info("§a游戏房间: " + newName + " 地图加载完成！");
                     }
                 } else {
-                    GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图还原失败！请检查文件权限！");
+                    GameAPI.plugin.getLogger().error("§c游戏房间: " + newName + " 地图加载失败！请检查文件权限！");
                     room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                     //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
                 }
