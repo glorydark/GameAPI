@@ -87,9 +87,9 @@ public class PlayerEventListener implements Listener {
                     if (roomBlockBreakEvent.isCancelled()) {
                         event.setCancelled(true);
                     }else {
-                        event.setDropExp(roomBlockBreakEvent.getBlockXP());
+                        event.setDropExp(roomBlockBreakEvent.getDropExp());
                         event.setInstaBreak(roomBlockBreakEvent.isInstaBreak());
-                        event.setDrops(roomBlockBreakEvent.getBlockDrops());
+                        event.setDrops(roomBlockBreakEvent.getDrops());
                     }
                 }
             } else {
@@ -98,9 +98,9 @@ public class PlayerEventListener implements Listener {
                 if (roomBlockBreakEvent.isCancelled()) {
                     event.setCancelled(true);
                 }else {
-                    event.setDropExp(roomBlockBreakEvent.getBlockXP());
+                    event.setDropExp(roomBlockBreakEvent.getDropExp());
                     event.setInstaBreak(roomBlockBreakEvent.isInstaBreak());
-                    event.setDrops(roomBlockBreakEvent.getBlockDrops());
+                    event.setDrops(roomBlockBreakEvent.getDrops());
                 }
             }
         }

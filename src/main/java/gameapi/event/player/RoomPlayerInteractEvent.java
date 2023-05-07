@@ -14,24 +14,24 @@ import gameapi.room.Room;
  */
 public class RoomPlayerInteractEvent extends RoomPlayerEvent implements Cancellable {
 
-    protected Block blockTouched;
+    protected Block block;
     protected Vector3 touchVector;
     protected BlockFace blockFace;
     protected Item item;
     protected PlayerInteractEvent.Action action;
 
-    public RoomPlayerInteractEvent(Room room, Player player, Block blockTouched, Vector3 touchVector, BlockFace blockFace, Item item, PlayerInteractEvent.Action action){
+    public RoomPlayerInteractEvent(Room room, Player player, Block block, Vector3 touchVector, BlockFace blockFace, Item item, PlayerInteractEvent.Action action){
         this.room = room;
         this.player = player;
-        this.blockTouched = blockTouched;
+        this.block = block;
         this.touchVector = touchVector;
         this.blockFace = blockFace;
         this.item = item;
         this.action = action;
     }
 
-    public Block getBlockTouched() {
-        return blockTouched;
+    public Block getBlock() {
+        return block;
     }
 
     public Vector3 getTouchVector() {
