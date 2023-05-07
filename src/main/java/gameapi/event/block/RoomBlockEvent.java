@@ -1,6 +1,5 @@
 package gameapi.event.block;
 
-import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import gameapi.event.Cancellable;
 import gameapi.event.RoomEvent;

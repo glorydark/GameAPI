@@ -4,8 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
-import cn.nukkit.math.NukkitMath;
-import cn.nukkit.utils.Utils;
 import gameapi.GameAPI;
 import gameapi.annotation.Experimental;
 import gameapi.room.Room;

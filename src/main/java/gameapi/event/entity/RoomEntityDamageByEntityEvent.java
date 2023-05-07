@@ -3,7 +3,6 @@ package gameapi.event.entity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import gameapi.event.Cancellable;
-import gameapi.event.player.RoomPlayerEvent;
 import gameapi.room.Room;
 
 public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Cancellable {

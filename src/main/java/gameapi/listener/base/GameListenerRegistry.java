@@ -1,6 +1,5 @@
 package gameapi.listener.base;
 
-import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.PluginException;

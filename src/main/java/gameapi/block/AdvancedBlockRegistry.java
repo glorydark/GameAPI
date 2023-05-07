@@ -1,8 +1,10 @@
 package gameapi.block;
 
-import cn.nukkit.block.Block;
-import cn.nukkit.event.block.BlockEvent;
+import gameapi.annotation.Experimental;
+import gameapi.event.RoomEvent;
+import gameapi.event.block.RoomBlockEvent;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
@@ -18,11 +20,23 @@ public class AdvancedBlockRegistry {
         blockHashmap.remove(id+":"+meta);
     }
 
-    public static void triggerBlock(Block block, BlockEvent blockEvent){
-        String idString = block.getId()+":"+block.getDamage();
+    @Experimental
+    public static void triggerBlock(RoomBlockEvent roomBlockEvent) {
+        String idString = roomBlockEvent.getBlock().getId()+":"+roomBlockEvent.getBlock().getDamage();
         if(blockHashmap.containsKey(idString)){
             Class<AdvancedBlock> advancedBlockClass = blockHashmap.get(idString);
-            //to do
+            try {
+                Method executeMethod = advancedBlockClass.getMethod("trigger", RoomEvent.class);
+                for(Class param : executeMethod.getParameterTypes()){
+                    if(roomBlockEvent.getClass().isAssignableFrom(param)) {
+                        executeMethod.invoke(advancedBlockClass, roomBlockEvent);
+                    }
+                }
+            } catch (NoSuchMethodException ignored){
+
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

@@ -1,7 +1,6 @@
 package gameapi.bossbar;
 
 import cn.nukkit.Player;
-import cn.nukkit.utils.BlockColor;
 import cn.nukkit.utils.BossBarColor;
 import cn.nukkit.utils.DummyBossBar;
 
