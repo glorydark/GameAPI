@@ -1,0 +1,18 @@
+enabled: true
+blocks:
+  - id: 157
+    meta: 0
+    effects:
+      - id: 0
+        amplifier: 1
+        duration: 5
+        "show_particle": true
+        "ambient": true
+        "r": 255  # 可不填，r、g、b为粒子颜色
+        "g": 255  # 可不填，r、g、b为粒子颜色
+        "b": 255  # 可不填，r、g、b为粒子颜色
+    motion_add:
+      x: 10
+      y: 10
+      z: 10
+    commands: []

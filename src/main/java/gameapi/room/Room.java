@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class Room {
-
+    // Used as a temporary room and will be deleted after the game.
     private Boolean temporary = false;
     private Boolean resetMap = true; // Resetting map is defaultly set to false.
     private String roomName = "null";
@@ -36,14 +36,14 @@ public class Room {
     private int maxPlayer = 2; //最大人数
     private int minPlayer = 16; //最少人数
     private int waitTime = 10; //等待时间
-    private int gameWaitTime = 10; //开始/结束缓冲时间
+    private int gameWaitTime = 10; //开始缓冲时间
     private int gameTime = 10; //游戏开始时间
     private int ceremonyTime = 10; //颁奖典礼时间
 
-    private int gameEndTime = 10;
-    private int MaxRound; //回合数
+    private int gameEndTime = 10; //游戏结束缓冲时间
+    private int MaxRound;
     private int round = 0;
-    private int time = 0; //时间记录
+    private int time = 0; // Spent Seconds
 
     private boolean preStartPass = true;
 
@@ -61,9 +61,14 @@ public class Room {
     private List<String> winConsoleCommands = new ArrayList<>();
     private List<String> loseConsoleCommands = new ArrayList<>();
     private LinkedHashMap<String, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
-    private LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>(); // Save data for the room' extra configuration.
 
-    private List<RoomChatData> chatDataList = new ArrayList<>(); // Save data of room's chat history.
+    // Save data for the room' extra configuration.
+    private LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>();
+    // Save data of room's chat history.
+    private List<RoomChatData> chatDataList = new ArrayList<>();
+
+    //Provide this variable in order to realise some functions
+    public String joinPassword = "";
 
     public Room(String gameName, RoomRule roomRule, String roomLevelBackup, int round) {
         this.MaxRound = round;
@@ -664,5 +669,11 @@ public class Room {
                 ", \"winConsoleCommands\":" + winConsoleCommands +
                 ", \"loseConsoleCommands\":" + loseConsoleCommands +
                 '}';
+    }
+
+    public void setPersonal(Boolean personal, Player player) {
+        this.roomRule.personal = personal;
+        this.roomProperties.put("personal_owner", player);
+        this.preStartPass = true;
     }
 }

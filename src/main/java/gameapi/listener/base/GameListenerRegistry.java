@@ -6,6 +6,7 @@ import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.PluginException;
 import gameapi.annotation.Future;
 import gameapi.event.RoomEvent;
+import gameapi.listener.base.annotations.GameEventHandler;
 import gameapi.listener.base.interfaces.GameListener;
 import gameapi.room.Room;
 
@@ -42,7 +43,7 @@ public class GameListenerRegistry {
             }
 
             for(Method method: methods) {
-                EventHandler eh = method.getAnnotation(EventHandler.class);
+                GameEventHandler eh = method.getAnnotation(GameEventHandler.class);
                 RoomListener evl;
                 if(eh != null){
                     evl = new RoomListener(gameName, listener, new MethodGameEventExecutor(method), eh.priority(), plugin, eh.ignoreCancelled());

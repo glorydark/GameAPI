@@ -35,6 +35,8 @@ public class RoomRule {
 
     public Boolean needPreStartPass = false;
 
+    public Boolean personal = false;
+
     public RoomRule(Integer gameMode){
         this.gameMode = gameMode;
     }

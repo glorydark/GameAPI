@@ -3,13 +3,11 @@ package gameapi;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
-import cn.nukkit.entity.Entity;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
@@ -17,7 +15,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import gameapi.arena.Arena;
-import gameapi.commands.BaseCommands;
+import gameapi.commands.AdminCommands;
 import gameapi.entity.EntityTools;
 import gameapi.listener.PlayerEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -95,7 +93,7 @@ public class GameAPI extends PluginBase implements Listener {
         this.getServer().getPluginManager().registerEvents(new PlayerEventListener(),this);
         //GameListenerRegistry.registerEvents("test", new TestListener(), this);
         //GameListenerRegistry.callEvent("test", new RoomPlayerJoinEvent(null, null));
-        this.getServer().getCommandMap().register("",new BaseCommands("gameapi"));
+        this.getServer().getCommandMap().register("",new AdminCommands("gameapi"));
         Server.getInstance().getScheduler().scheduleRepeatingTask(this, new NukkitRunnable() {
             @Override
             public void run() {

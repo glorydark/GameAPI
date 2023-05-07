@@ -5,10 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
-import cn.nukkit.level.Level;
 import cn.nukkit.level.Sound;
-import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.nbt.tag.Tag;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
@@ -26,8 +23,8 @@ import java.util.*;
  * @author Glorydark
  * For in-game test
  */
-public class BaseCommands extends Command {
-    public BaseCommands(String name) {
+public class AdminCommands extends Command {
+    public AdminCommands(String name) {
         super(name);
     }
 
@@ -192,12 +189,13 @@ public class BaseCommands extends Command {
                         commandSender.sendMessage("§cNo loaded games existed");
                     }
                     break;
-                case "opstart":
+                case "roomstart":
                     if(strings.length == 3){
                         Room room = Room.getRoom(strings[1], strings[2]);
                         if(room != null){
-                            room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart);
-                            commandSender.sendMessage("The room has gained the authorization to start now! Current Status: ROOM_STATUS_PreStart");
+                            if(room.isPreStartPass()){
+
+                            }
                         }else{
                             commandSender.sendMessage("Room Not Found!");
                         }
