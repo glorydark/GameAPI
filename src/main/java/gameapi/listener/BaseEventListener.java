@@ -221,24 +221,24 @@ public class BaseEventListener implements Listener {
     public void PlayerDamageEvent(EntityDamageEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
-            Room room1 = Room.getRoom((Player) entity);
-            if (room1 == null) {
+            Room room = Room.getRoom((Player) entity);
+            if (room == null) {
                 return;
             }
             if (entity.getHealth() - event.getDamage() <= 0) {
                 event.setCancelled(true);
-                if (room1.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
-                    RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(room1, (Player) entity, event.getCause());
+                if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
+                    RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(room, (Player) entity, event.getCause());
                     //Server.getInstance().getPluginManager().callEvent(ev);
-                    GameListenerRegistry.callEvent(room1, ev);
+                    GameListenerRegistry.callEvent(room, ev);
                     if (!ev.isCancelled()) {
                         entity.setHealth(entity.getMaxHealth());
-                        room1.setSpectator((Player) entity, room1.getRoomRule().allowSpectatorMode, true);
+                        room.setSpectator((Player) entity, room.getRoomRule().allowSpectatorMode, true);
                         damageSources.remove(entity.getName());
                     }
                 } else {
                     entity.setHealth(entity.getMaxHealth());
-                    room1.setSpectator((Player) entity, true, false);
+                    room.setSpectator((Player) entity, true, false);
                 }
             }
         }
@@ -264,19 +264,15 @@ public class BaseEventListener implements Listener {
             if (event.getEntity() instanceof Player && event.getDamager() instanceof Player) {
                 Player p1 = (Player) event.getEntity();
                 Player p2 = (Player) event.getDamager();
-                Room r1 = Room.getRoom(p1);
-                Room r2 = Room.getRoom(p2);
-                if (r1 != null && r2 != null) {
-                    if (r1.getTeams().size() > 0) {
-                        if (r1.getPlayerTeam(p1) != null && r1.getPlayerTeam(p1) == r1.getPlayerTeam(p2)) {
-                            p1.sendMessage("§c你不能攻击你的队友");
-                            event.setCancelled(true);
-                        } else {
-                            addDamageSource(p1.getName(), p2.getName());
-                        }
+                if (room1.getTeams().size() > 0) {
+                    if (room1.getPlayerTeam(p1) != null && room1.getPlayerTeam(p1) == room2.getPlayerTeam(p2)) {
+                        p1.sendMessage("§c你不能攻击你的队友");
+                        event.setCancelled(true);
                     } else {
                         addDamageSource(p1.getName(), p2.getName());
                     }
+                } else {
+                    addDamageSource(p1.getName(), p2.getName());
                 }
             }
             RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, event);

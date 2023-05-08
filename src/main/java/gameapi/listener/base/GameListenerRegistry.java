@@ -14,6 +14,7 @@ import gameapi.room.Room;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Future
 public class GameListenerRegistry {
@@ -64,6 +65,7 @@ public class GameListenerRegistry {
     public static void callEvent(Room room, RoomEvent event) {
         String gameName = room.getGameName();
         List<RoomListener> find = new ArrayList<>(listeners.getOrDefault(gameName, new ArrayList<>()));
+        find = find.stream().sorted(Comparator.comparingInt(o -> o.getPriority().getSlot())).collect(Collectors.toList());
         for(RoomListener listener: find){
             listener.callEvent(gameName, event);
         }
