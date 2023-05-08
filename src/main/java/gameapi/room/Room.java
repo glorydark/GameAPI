@@ -5,7 +5,6 @@ import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.arena.Arena;
 import gameapi.event.player.*;
@@ -44,11 +43,8 @@ public class Room {
     private int MaxRound;
     private int round = 0;
     private int time = 0; // Spent Seconds
-
     private boolean preStartPass = true;
-
     private List<Player> spectators = new ArrayList<>();
-
     private Level playLevel;
     private AdvancedLocation waitSpawn = new AdvancedLocation();
     private List<AdvancedLocation> startSpawn = new ArrayList<>();
@@ -61,7 +57,6 @@ public class Room {
     private List<String> winConsoleCommands = new ArrayList<>();
     private List<String> loseConsoleCommands = new ArrayList<>();
     private LinkedHashMap<String, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
-
     // Save data for the room' extra configuration.
     private LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>();
     // Save data of room's chat history.
@@ -144,7 +139,7 @@ public class Room {
                     .collect(Collectors.toList());
             teamCache.get(list.get(0).getKey()).addPlayer(player); //从最低人数来尝试加入
             Team team = list.get(0).getValue();
-            player.sendMessage("您加入了："+team.getPrefix()+team.getRegistryName());
+            player.sendMessage(GameAPI.getLanguage().getText("room.team.join", team.getPrefix()+team.getRegistryName()));
         }
     }
 
@@ -154,7 +149,7 @@ public class Room {
         }
         if(teamCache.containsKey(registry) && teamCache.get(registry).isAvailable()){ //禁止加入满人队伍
             teamCache.get(registry).addPlayer(player);
-            player.sendMessage("您加入了："+teamCache.get(registry).getPrefix()+registry);
+            player.sendMessage(GameAPI.getLanguage().getText("room.team.join",teamCache.get(registry).getPrefix()+registry));
         }else{
             return false;
         }
@@ -164,7 +159,7 @@ public class Room {
     public void removeTeamPlayer(String registry, Player player){
         if(teamCache.containsKey(registry)){
             teamCache.get(registry).removePlayer(player);
-            player.sendMessage("您退出了："+teamCache.get(registry).getPrefix()+registry);
+            player.sendMessage(GameAPI.getLanguage().getText("room.team.quit",teamCache.get(registry).getPrefix()+registry));
         }
     }
 
@@ -207,28 +202,28 @@ public class Room {
     public Boolean addPlayer(Player player){
         RoomStatus roomStatus = this.getRoomStatus();
         if(roomStatus == RoomStatus.ROOM_MapLoadFailed || roomStatus == RoomStatus.ROOM_MapProcessFailed){
-            player.sendMessage("地图加载失败，请联系腐竹！");
+            player.sendMessage(GameAPI.getLanguage().getText("room.map.loadFailed"));
             return false;
         }
         if(roomStatus == RoomStatus.ROOM_MapInitializing){
-            player.sendMessage("地图重置中，请稍后！");
+            player.sendMessage(GameAPI.getLanguage().getText("room.map.resetting"));
             return false;
         }
         if(roomStatus == RoomStatus.ROOM_HALTED){
-            player.sendMessage("房间已暂停游戏！");
+            player.sendMessage(GameAPI.getLanguage().getText("room.map.halted"));
             return false;
         }
         if(roomStatus != RoomStatus.ROOM_STATUS_WAIT && roomStatus != RoomStatus.ROOM_STATUS_PreStart){
-            player.sendMessage("房间游戏已经开始！");
+            player.sendMessage(GameAPI.getLanguage().getText("room.game.started"));
             return false;
         }
         if(GameAPI.playerRoomHashMap.get(player) != null){
-            player.sendMessage("您已经在房间中了！");
+            player.sendMessage(GameAPI.getLanguage().getText("room.game.isInOtherRoom"));
             return false;
         }
         if(this.players.size() < this.maxPlayer){
             if(this.players.contains(player)){
-                player.sendMessage("您已经在此房间中了！");
+                player.sendMessage(GameAPI.getLanguage().getText("room.game.isInThisRoom"));
                 return false;
             }else{
                 RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this,player);
@@ -242,7 +237,7 @@ public class Room {
                     player.setGamemode(2);
                     player.getFoodData().reset();
                     for (Player p : this.players) {
-                        p.sendMessage(player.getName() + " §l§a加入房间 【" + this.players.size() + "/" + this.maxPlayer + "】");
+                        p.sendMessage(GameAPI.getLanguage().getText("room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
                     }
                     GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
                 }
@@ -317,7 +312,7 @@ public class Room {
             }
         }
         if(this.temporary){
-            GameAPI.plugin.getLogger().alert("检测到房间内无玩家，正在删除房间:" + this.getRoomName());
+            GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getText("room.detect_delete", this.getRoomName()));
             if(this.getPlayLevel() != null) {
                 String levelName = this.getPlayLevel().getName();
                 Arena.unloadLevel(this, this.getPlayLevel());
@@ -328,7 +323,7 @@ public class Room {
         }else {
             if(this.getRoomStatus() != RoomStatus.ROOM_MapInitializing && this.getRoomStatus() != RoomStatus.ROOM_STATUS_WAIT) {
                 if (this.resetMap) {
-                    GameAPI.plugin.getLogger().alert("检测到房间内无玩家，正在重置地图，房间:" + this.getRoomName());
+                    GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getText("detect_resetRoomAndMap", this.getRoomName()));
                     Arena.reloadLevel(this);
                 }
                 this.roomStatus = RoomStatus.ROOM_STATUS_WAIT;
@@ -387,15 +382,15 @@ public class Room {
         this.chatDataList = new ArrayList<>();
         if(!this.temporary) {
             if (this.resetMap) {
-                GameAPI.plugin.getLogger().alert("检测到房间游戏结束，正在重置地图，房间:" + this.getRoomName());
+                GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getText("room.detect_resetRoomAndMap", this.getRoomName()));
                 Arena.reloadLevel(this);
                 this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
             } else {
-                GameAPI.plugin.getLogger().alert("检测到房间内无玩家，正在重置房间:" + this.getRoomName());
+                GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getText("room.detect_resetRoom", this.getRoomName()));
                 this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
             }
         }else{
-            GameAPI.plugin.getLogger().alert("检测到房间内无玩家，正在删除房间:" + this.getRoomName());
+            GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getText("room.detect_delete", this.getRoomName()));
             Level level = this.getPlayLevel();
             if(level != null){
                 String levelName = level.getName();
@@ -409,9 +404,9 @@ public class Room {
 
     public AdvancedLocation getLocationByString(String string){
         String[] positions = string.split(":");
-        if(positions.length < 4){ GameAPI.plugin.getLogger().warning("检测到坐标格式错误，请修改！"); return null; }
+        if(positions.length < 4){ GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("advancedLocation.error.formatWrong")); return null; }
         if(!Server.getInstance().isLevelLoaded(positions[3])){
-            GameAPI.plugin.getLogger().warning("房间世界不存在，尝试加载中！");
+            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("advancedLocation.error.worldTryingToLoad"));
             if(Server.getInstance().loadLevel(positions[3])){
                 Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
                 AdvancedLocation advancedLocation = new AdvancedLocation();
@@ -428,7 +423,7 @@ public class Room {
                 }
                 return advancedLocation;
             }else{
-                GameAPI.plugin.getLogger().warning("世界加载失败！世界名:"+positions[3]);
+                GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("advancedLocation.error.worldLoadedFailed", positions[3]));
                 return null;
             }
         }else{
@@ -569,7 +564,7 @@ public class Room {
         }
         player.setGamemode(0);
         player.teleportImmediate(roomSpectatorLeaveEvent.getReturnLocation());
-        player.sendMessage("您已退出旁观者！");
+        player.sendMessage(GameAPI.getLanguage().getText("room.spectator.quit"));
         return spectators.remove(player);
     }
 
@@ -598,7 +593,7 @@ public class Room {
             location.teleport(player);
         }
         if(dead) {
-            player.sendTitle(TextFormat.RED + "您已死亡！", "已进入观察状态!", 5, 10, 5);
+            player.sendTitle(GameAPI.getLanguage().getText("room.died.title"), GameAPI.getLanguage().getText("room.died.subtitle"), 5, 10, 5);
             if(spectatorSpawn.size() != 0){
                 Random random = new Random();
                 spectatorSpawn.get(random.nextInt(spectatorSpawn.size())).teleport(player);
@@ -610,7 +605,7 @@ public class Room {
                     GameListenerRegistry.callEvent(this, ev);
                     //GameListenerRegistry.callEvent(this.getGameName(), ev);
                     if(!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
-                        player.sendTitle("您已复活");
+                        player.sendTitle(GameAPI.getLanguage().getText("room.respawn.title"), GameAPI.getLanguage().getText("room.respawn.subtitle"));
                         player.setGamemode(0);
                         teleportToSpawn(player);
                         //spectators.remove(player);
@@ -619,7 +614,7 @@ public class Room {
             }
         }else{
             spectators.add(player);
-            player.sendMessage("您已加入旁观者！");
+            player.sendMessage(GameAPI.getLanguage().getText("room.spectator.join"));
         }
     }
 

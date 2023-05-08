@@ -15,8 +15,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import gameapi.arena.Arena;
-import gameapi.block.AdvancedBlockRegistry;
-import gameapi.block.test.TestAdvancedBlockListenerListener;
 import gameapi.commands.AdminCommands;
 import gameapi.entity.EntityTools;
 import gameapi.listener.BaseEventListener;
@@ -25,6 +23,7 @@ import gameapi.room.Room;
 import gameapi.task.RoomTask;
 import gameapi.utils.GameRecord;
 import gameapi.utils.GsonAdapter;
+import gameapi.utils.Language;
 
 import java.io.File;
 import java.io.InputStream;
@@ -63,7 +62,9 @@ public class GameAPI extends PluginBase implements Listener {
             task -> new Thread(task, "GameAPI Restore World Thread")
     );
 
-    protected static List<String> loadedGame = new ArrayList<>();
+    protected static List<String> loadedGames = new ArrayList<>();
+
+    protected static Language language = new Language("GameAPI");
 
     @Override
     public void onEnable() {
@@ -71,13 +72,16 @@ public class GameAPI extends PluginBase implements Listener {
         plugin = this;
         this.getDataFolder().mkdir();
         this.saveDefaultConfig();
-        this.saveResource("rankings.yml");
+        this.saveResource("rankings.yml", false);
+        this.saveResource("languages/zh_CN.properties", false);
+        language.addLanguage(new File(path+"/languages/zh_CN.properties"));
         File file = new File(path+"/worlds/");
         File file1 = new File(path+"/gameRecords/");
         file.mkdirs();
         file1.mkdir();
         Config config = new Config(path+"/config.yml", Config.YAML);
         saveBag = config.getBoolean("save_bag", false);
+        language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
         //loadSkills();
         loadAllGameRecord();
         if(new File(path+"/rankings.yml").exists()){
@@ -136,7 +140,7 @@ public class GameAPI extends PluginBase implements Listener {
     @Override
     public void onLoad() {
         this.getLogger().info("§aDGameAPI OnLoad!");
-        this.getLogger().info("§a作者:glorydark");
+        this.getLogger().info("§aAuthor:glorydark");
     }
 
     public void loadAllGameRecord(){
@@ -159,24 +163,24 @@ public class GameAPI extends PluginBase implements Listener {
             String level = (String) map.get("level");
             if(Server.getInstance().getLevelByName(level) == null){
                 if(!Server.getInstance().loadLevel(level)){
-                    this.getLogger().warning("[RankingListLoader] 无法找到世界:"+level);
+                    this.getLogger().warning(language.getText("loading.ranking_loader.unknown_world", level));
                     continue;
                 }else{
-                    this.getLogger().warning("[RankingListLoader] 加载世界:"+level);
+                    this.getLogger().info(language.getText("loading.ranking_loader.world_onLoad", level));
                 }
             }else{
-                this.getLogger().warning("[RankingListLoader] 检测到已加载世界:"+level);
+                this.getLogger().info(language.getText("loading.ranking_loader.world_alreadyLoaded", level));
             }
             Location location = new Location((Double) map.get("x"), (Double) map.get("y"), (Double) map.get("z"), this.getServer().getLevelByName((String) map.get("level")));
             if(location.getChunk() == null){
                 if(!location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ())){
-                    this.getLogger().warning("[RankingListLoader] 无法加载区块:"+location.getChunkX()+":"+location.getChunkZ());
+                    this.getLogger().info(language.getText("loading.ranking_loader.chunk_onLoad", location.getChunkX(), location.getChunkZ()));
                     return;
                 }else{
-                    this.getLogger().warning("[RankingListLoader] 加载区块:"+location.getChunkX()+":"+location.getChunkZ());
+                    this.getLogger().warning(language.getText("loading.ranking_loader.chunk_loadedFailed", location.getChunkX(), location.getChunkZ()));
                 }
             }else{
-                this.getLogger().warning("[RankingListLoader] 检测到已加载区块:"+location.getChunkX()+":"+location.getChunkZ());
+                this.getLogger().info(language.getText("loading.ranking_loader.chunk_alreadyLoaded", location.getChunkX(), location.getChunkZ()));
             }
             EntityTools.spawnTextEntity(location, (String) map.get("game_name"), (String) map.get("compared_type"));
         }
@@ -184,7 +188,7 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onDisable() {
-        loadedGame.forEach(s -> Arena.delWorld(s));
+        loadedGames.forEach(s -> Arena.delWorld(s));
         EntityTools.closeAll();
         THREAD_POOL_EXECUTOR.shutdown();
         RoomHashMap.clear();
@@ -210,10 +214,18 @@ public class GameAPI extends PluginBase implements Listener {
     }
 
     public static void addLoadedGame(String gameName){
-        loadedGame.add(gameName);
+        loadedGames.add(gameName);
     }
 
     public static void removeLoadedGame(String gameName){
-        loadedGame.remove(gameName);
+        loadedGames.remove(gameName);
+    }
+
+    public static List<String> getLoadedGames() {
+        return loadedGames;
+    }
+
+    public static Language getLanguage() {
+        return language;
     }
 }

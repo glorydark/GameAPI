@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+@Experimental
 public class AdvancedBlockRegistry {
 
     protected static HashMap<String, Class<?>> blockHashmap = new HashMap<>();
@@ -22,7 +23,6 @@ public class AdvancedBlockRegistry {
         blockHashmap.remove(id+":"+meta);
     }
 
-    @Experimental
     public static void triggerBlock(RoomPlayerInteractEvent roomPlayerInteractEvent) {
         if(roomPlayerInteractEvent.getBlock() == null){
             return;
@@ -30,12 +30,11 @@ public class AdvancedBlockRegistry {
         trigger(roomPlayerInteractEvent.getBlock(), roomPlayerInteractEvent);
     }
 
-    @Experimental
     public static void triggerBlock(RoomBlockEvent roomBlockEvent) {
         trigger(roomBlockEvent.getBlock(), roomBlockEvent);
     }
 
-    public static void trigger(Block block, RoomEvent roomEvent){
+    private static void trigger(Block block, RoomEvent roomEvent){
         String idString = block.getId()+":"+block.getDamage();
         if(blockHashmap.containsKey(idString)){
             Class advancedBlockClass = blockHashmap.get(idString);

@@ -31,16 +31,16 @@ public class FileUtil {
                     if (getFile.isDirectory()) {
                         delete(getFile);
                     }else if (!getFile.delete()) {
-                        GameAPI.plugin.getLogger().error("文件: " + getFile.getName() + " 删除失败！");
+                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("file.delete.failed", file.getName()));
                     }
                 }
             }
             if (!file.delete()) {
-                GameAPI.plugin.getLogger().error("文件: " + file.getName() + " 删除失败！");
+                GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("file.delete.failed", file.getName()));
             }
             return true;
         } catch (Exception e) {
-            GameAPI.plugin.getLogger().error("文件: " + file.getName() + " 删除出现问题，请手动修复！");
+            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("file.delete.error", file.getName()));
             //e.printStackTrace();
         }
         return false;
@@ -63,7 +63,7 @@ public class FileUtil {
             File [] files = from.listFiles();
             if (files != null) {
                 if (!to.exists() && !to.mkdirs()) {
-                    throw new IOException("文件夹: " + to.getName() + " 创建失败！");
+                    throw new IOException(GameAPI.getLanguage().getText("file.folder.create.failed", to.getName()));
                 }
                 for (File file : files) {
                     if (file.isDirectory()) {

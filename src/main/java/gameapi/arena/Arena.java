@@ -32,11 +32,11 @@ public class Arena {
             if(file.getName().startsWith(prefix+"_")) {
                 if(Server.getInstance().isLevelLoaded(file.getName())){
                     if(!Server.getInstance().getLevelByName(file.getName()).unload(true)) {
-                        GameAPI.plugin.getLogger().warning("发现地图无法卸载，地图名:"+file.getName());
+                        GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("world.unloadFailed", file.getName()));
                         continue;
                     }
                 }
-                GameAPI.plugin.getLogger().warning("删除已复制地图，地图名:"+file.getName());
+                GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("world.deleteFile", file.getName()));
                 FileUtil.delete(file);
             }
         }
@@ -128,7 +128,7 @@ public class Arena {
     @Experimental
     public static void unloadLevel(Room room, Level level){
         if (level == null) {
-            GameAPI.plugin.getLogger().error("§c游戏房间: " + room.getRoomName() + "地图不存在！");
+            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("world.notFound", room.getRoomName()));
             room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
             return;
         }
@@ -168,7 +168,7 @@ public class Arena {
         File newLevelFile = new File(Server.getInstance().getFilePath() + "/worlds/" + newName);
         File backup = new File(GameAPI.path + "/worlds/" + room.getRoomLevelBackup());
         if (!backup.exists()) {
-            GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图备份不存在！还原失败！");
+            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("world.backup.notFound", levelName));
             room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
         }
         //CrystalWar Arena.java
@@ -181,10 +181,10 @@ public class Arena {
                         data.forEach(roomLevelData -> {
                             roomLevelData.resetLevel(loadLevel);
                         });
-                        GameAPI.plugin.getLogger().info("§a游戏房间: " + newName + " 地图加载完成！");
+                        GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getText("world.loadSuccessfully", newName));
                     }
                 } else {
-                    GameAPI.plugin.getLogger().error("§c游戏房间: " + newName + " 地图加载失败！请检查文件权限！");
+                    GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("world.loadFailed", newName));
                     room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                     //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
                 }

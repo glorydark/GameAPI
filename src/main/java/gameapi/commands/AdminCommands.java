@@ -41,7 +41,7 @@ public class AdminCommands extends Command {
                         if (player != null) {
                             SoundTools.playResourcePackOggMusic(player, strings[2]);
                         } else {
-                            GameAPI.plugin.getLogger().warning("Can not find the chosen player!");
+                            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("command.error.playerNotFound", strings[1]));
                         }
                     }
                     break;
@@ -53,10 +53,10 @@ public class AdminCommands extends Command {
                             if (sound.getSound() != null) {
                                 SoundTools.addAmbientSound(player.level, player, sound);
                             } else {
-                                GameAPI.plugin.getLogger().warning("Can not find the chosen sound!");
+                                GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("command.error.vanillaSoundNotFound", strings[1]));
                             }
                         } else {
-                            GameAPI.plugin.getLogger().warning("Can not find the chosen player!");
+                            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("command.error.playerNotFound", strings[1]));
                         }
                     }
                     break;
@@ -68,14 +68,14 @@ public class AdminCommands extends Command {
                         switch (strings[1]) {
                             case "true":
                                 GameAPI.debug.add((Player) commandSender);
-                                commandSender.sendMessage("已开启debug模式！");
+                                commandSender.sendMessage(GameAPI.getLanguage().getText("command.debug.on"));
                                 break;
                             case "false":
                                 GameAPI.debug.remove((Player) commandSender);
-                                commandSender.sendMessage("已关闭debug模式！");
+                                commandSender.sendMessage(GameAPI.getLanguage().getText("command.debug.off"));
                         }
                     }else{
-                        commandSender.sendMessage("请在游戏内执行！");
+                        commandSender.sendMessage(GameAPI.getLanguage().getText("command.error.useInGame"));
                     }
                     break;
                 case "savebattles": // For Tournament Restart Procedures
@@ -99,7 +99,7 @@ public class AdminCommands extends Command {
                             }
                         }
                     }else{
-                        GameAPI.plugin.getLogger().warning("无法创建文件夹："+saveDic.getPath());
+                        GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("command.saveBattle.folderCreatedFailed", saveDic.getPath()));
                     }
                     break;
                 case "addrank":
@@ -109,7 +109,7 @@ public class AdminCommands extends Command {
                             EntityTools.addRankingList(player, strings[1], strings[2]);
                         }
                     }else{
-                        commandSender.sendMessage("请在游戏内执行！");
+                        commandSender.sendMessage(GameAPI.getLanguage().getText("command.error.useInGame"));
                     }
                     break;
                 case "stoproom":
@@ -118,13 +118,13 @@ public class AdminCommands extends Command {
                         if(room != null){
                             for (Player player : room.getPlayers()) {
                                 player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
-                                player.sendMessage("该对局已被强行停止！");
+                                player.sendMessage(GameAPI.getLanguage().getText("command.battle.stop"));
                                 GameAPI.playerRoomHashMap.remove(player);
                             }
                             room.setRoomStatus(RoomStatus.ROOM_STOPPED);
-                            commandSender.sendMessage("Room Stopped!");
+                            commandSender.sendMessage(GameAPI.getLanguage().getText("command.battle.stop"));
                         }else{
-                            commandSender.sendMessage("Room Not Found!");
+                            commandSender.sendMessage(GameAPI.getLanguage().getText("command.error.roomNotFound"));
                         }
                     }
                     break;
@@ -133,17 +133,17 @@ public class AdminCommands extends Command {
                         Room room = Room.getRoom(strings[1], strings[2]);
                         if(room != null){
                             if(room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart){
-                                commandSender.sendMessage("The game of this room is not processing!");
+                                commandSender.sendMessage(GameAPI.getLanguage().getText("command.error.room.notProcessing"));
                                 return true;
                             }
                             for (Player player : room.getPlayers()) {
                                 player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
-                                player.sendMessage("该对局已被强行暂停！");
+                                player.sendMessage(GameAPI.getLanguage().getText("command.battle.halt"));
                             }
                             room.setRoomStatus(RoomStatus.ROOM_HALTED);
-                            commandSender.sendMessage("Room Halted!");
+                            commandSender.sendMessage(GameAPI.getLanguage().getText("command.battle.halt"));
                         }else{
-                            commandSender.sendMessage("Room Not Found!");
+                            commandSender.sendMessage(GameAPI.getLanguage().getText("command.error.roomNotFound"));
                         }
                     }
                     break;
@@ -154,39 +154,38 @@ public class AdminCommands extends Command {
                             for (Player player : room.getPlayers()) {
                                 if(player.isOnline()){
                                     player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
-                                    player.sendMessage("该对局已重新开始！");
+                                    player.sendMessage(GameAPI.getLanguage().getText("command.battle.restart"));
                                 }else{
-                                    commandSender.sendMessage("玩家未在线，玩家名："+player.getName());
+                                    commandSender.sendMessage(GameAPI.getLanguage().getText("command.error.playerOffline", player.getName()));
                                 }
                             }
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart);
-                            commandSender.sendMessage("Room Restarted!");
+                            commandSender.sendMessage(GameAPI.getLanguage().getText("command.battle.restart"));
                         }else{
-                            commandSender.sendMessage("Room Not Found!");
+                            commandSender.sendMessage(GameAPI.getLanguage().getText("command.error.roomNotFound"));
                         }
                     }
                     break;
                 case "status":
-                    commandSender.sendMessage("Getting the status of rooms...");
-                    List<String> games = new ArrayList<>(GameAPI.RoomHashMap.keySet());
-                    if(games.size() > 0){
-                        for(String game: games){
-                            commandSender.sendMessage("房间【"+ game+"】信息：");
+                    commandSender.sendMessage(GameAPI.getLanguage().getText("command.status.getting"));
+                    if(GameAPI.getLoadedGames().size() > 0){
+                        for(String game: GameAPI.getLoadedGames()){
+                            commandSender.sendMessage(GameAPI.getLanguage().getText("command.status.show.title", game));
                             List<Room> rooms = GameAPI.RoomHashMap.get(game);
                             if(rooms.size() > 0){
                                 for(Room room: rooms){
                                     if(room.getRoomRule().needPreStartPass){
-                                        commandSender.sendMessage(room.getRoomName()+": "+room.getRoomStatus().toString()+"【"+room.getPlayers().size()+"/"+room.getMinPlayer()+"】 - 需要管理员手动开始比赛");
+                                        commandSender.sendMessage(GameAPI.getLanguage().getText("command.status.show.tag.needStartPass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer()));
                                     }else{
-                                        commandSender.sendMessage(room.getRoomName()+": "+room.getRoomStatus().toString()+"【"+room.getPlayers().size()+"/"+room.getMinPlayer()+"】");
+                                        commandSender.sendMessage(GameAPI.getLanguage().getText("command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer()));
                                     }
                                 }
                             }else{
-                                commandSender.sendMessage("§cNo rooms of this game have been loaded！");
+                                commandSender.sendMessage(GameAPI.getLanguage().getText("command.status.noRoomLoaded"));
                             }
                         }
                     }else{
-                        commandSender.sendMessage("§cNo loaded games existed");
+                        commandSender.sendMessage(GameAPI.getLanguage().getText("command.status.noGameLoaded"));
                     }
                     break;
                 case "roomstart":
@@ -194,10 +193,11 @@ public class AdminCommands extends Command {
                         Room room = Room.getRoom(strings[1], strings[2]);
                         if(room != null){
                             if(room.isPreStartPass()){
-
+                                room.setPreStartPass(true);
+                                commandSender.sendMessage(GameAPI.getLanguage().getText("command.startPass.endowed", room.getRoomName()));
                             }
                         }else{
-                            commandSender.sendMessage("Room Not Found!");
+                            commandSender.sendMessage(GameAPI.getLanguage().getText("command.error.roomNotFound"));
                         }
                     }
                     break;

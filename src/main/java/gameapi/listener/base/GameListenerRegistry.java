@@ -70,9 +70,9 @@ public class GameListenerRegistry {
             listener.callEvent(gameName, event);
         }
         if(event instanceof RoomBlockEvent){
-            AdvancedBlockRegistry.trigger(((RoomBlockEvent) event).getBlock(), event);
+            AdvancedBlockRegistry.triggerBlock((RoomBlockEvent) event);
         }else if(event instanceof RoomPlayerInteractEvent){
-            AdvancedBlockRegistry.trigger(((RoomPlayerInteractEvent) event).getBlock(), event);
+            AdvancedBlockRegistry.triggerBlock(((RoomPlayerInteractEvent) event));
         }
     }
 }

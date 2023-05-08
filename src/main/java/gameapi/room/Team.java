@@ -1,6 +1,7 @@
 package gameapi.room;
 
 import cn.nukkit.Player;
+import gameapi.GameAPI;
 import gameapi.utils.AdvancedLocation;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,7 +41,7 @@ public class Team {
         if(isAvailable()) {
             playerList.add(player);
         }else{
-            player.sendMessage("该队伍已满！");
+            player.sendMessage(GameAPI.getLanguage().getText("room.team.full"));
         }
     }
 

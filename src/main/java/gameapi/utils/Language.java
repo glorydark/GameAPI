@@ -3,6 +3,7 @@ package gameapi.utils;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.utils.Config;
+import gameapi.GameAPI;
 import gameapi.annotation.Experimental;
 
 import java.io.File;
@@ -15,7 +16,7 @@ public class Language {
 
     protected String name;
 
-    protected String defaultLanguage = "en_US";
+    protected String defaultLanguage = "zh_CN";
 
     public Language(String name){
         lang = new HashMap<>();
@@ -34,6 +35,17 @@ public class Language {
         }else{
             Server.getInstance().getLogger().warning("Invalid Language File: "+file.getName());
         }
+    }
+
+    public String getText(String key, Object... param){
+        String processedText = (String) lang.getOrDefault(defaultLanguage, new HashMap<>()).getOrDefault(key, "§cNot Found!");
+        if(param.length > 0){
+            for(int i = 1; i<=param.length; i++){
+                processedText = processedText.replaceAll("%"+i+"%", String.valueOf(param[i-1]));
+            }
+        }
+        processedText = processedText.replace("\\n", "\n");
+        return processedText;
     }
 
     public String getText(Player player, String key, Object... param){
@@ -59,16 +71,23 @@ public class Language {
     }
 
     private String getLang(Player player){
-        if(player.getLocale() != null){
-            String prefer = player.getLocale().getLanguage() + "_" + player.getLocale().getCountry();
+        Config config = new Config(GameAPI.path+"/language_cache.yml", Config.YAML);
+        if(config.exists(player.getName())){
+            String prefer = config.getString(player.getName());
             if(lang.containsKey(prefer)){
                 return prefer;
             }else{
                 return defaultLanguage;
             }
         }else{
-            return lang.containsKey(defaultLanguage)? defaultLanguage: "en_US";
+            return defaultLanguage;
         }
+    }
+
+    public void setPlayerPreferLanguage(Player player, String langName){
+        Config config = new Config(GameAPI.path+"/language_cache.yml", Config.YAML);
+        config.set(player.getName(), langName);
+        config.save();
     }
 
     public void setDefaultLanguage(String defaultLanguage) {

@@ -1,5 +1,7 @@
 package gameapi.room;
 
+import gameapi.annotation.Experimental;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +12,7 @@ public class RoomRule {
     public Boolean allowBreakBlock = false;
     public Boolean allowPlaceBlock = false;
     public int gameMode;
-    public Boolean noStartWalk = true;
+    public Boolean readyStartWalk = true;
     public Boolean noDropItem = true;
     public List<String> canBreakBlocks = new ArrayList<>();
     public List<String> canPlaceBlocks = new ArrayList<>();
@@ -32,10 +34,8 @@ public class RoomRule {
     public Boolean allowRespawn = false;
     public int respawnCoolDownTick = 20;
     public Boolean allowSpectatorMode = true;
-
-    public Boolean needPreStartPass = false;
-
-    public Boolean personal = false;
+    @Experimental public Boolean needPreStartPass = false;
+    @Experimental public Boolean personal = false;
 
     public RoomRule(Integer gameMode){
         this.gameMode = gameMode;
@@ -47,7 +47,7 @@ public class RoomRule {
                 "allowBreakBlock=" + allowBreakBlock +
                 ", allowPlaceBlock=" + allowPlaceBlock +
                 ", gameMode=" + gameMode +
-                ", noStartWalk=" + noStartWalk +
+                ", noStartWalk=" + readyStartWalk +
                 ", noDropItem=" + noDropItem +
                 ", canBreakBlocks=" + canBreakBlocks +
                 ", canPlaceBlocks=" + canPlaceBlocks +

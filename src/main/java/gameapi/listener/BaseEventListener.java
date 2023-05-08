@@ -13,7 +13,6 @@ import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.entity.EntityTools;
 import gameapi.entity.GameProjectileEntity;
@@ -50,7 +49,7 @@ public class BaseEventListener implements Listener {
                 if (InventoryTools.getPlayerBagConfig(event.getPlayer()) != null) {
                     InventoryTools.loadBag(event.getPlayer());
                     event.getPlayer().getFoodData().setLevel(20, 20.0F);
-                    Server.getInstance().getLogger().info("检测到玩家" + event.getPlayer().getName() + "背包上次未能返还，已经返还！");
+                    Server.getInstance().getLogger().info(GameAPI.getLanguage().getText("baseEvent.join.bagCacheExisted", event.getPlayer().getName()));
                 }
             }
             event.getPlayer().setLocale(Locale.US);
@@ -65,7 +64,7 @@ public class BaseEventListener implements Listener {
         Room room = Room.getRoom(event.getPlayer());
         if (room != null) {
             for (Player p : room.getPlayers()) {
-                p.sendMessage("玩家" + event.getPlayer().getName() + "退出了本房间");
+                p.sendMessage(GameAPI.getLanguage().getText("baseEvent.quit.roomQuit", event.getPlayer().getName()));
             }
             room.removePlayer(event.getPlayer(), true);
         }
@@ -197,7 +196,7 @@ public class BaseEventListener implements Listener {
         Player player = event.getPlayer();
         Room room = Room.getRoom(player);
         if (room != null) {
-            if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameReadyStart && room.getRoomRule().noStartWalk) {
+            if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameReadyStart && !room.getRoomRule().readyStartWalk) {
                 Location from = event.getFrom();
                 Location to = event.getTo();
                 if (from.getFloorX() != to.getFloorX() || from.getFloorZ() != to.getFloorZ()) {
@@ -266,7 +265,7 @@ public class BaseEventListener implements Listener {
                 Player p2 = (Player) event.getDamager();
                 if (room1.getTeams().size() > 0) {
                     if (room1.getPlayerTeam(p1) != null && room1.getPlayerTeam(p1) == room2.getPlayerTeam(p2)) {
-                        p1.sendMessage("§c你不能攻击你的队友");
+                        p1.sendMessage(GameAPI.getLanguage().getText("baseEvent.teamDamage.notAllowed"));
                         event.setCancelled(true);
                     } else {
                         addDamageSource(p1.getName(), p2.getName());
@@ -313,7 +312,7 @@ public class BaseEventListener implements Listener {
             }
             Room room = Room.getRoom(player);
             if (room != null) {
-                player.sendMessage(TextFormat.RED + "游戏内玩家不可执行指令！");
+                player.sendMessage(GameAPI.getLanguage().getText("baseEvent.commandExecute.notAllowed"));
                 event.setCancelled(true);
             }
         }
@@ -335,7 +334,7 @@ public class BaseEventListener implements Listener {
                 room.getStartSpawn().forEach(spawn -> arenas.add(spawn.getLevel()));
                 if (!arenas.contains(fromLevel) && !arenas.contains(toLevel)) {
                     event.setCancelled(true);
-                    player.sendMessage("§c请使用命令加入/退出游戏房间！");
+                    player.sendMessage(GameAPI.getLanguage().getText("baseEvent.levelChange.notAllowed"));
                 }
             }
         }
@@ -403,7 +402,7 @@ public class BaseEventListener implements Listener {
         RoomPlayerChatEvent chatEvent = new RoomPlayerChatEvent(room, player, new RoomChatData(player.getName(), event.getMessage()));
         GameListenerRegistry.callEvent(room, chatEvent);
         if (!chatEvent.isCancelled()) {
-            String msg = "[" + room.getRoomName() + "] " + chatEvent.getRoomChatData().getDefaultChatMsg();
+            String msg = GameAPI.getLanguage().getText("baseEvent.chat.message_format", room.getRoomName(), chatEvent.getRoomChatData().getDefaultChatMsg());
             for (Player roomPlayer : room.getPlayers()) {
                 roomPlayer.sendMessage(msg);
             }
