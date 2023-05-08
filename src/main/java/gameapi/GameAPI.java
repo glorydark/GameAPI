@@ -15,9 +15,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import gameapi.arena.Arena;
+import gameapi.block.AdvancedBlockRegistry;
+import gameapi.block.test.TestAdvancedBlockListenerListener;
 import gameapi.commands.AdminCommands;
 import gameapi.entity.EntityTools;
-import gameapi.listener.PlayerEventListener;
+import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.task.RoomTask;
@@ -90,9 +92,10 @@ public class GameAPI extends PluginBase implements Listener {
         }
         loadAllRankingListEntities();
         this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(),20, true);
-        this.getServer().getPluginManager().registerEvents(new PlayerEventListener(),this);
+        this.getServer().getPluginManager().registerEvents(new BaseEventListener(),this);
         //GameListenerRegistry.registerEvents("test", new TestListener(), this);
         //GameListenerRegistry.callEvent("test", new RoomPlayerJoinEvent(null, null));
+        //AdvancedBlockRegistry.registerAdvancedBlock(152, 0, TestAdvancedBlockListenerListener.class);
         this.getServer().getCommandMap().register("",new AdminCommands("gameapi"));
         Server.getInstance().getScheduler().scheduleRepeatingTask(this, new NukkitRunnable() {
             @Override
@@ -116,6 +119,12 @@ public class GameAPI extends PluginBase implements Listener {
                         } else {
                             out += "所指方块id: [无] 方块名称:无"  + "\n";
                             out += "所指方块位置: [无]"  + "\n";
+                        }
+                        Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
+                        if(under != null){
+                            out+= "所踩方块: "+under.getId()+":"+under.getDamage();
+                        }else{
+                            out+= "所踩方块: [无]";
                         }
                         player.sendActionBar(out);
                 }

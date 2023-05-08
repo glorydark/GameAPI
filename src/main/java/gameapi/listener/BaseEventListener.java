@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 /**
  * @author Glorydark
  */
-public class PlayerEventListener implements Listener {
+public class BaseEventListener implements Listener {
 
     public static HashMap<String, List<DamageSource>> damageSources = new HashMap<>();
 
@@ -194,14 +194,25 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerMoveEvent(PlayerMoveEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
             if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameReadyStart && room.getRoomRule().noStartWalk) {
                 Location from = event.getFrom();
                 Location to = event.getTo();
                 if (from.getFloorX() != to.getFloorX() || from.getFloorZ() != to.getFloorZ()) {
-                    event.setCancelled(true);
+                    Location newTo = new Location(from.getX(), from.getY(), from.getZ(), from.getYaw(), from.getPitch(), from.getHeadYaw());
+                    event.setTo(newTo);
                 }
+            }
+
+            RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(room, player, event.getFrom(), event.getTo(), event.isResetBlocksAround());
+            if(roomPlayerMoveEvent.isCancelled()){
+                event.setCancelled(true);
+            }else{
+                event.setTo(roomPlayerMoveEvent.getTo());
+                event.setFrom(roomPlayerMoveEvent.getFrom());
+                event.setResetBlocksAround(roomPlayerMoveEvent.isResetBlocksAround());
             }
         }
     }
@@ -219,7 +230,7 @@ public class PlayerEventListener implements Listener {
                 if (room1.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                     RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(room1, (Player) entity, event.getCause());
                     //Server.getInstance().getPluginManager().callEvent(ev);
-                    GameListenerRegistry.callEvent(room1.getGameName(), ev);
+                    GameListenerRegistry.callEvent(room1, ev);
                     if (!ev.isCancelled()) {
                         entity.setHealth(entity.getMaxHealth());
                         room1.setSpectator((Player) entity, room1.getRoomRule().allowSpectatorMode, true);

@@ -4,14 +4,16 @@ import cn.nukkit.event.EventPriority;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.PluginException;
 import gameapi.annotation.Future;
+import gameapi.block.AdvancedBlockRegistry;
 import gameapi.event.RoomEvent;
+import gameapi.event.block.RoomBlockEvent;
+import gameapi.event.player.RoomPlayerInteractEvent;
 import gameapi.listener.base.annotations.GameEventHandler;
 import gameapi.listener.base.interfaces.GameListener;
 import gameapi.room.Room;
 
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Future
 public class GameListenerRegistry {
@@ -59,20 +61,16 @@ public class GameListenerRegistry {
         }
     }
 
-    public static void callEvent(String gameName, RoomEvent event) {
-        List<RoomListener> find = new ArrayList<>(listeners.getOrDefault(gameName, new ArrayList<>()));
-        // Deal with listeners with priority.
-        find = find.stream().sorted(Comparator.comparingInt(o -> o.getPriority().getSlot())).collect(Collectors.toList());
-        for(RoomListener listener: find){
-            listener.callEvent(gameName, event);
-        }
-    }
-
     public static void callEvent(Room room, RoomEvent event) {
         String gameName = room.getGameName();
         List<RoomListener> find = new ArrayList<>(listeners.getOrDefault(gameName, new ArrayList<>()));
         for(RoomListener listener: find){
             listener.callEvent(gameName, event);
+        }
+        if(event instanceof RoomBlockEvent){
+            AdvancedBlockRegistry.trigger(((RoomBlockEvent) event).getBlock(), event);
+        }else if(event instanceof RoomPlayerInteractEvent){
+            AdvancedBlockRegistry.trigger(((RoomPlayerInteractEvent) event).getBlock(), event);
         }
     }
 }

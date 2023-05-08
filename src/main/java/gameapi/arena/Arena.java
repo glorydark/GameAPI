@@ -156,8 +156,6 @@ public class Arena {
             }
         }
         // Experimental: Solving the tick error when unloading the levels in PM1E.
-        level.setTickRate(level.getTickRate() - 1);
-        level.tickRateCounter = level.getTickRate();
         level.getProvider().close();
         Server.getInstance().unloadLevel(level, true);
     }

@@ -232,7 +232,7 @@ public class Room {
                 return false;
             }else{
                 RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this,player);
-                GameListenerRegistry.callEvent(gameName, ev);
+                GameListenerRegistry.callEvent(this, ev);
                 if(!ev.isCancelled()) {
                     GameAPI.playerRoomHashMap.put(player, this);
                     InventoryTools.saveBag(player);
@@ -244,7 +244,7 @@ public class Room {
                     for (Player p : this.players) {
                         p.sendMessage(player.getName() + " §l§a加入房间 【" + this.players.size() + "/" + this.maxPlayer + "】");
                     }
-                    GameListenerRegistry.callEvent(gameName, new RoomPlayerJoinEvent(this, player));
+                    GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
                 }
                 return true;
             }
@@ -254,7 +254,7 @@ public class Room {
 
     public void removePlayer(Player player, Boolean saveBag){
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this,player);
-        GameListenerRegistry.callEvent(gameName, ev);
+        GameListenerRegistry.callEvent(this, ev);
         //GameListenerRegistry.callEvent(this.getGameName(), ev);
         if(!ev.isCancelled()) {
             player.getInventory().clearAll();
@@ -344,19 +344,19 @@ public class Room {
         if(callEvent){
             switch (status){
                 case ROOM_STATUS_GameReadyStart:
-                    GameListenerRegistry.callEvent(gameName, new RoomReadyStartEvent(this));
+                    GameListenerRegistry.callEvent(this, new RoomReadyStartEvent(this));
                     break;
                 case ROOM_STATUS_PreStart:
-                    GameListenerRegistry.callEvent(gameName, new RoomPreStartEvent(this));
+                    GameListenerRegistry.callEvent(this, new RoomPreStartEvent(this));
                     break;
                 case ROOM_STATUS_GameStart:
-                    GameListenerRegistry.callEvent(gameName, new RoomGameStartEvent(this));
+                    GameListenerRegistry.callEvent(this, new RoomGameStartEvent(this));
                     break;
                 case ROOM_STATUS_GameEnd:
-                    GameListenerRegistry.callEvent(gameName, new RoomGameEndEvent(this));
+                    GameListenerRegistry.callEvent(this, new RoomGameEndEvent(this));
                     break;
                 case ROOM_STATUS_Ceremony:
-                    GameListenerRegistry.callEvent(gameName, new RoomCeremonyEvent(this));
+                    GameListenerRegistry.callEvent(this, new RoomCeremonyEvent(this));
                     break;
             }
         }
@@ -369,7 +369,7 @@ public class Room {
         new ArrayList<>(this.spectators).forEach(this::removeSpectator);
         for(Player player: players){
             RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this,player);
-            GameListenerRegistry.callEvent(gameName, ev);
+            GameListenerRegistry.callEvent(this, ev);
             player.getInventory().clearAll();
             //GameListenerRegistry.callEvent(this.getGameName(), ev);
             InventoryTools.loadBag(player);
@@ -607,7 +607,7 @@ public class Room {
             if(roomRule.allowRespawn){
                 RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player);
                 Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, ()->{
-                    GameListenerRegistry.callEvent(gameName, ev);
+                    GameListenerRegistry.callEvent(this, ev);
                     //GameListenerRegistry.callEvent(this.getGameName(), ev);
                     if(!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                         player.sendTitle("您已复活");

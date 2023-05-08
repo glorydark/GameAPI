@@ -1,9 +1,6 @@
 package gameapi.listener.base;
 
-import cn.nukkit.event.block.BlockEvent;
-import gameapi.block.AdvancedBlockRegistry;
 import gameapi.event.RoomEvent;
-import gameapi.event.block.RoomBlockEvent;
 import gameapi.listener.base.exceptions.GameEventException;
 import gameapi.listener.base.interfaces.GameEventExecutor;
 import gameapi.listener.base.interfaces.GameListener;
@@ -22,12 +19,7 @@ public class MethodGameEventExecutor implements GameEventExecutor {
         try {
             for (Class param : this.method.getParameterTypes()) {
                 if (event.getClass().isAssignableFrom(param)) {
-                    if(BlockEvent.class.isAssignableFrom(param)){
-                        RoomBlockEvent ev = (RoomBlockEvent) event;
-                        AdvancedBlockRegistry.triggerBlock(ev);
-                    }
                     this.method.invoke(listener, event);
-                    break;
                 }
             }
         } catch (InvocationTargetException ite) {

@@ -4,7 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import gameapi.event.Cancellable;
-import gameapi.listener.PlayerEventListener;
+import gameapi.listener.BaseEventListener;
 import gameapi.room.Room;
 
 import java.util.ArrayList;
@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 
 public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable {
 
-    private final PlayerEventListener.DamageSource lastDamageSource;
+    private final BaseEventListener.DamageSource lastDamageSource;
 
-    private final List<PlayerEventListener.DamageSource> assistingDamageSource;
+    private final List<BaseEventListener.DamageSource> assistingDamageSource;
 
     private final EntityDamageEvent.DamageCause cause;
 
@@ -23,14 +23,14 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
         this.room = room;
         this.player = player;
         //导入的伤害来源
-        List<PlayerEventListener.DamageSource> inputDamageSources = PlayerEventListener.damageSources.getOrDefault(player.getName(), new ArrayList<>());
+        List<BaseEventListener.DamageSource> inputDamageSources = BaseEventListener.damageSources.getOrDefault(player.getName(), new ArrayList<>());
         //利用lambda进行filter，筛掉不合格的伤害来源。
-        List<PlayerEventListener.DamageSource> sortedSources = inputDamageSources.stream().filter(damageSource -> System.currentTimeMillis() - damageSource.getMilliseconds() <= 10000).collect(Collectors.toList());
+        List<BaseEventListener.DamageSource> sortedSources = inputDamageSources.stream().filter(damageSource -> System.currentTimeMillis() - damageSource.getMilliseconds() <= 10000).collect(Collectors.toList());
         sortedSources = sortedSources.stream().sorted((o1, o2) -> (int) (o1.getMilliseconds() - o2.getMilliseconds())).collect(Collectors.toList());
         if(sortedSources.size() > 0){
             this.lastDamageSource = sortedSources.get(sortedSources.size()-1);
         }else{
-            this.lastDamageSource = new PlayerEventListener.DamageSource("", 0);
+            this.lastDamageSource = new BaseEventListener.DamageSource("", 0);
         }
         sortedSources.remove(lastDamageSource);
         this.assistingDamageSource = sortedSources;
@@ -47,7 +47,7 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
         return null;
     }
 
-    public List<PlayerEventListener.DamageSource> getAssistedSource(){
+    public List<BaseEventListener.DamageSource> getAssistedSource(){
         return assistingDamageSource;
     }
 

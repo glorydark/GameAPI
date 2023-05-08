@@ -1,10 +1,13 @@
 package gameapi.task;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.level.Sound;
 import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
+import gameapi.event.block.RoomBlockTreadEvent;
 import gameapi.event.room.*;
 import gameapi.fireworkapi.CreateFireworkApi;
 import gameapi.inventory.InventoryTools;
@@ -38,6 +41,12 @@ public class RoomTask extends AsyncTask {
         for(Player player: room.getPlayers()){
             if(player == null || !player.isOnline()){
                 room.removePlayer(player, false);
+            }else{
+                Block block = player.getLevelBlock();
+                if(!(block instanceof BlockLiquid)){
+                    RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(room, block, player);
+                    GameListenerRegistry.callEvent(room, roomBlockTreadEvent);
+                }
             }
         }
         switch (room.getRoomStatus()) {
@@ -145,10 +154,10 @@ public class RoomTask extends AsyncTask {
             case Wait:
                 if (room.getPlayers().size() >= room.getMinPlayer()) {
                     if(!room.getRoomRule().needPreStartPass || room.isPreStartPass()){
-                        room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart, false);
                         RoomPreStartEvent ev = new RoomPreStartEvent(room);
                         GameListenerRegistry.callEvent(room, ev);
                         if(!ev.isCancelled()){
+                            room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart, false);
                             room.setTime(0);
                             room.setRound(0);
                         }
@@ -172,8 +181,8 @@ public class RoomTask extends AsyncTask {
                     }
                 } else {
                     if (room.getPlayers().size() < room.getMinPlayer()) {
-                        room.setTime(0);
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
+                        room.setTime(0);
                         return;
                     }
                     SmartTools.sendTitle(room.getPlayers(), TextFormat.LIGHT_PURPLE+String.valueOf(room.getWaitTime() - room.getTime()),"游戏即将开始！");
