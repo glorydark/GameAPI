@@ -74,7 +74,9 @@ public class GameAPI extends PluginBase implements Listener {
         this.saveDefaultConfig();
         this.saveResource("rankings.yml", false);
         this.saveResource("languages/zh_CN.properties", false);
+        this.saveResource("languages/en_US.properties", false);
         language.addLanguage(new File(path+"/languages/zh_CN.properties"));
+        language.addLanguage(new File(path+"/languages/en_US.properties"));
         File file = new File(path+"/worlds/");
         File file1 = new File(path+"/gameRecords/");
         file.mkdirs();

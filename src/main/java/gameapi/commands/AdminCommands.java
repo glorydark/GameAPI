@@ -6,6 +6,7 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
+import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
@@ -175,9 +176,9 @@ public class AdminCommands extends Command {
                             if(rooms.size() > 0){
                                 for(Room room: rooms){
                                     if(room.getRoomRule().needPreStartPass){
-                                        commandSender.sendMessage(GameAPI.getLanguage().getText("command.status.show.tag.needStartPass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer()));
+                                        commandSender.sendMessage(GameAPI.getLanguage().getText("command.status.show.tag.needStartPass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
                                     }else{
-                                        commandSender.sendMessage(GameAPI.getLanguage().getText("command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer()));
+                                        commandSender.sendMessage(GameAPI.getLanguage().getText("command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
                                     }
                                 }
                             }else{
@@ -200,6 +201,9 @@ public class AdminCommands extends Command {
                             commandSender.sendMessage(GameAPI.getLanguage().getText("command.error.roomNotFound"));
                         }
                     }
+                    break;
+                case "test":
+                    SmartTools.fallingAndDestroyAreaBlocks(new SimpleAxisAlignedBB(Double.parseDouble(strings[1]), Double.parseDouble(strings[2]), Double.parseDouble(strings[3]), Double.parseDouble(strings[4]), Double.parseDouble(strings[5]), Double.parseDouble(strings[6])), ((Player) commandSender).getLevel());
                     break;
             }
         }

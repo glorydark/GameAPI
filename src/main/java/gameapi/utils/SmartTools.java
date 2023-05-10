@@ -5,26 +5,32 @@ import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityFallingBlock;
+import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.lang.TextContainer;
 import cn.nukkit.lang.TranslationContainer;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.math.AxisAlignedBB;
+import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.DoubleTag;
 import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
+import cn.nukkit.network.protocol.OnScreenTextureAnimationPacket;
 import cn.nukkit.network.protocol.SetTitlePacket;
 import cn.nukkit.network.protocol.TextPacket;
 import com.google.common.base.Strings;
+import gameapi.GameAPI;
 import gameapi.annotation.Experimental;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SmartTools {
     //https://blog.csdn.net/weixin_39975055/article/details/115082818
@@ -207,26 +213,41 @@ public class SmartTools {
     }
 
     @Experimental
-    public static AxisAlignedBB getArea(int startX, int startY, int startZ, int endX, int endY, int endZ){
-        return new SimpleAxisAlignedBB(new Vector3(startX, startY, startZ), new Vector3(endX, endY, endZ));
-    }
-
-    @Experimental
     public static synchronized void removeAreaBlocks(AxisAlignedBB bb, Level level){
         Block block = Block.get(0);
-        bb.forEach((i, i1, i2) -> {
-            level.setBlock(i, i1, i2, block, false, false);
-        });
+        int minX = NukkitMath.floorDouble(bb.getMinX());
+        int minY = NukkitMath.floorDouble(bb.getMinY());
+        int minZ = NukkitMath.floorDouble(bb.getMinZ());
+        int maxX = NukkitMath.floorDouble(bb.getMaxX());
+        int maxY = NukkitMath.floorDouble(bb.getMaxY());
+        int maxZ = NukkitMath.floorDouble(bb.getMaxZ());
+        for(int z = minZ; z <= maxZ; ++z) {
+            for(int x = minX; x <= maxX; ++x) {
+                for(int y = minY; y <= maxY; ++y) {
+                    level.setBlock(x, y, z, block, false, false);
+                }
+            }
+        }
     }
 
     @Experimental
     public static synchronized void destroyAreaBlocks(AxisAlignedBB bb, Level level, ParticleEffect particleEffect){
         Block block = Block.get(0);
         if(particleEffect != null){
-            bb.forEach((i, i1, i2) -> {
-                level.setBlock(i, i1, i2, block, false, false);
-                level.addParticleEffect(new Location(i, i1, i2, level), particleEffect);
-            });
+            int minX = NukkitMath.floorDouble(bb.getMinX());
+            int minY = NukkitMath.floorDouble(bb.getMinY());
+            int minZ = NukkitMath.floorDouble(bb.getMinZ());
+            int maxX = NukkitMath.floorDouble(bb.getMaxX());
+            int maxY = NukkitMath.floorDouble(bb.getMaxY());
+            int maxZ = NukkitMath.floorDouble(bb.getMaxZ());
+            for(int z = minZ; z <= maxZ; ++z) {
+                for(int x = minX; x <= maxX; ++x) {
+                    for(int y = minY; y <= maxY; ++y) {
+                        level.setBlock(x, y, z, block, false, false);
+                        level.addParticleEffect(new Location(x, y, z, level), particleEffect);
+                    }
+                }
+            }
         }else{
             bb.forEach((i, i1, i2) -> {
                 level.setBlock(i, i1, i2, block, false, false);
@@ -235,13 +256,26 @@ public class SmartTools {
     }
 
     @Experimental
-    public static synchronized void fallingAndDestroyAreaBlocks(AxisAlignedBB bb, Level level){
+    public static void fallingAndDestroyAreaBlocks(AxisAlignedBB bb, Level level){
         Block air = Block.get(0);
-        bb.forEach((i, i1, i2) -> {
-            fallBlock(level.getBlock(i, i1, i2));
-            level.setBlock(i, i1, i2, air, false, false);
-        });
-
+        GameAPI.plugin.getLogger().warning(bb.toString());
+        int minX = NukkitMath.floorDouble(bb.getMinX());
+        int minY = NukkitMath.floorDouble(bb.getMinY());
+        int minZ = NukkitMath.floorDouble(bb.getMinZ());
+        int maxX = NukkitMath.floorDouble(bb.getMaxX());
+        int maxY = NukkitMath.floorDouble(bb.getMaxY());
+        int maxZ = NukkitMath.floorDouble(bb.getMaxZ());
+        GameAPI.plugin.getLogger().warning(minX+":"+minY+":"+minZ);
+        GameAPI.plugin.getLogger().warning(maxX+":"+maxY+":"+maxZ);
+        for(int z = minZ; z <= maxZ; ++z) {
+            for(int x = minX; x <= maxX; ++x) {
+                for(int y = minY; y <= maxY; ++y) {
+                    GameAPI.plugin.getLogger().warning(x+":"+y+":"+z+":"+level.getName());
+                    fallBlock(level.getBlock(x, y, z));
+                    level.setBlock(x, y, z, air, false, false);
+                }
+            }
+        }
     }
 
     @Experimental
@@ -251,6 +285,27 @@ public class SmartTools {
         if (fall != null) {
             fall.spawnToAll();
         }
+    }
+
+    public void dropExpOrb(Location source, int exp) {
+        Random rand = ThreadLocalRandom.current();
+        for (int split : EntityXPOrb.splitIntoOrbSizes(exp)) {
+            CompoundTag nbt = Entity.getDefaultNBT(source, new Vector3((rand.nextDouble() * 0.2 - 0.1) * 2.0, rand.nextDouble() * 0.4, (rand.nextDouble() * 0.2 - 0.1) * 2.0), rand.nextFloat() * 360.0F, 0.0F);
+            nbt.putShort("Value", split);
+            nbt.putShort("PickupDelay", 10);
+            nbt.putBoolean("AntiClean", true);
+            Entity entity = Entity.createEntity("XpOrb", source.getChunk(), nbt);
+            if (entity != null) {
+                entity.spawnToAll();
+            }
+        }
+
+    }
+
+    public void showOnScreenTextureAnimation(Player player, int effectId){
+        OnScreenTextureAnimationPacket pk = new OnScreenTextureAnimationPacket();
+        pk.effectId = effectId;
+        player.dataPacket(pk);
     }
 
 }

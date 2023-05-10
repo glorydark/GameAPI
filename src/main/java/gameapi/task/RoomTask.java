@@ -165,7 +165,7 @@ public class RoomTask extends AsyncTask {
                         SmartTools.sendActionbar(room.getPlayers(), GameAPI.getLanguage().getText("room.actionbar.wait.needStartPass"));
                     }
                 }else{
-                    SmartTools.sendActionbar(room.getPlayers(), GameAPI.getLanguage().getText("room.actionbar.wait.waitForPlayers", room.getPlayers().size(), room.getMinPlayer()));
+                    SmartTools.sendActionbar(room.getPlayers(), GameAPI.getLanguage().getText("room.actionbar.wait.waitForPlayers", room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
                 }
                 break;
             case PreStart:
@@ -318,7 +318,7 @@ public class RoomTask extends AsyncTask {
                 }else {
                     room.setTime(room.getTime()+1);
                     if(room.getRound() == room.getMaxRound()){
-                        SmartTools.sendActionbar(room.getPlayers(), GameAPI.getLanguage().getText("room.actionbar.preStart", room.getGameEndTime() - room.getTime()));
+                        SmartTools.sendActionbar(room.getPlayers(), GameAPI.getLanguage().getText("room.actionbar.gameEnd", room.getGameEndTime() - room.getTime()));
                     }else{
                         SmartTools.sendActionbar(room.getPlayers(), GameAPI.getLanguage().getText("room.actionbar.nextRound", room.getGameEndTime() - room.getTime()));
                     }

@@ -56,9 +56,10 @@ public class Room {
     private String gameName;
     private List<String> winConsoleCommands = new ArrayList<>();
     private List<String> loseConsoleCommands = new ArrayList<>();
-    private LinkedHashMap<String, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
+    protected LinkedHashMap<String, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
     // Save data for the room' extra configuration.
-    private LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Object> inheritProperties = new LinkedHashMap<>();
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
 
@@ -666,9 +667,13 @@ public class Room {
                 '}';
     }
 
+    public LinkedHashMap<String, Object> getInheritProperties() {
+        return inheritProperties;
+    }
+
     public void setPersonal(Boolean personal, Player player) {
         this.roomRule.personal = personal;
-        this.roomProperties.put("personal_owner", player);
+        this.inheritProperties.put("personal_owner", player);
         this.preStartPass = true;
     }
 }

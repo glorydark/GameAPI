@@ -16,7 +16,7 @@ public class Language {
 
     protected String name;
 
-    protected String defaultLanguage = "zh_CN";
+    protected String defaultLanguage;
 
     public Language(String name){
         lang = new HashMap<>();
@@ -31,9 +31,9 @@ public class Language {
         if(file.getName().endsWith(".properties")){
             String locale = file.getName().replace(".properties", "");
             lang.put(locale, new Config(file, Config.PROPERTIES).getAll());
-            Server.getInstance().getLogger().warning("Language Loaded: "+locale);
+            Server.getInstance().getLogger().info("§aLanguage Loaded: "+locale);
         }else{
-            Server.getInstance().getLogger().warning("Invalid Language File: "+file.getName());
+            Server.getInstance().getLogger().info("§cInvalid Language File: "+file.getName());
         }
     }
 
