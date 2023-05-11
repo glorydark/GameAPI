@@ -13,7 +13,6 @@ import cn.nukkit.level.Location;
 import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.NukkitMath;
-import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.DoubleTag;
@@ -35,7 +34,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class SmartTools {
     //https://blog.csdn.net/weixin_39975055/article/details/115082818
 
-    @Deprecated
     public static String dateToString(Date date) {
         return dateToString(date, "yyyyMMdd_hhmmss");
     }
@@ -234,20 +232,10 @@ public class SmartTools {
     public static synchronized void destroyAreaBlocks(AxisAlignedBB bb, Level level, ParticleEffect particleEffect){
         Block block = Block.get(0);
         if(particleEffect != null){
-            int minX = NukkitMath.floorDouble(bb.getMinX());
-            int minY = NukkitMath.floorDouble(bb.getMinY());
-            int minZ = NukkitMath.floorDouble(bb.getMinZ());
-            int maxX = NukkitMath.floorDouble(bb.getMaxX());
-            int maxY = NukkitMath.floorDouble(bb.getMaxY());
-            int maxZ = NukkitMath.floorDouble(bb.getMaxZ());
-            for(int z = minZ; z <= maxZ; ++z) {
-                for(int x = minX; x <= maxX; ++x) {
-                    for(int y = minY; y <= maxY; ++y) {
-                        level.setBlock(x, y, z, block, false, false);
-                        level.addParticleEffect(new Location(x, y, z, level), particleEffect);
-                    }
-                }
-            }
+            bb.forEach((i, i1, i2) -> {
+                level.setBlock(i, i1, i2, block, false, false);
+                level.addParticleEffect(new Location(i, i1, i2, level), particleEffect);
+            });
         }else{
             bb.forEach((i, i1, i2) -> {
                 level.setBlock(i, i1, i2, block, false, false);
@@ -259,23 +247,10 @@ public class SmartTools {
     public static void fallingAndDestroyAreaBlocks(AxisAlignedBB bb, Level level){
         Block air = Block.get(0);
         GameAPI.plugin.getLogger().warning(bb.toString());
-        int minX = NukkitMath.floorDouble(bb.getMinX());
-        int minY = NukkitMath.floorDouble(bb.getMinY());
-        int minZ = NukkitMath.floorDouble(bb.getMinZ());
-        int maxX = NukkitMath.floorDouble(bb.getMaxX());
-        int maxY = NukkitMath.floorDouble(bb.getMaxY());
-        int maxZ = NukkitMath.floorDouble(bb.getMaxZ());
-        GameAPI.plugin.getLogger().warning(minX+":"+minY+":"+minZ);
-        GameAPI.plugin.getLogger().warning(maxX+":"+maxY+":"+maxZ);
-        for(int z = minZ; z <= maxZ; ++z) {
-            for(int x = minX; x <= maxX; ++x) {
-                for(int y = minY; y <= maxY; ++y) {
-                    GameAPI.plugin.getLogger().warning(x+":"+y+":"+z+":"+level.getName());
-                    fallBlock(level.getBlock(x, y, z));
-                    level.setBlock(x, y, z, air, false, false);
-                }
-            }
-        }
+        bb.forEach((i, i1, i2) -> {
+            fallBlock(level.getBlock(i, i1, i2));
+            level.setBlock(i, i1, i2, air, false, false);
+        });
     }
 
     @Experimental
@@ -287,6 +262,12 @@ public class SmartTools {
         }
     }
 
+    /**
+     * This is a method to summon a certain amount of Exp Orb entity.
+     *
+     * @param source 位置
+     * @param exp 经验值
+     */
     public void dropExpOrb(Location source, int exp) {
         Random rand = ThreadLocalRandom.current();
         for (int split : EntityXPOrb.splitIntoOrbSizes(exp)) {
@@ -302,10 +283,56 @@ public class SmartTools {
 
     }
 
+    /**
+     * This is a method to send the OnScreenTextureAnimationPacket.
+     * You may see a large shaking effect icon on your screen when used properly.
+     *
+     * @param player 玩家
+     * @param effectId 药水效果id
+     */
     public void showOnScreenTextureAnimation(Player player, int effectId){
         OnScreenTextureAnimationPacket pk = new OnScreenTextureAnimationPacket();
         pk.effectId = effectId;
         player.dataPacket(pk);
+    }
+
+    /**
+     * This is a method to get the ordinal string by a number.
+     *
+     * @param number  大于0的数字
+     * @param isAllCapital  是否全部大写
+     * @return 序数词字符串
+     */
+    public String getOrdinalString(int number, boolean isAllCapital){
+        switch (number){
+            case 1:
+                if(isAllCapital){
+                    return "1ST";
+                }else {
+                    return "1st";
+                }
+            case 2:
+                if(isAllCapital){
+                    return "2RD";
+                }else {
+                    return "2rd";
+                }
+            case 3:
+                if(isAllCapital){
+                    return "3RD";
+                }else {
+                    return "3rd";
+                }
+            default:
+                if(number < 0){
+                    return "Invalid Number";
+                }
+                if(isAllCapital){
+                    return number+"TH";
+                }else {
+                    return number+"th";
+                }
+        }
     }
 
 }

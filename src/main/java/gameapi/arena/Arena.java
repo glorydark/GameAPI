@@ -32,11 +32,11 @@ public class Arena {
             if(file.getName().startsWith(prefix+"_")) {
                 if(Server.getInstance().isLevelLoaded(file.getName())){
                     if(!Server.getInstance().getLevelByName(file.getName()).unload(true)) {
-                        GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("world.unloadFailed", file.getName()));
+                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("world.unloadFailed", file.getName()));
                         continue;
                     }
                 }
-                GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getText("world.deleteFile", file.getName()));
+                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getText("world.deleteFile", file.getName()));
                 FileUtil.delete(file);
             }
         }

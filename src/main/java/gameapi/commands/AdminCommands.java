@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.level.Sound;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.utils.Config;
@@ -203,7 +204,7 @@ public class AdminCommands extends Command {
                     }
                     break;
                 case "test":
-                    SmartTools.fallingAndDestroyAreaBlocks(new SimpleAxisAlignedBB(Double.parseDouble(strings[1]), Double.parseDouble(strings[2]), Double.parseDouble(strings[3]), Double.parseDouble(strings[4]), Double.parseDouble(strings[5]), Double.parseDouble(strings[6])), ((Player) commandSender).getLevel());
+                    SmartTools.destroyAreaBlocks(new SimpleAxisAlignedBB(Double.parseDouble(strings[1]), Double.parseDouble(strings[2]), Double.parseDouble(strings[3]), Double.parseDouble(strings[4]), Double.parseDouble(strings[5]), Double.parseDouble(strings[6])), ((Player) commandSender).getLevel(), ParticleEffect.LAVA_PARTICLE);
                     break;
             }
         }

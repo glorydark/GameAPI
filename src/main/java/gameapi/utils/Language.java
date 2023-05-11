@@ -12,10 +12,9 @@ import java.util.Map;
 
 @Experimental
 public class Language {
-    protected static HashMap<String, Map<String, Object>> lang;
+    protected HashMap<String, Map<String, Object>> lang;
 
     protected String name;
-
     protected String defaultLanguage;
 
     public Language(String name){
