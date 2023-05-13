@@ -2,12 +2,14 @@ package gameapi.commands;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockGlass;
+import cn.nukkit.block.BlockGlassStained;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.level.Sound;
-import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
@@ -205,7 +207,10 @@ public class AdminCommands extends Command {
                     }
                     break;
                 case "test":
-                    SmartTools.destroyAreaBlocks(new SimpleAxisAlignedBB(Double.parseDouble(strings[1]), Double.parseDouble(strings[2]), Double.parseDouble(strings[3]), Double.parseDouble(strings[4]), Double.parseDouble(strings[5]), Double.parseDouble(strings[6])), ((Player) commandSender).getLevel(), ParticleEffect.LAVA_PARTICLE);
+                    SmartTools.destroyAreaBlocks(SmartTools.getAxisAlignedBB(Double.parseDouble(strings[1]), Double.parseDouble(strings[2]), Double.parseDouble(strings[3]), Double.parseDouble(strings[4]), Double.parseDouble(strings[5]), Double.parseDouble(strings[6])), ((Player) commandSender).getLevel(), ParticleEffect.LAVA_PARTICLE);
+                    break;
+                case "test2":
+                    SmartTools.setAreaBlocks(SmartTools.getAxisAlignedBB(Double.parseDouble(strings[1]), Double.parseDouble(strings[2]), Double.parseDouble(strings[3]), Double.parseDouble(strings[4]), Double.parseDouble(strings[5]), Double.parseDouble(strings[6])), Block.get(Block.STAINED_GLASS, 4), ((Player) commandSender).getLevel());
                     break;
             }
         }

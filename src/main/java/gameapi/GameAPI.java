@@ -160,7 +160,7 @@ public class GameAPI extends PluginBase implements Listener {
     public void loadAllRankingListEntities(){
         Config config = new Config(path+ "/rankings.yml");
         entityRefreshIntervals = config.getInt("refresh_interval", 100);
-        List<Map<String, Object>> maps = (List<Map<String, Object>>) config.get("list");
+        List<Map<String, Object>> maps = config.get("list", new ArrayList<>());
         for(Map<String, Object> map: maps){
             String level = (String) map.get("level");
             if(Server.getInstance().getLevelByName(level) == null){
@@ -184,7 +184,7 @@ public class GameAPI extends PluginBase implements Listener {
             }else{
                 this.getLogger().info(language.getText("loading.ranking_loader.chunk_alreadyLoaded", location.getChunkX(), location.getChunkZ()));
             }
-            EntityTools.spawnTextEntity(location, (String) map.get("game_name"), (String) map.get("compared_type"), map.get("sort_sequence").equals("descend")? GameRecord.SortSequence.DESCEND : GameRecord.SortSequence.ASCEND);
+            EntityTools.spawnTextEntity(location, (String) map.get("game_name"), (String) map.get("compared_type"), map.getOrDefault("sort_sequence", "descend").equals("descend")? GameRecord.SortSequence.DESCEND : GameRecord.SortSequence.ASCEND);
         }
     }
 

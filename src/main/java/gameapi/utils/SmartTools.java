@@ -3,6 +3,7 @@ package gameapi.utils;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockAir;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityFallingBlock;
 import cn.nukkit.entity.item.EntityXPOrb;
@@ -13,6 +14,7 @@ import cn.nukkit.level.Location;
 import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.NukkitMath;
+import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.DoubleTag;
@@ -211,21 +213,23 @@ public class SmartTools {
     }
 
     @Experimental
+    public static SimpleAxisAlignedBB getAxisAlignedBB(double x1, double y1, double z1, double x2, double y2, double z2){
+        return new SimpleAxisAlignedBB(new Vector3(x1, y1, z1), new Vector3(x2, y2, z2));
+    }
+
+    @Experimental
+    public static synchronized void setAreaBlocks(AxisAlignedBB bb, Block block, Level level){
+        bb.forEach((i, i1, i2) -> {
+            level.setBlock(i, i1, i2, block, false, false);
+        });
+    }
+
+    @Experimental
     public static synchronized void removeAreaBlocks(AxisAlignedBB bb, Level level){
-        Block block = Block.get(0);
-        int minX = NukkitMath.floorDouble(bb.getMinX());
-        int minY = NukkitMath.floorDouble(bb.getMinY());
-        int minZ = NukkitMath.floorDouble(bb.getMinZ());
-        int maxX = NukkitMath.floorDouble(bb.getMaxX());
-        int maxY = NukkitMath.floorDouble(bb.getMaxY());
-        int maxZ = NukkitMath.floorDouble(bb.getMaxZ());
-        for(int z = minZ; z <= maxZ; ++z) {
-            for(int x = minX; x <= maxX; ++x) {
-                for(int y = minY; y <= maxY; ++y) {
-                    level.setBlock(x, y, z, block, false, false);
-                }
-            }
-        }
+        Block block = new BlockAir();
+        bb.forEach((i, i1, i2) -> {
+            level.setBlock(i, i1, i2, block, false, false);
+        });
     }
 
     @Experimental
@@ -244,16 +248,6 @@ public class SmartTools {
     }
 
     @Experimental
-    public static void fallingAndDestroyAreaBlocks(AxisAlignedBB bb, Level level){
-        Block air = Block.get(0);
-        GameAPI.plugin.getLogger().warning(bb.toString());
-        bb.forEach((i, i1, i2) -> {
-            fallBlock(level.getBlock(i, i1, i2));
-            level.setBlock(i, i1, i2, air, false, false);
-        });
-    }
-
-    @Experimental
     public static void fallBlock(Block block){
         CompoundTag nbt = (new CompoundTag()).putList((new ListTag("Pos")).add(new DoubleTag("", block.x + 0.5)).add(new DoubleTag("", block.y)).add(new DoubleTag("", block.z + 0.5))).putList((new ListTag("Motion")).add(new DoubleTag("", 0.0)).add(new DoubleTag("", 0.0)).add(new DoubleTag("", 0.0))).putList((new ListTag("Rotation")).add(new FloatTag("", 0.0F)).add(new FloatTag("", 0.0F))).putInt("TileID", block.getId()).putByte("Data", block.getDamage());
         EntityFallingBlock fall = (EntityFallingBlock) Entity.createEntity("FallingSand", block.getLevel().getChunk((int)block.x >> 4, (int)block.z >> 4), nbt, new Object[0]);
@@ -268,7 +262,7 @@ public class SmartTools {
      * @param source 位置
      * @param exp 经验值
      */
-    public void dropExpOrb(Location source, int exp) {
+    public static void dropExpOrb(Location source, int exp) {
         Random rand = ThreadLocalRandom.current();
         for (int split : EntityXPOrb.splitIntoOrbSizes(exp)) {
             CompoundTag nbt = Entity.getDefaultNBT(source, new Vector3((rand.nextDouble() * 0.2 - 0.1) * 2.0, rand.nextDouble() * 0.4, (rand.nextDouble() * 0.2 - 0.1) * 2.0), rand.nextFloat() * 360.0F, 0.0F);
@@ -290,7 +284,7 @@ public class SmartTools {
      * @param player 玩家
      * @param effectId 药水效果id
      */
-    public void showOnScreenTextureAnimation(Player player, int effectId){
+    public static void showOnScreenTextureAnimation(Player player, int effectId){
         OnScreenTextureAnimationPacket pk = new OnScreenTextureAnimationPacket();
         pk.effectId = effectId;
         player.dataPacket(pk);
@@ -303,7 +297,7 @@ public class SmartTools {
      * @param isAllCapital  是否全部大写
      * @return 序数词字符串
      */
-    public String getOrdinalString(int number, boolean isAllCapital){
+    public static String getOrdinalString(int number, boolean isAllCapital){
         switch (number){
             case 1:
                 if(isAllCapital){
