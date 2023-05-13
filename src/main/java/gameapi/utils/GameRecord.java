@@ -48,15 +48,15 @@ public class GameRecord {
     }
 
 
-    public static String getGameRecordRankingListString(String gameName, String comparedKey, SortSequence type){
-        return getGameRecordRankingListString(gameName, comparedKey, rankingFormat.title.replace("%gameName%", gameName), rankingFormat.score_show_format, type);
+    public static String getGameRecordRankingListString(String gameName, String comparedKey, SortSequence sortSequence){
+        return getGameRecordRankingListString(gameName, comparedKey, rankingFormat.title.replace("%gameName%", gameName), rankingFormat.score_show_format, sortSequence);
     }
 
-    public static String getGameRecordRankingListString(String gameName, String comparedKey, String title, String format, SortSequence type){
+    public static String getGameRecordRankingListString(String gameName, String comparedKey, String title, String format, SortSequence sortSequence){
         Map<String, Integer> objectMap = getGameRecordRankingList(gameName, comparedKey, false);
         StringBuilder builder = new StringBuilder().append(title.replace("\\n", "\n"));
         List<Map.Entry<String, Integer>> e;
-        if(type == SortSequence.DESCEND){
+        if(sortSequence == SortSequence.DESCEND){
             e = objectMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toList());
         }else{
             e = objectMap.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
