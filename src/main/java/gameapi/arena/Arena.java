@@ -134,15 +134,7 @@ public class Arena {
         }
         if (level.getPlayers().values().size() > 0) {
             for (Player p : level.getPlayers().values()) {
-                // Experimental: Solving the tick error when unloading the levels in PM1E.
-                p.getLevel().unregisterChunkLoader(p, p.getChunkX(), p.getChunkZ());
-                for(long id : new ArrayList<>(p.usedChunks.keySet())) {
-                    if(level.getChunks().containsKey(id)) {
-                        p.usedChunks.remove(id);
-                    }
-                }
                 for (Entity e : level.getEntities()) {
-                    e.getViewers().clear();
                     e.kill();
                     e.close();
                 }
@@ -151,7 +143,6 @@ public class Arena {
         }
         if (level.getPlayers().values().size() > 0) {
             for (Player p : level.getPlayers().values()) {
-                //p.kick("Due to a unprecedented error, please rejoin the server");
                 p.teleportImmediate(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             }
         }

@@ -184,7 +184,7 @@ public class GameAPI extends PluginBase implements Listener {
             }else{
                 this.getLogger().info(language.getText("loading.ranking_loader.chunk_alreadyLoaded", location.getChunkX(), location.getChunkZ()));
             }
-            EntityTools.spawnTextEntity(location, (String) map.get("game_name"), (String) map.get("compared_type"));
+            EntityTools.spawnTextEntity(location, (String) map.get("game_name"), (String) map.get("compared_type"), map.get("sort_sequence").equals("descend")? GameRecord.SortSequence.DESCEND : GameRecord.SortSequence.ASCEND);
         }
     }
 

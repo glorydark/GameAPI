@@ -6,10 +6,4 @@ format:
   runnerUp_prefix: "§e"
   secondRunnerUp_prefix: "§a"
   no_data: "§a§l暂无数据"
-list:
-  - game_name: "DRecknessHero"
-    compared_type: "win"
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    level: world
+list: {}

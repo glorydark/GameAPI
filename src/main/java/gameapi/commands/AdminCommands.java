@@ -16,6 +16,7 @@ import gameapi.inventory.InventoryTools;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.sound.SoundTools;
+import gameapi.utils.GameRecord;
 import gameapi.utils.SmartTools;
 
 import java.io.File;
@@ -108,7 +109,7 @@ public class AdminCommands extends Command {
                     if(commandSender.isPlayer()) {
                         if (strings.length == 3) {
                             Player player = (Player) commandSender;
-                            EntityTools.addRankingList(player, strings[1], strings[2]);
+                            EntityTools.addRankingList(player, strings[1], strings[2], GameRecord.SortSequence.DESCEND);
                         }
                     }else{
                         commandSender.sendMessage(GameAPI.getLanguage().getText("command.error.useInGame"));

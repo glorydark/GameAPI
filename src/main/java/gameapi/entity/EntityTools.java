@@ -7,6 +7,7 @@ import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
+import gameapi.utils.GameRecord;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,8 +25,8 @@ public class EntityTools {
         });
     }
 
-    public static void spawnTextEntity(Location location, String gameName, String comparedKey){
-        TextEntity entity = new RankingListEntity(location.getChunk(), location, gameName, comparedKey, Entity.getDefaultNBT(new Vector3(location.x, location.y, location.z)));
+    public static void spawnTextEntity(Location location, String gameName, String comparedKey, GameRecord.SortSequence sortSequence){
+        TextEntity entity = new RankingListEntity(location.getChunk(), location, gameName, comparedKey, sortSequence, Entity.getDefaultNBT(new Vector3(location.x, location.y, location.z)));
         GameAPI.plugin.getLogger().info(entity.getNameTag());
         entity.setImmobile(true);
         entity.spawnToAll();
@@ -39,7 +40,7 @@ public class EntityTools {
         entityList.add(entity);
     }
 
-    public static void addRankingList(Player player, String gameName, String comparedType){
+    public static void addRankingList(Player player, String gameName, String comparedType, GameRecord.SortSequence sortSequence){
         Config config = new Config(GameAPI.path+ "/rankings.yml");
         List<Map<String, Object>> maps = (List<Map<String, Object>>) config.get("list");
         Map<String, Object> add = new LinkedHashMap<>();
@@ -51,9 +52,10 @@ public class EntityTools {
         add.put("level", player.getLevel().getName());
         add.put("title", "测试排行榜");
         add.put("format", "[%rank%] %player%: %score%");
+        add.put("sort_sequence", "descend");
         maps.add(add);
         config.set("list", maps);
         config.save();
-        spawnTextEntity(player.getLocation(), gameName, comparedType);
+        spawnTextEntity(player.getLocation(), gameName, comparedType, sortSequence);
     }
 }

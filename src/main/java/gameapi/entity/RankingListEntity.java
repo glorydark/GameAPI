@@ -15,12 +15,14 @@ public class RankingListEntity extends TextEntity
 
     private String comparedKey;
 
-    public RankingListEntity(FullChunk chunk, Position position, String text, CompoundTag nbt) {
+    private GameRecord.SortSequence sortSequence;
+
+    public RankingListEntity(FullChunk chunk, Position position, String text, GameRecord.SortSequence sortSequence, CompoundTag nbt) {
         super(chunk, position, text, nbt);
     }
 
-    public RankingListEntity(FullChunk chunk, Position position, String gameName, String comparedKey, CompoundTag nbt) {
-        super(chunk, position, GameRecord.getGameRecordRankingListString(gameName, comparedKey), nbt);
+    public RankingListEntity(FullChunk chunk, Position position, String gameName, String comparedKey, GameRecord.SortSequence sortSequence, CompoundTag nbt) {
+        super(chunk, position, GameRecord.getGameRecordRankingListString(gameName, comparedKey, sortSequence), nbt);
         this.gameName = gameName;
         this.comparedKey = comparedKey;
     }
@@ -31,7 +33,7 @@ public class RankingListEntity extends TextEntity
             this.health+=this.getMaxHealth();
         }
         if(currentTick % GameAPI.entityRefreshIntervals == 0){
-            this.setNameTag(GameRecord.getGameRecordRankingListString(gameName, comparedKey));
+            this.setNameTag(GameRecord.getGameRecordRankingListString(gameName, comparedKey, sortSequence));
         }
         return super.onUpdate(currentTick);
     }
