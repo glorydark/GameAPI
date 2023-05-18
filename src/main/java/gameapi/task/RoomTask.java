@@ -17,7 +17,6 @@ import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.scoreboard.ScoreboardTools;
 import gameapi.utils.AdvancedLocation;
-import gameapi.utils.SmartTools;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,7 @@ public class RoomTask extends AsyncTask {
                 room.removePlayer(player, false);
             }else{
                 Block block = player.getLevelBlock();
-                if(!(block instanceof BlockLiquid)){
+                if(!(block instanceof BlockLiquid) && player.getY() == player.getPosition().round().getY()){
                     RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(room, block, player);
                     GameListenerRegistry.callEvent(room, roomBlockTreadEvent);
                 }
@@ -51,7 +50,7 @@ public class RoomTask extends AsyncTask {
         }
         switch (room.getRoomStatus()) {
             case ROOM_STATUS_WAIT:
-                if(room.getTemporary() && room.getPlayers().size() < 1){
+                if(room.isTemporary() && room.getPlayers().size() < 1){
                     room.detectToReset();
                     return true;
                 }
@@ -162,10 +161,14 @@ public class RoomTask extends AsyncTask {
                             room.setRound(0);
                         }
                     }else{
-                        SmartTools.sendActionbar(room.getPlayers(), GameAPI.getLanguage().getText("room.actionbar.wait.needStartPass"));
+                        for(Player player : room.getPlayers()){
+                            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.needStartPass"));
+                        }
                     }
                 }else{
-                    SmartTools.sendActionbar(room.getPlayers(), GameAPI.getLanguage().getText("room.actionbar.wait.waitForPlayers", room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
+                    for(Player player : room.getPlayers()){
+                        player.sendMessage(GameAPI.getLanguage().getTranslation("room.actionbar.wait.waitForPlayers", room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
+                    }
                 }
                 break;
             case PreStart:
@@ -185,7 +188,9 @@ public class RoomTask extends AsyncTask {
                         room.setTime(0);
                         return;
                     }
-                    SmartTools.sendTitle(room.getPlayers(), TextFormat.LIGHT_PURPLE+String.valueOf(room.getWaitTime() - room.getTime()),GameAPI.getLanguage().getText("room.title.preStart.subtitle"));
+                    for(Player player : room.getPlayers()){
+                        player.sendTitle(TextFormat.LIGHT_PURPLE+String.valueOf(room.getWaitTime() - room.getTime()), GameAPI.getLanguage().getTranslation(player, "room.title.preStart.subtitle"));
+                    }
                     room.setTime(room.getTime()+1);
                 }
                 break;
@@ -223,7 +228,7 @@ public class RoomTask extends AsyncTask {
                         for (Player p : room.getPlayers()) {
                             p.getFoodData().reset();
                             p.setGamemode(room.getRoomRule().gameMode);
-                            p.sendTitle(GameAPI.getLanguage().getText("room.title.start"), GameAPI.getLanguage().getText("room.subtitle.start"));
+                            p.sendTitle(GameAPI.getLanguage().getTranslation(p, "room.title.start"), GameAPI.getLanguage().getTranslation(p, "room.subtitle.start"));
                         }
                     }
                 } else {
@@ -231,7 +236,7 @@ public class RoomTask extends AsyncTask {
                         int lastSec = room.getGameWaitTime() - room.getTime();
                         if(lastSec > 10) {
                             p.getLevel().addSound(p.getPosition(), Sound.NOTE_HARP);
-                            p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.readyStart", room.getGameWaitTime() - room.getTime()));
+                            p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart", room.getGameWaitTime() - room.getTime()));
                         }else{
                             if(lastSec == 1){
                                 p.getLevel().addSound(p.getPosition(), Sound.NOTE_FLUTE);
@@ -240,37 +245,37 @@ public class RoomTask extends AsyncTask {
                             }
                             switch (lastSec){
                                 case 10:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.ten", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.ten", lastSec));
                                     break;
                                 case 9:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.nine", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.nine", lastSec));
                                     break;
                                 case 8:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.eight", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.eight", lastSec));
                                     break;
                                 case 7:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.seven", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.seven", lastSec));
                                     break;
                                 case 6:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.six", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.six", lastSec));
                                     break;
                                 case 5:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.five", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.five", lastSec));
                                     break;
                                 case 4:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.four", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.four", lastSec));
                                     break;
                                 case 3:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.three", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.three", lastSec));
                                     break;
                                 case 2:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.two", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.two", lastSec));
                                     break;
                                 case 1:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.one", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.one", lastSec));
                                     break;
                                 case 0:
-                                    p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.preStart.zero", lastSec));
+                                    p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.zero", lastSec));
                                     break;
                             }
                         }
@@ -318,9 +323,13 @@ public class RoomTask extends AsyncTask {
                 }else {
                     room.setTime(room.getTime()+1);
                     if(room.getRound() == room.getMaxRound()){
-                        SmartTools.sendActionbar(room.getPlayers(), GameAPI.getLanguage().getText("room.actionbar.gameEnd", room.getGameEndTime() - room.getTime()));
+                        for(Player player: room.getPlayers()){
+                            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.actionbar.gameEnd", room.getGameEndTime() - room.getTime()));
+                        }
                     }else{
-                        SmartTools.sendActionbar(room.getPlayers(), GameAPI.getLanguage().getText("room.actionbar.nextRound", room.getGameEndTime() - room.getTime()));
+                        for(Player player: room.getPlayers()){
+                            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.actionbar.nextRound", room.getGameEndTime() - room.getTime()));
+                        }
                     }
                 }
                 break;
@@ -348,7 +357,7 @@ public class RoomTask extends AsyncTask {
                         int i1 = random.nextInt(14);
                         int i2 = random.nextInt(4);
                         CreateFireworkApi.spawnFirework(p.getPosition(), CreateFireworkApi.getColorByInt(i1), CreateFireworkApi.getExplosionTypeByInt(i2));
-                        p.sendActionBar(GameAPI.getLanguage().getText("room.actionbar.ceremony", room.getCeremonyTime() - room.getTime()));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.ceremony", room.getCeremonyTime() - room.getTime()));
                     }
                 }
                 break;

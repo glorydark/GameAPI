@@ -2,6 +2,7 @@ package gameapi.utils;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
 import gameapi.annotation.Experimental;
@@ -36,8 +37,8 @@ public class Language {
         }
     }
 
-    public String getText(String key, Object... param){
-        String processedText = (String) lang.getOrDefault(defaultLanguage, new HashMap<>()).getOrDefault(key, "§cNot Found!");
+    public String getTranslationWithDefaultValue(String language, String key, String defaultValue, Object... param){
+        String processedText = (String) lang.getOrDefault(language, new HashMap<>()).getOrDefault(key, defaultValue == null? "§cNot Found!": defaultValue);
         if(param.length > 0){
             for(int i = 1; i<=param.length; i++){
                 processedText = processedText.replaceAll("%"+i+"%", String.valueOf(param[i-1]));
@@ -47,26 +48,20 @@ public class Language {
         return processedText;
     }
 
-    public String getText(Player player, String key, Object... param){
-        String processedText = (String) lang.getOrDefault(getLang(player), new HashMap<>()).getOrDefault(key, "§cNot Found!");
-        if(param.length > 0){
-            for(int i = 1; i<=param.length; i++){
-                processedText = processedText.replaceAll("%"+i+"%", String.valueOf(param[i-1]));
-            }
-        }
-        processedText = processedText.replace("\\n", "\n");
-        return processedText;
+    public String getTranslation(String key, Object... param){
+        return getTranslationWithDefaultValue(defaultLanguage, key, null, param);
     }
 
-    public String getTextWithDefaultValue(Player player, String key, String defaultValue, Object... param){
-        String processedText = (String) lang.getOrDefault(getLang(player), new HashMap<>()).getOrDefault(key, defaultValue);
-        if(param.length > 0){
-            for(int i = 1; i<=param.length; i++){
-                processedText = processedText.replaceAll("%"+i+"%", String.valueOf(param[i-1]));
-            }
+    public String getTranslation(CommandSender sender, String key, Object... param){
+        if(sender.isPlayer()){
+            return getTranslation((Player) sender, key, param);
+        }else{
+            return getTranslation(key, param);
         }
-        processedText = processedText.replace("\\n", "\n");
-        return processedText;
+    }
+
+    public String getTranslation(Player player, String key, Object... param){
+        return getTranslationWithDefaultValue(getLang(player), key, null, param);
     }
 
     private String getLang(Player player){

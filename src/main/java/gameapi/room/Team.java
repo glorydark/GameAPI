@@ -41,7 +41,7 @@ public class Team {
         if(isAvailable()) {
             playerList.add(player);
         }else{
-            player.sendMessage(GameAPI.getLanguage().getText("room.team.full"));
+            player.sendMessage(GameAPI.getLanguage().getTranslation("room.team.full"));
         }
     }
 

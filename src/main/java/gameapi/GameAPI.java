@@ -165,24 +165,24 @@ public class GameAPI extends PluginBase implements Listener {
             String level = (String) map.get("level");
             if(Server.getInstance().getLevelByName(level) == null){
                 if(!Server.getInstance().loadLevel(level)){
-                    this.getLogger().warning(language.getText("loading.ranking_loader.unknown_world", level));
+                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.unknown_world", level));
                     continue;
                 }else{
-                    this.getLogger().info(language.getText("loading.ranking_loader.world_onLoad", level));
+                    this.getLogger().info(language.getTranslation("loading.ranking_loader.world_onLoad", level));
                 }
             }else{
-                this.getLogger().info(language.getText("loading.ranking_loader.world_alreadyLoaded", level));
+                this.getLogger().info(language.getTranslation("loading.ranking_loader.world_alreadyLoaded", level));
             }
             Location location = new Location((Double) map.get("x"), (Double) map.get("y"), (Double) map.get("z"), this.getServer().getLevelByName((String) map.get("level")));
             if(location.getChunk() == null){
                 if(!location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ())){
-                    this.getLogger().info(language.getText("loading.ranking_loader.chunk_onLoad", location.getChunkX(), location.getChunkZ()));
+                    this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk_onLoad", location.getChunkX(), location.getChunkZ()));
                     return;
                 }else{
-                    this.getLogger().warning(language.getText("loading.ranking_loader.chunk_loadedFailed", location.getChunkX(), location.getChunkZ()));
+                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.chunk_loadedFailed", location.getChunkX(), location.getChunkZ()));
                 }
             }else{
-                this.getLogger().info(language.getText("loading.ranking_loader.chunk_alreadyLoaded", location.getChunkX(), location.getChunkZ()));
+                this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk_alreadyLoaded", location.getChunkX(), location.getChunkZ()));
             }
             EntityTools.spawnTextEntity(location, (String) map.get("game_name"), (String) map.get("compared_type"), map.getOrDefault("sort_sequence", "descend").equals("descend")? GameRecord.SortSequence.DESCEND : GameRecord.SortSequence.ASCEND);
         }

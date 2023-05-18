@@ -31,16 +31,16 @@ public class FileUtil {
                     if (getFile.isDirectory()) {
                         delete(getFile);
                     }else if (!getFile.delete()) {
-                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("file.delete.failed", file.getName()));
+                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("file.delete.failed", file.getName()));
                     }
                 }
             }
             if (!file.delete()) {
-                GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("file.delete.failed", file.getName()));
+                GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("file.delete.failed", file.getName()));
             }
             return true;
         } catch (Exception e) {
-            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("file.delete.error", file.getName()));
+            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("file.delete.error", file.getName()));
             //e.printStackTrace();
         }
         return false;
@@ -63,7 +63,7 @@ public class FileUtil {
             File [] files = from.listFiles();
             if (files != null) {
                 if (!to.exists() && !to.mkdirs()) {
-                    throw new IOException(GameAPI.getLanguage().getText("file.folder.create.failed", to.getName()));
+                    throw new IOException(GameAPI.getLanguage().getTranslation("file.folder.create.failed", to.getName()));
                 }
                 for (File file : files) {
                     if (file.isDirectory()) {

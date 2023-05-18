@@ -49,7 +49,7 @@ public class BaseEventListener implements Listener {
                 if (InventoryTools.getPlayerBagConfig(event.getPlayer()) != null) {
                     InventoryTools.loadBag(event.getPlayer());
                     event.getPlayer().getFoodData().setLevel(20, 20.0F);
-                    Server.getInstance().getLogger().info(GameAPI.getLanguage().getText("baseEvent.join.bagCacheExisted", event.getPlayer().getName()));
+                    Server.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("baseEvent.join.bagCacheExisted", event.getPlayer().getName()));
                 }
             }
             event.getPlayer().setLocale(Locale.US);
@@ -64,7 +64,7 @@ public class BaseEventListener implements Listener {
         Room room = Room.getRoom(event.getPlayer());
         if (room != null) {
             for (Player p : room.getPlayers()) {
-                p.sendMessage(GameAPI.getLanguage().getText("baseEvent.quit.roomQuit", event.getPlayer().getName()));
+                p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.roomQuit", event.getPlayer().getName()));
             }
             room.removePlayer(event.getPlayer(), true);
         }
@@ -265,7 +265,7 @@ public class BaseEventListener implements Listener {
                 Player p2 = (Player) event.getDamager();
                 if (room1.getTeams().size() > 0) {
                     if (room1.getPlayerTeam(p1) != null && room1.getPlayerTeam(p1) == room2.getPlayerTeam(p2)) {
-                        p1.sendMessage(GameAPI.getLanguage().getText("baseEvent.teamDamage.notAllowed"));
+                        p1.sendMessage(GameAPI.getLanguage().getTranslation(p1,"baseEvent.teamDamage.notAllowed"));
                         event.setCancelled(true);
                     } else {
                         addDamageSource(p1.getName(), p2.getName());
@@ -312,7 +312,7 @@ public class BaseEventListener implements Listener {
             }
             Room room = Room.getRoom(player);
             if (room != null) {
-                player.sendMessage(GameAPI.getLanguage().getText("baseEvent.commandExecute.notAllowed"));
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.commandExecute.notAllowed"));
                 event.setCancelled(true);
             }
         }
@@ -334,7 +334,7 @@ public class BaseEventListener implements Listener {
                 room.getStartSpawn().forEach(spawn -> arenas.add(spawn.getLevel()));
                 if (!arenas.contains(fromLevel) && !arenas.contains(toLevel)) {
                     event.setCancelled(true);
-                    player.sendMessage(GameAPI.getLanguage().getText("baseEvent.levelChange.notAllowed"));
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.levelChange.notAllowed"));
                 }
             }
         }
@@ -402,7 +402,7 @@ public class BaseEventListener implements Listener {
         RoomPlayerChatEvent chatEvent = new RoomPlayerChatEvent(room, player, new RoomChatData(player.getName(), event.getMessage()));
         GameListenerRegistry.callEvent(room, chatEvent);
         if (!chatEvent.isCancelled()) {
-            String msg = GameAPI.getLanguage().getText("baseEvent.chat.message_format", room.getRoomName(), chatEvent.getRoomChatData().getDefaultChatMsg());
+            String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatEvent.getRoomChatData().getDefaultChatMsg());
             for (Player roomPlayer : room.getPlayers()) {
                 roomPlayer.sendMessage(msg);
             }

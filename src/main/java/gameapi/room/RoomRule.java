@@ -9,33 +9,33 @@ import java.util.List;
  * @author Glorydark
  */
 public class RoomRule {
-    public Boolean allowBreakBlock = false;
-    public Boolean allowPlaceBlock = false;
+    public boolean allowBreakBlock = false;
+    public boolean allowPlaceBlock = false;
     public int gameMode;
-    public Boolean readyStartWalk = true;
-    public Boolean noDropItem = true;
+    public boolean readyStartWalk = true;
+    public boolean noDropItem = true;
     public List<String> canBreakBlocks = new ArrayList<>();
     public List<String> canPlaceBlocks = new ArrayList<>();
-    public Boolean allowDamagePlayer = false;
-    public Boolean noTimeLimit = false;
-    public Boolean antiExplosion = true;
-    public Boolean allowEntityExplosionDamage = false;
-    public Boolean allowBlockExplosionDamage = false;
-    public Boolean allowMagicDamage = false;
-    public Boolean allowFireDamage = false;
-    public Boolean allowHungerDamage = false;
-    public Boolean allowDrowningDamage = false;
-    public Boolean allowLightningDamage = false;
-    public Boolean allowFallDamage = false;
-    public Boolean allowProjectTileDamage = false;
-    public Boolean allowSuffocationDamage = false;
+    public boolean allowDamagePlayer = false;
+    public boolean noTimeLimit = false;
+    public boolean antiExplosion = true;
+    public boolean allowEntityExplosionDamage = false;
+    public boolean allowBlockExplosionDamage = false;
+    public boolean allowMagicDamage = false;
+    public boolean allowFireDamage = false;
+    public boolean allowHungerDamage = false;
+    public boolean allowDrowningDamage = false;
+    public boolean allowLightningDamage = false;
+    public boolean allowFallDamage = false;
+    public boolean allowProjectTileDamage = false;
+    public boolean allowSuffocationDamage = false;
     public float defaultHealth = 20;
-    public Boolean allowFoodLevelChange = true;
-    public Boolean allowRespawn = false;
+    public boolean allowFoodLevelChange = true;
+    public boolean allowRespawn = false;
     public int respawnCoolDownTick = 20;
-    public Boolean allowSpectatorMode = true;
-    @Experimental public Boolean needPreStartPass = false;
-    @Experimental public Boolean personal = false;
+    public boolean allowSpectatorMode = true;
+    @Experimental public boolean needPreStartPass = false;
+    @Experimental public boolean personal = false;
 
     public RoomRule(Integer gameMode){
         this.gameMode = gameMode;

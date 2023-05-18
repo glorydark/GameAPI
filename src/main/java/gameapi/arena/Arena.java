@@ -32,11 +32,11 @@ public class Arena {
             if(file.getName().startsWith(prefix+"_")) {
                 if(Server.getInstance().isLevelLoaded(file.getName())){
                     if(!Server.getInstance().getLevelByName(file.getName()).unload(true)) {
-                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("world.unloadFailed", file.getName()));
+                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.unloadFailed", file.getName()));
                         continue;
                     }
                 }
-                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getText("world.deleteFile", file.getName()));
+                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("world.deleteFile", file.getName()));
                 FileUtil.delete(file);
             }
         }
@@ -128,7 +128,7 @@ public class Arena {
     @Experimental
     public static void unloadLevel(Room room, Level level){
         if (level == null) {
-            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("world.notFound", room.getRoomName()));
+            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.notFound", room.getRoomName()));
             room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
             return;
         }
@@ -159,7 +159,7 @@ public class Arena {
         File newLevelFile = new File(Server.getInstance().getFilePath() + "/worlds/" + newName);
         File backup = new File(GameAPI.path + "/worlds/" + room.getRoomLevelBackup());
         if (!backup.exists()) {
-            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("world.backup.notFound", levelName));
+            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.backup.notFound", levelName));
             room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
         }
         //CrystalWar Arena.java
@@ -172,10 +172,10 @@ public class Arena {
                         data.forEach(roomLevelData -> {
                             roomLevelData.resetLevel(loadLevel);
                         });
-                        GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getText("world.loadSuccessfully", newName));
+                        GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("world.loadSuccessfully", newName));
                     }
                 } else {
-                    GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getText("world.loadFailed", newName));
+                    GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", newName));
                     room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                     //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
                 }
