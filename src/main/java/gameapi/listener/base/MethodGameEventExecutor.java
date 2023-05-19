@@ -17,8 +17,9 @@ public class MethodGameEventExecutor implements GameEventExecutor {
 
     public void execute(GameListener listener, RoomEvent event) throws GameEventException {
         try {
-            for (Class param : this.method.getParameterTypes()) {
-                if (event.getClass().isAssignableFrom(param)) {
+            this.method.setAccessible(true);
+            if(this.method.getParameterTypes().length == 1){
+                if (event.getClass().isAssignableFrom(this.method.getParameterTypes()[0])) {
                     this.method.invoke(listener, event);
                 }
             }

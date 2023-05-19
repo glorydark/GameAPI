@@ -11,7 +11,11 @@ import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.inventory.InventoryTools;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.room.executor.BaseRoomStatusExecutor;
+import gameapi.room.executor.RoomStatusExecutor;
 import gameapi.utils.AdvancedLocation;
+import lombok.AccessLevel;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,12 +26,12 @@ import java.util.stream.Collectors;
 /**
  * @author Glorydark
  */
-@Getter
-@Setter
+@Data
 public class Room {
     // Used as a temporary room and will be deleted after the game.
+    private RoomStatusExecutor statusExecutor = new BaseRoomStatusExecutor(this);
     private boolean temporary = false;
-    private boolean resetMap = true; // Resetting map is defaultly set to false.
+    private boolean resetMap = true; // Resetting map is default set to false.
     private String roomName = "null";
     private RoomRule roomRule;
     private RoomStatus roomStatus = RoomStatus.ROOM_STATUS_WAIT;
@@ -50,15 +54,26 @@ public class Room {
     private List<AdvancedLocation> startSpawn = new ArrayList<>();
     private AdvancedLocation endSpawn;
     private List<AdvancedLocation> spectatorSpawn = new ArrayList<>();
-    private ConcurrentHashMap<String, Team> teamCache = new ConcurrentHashMap<>();
-    private HashMap<Player, Float> playersHealth = new HashMap<>();
+
+    @Setter(AccessLevel.NONE)
+    protected ConcurrentHashMap<String, Team> teamCache = new ConcurrentHashMap<>();
+
+    @Setter(AccessLevel.NONE)
+    protected HashMap<Player, Float> playersHealth = new HashMap<>();
     private String roomLevelBackup;
     private String gameName;
     private List<String> winConsoleCommands = new ArrayList<>();
     private List<String> loseConsoleCommands = new ArrayList<>();
+
+    @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
+
     // Save data for the room' extra configuration.
+    @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>();
+
+    // Save data for some inherited properties, used by the author to restore some inner info.
+    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, Object> inheritProperties = new LinkedHashMap<>();
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
@@ -303,7 +318,7 @@ public class Room {
         this.playersHealth = new HashMap<>();
         this.chatDataList = new ArrayList<>();
         this.time = 0;
-        this.getTeamCache().forEach((key, value) -> value.resetAll());
+        this.teamCache.forEach((key, value) -> value.resetAll());
         if (playLevel != null) {
             for (Entity entity : playLevel.getEntities()) {
                 if (!(entity instanceof Player)) {
@@ -361,7 +376,6 @@ public class Room {
 
     public void resetAll(){
         this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
-        //Server.getInstance().getScheduler().scheduleAsyncTask(MainClass.plugin,new AsyncBlockCleanTask(this));
         new ArrayList<>(this.spectators).forEach(this::removeSpectator);
         for(Player player: players){
             RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this,player);
