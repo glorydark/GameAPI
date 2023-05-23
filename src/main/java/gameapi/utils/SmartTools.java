@@ -32,8 +32,8 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SmartTools {
-    //https://blog.csdn.net/weixin_39975055/article/details/115082818
 
+    //https://blog.csdn.net/weixin_39975055/article/details/115082818
     public static String dateToString(Date date) {
         return dateToString(date, "yyyyMMdd_hhmmss");
     }
@@ -58,6 +58,10 @@ public class SmartTools {
             e.getStackTrace();
         }
         return date;
+    }
+
+    public static boolean isInRange(int min, int max, int compare){
+        return Math.max(min, compare) == Math.min(compare, max);
     }
 
     public static void sendActionbar(Collection<Player> players, String title){

@@ -50,7 +50,7 @@ public class EntityTools {
         add.put("y", player.getY());
         add.put("z", player.getZ());
         add.put("level", player.getLevel().getName());
-        add.put("title", "测试排行榜");
+        add.put("title", "testTitle");
         add.put("format", "[%rank%] %player%: %score%");
         add.put("sort_sequence", "descend");
         maps.add(add);

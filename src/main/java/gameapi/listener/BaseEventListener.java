@@ -232,12 +232,12 @@ public class BaseEventListener implements Listener {
                     GameListenerRegistry.callEvent(room, ev);
                     if (!ev.isCancelled()) {
                         entity.setHealth(entity.getMaxHealth());
-                        room.setSpectator((Player) entity, room.getRoomRule().allowSpectatorMode, true);
+                        room.setSpectator((Player) entity, room.getRoomRule().spectatorGameMode, true);
                         damageSources.remove(entity.getName());
                     }
                 } else {
                     entity.setHealth(entity.getMaxHealth());
-                    room.setSpectator((Player) entity, true, false);
+                    room.setSpectator((Player) entity, room.getRoomRule().spectatorGameMode, false);
                 }
             }
         }
@@ -347,16 +347,6 @@ public class BaseEventListener implements Listener {
             event.setCancelled(true);
         }
     }
-
-    /*
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onGameModeChange(PlayerGameModeChangeEvent event) {
-        Level level = event.getPlayer() == null ? null : event.getPlayer().getLevel();
-        if (level != null && Room.getRoom(event.getPlayer()) != null) {
-            event.setCancelled(true);
-        }
-    }
-     */
 
     @EventHandler
     public void FlyEvent(PlayerToggleFlightEvent event) {

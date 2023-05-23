@@ -48,7 +48,6 @@ public class GameAPI extends PluginBase implements Listener {
 
     public static Plugin plugin = null;
     public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
-
     public static List<Player> debug = new ArrayList<>();
     public static int entityRefreshIntervals = 100;
     public static boolean saveBag;

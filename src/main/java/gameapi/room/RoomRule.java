@@ -33,7 +33,7 @@ public class RoomRule {
     public boolean allowFoodLevelChange = true;
     public boolean allowRespawn = false;
     public int respawnCoolDownTick = 20;
-    public boolean allowSpectatorMode = true;
+    public int spectatorGameMode = 3;
     @Experimental public boolean needPreStartPass = false;
     @Experimental public boolean personal = false;
 
@@ -68,7 +68,7 @@ public class RoomRule {
                 ", allowFoodLevelChange=" + allowFoodLevelChange +
                 ", allowRespawn=" + allowRespawn +
                 ", respawnCoolDownTick=" + respawnCoolDownTick +
-                ", allowSpectatorMode=" + allowSpectatorMode +
+                ", allowSpectatorMode=" + spectatorGameMode +
                 ", needPreStartPass=" + needPreStartPass +
                 '}';
     }

@@ -312,7 +312,6 @@ public class Room {
     public void detectToReset(){
         this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
         new ArrayList<>(this.spectators).forEach(this::removeSpectator);
-        this.players = new ArrayList<>();
         this.round = 0;
         this.playerProperties = new LinkedHashMap<>();
         this.playersHealth = new HashMap<>();
@@ -583,7 +582,7 @@ public class Room {
         return spectators.remove(player);
     }
 
-    public void setSpectator(Player player, boolean setMode, boolean dead){
+    public void setSpectator(Player player, int gameMode, boolean dead){
         if(!dead){
             RoomSpectatorJoinEvent roomSpectatorJoinEvent = new RoomSpectatorJoinEvent(this, player);
             GameListenerRegistry.callEvent(this, roomSpectatorJoinEvent);
@@ -591,16 +590,12 @@ public class Room {
                 return;
             }
         }
-        processJoinSpectator(player, setMode, dead);
+        processJoinSpectator(player, gameMode, dead);
     }
 
-    private void processJoinSpectator(Player player, boolean setMode, boolean dead){
+    private void processJoinSpectator(Player player, int gameMode, boolean dead){
         player.getInventory().clearAll();
-        if(setMode) {
-            player.setGamemode(3);
-        }else{
-            player.setGamemode(0);
-        }
+        player.setGamemode(gameMode);
         player.setHealth(player.getMaxHealth());
         if(this.getSpectatorSpawn().size() != 0){
             Random random = new Random(this.getSpectatorSpawn().size());

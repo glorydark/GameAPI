@@ -1,7 +1,8 @@
 package gameapi.effect;
 
-import cn.nukkit.Player;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.potion.Effect;
+import gameapi.utils.SmartTools;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,10 +17,12 @@ import java.util.Map;
 @Setter
 public class EasyEffect {
     Integer id;
+
     Integer amplifier;
+
     Integer duration;
 
-    boolean bad = false;
+    boolean bad;
 
     boolean visible = true;
 
@@ -27,30 +30,23 @@ public class EasyEffect {
 
     String name = "";
 
-    int[] rgb = new int[3];
+    int[] rgb = null;
 
-    int version = 1;
-
-    public EasyEffect(int id, int amplifier, int duration){
+    public EasyEffect(int id, int amplifier, int duration, boolean bad, boolean visible, boolean ambient, int r, int g, int b) {
         this.id = id;
         this.amplifier = amplifier;
         this.duration = duration;
         this.name = Effect.getEffect(id).getName();
+        this.bad = bad;
+        this.visible = visible;
+        this.ambient = ambient;
+        if(SmartTools.isInRange(0, 255, r) && SmartTools.isInRange(0, 255, g) && SmartTools.isInRange(0, 255, b)){
+            this.rgb = new int[]{r, g, b};
+        }
     }
 
-    public void giveEffect(Player player){
-        Effect effect = Effect.getEffect(id);
-        if(version == 1) {
-            effect.setDuration(duration);
-            effect.setAmplifier(amplifier);
-        } else if(version == 2) {
-            effect.setColor(rgb[0], rgb[1], rgb[2]);
-            effect.setVisible(visible);
-            effect.setAmplifier(amplifier);
-            effect.setDuration(duration);
-            effect.setAmbient(ambient);
-        }
-        player.addEffect(effect);
+    public EasyEffect(int id, int amplifier, int duration){
+        this(id, amplifier, duration, false, false, false, -1, -1, -1);
     }
 
     public EasyEffect(Map<String, Object> map){
@@ -70,12 +66,23 @@ public class EasyEffect {
             this.bad = (boolean) map.get("ambient");
         }
         if(map.containsKey("color")){
-            List<Integer> rgbs = (List<Integer>)map.get("color");
+            List<Integer> rgbs = (List<Integer>) map.get("color");
             rgb[0] = rgbs.get(0);
             rgb[1] = rgbs.get(1);
             rgb[2] = rgbs.get(2);
         }
-        this.version = 2;
+    }
+
+    public void giveEffect(Entity entity) {
+        Effect effect = Effect.getEffect(id);
+        effect.setDuration(duration);
+        effect.setAmplifier(amplifier);
+        effect.setVisible(visible);
+        if(rgb != null) {
+            effect.setColor(rgb[0], rgb[1], rgb[2]);
+        }
+        effect.setAmbient(ambient);
+        entity.addEffect(effect);
     }
 
     @Override
@@ -89,7 +96,6 @@ public class EasyEffect {
                 ", ambient=" + ambient +
                 ", name='" + name + '\'' +
                 ", rgb=" + Arrays.toString(rgb) +
-                ", version=" + version +
                 '}';
     }
 }
