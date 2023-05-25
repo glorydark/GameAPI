@@ -1,6 +1,6 @@
 package gameapi.room;
 
-import gameapi.annotation.Experimental;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,68 +8,64 @@ import java.util.List;
 /**
  * @author Glorydark
  */
+@Data
 public class RoomRule {
-    public boolean allowBreakBlock = false;
-    public boolean allowPlaceBlock = false;
-    public int gameMode;
-    public boolean readyStartWalk = true;
-    public boolean noDropItem = true;
-    public List<String> canBreakBlocks = new ArrayList<>();
-    public List<String> canPlaceBlocks = new ArrayList<>();
-    public boolean allowDamagePlayer = false;
-    public boolean noTimeLimit = false;
-    public boolean antiExplosion = true;
-    public boolean allowEntityExplosionDamage = false;
-    public boolean allowBlockExplosionDamage = false;
-    public boolean allowMagicDamage = false;
-    public boolean allowFireDamage = false;
-    public boolean allowHungerDamage = false;
-    public boolean allowDrowningDamage = false;
-    public boolean allowLightningDamage = false;
-    public boolean allowFallDamage = false;
-    public boolean allowProjectTileDamage = false;
-    public boolean allowSuffocationDamage = false;
-    public float defaultHealth = 20;
-    public boolean allowFoodLevelChange = true;
-    public boolean allowRespawn = false;
-    public int respawnCoolDownTick = 20;
-    public int spectatorGameMode = 3;
-    @Experimental public boolean needPreStartPass = false;
-    @Experimental public boolean personal = false;
+
+    private boolean allowBreakBlock = true;
+
+    private boolean allowPlaceBlock = true;
+    private int gameMode;
+
+    private boolean allowReadyStartWalk = true;
+
+    private boolean allowDropItem = true;
+
+    private List<String> allowBreakBlocks = new ArrayList<>();
+
+    private List<String> allowPlaceBlocks = new ArrayList<>();
+
+    private boolean allowDamagePlayer = true;
+
+    private boolean allowExplosion = true;
+
+    private boolean allowEntityExplosionDamage = true;
+
+    private boolean allowBlockExplosionDamage = true;
+
+    private boolean allowMagicDamage = true;
+
+    private boolean allowFireDamage = true;
+
+    private boolean allowHungerDamage = true;
+
+    private boolean allowDrowningDamage = true;
+
+    private boolean allowLightningDamage = true;
+
+    private boolean allowFallDamage = true;
+
+    private boolean allowProjectTileDamage = true;
+
+    private boolean allowSuffocationDamage = true;
+
+    private float defaultHealth = 20;
+
+    private boolean allowFoodLevelChange = true;
+
+    private boolean allowRespawn = true;
+
+    private int respawnCoolDownTick = 20;
+
+    private int spectatorGameMode = 3;
+
+    private boolean needPreStartPass = false;
+
+    private boolean personal = false;
+
+    private boolean noTimeLimit = false;
 
     public RoomRule(Integer gameMode){
         this.gameMode = gameMode;
     }
 
-    @Override
-    public String toString() {
-        return "RoomRule{" +
-                "allowBreakBlock=" + allowBreakBlock +
-                ", allowPlaceBlock=" + allowPlaceBlock +
-                ", gameMode=" + gameMode +
-                ", noStartWalk=" + readyStartWalk +
-                ", noDropItem=" + noDropItem +
-                ", canBreakBlocks=" + canBreakBlocks +
-                ", canPlaceBlocks=" + canPlaceBlocks +
-                ", allowDamagePlayer=" + allowDamagePlayer +
-                ", noTimeLimit=" + noTimeLimit +
-                ", antiExplosion=" + antiExplosion +
-                ", allowEntityExplosionDamage=" + allowEntityExplosionDamage +
-                ", allowBlockExplosionDamage=" + allowBlockExplosionDamage +
-                ", allowMagicDamage=" + allowMagicDamage +
-                ", allowFireDamage=" + allowFireDamage +
-                ", allowHungerDamage=" + allowHungerDamage +
-                ", allowDrowningDamage=" + allowDrowningDamage +
-                ", allowLightningDamage=" + allowLightningDamage +
-                ", allowFallDamage=" + allowFallDamage +
-                ", allowProjectTileDamage=" + allowProjectTileDamage +
-                ", allowSuffocationDamage=" + allowSuffocationDamage +
-                ", defaultHealth=" + defaultHealth +
-                ", allowFoodLevelChange=" + allowFoodLevelChange +
-                ", allowRespawn=" + allowRespawn +
-                ", respawnCoolDownTick=" + respawnCoolDownTick +
-                ", allowSpectatorMode=" + spectatorGameMode +
-                ", needPreStartPass=" + needPreStartPass +
-                '}';
-    }
 }

@@ -1,7 +1,8 @@
-package gameapi.room;
+package gameapi.room.team;
 
 import cn.nukkit.Player;
 import gameapi.GameAPI;
+import gameapi.room.Room;
 import gameapi.utils.AdvancedLocation;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,12 +13,14 @@ import java.util.List;
 
 @Setter
 @Getter
-public class Team {
+public class BaseTeam {
     private String registryName;
 
     private int score = 0;
+
     private String prefix;
-    private List<Player> playerList = new ArrayList<>();
+
+    private List<Player> players = new ArrayList<>();
 
     private Room room;
 
@@ -29,7 +32,7 @@ public class Team {
 
     private HashMap<String, Object> properties = new HashMap<>();
 
-    public Team(Room room, String registryName, String prefix, int maxPlayer, int spawnIndex){
+    public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, int spawnIndex){
         this.room = room;
         this.registryName = registryName;
         this.prefix = prefix;
@@ -39,50 +42,49 @@ public class Team {
 
     public void addPlayer(Player player){
         if(isAvailable()) {
-            playerList.add(player);
+            players.add(player);
         }else{
             player.sendMessage(GameAPI.getLanguage().getTranslation("room.team.full"));
         }
     }
 
     public int getSize(){
-        return playerList.size();
+        return players.size();
     }
 
     public boolean isAvailable(){
-        return playerList.size() < maxPlayer;
+        return players.size() < maxPlayer;
     }
 
     public void removePlayer(Player player){
-        playerList.remove(player);
+        players.remove(player);
     }
 
     public boolean hasPlayer(Player player){
-        return playerList.contains(player);
+        return players.contains(player);
     }
 
     public void resetAll(){
-        this.playerList.clear();
+        this.players.clear();
         this.isAlive = true;
     }
 
-    public boolean teleportToSpawn(){
-        if(room.getStartSpawn().size() == 0){ return false; }
-        if(room.getStartSpawn().size() < spawnIndex + 1){ return false; }
+    public void teleportToSpawn(){
+        if(room.getStartSpawn().size() == 0){ return; }
+        if(room.getStartSpawn().size() < spawnIndex + 1){ return; }
         AdvancedLocation location = room.getStartSpawn().get(spawnIndex);
-        for(Player player: playerList){
+        for(Player player: players){
             location.teleport(player);
         }
-        return true;
     }
 
     @Override
     public String toString() {
-        return "Team{" +
+        return "BaseTeam{" +
                 "registryName='" + registryName + '\'' +
                 ", score=" + score +
                 ", prefix='" + prefix + '\'' +
-                ", playerList=" + playerList +
+                ", players=" + players +
                 ", room=" + room +
                 ", spawnIndex=" + spawnIndex +
                 ", maxPlayer=" + maxPlayer +

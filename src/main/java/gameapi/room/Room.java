@@ -13,6 +13,7 @@ import gameapi.inventory.InventoryTools;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.executor.BaseRoomStatusExecutor;
 import gameapi.room.executor.RoomStatusExecutor;
+import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -56,7 +57,7 @@ public class Room {
     private List<AdvancedLocation> spectatorSpawn = new ArrayList<>();
 
     @Setter(AccessLevel.NONE)
-    protected ConcurrentHashMap<String, Team> teamCache = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, BaseTeam> teamCache = new ConcurrentHashMap<>();
 
     @Setter(AccessLevel.NONE)
     protected HashMap<Player, Float> playersHealth = new HashMap<>();
@@ -148,13 +149,13 @@ public class Room {
     public void allocatePlayerToTeams(){
         if(teamCache.keySet().size() == 0){ return; }
         for(Player player: players) {
-            ConcurrentHashMap<String, Team> map = new ConcurrentHashMap<>(teamCache);
-            List<Map.Entry<String, Team>> list = map.entrySet()
+            ConcurrentHashMap<String, BaseTeam> map = new ConcurrentHashMap<>(teamCache);
+            List<Map.Entry<String, BaseTeam>> list = map.entrySet()
                     .stream()
                     .sorted(Comparator.comparing(t -> t.getValue().getSize()))
                     .collect(Collectors.toList());
             teamCache.get(list.get(0).getKey()).addPlayer(player); //从最低人数来尝试加入
-            Team team = list.get(0).getValue();
+            BaseTeam team = list.get(0).getValue();
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix()+team.getRegistryName()));
         }
     }
@@ -180,15 +181,15 @@ public class Room {
     }
 
     public void removeTeamPlayer(Player player){
-        for(Map.Entry<String, Team> entrySet: teamCache.entrySet()){
+        for(Map.Entry<String, BaseTeam> entrySet: teamCache.entrySet()){
             if(entrySet.getValue().hasPlayer(player)){
                 teamCache.get(entrySet.getKey()).removePlayer(player);
             }
         }
     }
 
-    public Team getPlayerTeam(Player player){
-        for(Map.Entry<String, Team> entrySet: teamCache.entrySet()){
+    public BaseTeam getPlayerTeam(Player player){
+        for(Map.Entry<String, BaseTeam> entrySet: teamCache.entrySet()){
             if(entrySet.getValue().hasPlayer(player)){
                 return entrySet.getValue();
             }
@@ -196,16 +197,15 @@ public class Room {
         return null;
     }
 
-    public Collection<Team> getTeams(){
+    public Collection<BaseTeam> getTeams(){
         return teamCache.values();
     }
 
-    public Team getTeam(String registry){
+    public BaseTeam getTeam(String registry){
         return teamCache.getOrDefault(registry, null);
     }
 
-    public void registerTeam(String registryName, String prefix, int MaxPlayers, int spawnIndex){
-        Team team = new Team(this, registryName, prefix, MaxPlayers, spawnIndex);
+    public void registerTeam(BaseTeam team){
         teamCache.put(team.getRegistryName(), team);
     }
 
@@ -542,7 +542,7 @@ public class Room {
         if(playersHealth.containsKey(player)){
             return playersHealth.get(player);
         }else{
-            return this.getRoomRule().defaultHealth;
+            return this.getRoomRule().getDefaultHealth();
         }
     }
 
@@ -558,7 +558,7 @@ public class Room {
         if(this.playersHealth.containsKey(player)){
             this.playersHealth.put(player, this.playersHealth.get(player)+add);
         }else{
-            this.playersHealth.put(player, this.getRoomRule().defaultHealth+add);
+            this.playersHealth.put(player, this.getRoomRule().getDefaultHealth()+add);
         }
     }
 
@@ -566,7 +566,7 @@ public class Room {
         if(this.playersHealth.containsKey(player)){
             this.playersHealth.put(player, this.playersHealth.get(player)-reduce);
         }else{
-            this.playersHealth.put(player, this.getRoomRule().defaultHealth-reduce);
+            this.playersHealth.put(player, this.getRoomRule().getDefaultHealth()-reduce);
         }
     }
 
@@ -609,18 +609,16 @@ public class Room {
                 spectatorSpawn.get(random.nextInt(spectatorSpawn.size())).teleport(player);
                 teleportToSpawn(player);
             }
-            if(roomRule.allowRespawn){
+            if(roomRule.isAllowRespawn()){
                 RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player);
                 Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, ()->{
                     GameListenerRegistry.callEvent(this, ev);
-                    //GameListenerRegistry.callEvent(this.getGameName(), ev);
                     if(!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                         player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
                         player.setGamemode(0);
                         teleportToSpawn(player);
-                        //spectators.remove(player);
                     }
-                }, roomRule.respawnCoolDownTick);
+                }, roomRule.getRespawnCoolDownTick());
             }
         }else{
             spectators.add(player);
@@ -681,7 +679,7 @@ public class Room {
     }
 
     public void setPersonal(Boolean personal, Player player) {
-        this.roomRule.personal = personal;
+        this.roomRule.setPersonal(personal);
         this.inheritProperties.put("personal_owner", player);
         this.preStartPass = true;
     }

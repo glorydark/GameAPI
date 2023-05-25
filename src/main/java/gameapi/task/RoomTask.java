@@ -83,7 +83,7 @@ public class RoomTask extends AsyncTask {
                     if(room.getTeams().size() > 1) {
                         AtomicInteger hasPlayer = new AtomicInteger(0);
                         room.getTeams().forEach(team -> {
-                            if (team.getPlayerList().size() > 0) {
+                            if (team.getPlayers().size() > 0) {
                                 hasPlayer.addAndGet(1);
                             }
                         });
@@ -146,7 +146,7 @@ public class RoomTask extends AsyncTask {
         switch (type){
             case Wait:
                 if (room.getPlayers().size() >= room.getMinPlayer()) {
-                    if(!room.getRoomRule().needPreStartPass || room.isPreStartPass()){
+                    if(!room.getRoomRule().isNeedPreStartPass() || room.isPreStartPass()){
                         RoomPreStartEvent ev = new RoomPreStartEvent(room);
                         GameListenerRegistry.callEvent(room, ev);
                         if(!ev.isCancelled()) {
@@ -202,10 +202,10 @@ public class RoomTask extends AsyncTask {
                     }
                 }else{
                     room.getStatusExecutor().onGameStart();
-                    if(!room.getRoomRule().noTimeLimit) {
+                    if(!room.getRoomRule().isNoTimeLimit()) {
                         room.setTime(room.getTime() + 1);
                     }
-                    if(!room.getRoomRule().allowFoodLevelChange) {
+                    if(!room.getRoomRule().isAllowFoodLevelChange()) {
                         room.getPlayers().forEach(player -> player.getFoodData().reset());
                     }
                 }

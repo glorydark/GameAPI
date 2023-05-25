@@ -155,7 +155,7 @@ public class GameRecord {
 
         String secondRunnerUp_prefix = "§a";
 
-        String no_data = "§a§l暂无数据";
+        String no_data = "§a§lNothing is here...";
 
         public RankingFormat(){
 

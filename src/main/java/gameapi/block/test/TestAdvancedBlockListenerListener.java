@@ -1,5 +1,6 @@
 package gameapi.block.test;
 
+import cn.nukkit.math.Vector3;
 import gameapi.block.AdvancedBlockListener;
 import gameapi.event.block.RoomBlockPlaceEvent;
 import gameapi.event.block.RoomBlockTreadEvent;
@@ -10,6 +11,8 @@ public class TestAdvancedBlockListenerListener implements AdvancedBlockListener 
     @GameEventHandler
     public void RoomPlayerMoveEvent(RoomBlockTreadEvent event) {
         event.getPlayer().sendMessage("rnm,退钱！");
+        Vector3 motion = event.getPlayer().getMotion();
+        event.getPlayer().setMotion(motion.multiply(3.0));
     }
 
     @GameEventHandler

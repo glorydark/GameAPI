@@ -23,7 +23,7 @@ public class BaseRoomStatusExecutor implements RoomStatusExecutor{
     @Override
     public void onWait() {
         if (room.getPlayers().size() >= room.getMinPlayer()) {
-            if(room.getRoomRule().needPreStartPass && !room.isPreStartPass()){
+            if(room.getRoomRule().isNeedPreStartPass() && !room.isPreStartPass()){
                 for(Player player : room.getPlayers()){
                     player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.needStartPass"));
                 }
@@ -214,7 +214,7 @@ public class BaseRoomStatusExecutor implements RoomStatusExecutor{
         }
         for (Player p : room.getPlayers()) {
             p.getFoodData().reset();
-            p.setGamemode(room.getRoomRule().gameMode);
+            p.setGamemode(room.getRoomRule().getGameMode());
             p.sendTitle(GameAPI.getLanguage().getTranslation(p, "room.title.start"), GameAPI.getLanguage().getTranslation(p, "room.subtitle.start"));
         }
     }

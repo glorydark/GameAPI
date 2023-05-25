@@ -1,17 +1,16 @@
-package gameapi.utils;
+package gameapi.languages;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
-import gameapi.annotation.Experimental;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@Experimental
 public class Language {
     protected HashMap<String, Map<String, Object>> lang;
 
@@ -87,4 +86,5 @@ public class Language {
     public void setDefaultLanguage(String defaultLanguage) {
         this.defaultLanguage = defaultLanguage;
     }
+
 }

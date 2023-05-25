@@ -23,7 +23,6 @@ import cn.nukkit.network.protocol.OnScreenTextureAnimationPacket;
 import cn.nukkit.network.protocol.SetTitlePacket;
 import cn.nukkit.network.protocol.TextPacket;
 import com.google.common.base.Strings;
-import gameapi.annotation.Experimental;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -214,19 +213,31 @@ public class SmartTools {
         Server.broadcastPacket(players, pk);
     }
 
-    @Experimental
     public static SimpleAxisAlignedBB getAxisAlignedBB(double x1, double y1, double z1, double x2, double y2, double z2){
         return new SimpleAxisAlignedBB(new Vector3(x1, y1, z1), new Vector3(x2, y2, z2));
     }
 
-    @Experimental
+    /**
+     * This is a method to set blocks in an area.
+     *
+     * @param bb the area you want to remove blocks
+     * @param level the level you selected
+     * @param block the block you want to replace the old ones
+     *
+     */
     public static synchronized void setAreaBlocks(AxisAlignedBB bb, Block block, Level level){
         bb.forEach((i, i1, i2) -> {
             level.setBlock(i, i1, i2, block, false, false);
         });
     }
 
-    @Experimental
+    /**
+     * This is a method to remove blocks in an area.
+     *
+     * @param bb the area you want to remove blocks
+     * @param level the level you selected
+     *
+     */
     public static synchronized void removeAreaBlocks(AxisAlignedBB bb, Level level){
         Block block = new BlockAir();
         bb.forEach((i, i1, i2) -> {
@@ -234,7 +245,14 @@ public class SmartTools {
         });
     }
 
-    @Experimental
+    /**
+     * This is a method to destroy blocks in an area.
+     *
+     * @param bb the area you want to remove blocks
+     * @param level the level you selected
+     * @param particleEffect the variety of particle you want to display
+     *
+     */
     public static synchronized void destroyAreaBlocks(AxisAlignedBB bb, Level level, ParticleEffect particleEffect){
         Block block = Block.get(0);
         if(particleEffect != null){
@@ -249,7 +267,9 @@ public class SmartTools {
         }
     }
 
-    @Experimental
+    /**
+     * This is a method to make a kind of block fall.
+     */
     public static void fallBlock(Block block){
         CompoundTag nbt = (new CompoundTag()).putList((new ListTag("Pos")).add(new DoubleTag("", block.x + 0.5)).add(new DoubleTag("", block.y)).add(new DoubleTag("", block.z + 0.5))).putList((new ListTag("Motion")).add(new DoubleTag("", 0.0)).add(new DoubleTag("", 0.0)).add(new DoubleTag("", 0.0))).putList((new ListTag("Rotation")).add(new FloatTag("", 0.0F)).add(new FloatTag("", 0.0F))).putInt("TileID", block.getId()).putByte("Data", block.getDamage());
         EntityFallingBlock fall = (EntityFallingBlock) Entity.createEntity("FallingSand", block.getLevel().getChunk((int)block.x >> 4, (int)block.z >> 4), nbt, new Object[0]);
@@ -261,8 +281,8 @@ public class SmartTools {
     /**
      * This is a method to summon a certain amount of Exp Orb entity.
      *
-     * @param source 位置
-     * @param exp 经验值
+     * @param source position you intend to summon it
+     * @param exp exp amount
      */
     public static void dropExpOrb(Location source, int exp) {
         Random rand = ThreadLocalRandom.current();

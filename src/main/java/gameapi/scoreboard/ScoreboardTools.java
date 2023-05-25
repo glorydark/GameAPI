@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Glorydark
- * Depend: ScoreBoardPlugin
+ * Dependence: ScoreBoardPlugin
  */
 public class ScoreboardTools {
     public static ConcurrentHashMap<Player, Scoreboard> scoreboardConcurrentHashMap = new ConcurrentHashMap<>();

@@ -2,11 +2,9 @@ package gameapi.commands;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.block.Block;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
-import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.level.Sound;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
@@ -177,7 +175,7 @@ public class AdminCommands extends Command {
                             List<Room> rooms = GameAPI.RoomHashMap.get(game);
                             if(rooms.size() > 0){
                                 for(Room room: rooms){
-                                    if(room.getRoomRule().needPreStartPass){
+                                    if(room.getRoomRule().isNeedPreStartPass()){
                                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.needStartPass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
                                     }else{
                                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
@@ -203,12 +201,6 @@ public class AdminCommands extends Command {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
                         }
                     }
-                    break;
-                case "test":
-                    SmartTools.destroyAreaBlocks(SmartTools.getAxisAlignedBB(Double.parseDouble(strings[1]), Double.parseDouble(strings[2]), Double.parseDouble(strings[3]), Double.parseDouble(strings[4]), Double.parseDouble(strings[5]), Double.parseDouble(strings[6])), ((Player) commandSender).getLevel(), ParticleEffect.LAVA_PARTICLE);
-                    break;
-                case "test2":
-                    SmartTools.setAreaBlocks(SmartTools.getAxisAlignedBB(Double.parseDouble(strings[1]), Double.parseDouble(strings[2]), Double.parseDouble(strings[3]), Double.parseDouble(strings[4]), Double.parseDouble(strings[5]), Double.parseDouble(strings[6])), Block.get(Block.STAINED_GLASS, 4), ((Player) commandSender).getLevel());
                     break;
             }
         }

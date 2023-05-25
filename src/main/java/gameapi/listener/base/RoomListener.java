@@ -4,11 +4,11 @@ import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.EventException;
-import gameapi.annotation.Future;
+import gameapi.annotation.Experimental;
 import gameapi.event.RoomEvent;
 import gameapi.listener.base.interfaces.GameListener;
 
-@Future
+@Experimental
 public class RoomListener implements GameListener {
     private final GameListener listener;
     private final EventPriority priority;

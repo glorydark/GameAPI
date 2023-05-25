@@ -1,4 +1,4 @@
-package gameapi.listener;
+package gameapi.listener.test;
 
 import gameapi.GameAPI;
 import gameapi.event.player.RoomPlayerJoinEvent;

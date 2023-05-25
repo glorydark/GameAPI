@@ -5,7 +5,6 @@ import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
-import gameapi.annotation.Experimental;
 import gameapi.room.Room;
 import gameapi.room.RoomLevelData;
 import gameapi.room.RoomStatus;
@@ -125,7 +124,6 @@ public class Arena {
         }
     }
 
-    @Experimental
     public static void unloadLevel(Room room, Level level){
         if (level == null) {
             GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.notFound", room.getRoomName()));

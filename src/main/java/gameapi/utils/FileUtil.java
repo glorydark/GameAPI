@@ -9,12 +9,7 @@ import java.io.IOException;
 /**
  * @author lt_name (CrystalWar)
  */
-
 public class FileUtil {
-
-    private FileUtil() {
-        throw new RuntimeException("error");
-    }
 
     public static boolean delete(String file) {
         return delete(new File(file));

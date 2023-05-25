@@ -23,7 +23,7 @@ import gameapi.room.Room;
 import gameapi.task.RoomTask;
 import gameapi.utils.GameRecord;
 import gameapi.utils.GsonAdapter;
-import gameapi.utils.Language;
+import gameapi.languages.Language;
 
 import java.io.File;
 import java.io.InputStream;

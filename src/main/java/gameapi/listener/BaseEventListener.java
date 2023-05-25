@@ -77,8 +77,8 @@ public class BaseEventListener implements Listener {
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                 event.setCancelled(true);
             }
-            if (!room.getRoomRule().allowBreakBlock) {
-                if (!room.getRoomRule().canBreakBlocks.contains(event.getBlock().getId() + ":" + event.getBlock().getDamage())) {
+            if (!room.getRoomRule().isAllowBreakBlock()) {
+                if (!room.getRoomRule().getAllowBreakBlocks().contains(event.getBlock().getId() + ":" + event.getBlock().getDamage())) {
                     event.setCancelled(true);
                 } else {
                     RoomBlockBreakEvent roomBlockBreakEvent = new RoomBlockBreakEvent(room, event.getBlock(), event.getPlayer(), event.getItem(), event.getInstaBreak(), event.getDrops(), event.getDropExp(), event.getFace());
@@ -112,8 +112,8 @@ public class BaseEventListener implements Listener {
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                 event.setCancelled(true);
             } else {
-                if (!room.getRoomRule().allowPlaceBlock) {
-                    if (!room.getRoomRule().canPlaceBlocks.contains(event.getBlock().getId() + ":" + event.getBlock().getDamage())) {
+                if (!room.getRoomRule().isAllowPlaceBlock()) {
+                    if (!room.getRoomRule().getAllowPlaceBlocks().contains(event.getBlock().getId() + ":" + event.getBlock().getDamage())) {
                         event.setCancelled(true);
                     } else {
                         RoomBlockPlaceEvent roomBlockPlaceEvent = new RoomBlockPlaceEvent(room, event.getBlock(), event.getPlayer(), event.getItem(), event.getBlockAgainst(), event.getBlockReplace());
@@ -138,7 +138,7 @@ public class BaseEventListener implements Listener {
         Room room = Room.getRoom(event.getPlayer());
         if (room != null) {
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
-                if (room.getRoomRule().noDropItem) {
+                if (room.getRoomRule().isAllowDropItem()) {
                     event.setCancelled(true);
                 }else{
                     RoomPlayerDropItemEvent roomPlayerDropItemEvent = new RoomPlayerDropItemEvent(room, event.getPlayer(), event.getItem());
@@ -164,7 +164,7 @@ public class BaseEventListener implements Listener {
                         return;
                     }
                 }
-                if (room.getRoomRule().antiExplosion) {
+                if (!room.getRoomRule().isAllowExplosion()) {
                     event.getEntity().kill();
                     event.setCancelled(true);
                 }
@@ -183,7 +183,7 @@ public class BaseEventListener implements Listener {
                         return;
                     }
                 }
-                if (room.getRoomRule().antiExplosion) {
+                if (!room.getRoomRule().isAllowExplosion()) {
                     event.getEntity().kill();
                     event.setCancelled(true);
                 }
@@ -196,7 +196,7 @@ public class BaseEventListener implements Listener {
         Player player = event.getPlayer();
         Room room = Room.getRoom(player);
         if (room != null) {
-            if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameReadyStart && !room.getRoomRule().readyStartWalk) {
+            if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameReadyStart && !room.getRoomRule().isAllowReadyStartWalk()) {
                 Location from = event.getFrom();
                 Location to = event.getTo();
                 if (from.getFloorX() != to.getFloorX() || from.getFloorZ() != to.getFloorZ()) {
@@ -232,12 +232,12 @@ public class BaseEventListener implements Listener {
                     GameListenerRegistry.callEvent(room, ev);
                     if (!ev.isCancelled()) {
                         entity.setHealth(entity.getMaxHealth());
-                        room.setSpectator((Player) entity, room.getRoomRule().spectatorGameMode, true);
+                        room.setSpectator((Player) entity, room.getRoomRule().getSpectatorGameMode(), true);
                         damageSources.remove(entity.getName());
                     }
                 } else {
                     entity.setHealth(entity.getMaxHealth());
-                    room.setSpectator((Player) entity, room.getRoomRule().spectatorGameMode, false);
+                    room.setSpectator((Player) entity, room.getRoomRule().getSpectatorGameMode(), false);
                 }
             }
         }
@@ -256,7 +256,7 @@ public class BaseEventListener implements Listener {
             if (room1 == null) {
                 return;
             }
-            if (!room1.getRoomRule().allowDamagePlayer || room1.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
+            if (!room1.getRoomRule().isAllowDamagePlayer() || room1.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                 event.setCancelled(true);
                 return;
             }
