@@ -32,6 +32,8 @@ public class RoomRule {
 
     private boolean allowBlockExplosionDamage = true;
 
+    private boolean allowExplosionBreakBlock = true;
+
     private boolean allowMagicDamage = true;
 
     private boolean allowFireDamage = true;
@@ -54,6 +56,8 @@ public class RoomRule {
 
     private boolean allowRespawn = true;
 
+    private boolean allowCraft = true;
+
     private int respawnCoolDownTick = 20;
 
     private int spectatorGameMode = 3;
@@ -63,6 +67,14 @@ public class RoomRule {
     private boolean personal = false;
 
     private boolean noTimeLimit = false;
+
+    private boolean allowSpectators = true;
+
+    private boolean allowAttackCoolDown = false;
+
+    private boolean experimentalFeature = false;
+
+    private List<String> allowJoinPlayers = new ArrayList<>();
 
     public RoomRule(Integer gameMode){
         this.gameMode = gameMode;

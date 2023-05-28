@@ -22,6 +22,9 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
         this.room = room;
         this.damage = event.getDamage();
         this.attackCoolDown = event.getAttackCooldown();
+        if(!room.getRoomRule().isAllowAttackCoolDown()){
+            this.attackCoolDown = 0;
+        }
         this.entity = event.getEntity();
         this.damager = event.getDamager();
         this.knockBack = event.getKnockBack();

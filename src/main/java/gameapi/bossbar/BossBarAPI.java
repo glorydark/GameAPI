@@ -9,7 +9,7 @@ import java.util.HashMap;
 /**
  * @author Glorydark
  */
-public class BossBar {
+public class BossBarAPI {
     public static HashMap<Player, Long> bossBars;
 
     public static void createBossBar(Player player, String text, float length, BossBarColor bossBarColor){

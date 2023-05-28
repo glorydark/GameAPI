@@ -202,6 +202,19 @@ public class AdminCommands extends Command {
                         }
                     }
                     break;
+                case "setpwd":
+                    if(strings.length == 4){
+                        Room room = Room.getRoom(strings[1], strings[2]);
+                        if(room != null){
+                            if(room.isPreStartPass()){
+                                room.setJoinPassword(strings[3]);
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.setPassword", strings[3]));
+                            }
+                        }else{
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
+                        }
+                    }
+                    break;
             }
         }
         return true;

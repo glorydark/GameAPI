@@ -23,7 +23,7 @@ public class SoundTools {
     /**
      * @description: 播放材质包音乐
      * @param player : 玩家
-     * @param filename: 材质包中sound_defination的项的名称
+     * @param filename: 材质包中sound_definition的项的名称
      */
     public static void playResourcePackOggMusic(Player player, String filename){
         PlaySoundPacket pk = new PlaySoundPacket();
@@ -37,6 +37,6 @@ public class SoundTools {
     }
 
     public static void addAmbientSound(Level level, Player player, cn.nukkit.level.Sound sound){
-        level.addSound(player.getPosition(),sound);
+        level.addSound(player.getPosition(), sound);
     }
 }

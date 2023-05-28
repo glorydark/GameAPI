@@ -229,4 +229,5 @@ public class GameAPI extends PluginBase implements Listener {
     public static Language getLanguage() {
         return language;
     }
+
 }

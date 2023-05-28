@@ -68,7 +68,7 @@ public class AdvancedLocation {
                 loc.setVersion(0);
                 return loc;
             }
-            GameAPI.plugin.getLogger().warning("检测到坐标格式错误，请修改！");
+            GameAPI.plugin.getLogger().warning("Wrong Location Format! Please check it again, text: "+string);
             return null;
         }
         if(!Server.getInstance().isLevelLoaded(positions[3])){

@@ -5,7 +5,6 @@ import gameapi.GameAPI;
 import lombok.Data;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
@@ -15,7 +14,15 @@ import java.util.stream.Collectors;
 
 public class GameRecord {
 
-    static RankingFormat rankingFormat = new RankingFormat();
+    protected static RankingFormat rankingFormat = new RankingFormat();
+
+    public static RankingFormat getRankingFormat() {
+        return rankingFormat;
+    }
+
+    public static void setRankingFormat(RankingFormat rf) {
+        rankingFormat = rf;
+    }
 
     public static Map<String, Object> getGameRecordAll(String gameName){
         if(GameAPI.gameRecord.containsKey(gameName)){
@@ -23,68 +30,6 @@ public class GameRecord {
         }else{
             return new LinkedHashMap<>();
         }
-    }
-
-    public static Map<String, Integer> getGameRecordRankingList(String gameName, String comparedKey, boolean isPreSorted, Object... params){
-        Map<String, Object> allData = getGameRecordAll(gameName);
-        Map<String, Integer> rankingList = new HashMap<>();
-        for(String s:allData.keySet()){
-            Map<String, Object> data = (Map<String, Object>) allData.getOrDefault(s, new HashMap<>());
-            if(data.containsKey(comparedKey)){
-                Integer value = Integer.parseInt(data.get(comparedKey).toString());
-                rankingList.put(s,value);
-            }
-        }
-        if(isPreSorted) {
-            List<Map.Entry<String, Integer>> entryList = new ArrayList<>(rankingList.entrySet());
-            rankingList.clear();
-            entryList.sort(Map.Entry.<String, Integer>comparingByValue().reversed());
-            entryList.forEach(entry -> {
-                rankingList.put(entry.getKey(), entry.getValue());
-                System.out.println(entry.getKey() + ":" + entry.getValue());
-            });
-        }
-        return rankingList;
-    }
-
-
-    public static String getGameRecordRankingListString(String gameName, String comparedKey, SortSequence sortSequence){
-        return getGameRecordRankingListString(gameName, comparedKey, rankingFormat.title.replace("%gameName%", gameName), rankingFormat.score_show_format, sortSequence);
-    }
-
-    public static String getGameRecordRankingListString(String gameName, String comparedKey, String title, String format, SortSequence sortSequence){
-        Map<String, Integer> objectMap = getGameRecordRankingList(gameName, comparedKey, false);
-        StringBuilder builder = new StringBuilder().append(title.replace("\\n", "\n"));
-        List<Map.Entry<String, Integer>> e;
-        if(sortSequence == SortSequence.DESCEND){
-            e = objectMap.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toList());
-        }else{
-            e = objectMap.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
-        }
-        if(e.size() > 0) {
-            for (int i = 0; i < e.size(); i++) {
-                Map.Entry<String, Integer> cache = e.get(i);
-                String text = format.replace("%rank%", String.valueOf(i+1)).replace("%player%", cache.getKey()).replace("%score%", String.valueOf(cache.getValue())).replace("\\n", "\n");
-                switch (i) {
-                    case 0:
-                        builder.append("§f\n"+rankingFormat.champion_prefix);
-                        break;
-                    case 1:
-                        builder.append("§f\n"+rankingFormat.runnerUp_prefix);
-                        break;
-                    case 2:
-                        builder.append("§f\n"+rankingFormat.secondRunnerUp_prefix);
-                        break;
-                    default:
-                        builder.append("§f\n");
-                        break;
-                }
-                builder.append(text);
-            }
-        }else{
-            builder.append(rankingFormat.no_data);
-        }
-        return builder.toString();
     }
 
     public static void addGameRecord(String gameName, String player, String key, Integer add){
@@ -147,32 +92,28 @@ public class GameRecord {
     public static class RankingFormat{
         String title = "%gameName%";
 
-        String score_show_format = "[%rank%] %player%: %score%";
+        String scoreShowFormat = "[%rank%] %player%: %score%";
 
-        String champion_prefix = "§6";
+        String championPrefix = "§6";
 
-        String runnerUp_prefix = "§e";
+        String runnerUpPrefix = "§e";
 
-        String secondRunnerUp_prefix = "§a";
+        String secondRunnerUpPrefix = "§a";
 
-        String no_data = "§a§lNothing is here...";
+        String noData = "§a§lNothing is here...";
 
         public RankingFormat(){
 
         }
 
-        public RankingFormat(String title, String score_show_format, String champion_prefix, String runnerUp_prefix, String secondRunnerUp_prefix, String no_data){
+        public RankingFormat(String title, String scoreShowFormat, String champion_prefix, String runnerUpPrefix, String secondRunnerUpPrefix, String noData){
             this.title = title;
-            this.score_show_format = score_show_format;
-            this.champion_prefix = champion_prefix;
-            this.runnerUp_prefix = runnerUp_prefix;
-            this.secondRunnerUp_prefix = secondRunnerUp_prefix;
-            this.no_data = no_data;
+            this.scoreShowFormat = scoreShowFormat;
+            this.championPrefix = champion_prefix;
+            this.runnerUpPrefix = runnerUpPrefix;
+            this.secondRunnerUpPrefix = secondRunnerUpPrefix;
+            this.noData = noData;
         }
-    }
-
-    public static void setRankingFormat(RankingFormat rf) {
-        rankingFormat = rf;
     }
 
     public enum SortSequence {

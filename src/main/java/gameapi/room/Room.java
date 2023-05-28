@@ -11,8 +11,8 @@ import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.inventory.InventoryTools;
 import gameapi.listener.base.GameListenerRegistry;
-import gameapi.room.executor.BaseRoomStatusExecutor;
-import gameapi.room.executor.RoomStatusExecutor;
+import gameapi.room.executor.BaseRoomExecutor;
+import gameapi.room.executor.RoomExecutor;
 import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
 import lombok.AccessLevel;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Data
 public class Room {
     // Used as a temporary room and will be deleted after the game.
-    private RoomStatusExecutor statusExecutor = new BaseRoomStatusExecutor(this);
+    private RoomExecutor statusExecutor = new BaseRoomExecutor(this);
     private boolean temporary = false;
     private boolean resetMap = true; // Resetting map is default set to false.
     private String roomName = "null";
@@ -80,7 +80,7 @@ public class Room {
     private List<RoomChatData> chatDataList = new ArrayList<>();
 
     //Provide this variable in order to realise some functions
-    private String joinPassword = "";
+    protected String joinPassword = "";
 
     public Room(String gameName, RoomRule roomRule, String roomLevelBackup, int round) {
         this.MaxRound = round;
@@ -216,6 +216,21 @@ public class Room {
     }
 
     public Boolean addPlayer(Player player){
+        return addPlayer(player, "");
+    }
+
+    public Boolean addPlayer(Player player, String joinPassword){
+        if(!this.getJoinPassword().equals(joinPassword)){
+            player.sendMessage(GameAPI.getLanguage().getTranslation("command.error.incorrectPassword"));
+            return false;
+        }
+        List<String> whitelists = this.getRoomRule().getAllowJoinPlayers();
+        if(whitelists.size() > 0){
+            if(!whitelists.contains(player.getName())){
+                player.sendMessage(GameAPI.getLanguage().getTranslation("room.game.noAccess"));
+                return false;
+            }
+        }
         RoomStatus roomStatus = this.getRoomStatus();
         if(roomStatus == RoomStatus.ROOM_MapLoadFailed || roomStatus == RoomStatus.ROOM_MapProcessFailed){
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.loadFailed"));
@@ -230,8 +245,12 @@ public class Room {
             return false;
         }
         if(roomStatus != RoomStatus.ROOM_STATUS_WAIT && roomStatus != RoomStatus.ROOM_STATUS_PreStart){
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
-            return false;
+            if(this.getRoomRule().isAllowSpectators()){
+                this.setSpectator(player, this.getRoomRule().getSpectatorGameMode(), false);
+            }else {
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                return false;
+            }
         }
         if(GameAPI.playerRoomHashMap.get(player) != null){
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.isInOtherRoom"));
@@ -583,6 +602,11 @@ public class Room {
     }
 
     public void setSpectator(Player player, int gameMode, boolean dead){
+        if(this.getRoomStatus().ordinal() > 4){
+            // Player are not allowed to become spectators after the game wrap up(Aka: after RoomGameEnd).
+            GameAPI.getLanguage().getTranslation("room.spectator.join.notAllowed");
+            return;
+        }
         if(!dead){
             RoomSpectatorJoinEvent roomSpectatorJoinEvent = new RoomSpectatorJoinEvent(this, player);
             GameListenerRegistry.callEvent(this, roomSpectatorJoinEvent);
@@ -593,14 +617,33 @@ public class Room {
         processJoinSpectator(player, gameMode, dead);
     }
 
-    private void processJoinSpectator(Player player, int gameMode, boolean dead){
+    protected void processJoinSpectator(Player player, int gameMode, boolean dead){
         player.getInventory().clearAll();
         player.setGamemode(gameMode);
         player.setHealth(player.getMaxHealth());
-        if(this.getSpectatorSpawn().size() != 0){
-            Random random = new Random(this.getSpectatorSpawn().size());
-            AdvancedLocation location = this.getSpectatorSpawn().get(random.nextInt(this.getSpectatorSpawn().size()));
-            location.teleport(player);
+        switch (this.getRoomStatus()){
+            case ROOM_STATUS_GameReadyStart:
+            case ROOM_STATUS_GameStart:
+                if(this.getSpectatorSpawn().size() != 0){
+                    Random random = new Random(this.getSpectatorSpawn().size());
+                    AdvancedLocation location = this.getSpectatorSpawn().get(random.nextInt(this.getSpectatorSpawn().size()));
+                    location.teleport(player);
+                }else{
+                    if(this.getStartSpawn().size() != 0){
+                        Random random = new Random(this.getStartSpawn().size());
+                        AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
+                        location.teleport(player);
+                    }else{
+                        player.teleportImmediate(players.get(0).getLocation(), null);
+                    }
+                }
+                break;
+            case ROOM_STATUS_WAIT:
+            case ROOM_STATUS_PreStart:
+                if(this.getWaitSpawn() != null){
+                    this.getWaitSpawn().teleport(player);
+                }
+                break;
         }
         if(dead) {
             player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);

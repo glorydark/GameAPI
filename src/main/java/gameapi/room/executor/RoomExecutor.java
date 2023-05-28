@@ -2,9 +2,17 @@ package gameapi.room.executor;
 
 import gameapi.room.Room;
 
-public interface RoomStatusExecutor {
+public interface RoomExecutor {
 
     Room room = null;
+
+    default Room createRoom() {
+        return null; // Here developers need to override it.
+    }
+
+    default Room restartRoom(){
+        return null;
+    }
 
     void onWait();
 

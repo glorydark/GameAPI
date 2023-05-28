@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class BaseRoomStatusExecutor implements RoomStatusExecutor{
+public class BaseRoomExecutor implements RoomExecutor {
 
     protected Room room;
 
-    public BaseRoomStatusExecutor(Room room){
+    public BaseRoomExecutor(Room room){
         this.room = room;
     }
     
@@ -193,6 +193,21 @@ public class BaseRoomStatusExecutor implements RoomStatusExecutor{
         if (room.getTeams().size() > 0) {
             room.allocatePlayerToTeams();
             room.getPlayers().forEach(room::teleportToSpawn);
+            room.getSpectators().forEach(player -> {
+                if(room.getSpectatorSpawn().size() != 0){
+                    Random random = new Random(room.getSpectatorSpawn().size());
+                    AdvancedLocation location = room.getSpectatorSpawn().get(random.nextInt(room.getSpectatorSpawn().size()));
+                    location.teleport(player);
+                }else{
+                    if(room.getStartSpawn().size() != 0){
+                        Random random = new Random(room.getStartSpawn().size());
+                        AdvancedLocation location = room.getStartSpawn().get(random.nextInt(room.getStartSpawn().size()));
+                        location.teleport(player);
+                    }else{
+                        player.teleportImmediate(room.getPlayers().get(0).getLocation(), null);
+                    }
+                }
+            });
         } else {
             if (startSpawns.size() > 1) {
                 for (Player p : room.getPlayers()) {

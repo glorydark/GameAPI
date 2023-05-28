@@ -13,6 +13,7 @@ import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.level.ParticleEffect;
 import gameapi.GameAPI;
 import gameapi.entity.EntityTools;
 import gameapi.entity.GameProjectileEntity;
@@ -28,7 +29,9 @@ import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomChatData;
 import gameapi.room.RoomStatus;
+import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
+import gameapi.utils.SmartTools;
 import lombok.Data;
 
 import java.util.*;
@@ -167,6 +170,10 @@ public class BaseEventListener implements Listener {
                 if (!room.getRoomRule().isAllowExplosion()) {
                     event.getEntity().kill();
                     event.setCancelled(true);
+                }else{
+                    if(!room.getRoomRule().isAllowExplosionBreakBlock()){
+                        event.setBlockList(new ArrayList<>());
+                    }
                 }
             }
         }
@@ -279,6 +286,15 @@ public class BaseEventListener implements Listener {
             if (roomEntityDamageByEntityEvent.isCancelled()) {
                 event.setCancelled(true);
             } else {
+                if(room1.getRoomRule().isExperimentalFeature()){
+                    if(event.getDamager() instanceof Player){
+                        Player damagePlayer = (Player) event.getDamager();
+                        if(damagePlayer.fallDistance >= 0.5 && damagePlayer.getInventory().getItemInHand().isAxe()){
+                            entity.getLevel().addParticleEffect(entity.getPosition(), ParticleEffect.CRITICAL_HIT);
+                            roomEntityDamageByEntityEvent.setDamage(roomEntityDamageByEntityEvent.getDamage() * 1.5f);
+                        }
+                    }
+                }
                 event.setDamage(roomEntityDamageByEntityEvent.getDamage());
                 event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
                 event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
@@ -307,9 +323,6 @@ public class BaseEventListener implements Listener {
     public void PlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
         if (player != null) {
-            if (player.isOp()) {
-                return;
-            }
             Room room = Room.getRoom(player);
             if (room != null) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.commandExecute.notAllowed"));
@@ -340,24 +353,18 @@ public class BaseEventListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR) //暂时合成设置不可使用
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onCraft(CraftItemEvent event) {
-        Level level = event.getPlayer() == null ? null : event.getPlayer().getLevel();
-        if (level != null && Room.getRoom(event.getPlayer()) != null) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void FlyEvent(PlayerToggleFlightEvent event) {
-        if (Room.getRoom(event.getPlayer()) == null) {
+        if(event.getPlayer() == null){
             return;
         }
-        if (!event.getPlayer().isOp()) {
-            event.setCancelled(true);
+        Room room = Room.getRoom(event.getPlayer());
+        if (room != null) {
+            if(!room.getRoomRule().isAllowCraft()){
+                event.setCancelled(true);
+            }
         }
     }
-
 
     @EventHandler
     public void PlayerInvalidMoveEvent(PlayerInvalidMoveEvent event) {
@@ -373,7 +380,11 @@ public class BaseEventListener implements Listener {
     public void EntityLevelChangeEvent(EntityLevelChangeEvent event) {
         if (event.getEntity() instanceof Player) {
             for (TextEntity entity : EntityTools.entityList) {
-                entity.spawnTo((Player) event.getEntity());
+                if(entity.getLevel() == event.getEntity().getLevel()){
+                    entity.spawnTo((Player) event.getEntity());
+                }else{
+                    entity.despawnFrom((Player) event.getEntity());
+                }
             }
         }
     }
@@ -393,8 +404,17 @@ public class BaseEventListener implements Listener {
         GameListenerRegistry.callEvent(room, chatEvent);
         if (!chatEvent.isCancelled()) {
             String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatEvent.getRoomChatData().getDefaultChatMsg());
-            for (Player roomPlayer : room.getPlayers()) {
-                roomPlayer.sendMessage(msg);
+            if(msg.startsWith("@")){
+                if(room.getTeams().size() > 0){
+                    BaseTeam team = room.getPlayerTeam(player);
+                    if(team != null){
+                        SmartTools.sendMessage(team.getPlayers(), msg.replaceFirst("@", ""));
+                    }
+                }else{
+                    SmartTools.sendMessage(room.getPlayers(), msg);
+                }
+            }else{
+                SmartTools.sendMessage(room.getPlayers(), msg);
             }
         }
         event.setCancelled(true);

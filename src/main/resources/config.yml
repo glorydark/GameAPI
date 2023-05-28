@@ -1,2 +1,7 @@
 save_bag: false
 default_language: en_US
+default_kb: # future objective
+  delta_x: 1.0
+  delta_y: 1.0
+  delta_z: 1.0
+attackCoolDown: false
