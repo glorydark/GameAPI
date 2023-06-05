@@ -1,7 +1,7 @@
-package gameapi.block.test;
+package gameapi.extensions.block.test;
 
 import cn.nukkit.math.Vector3;
-import gameapi.block.AdvancedBlockListener;
+import gameapi.extensions.block.AdvancedBlockListener;
 import gameapi.event.block.RoomBlockPlaceEvent;
 import gameapi.event.block.RoomBlockTreadEvent;
 import gameapi.listener.base.annotations.GameEventHandler;

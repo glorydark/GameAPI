@@ -1,4 +1,4 @@
-package gameapi.block;
+package gameapi.extensions.block;
 
 import cn.nukkit.block.Block;
 import gameapi.annotation.Experimental;

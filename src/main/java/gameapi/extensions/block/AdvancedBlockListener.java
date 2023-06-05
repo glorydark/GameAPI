@@ -1,4 +1,4 @@
-package gameapi.block;
+package gameapi.extensions.block;
 
 public interface AdvancedBlockListener {
 
