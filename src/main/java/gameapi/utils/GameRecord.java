@@ -2,9 +2,10 @@ package gameapi.utils;
 
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
-import lombok.Data;
+import gameapi.ranking.RankingFormat;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 /**
@@ -88,36 +89,4 @@ public class GameRecord {
         }
     }
 
-    @Data
-    public static class RankingFormat{
-        String title = "%gameName%";
-
-        String scoreShowFormat = "[%rank%] %player%: %score%";
-
-        String championPrefix = "§6";
-
-        String runnerUpPrefix = "§e";
-
-        String secondRunnerUpPrefix = "§a";
-
-        String noData = "§a§lNothing is here...";
-
-        public RankingFormat(){
-
-        }
-
-        public RankingFormat(String title, String scoreShowFormat, String champion_prefix, String runnerUpPrefix, String secondRunnerUpPrefix, String noData){
-            this.title = title;
-            this.scoreShowFormat = scoreShowFormat;
-            this.championPrefix = champion_prefix;
-            this.runnerUpPrefix = runnerUpPrefix;
-            this.secondRunnerUpPrefix = secondRunnerUpPrefix;
-            this.noData = noData;
-        }
-    }
-
-    public enum SortSequence {
-        DESCEND,
-        ASCEND
-    }
 }

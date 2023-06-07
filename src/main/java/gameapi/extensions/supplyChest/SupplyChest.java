@@ -3,7 +3,6 @@ package gameapi.extensions.supplyChest;
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntityChest;
 import cn.nukkit.level.Location;
-import cn.nukkit.level.particle.Particle;
 import cn.nukkit.math.NukkitRandom;
 
 import java.util.HashSet;

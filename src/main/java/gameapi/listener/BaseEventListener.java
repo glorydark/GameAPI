@@ -212,13 +212,15 @@ public class BaseEventListener implements Listener {
                 }
             }
 
-            RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(room, player, event.getFrom(), event.getTo(), event.isResetBlocksAround());
-            if(roomPlayerMoveEvent.isCancelled()){
-                event.setCancelled(true);
-            }else{
-                event.setTo(roomPlayerMoveEvent.getTo());
-                event.setFrom(roomPlayerMoveEvent.getFrom());
-                event.setResetBlocksAround(roomPlayerMoveEvent.isResetBlocksAround());
+            if(GameAPI.allow_move_event){
+                RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(room, player, event.getFrom(), event.getTo(), event.isResetBlocksAround());
+                if(roomPlayerMoveEvent.isCancelled()){
+                    event.setCancelled(true);
+                }else{
+                    event.setTo(roomPlayerMoveEvent.getTo());
+                    event.setFrom(roomPlayerMoveEvent.getFrom());
+                    event.setResetBlocksAround(roomPlayerMoveEvent.isResetBlocksAround());
+                }
             }
         }
     }

@@ -17,13 +17,17 @@ import com.google.gson.stream.JsonReader;
 import gameapi.arena.Arena;
 import gameapi.commands.AdminCommands;
 import gameapi.entity.EntityTools;
+import gameapi.languages.Language;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.ranking.Ranking;
+import gameapi.ranking.RankingFormat;
+import gameapi.ranking.RankingSortSequence;
+import gameapi.ranking.simple.SimpleRanking;
 import gameapi.room.Room;
 import gameapi.task.RoomTask;
 import gameapi.utils.GameRecord;
 import gameapi.utils.GsonAdapter;
-import gameapi.languages.Language;
 
 import java.io.File;
 import java.io.InputStream;
@@ -51,6 +55,9 @@ public class GameAPI extends PluginBase implements Listener {
     public static List<Player> debug = new ArrayList<>();
     public static int entityRefreshIntervals = 100;
     public static boolean saveBag;
+
+    public static boolean allow_move_event;
+
     //此处引用lt-name的CrystalWar内的复原地图部分源码
     public static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
             0,
@@ -82,6 +89,7 @@ public class GameAPI extends PluginBase implements Listener {
         file1.mkdir();
         Config config = new Config(path+"/config.yml", Config.YAML);
         saveBag = config.getBoolean("save_bag", false);
+        allow_move_event = config.getBoolean("allow_move_event", true);
         language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
         //loadSkills();
         loadAllGameRecord();
@@ -91,7 +99,7 @@ public class GameAPI extends PluginBase implements Listener {
                 Allow users to customize ranking format.
              */
             if(rankingConfig.exists("format")){
-                GameRecord.RankingFormat rankingFormat = new GameRecord.RankingFormat(rankingConfig.getString("title"), rankingConfig.getString("score_show_format"), rankingConfig.getString("champion_prefix"), rankingConfig.getString("runnerUp_prefix"), rankingConfig.getString("secondRunnerUp_prefix"), rankingConfig.getString("no_data"));
+                RankingFormat rankingFormat = new RankingFormat(rankingConfig.getString("score_show_format"), rankingConfig.getString("champion_prefix"), rankingConfig.getString("runnerUp_prefix"), rankingConfig.getString("secondRunnerUp_prefix"));
                 GameRecord.setRankingFormat(rankingFormat);
             }
         }
@@ -183,7 +191,8 @@ public class GameAPI extends PluginBase implements Listener {
             }else{
                 this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk_alreadyLoaded", location.getChunkX(), location.getChunkZ()));
             }
-            EntityTools.spawnTextEntity(location, (String) map.get("game_name"), (String) map.get("compared_type"), map.getOrDefault("sort_sequence", "descend").equals("descend")? GameRecord.SortSequence.DESCEND : GameRecord.SortSequence.ASCEND);
+            Ranking ranking = new SimpleRanking(location, (String) map.get("game_name"), "No Data", new RankingFormat(), RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
+            ranking.spawnEntity();
         }
     }
 

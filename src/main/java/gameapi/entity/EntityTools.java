@@ -2,12 +2,13 @@ package gameapi.entity;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
-import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
-import gameapi.utils.GameRecord;
+import gameapi.ranking.Ranking;
+import gameapi.ranking.RankingFormat;
+import gameapi.ranking.RankingSortSequence;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,22 +26,15 @@ public class EntityTools {
         });
     }
 
-    public static void spawnTextEntity(Location location, String gameName, String comparedKey, GameRecord.SortSequence sortSequence){
-        TextEntity entity = new RankingListEntity(location.getChunk(), location, gameName, comparedKey, sortSequence, Entity.getDefaultNBT(new Vector3(location.x, location.y, location.z)));
-        GameAPI.plugin.getLogger().info(entity.getNameTag());
+    public static void spawnTextEntity(Position position, Ranking ranking){
+        ranking.refreshRankingData();
+        TextEntity entity = new TextEntity(position.getChunk(), position, ranking.getDisplayContent(), Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
         entity.setImmobile(true);
         entity.spawnToAll();
         entityList.add(entity);
     }
 
-    public static void spawnTextEntity(Position position, String text){
-        TextEntity entity = new TextEntity(position.getChunk(), position, text, Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
-        entity.setImmobile(true);
-        entity.spawnToAll();
-        entityList.add(entity);
-    }
-
-    public static void addRankingList(Player player, String gameName, String comparedType, GameRecord.SortSequence sortSequence){
+    public static void addRankingList(Player player, String gameName, String comparedType, RankingSortSequence rankingSortSequence){
         Config config = new Config(GameAPI.path+ "/rankings.yml");
         List<Map<String, Object>> maps = (List<Map<String, Object>>) config.get("list");
         Map<String, Object> add = new LinkedHashMap<>();
@@ -56,6 +50,6 @@ public class EntityTools {
         maps.add(add);
         config.set("list", maps);
         config.save();
-        spawnTextEntity(player.getLocation(), gameName, comparedType, sortSequence);
+        new Ranking(player.getLocation(), gameName, "No data", new RankingFormat(), rankingSortSequence).spawnEntity();
     }
 }

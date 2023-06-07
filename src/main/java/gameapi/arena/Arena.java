@@ -82,7 +82,6 @@ public class Arena {
         Server.getInstance().generateLevel(worldname,0, Generator.getGenerator("DIY"));
         Server.getInstance().loadLevel(worldname);
     }
-
      */
 
     public static void reloadLevel(Room room) {

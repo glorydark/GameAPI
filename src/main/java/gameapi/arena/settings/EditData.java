@@ -1,8 +1,10 @@
 package gameapi.arena.settings;
 
 import cn.nukkit.Player;
+import gameapi.annotation.Future;
 
-public class EditManager {
+@Future
+public class EditData {
 
     Player player;
 
@@ -10,7 +12,7 @@ public class EditManager {
 
     int maxStep;
 
-    public EditManager(Player player){
+    public EditData(Player player){
         this.player = player;
     }
 
