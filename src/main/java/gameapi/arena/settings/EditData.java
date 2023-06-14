@@ -1,42 +1,52 @@
 package gameapi.arena.settings;
 
 import cn.nukkit.Player;
-import gameapi.annotation.Future;
+import cn.nukkit.event.Event;
+import gameapi.annotation.Experimental;
 
-@Future
+import java.util.HashMap;
+import java.util.function.BiConsumer;
+
+@Experimental
 public class EditData {
 
     Player player;
 
-    int currentStep = 1; // Start from number 1
+    int currentStep;
 
-    int maxStep;
+    HashMap<Integer, EditStep> stepExecutors = new HashMap<>();
 
     public EditData(Player player){
         this.player = player;
-    }
-
-    protected void start(){
-        if(player != null) {
-            process();
-        }
+        process();
     }
 
     protected void process(){
-        execute(currentStep);
-        if(currentStep < maxStep) {
+        start(currentStep);
+        if(currentStep < stepExecutors.size()) {
             currentStep++;
         }else{
             end();
         }
     }
 
-    public void execute(int step){
-
+    public void start(int currentStep){
+        EditStep step = stepExecutors.get(currentStep);
+        if(step != null){
+            step.getStartExecutor().accept(player);
+        }
     }
 
-    public void end(){
+    public void dealResponse(Event event){
+        EditStep step = stepExecutors.get(currentStep);
+        if(step != null){
+            step.getResponseExecutor().accept(player, event);
+        }
+    }
 
+    protected void end(){
+        player.getInventory().clearAll();
+        player.sendMessage("设置完成！");
     }
 
 }

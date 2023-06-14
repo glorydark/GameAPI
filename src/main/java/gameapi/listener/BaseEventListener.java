@@ -530,4 +530,9 @@ public class BaseEventListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void PlayerFormRespondedEvent(PlayerFormRespondedEvent event){
+
+    }
+
 }
