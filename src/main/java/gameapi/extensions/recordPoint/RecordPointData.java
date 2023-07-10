@@ -1,4 +1,4 @@
-package gameapi.extensions.record_point;
+package gameapi.extensions.recordPoint;
 
 import cn.nukkit.Player;
 import cn.nukkit.level.Location;
