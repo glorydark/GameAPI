@@ -29,7 +29,7 @@ public class RecordPoints {
     }
 
     // You must implement this method in RoomPlayerMoveEvent to check the record point
-    public void onTick(Player player){
+    public void onUpdate(Player player){
         List<RecordPointData> data = recordPointDataList.stream()
                 .filter(recordPointData ->
                         !recordPointData.equals(playerRecordPointData.get(player)) && recordPointData.isInRange(player)

@@ -45,7 +45,7 @@ public class Room {
     private int ceremonyTime = 10; //颁奖典礼时间
 
     private int gameEndTime = 10; //游戏结束缓冲时间
-    private int MaxRound;
+    private int maxRound;
     private int round = 0;
     private int time = 0; // Spent Seconds
     private boolean preStartPass = true;
@@ -83,7 +83,7 @@ public class Room {
     protected String joinPassword = "";
 
     public Room(String gameName, RoomRule roomRule, String roomLevelBackup, int round) {
-        this.MaxRound = round;
+        this.maxRound = round;
         this.roomRule = roomRule;
         this.roomLevelBackup = roomLevelBackup;
         this.gameName = gameName;
@@ -706,7 +706,7 @@ public class Room {
                 ", \"gameWaitTime\":" + gameWaitTime +
                 ", \"gameTime\":" + gameTime +
                 ", \"ceremonyTime\":" + ceremonyTime +
-                ", \"MaxRound\":" + MaxRound +
+                ", \"MaxRound\":" + maxRound +
                 ", \"round\":" + round +
                 ", \"time\":" + time +
                 ", \"playersHealth\":" + playersHealth +
@@ -726,4 +726,5 @@ public class Room {
         this.inheritProperties.put("personal_owner", player);
         this.preStartPass = true;
     }
+
 }

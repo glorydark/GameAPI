@@ -35,7 +35,7 @@ public class SupplyChest {
         return System.currentTimeMillis() - lastMillis;
     }
 
-    public boolean onTickSupply() {
+    public boolean onUpdate() {
         // If it is not allowed to refresh, it will no longer refresh the items in the chest
         if(!this.isRefreshable()){
             return false;
