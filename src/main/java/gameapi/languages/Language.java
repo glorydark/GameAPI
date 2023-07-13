@@ -13,16 +13,16 @@ import java.util.Map;
 public class Language {
     protected HashMap<String, Map<String, Object>> lang;
 
-    protected String name;
+    protected String pluginName;
     protected String defaultLanguage;
 
-    public Language(String name){
+    public Language(String pluginName){
         lang = new HashMap<>();
-        this.name = name;
+        this.pluginName = pluginName;
     }
 
-    public String getName() {
-        return name;
+    public String getPluginName() {
+        return pluginName;
     }
 
     public void addLanguage(File file){

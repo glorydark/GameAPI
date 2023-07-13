@@ -82,8 +82,8 @@ public class AdminCommands extends Command {
                 case "savebattles": // For Tournament Restart Procedures
                     File saveDic = new File(GameAPI.path+"/saves/"+ SmartTools.dateToString(Calendar.getInstance().getTime()) + "/");
                     if(saveDic.exists() || saveDic.mkdirs()) {
-                        for (String key : GameAPI.RoomHashMap.keySet()) {
-                            for (Room room : GameAPI.RoomHashMap.get(key)) {
+                        for (String key : GameAPI.loadedRooms.keySet()) {
+                            for (Room room : GameAPI.loadedRooms.get(key)) {
                                 if (room.getRoomStatus().equals(RoomStatus.ROOM_STATUS_GameStart)) {
                                     File file = new File(saveDic.getPath() + "/" + key + "_" + room.getRoomName() + ".json");
                                     Config config = new Config(file, Config.JSON);
@@ -169,10 +169,10 @@ public class AdminCommands extends Command {
                     break;
                 case "status":
                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.getting"));
-                    if(GameAPI.getLoadedGames().size() > 0){
-                        for(String game: GameAPI.getLoadedGames()){
+                    if(GameAPI.loadedRooms.size() > 0){
+                        for(Map.Entry<String, List<Room>> game: GameAPI.loadedRooms.entrySet()){
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.title", game));
-                            List<Room> rooms = GameAPI.RoomHashMap.get(game);
+                            List<Room> rooms = game.getValue();
                             if(rooms.size() > 0){
                                 for(Room room: rooms){
                                     if(room.getRoomRule().isNeedPreStartPass()){

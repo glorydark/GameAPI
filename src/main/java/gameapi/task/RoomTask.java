@@ -129,12 +129,12 @@ public class RoomTask extends AsyncTask {
 
     @Override
     public void onRun() {
-        if (GameAPI.RoomHashMap.size() > 0) {
-            for(Map.Entry<String, List<Room>> entry : GameAPI.RoomHashMap.entrySet()){
+        if (GameAPI.loadedRooms.size() > 0) {
+            for(Map.Entry<String, List<Room>> entry : GameAPI.loadedRooms.entrySet()){
                 List<Room> rooms = new ArrayList<>(entry.getValue());
                 for(Room room: rooms) {
                     if(!checkState(room)){
-                        GameAPI.RoomHashMap.get(entry.getKey()).remove(room);
+                        GameAPI.loadedRooms.get(entry.getKey()).remove(room);
                     }
                 }
             }

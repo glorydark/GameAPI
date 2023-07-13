@@ -209,12 +209,6 @@ public class Room {
         teamCache.put(team.getRegistryName(), team);
     }
 
-    public static void loadRoom(Room room){
-        List<Room> rooms = new ArrayList<>(GameAPI.RoomHashMap.getOrDefault(room.getGameName(), new ArrayList<>()));
-        rooms.add(room);
-        GameAPI.RoomHashMap.put(room.getGameName(), rooms);
-    }
-
     public Boolean addPlayer(Player player){
         return addPlayer(player, "");
     }
@@ -320,7 +314,7 @@ public class Room {
     }
 
     public static Room getRoom(String gameName, String roomName){
-        for(Room room: GameAPI.RoomHashMap.getOrDefault(gameName, new ArrayList<>())){
+        for(Room room: GameAPI.loadedRooms.getOrDefault(gameName, new ArrayList<>())){
             if(room.roomName.equals(roomName) && room.gameName.equals(gameName)){
                 return room;
             }
@@ -352,8 +346,8 @@ public class Room {
                 Arena.unloadLevel(this, this.getPlayLevel());
                 Arena.delWorldByName(levelName);
             }
-            List<Room> rooms = GameAPI.RoomHashMap.getOrDefault(this.getGameName(), new ArrayList<>());
-            GameAPI.RoomHashMap.put(this.getGameName(), rooms);
+            List<Room> rooms = GameAPI.loadedRooms.getOrDefault(this.getGameName(), new ArrayList<>());
+            GameAPI.loadedRooms.put(this.getGameName(), rooms);
         }else {
             if(this.getRoomStatus() != RoomStatus.ROOM_MapInitializing && this.getRoomStatus() != RoomStatus.ROOM_STATUS_WAIT) {
                 if (this.resetMap) {
@@ -430,8 +424,8 @@ public class Room {
                 Arena.unloadLevel(this, level);
                 Arena.delWorldByName(levelName);
             }
-            List<Room> rooms = GameAPI.RoomHashMap.getOrDefault(this.getGameName(), new ArrayList<>());
-            GameAPI.RoomHashMap.put(this.getGameName(), rooms);
+            List<Room> rooms = GameAPI.loadedRooms.getOrDefault(this.getGameName(), new ArrayList<>());
+            GameAPI.loadedRooms.put(this.getGameName(), rooms);
         }
     }
 

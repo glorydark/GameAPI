@@ -159,7 +159,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void ExplodeEvent(EntityExplodeEvent event) {
         List<Room> roomList = new ArrayList<>();
-        GameAPI.RoomHashMap.forEach((s, rooms) -> roomList.addAll(rooms));
+        GameAPI.loadedRooms.forEach((s, rooms) -> roomList.addAll(rooms));
         for (Room room : roomList) {
             if (room != null) {
                 for (AdvancedLocation location : room.getStartSpawn()) {
@@ -182,7 +182,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void ExplodePrimeEvent(ExplosionPrimeEvent event) {
         List<Room> roomList = new ArrayList<>();
-        GameAPI.RoomHashMap.forEach((s, rooms) -> roomList.addAll(rooms));
+        GameAPI.loadedRooms.forEach((s, rooms) -> roomList.addAll(rooms));
         for (Room room : roomList) {
             if (room != null) {
                 for (AdvancedLocation location : room.getStartSpawn()) {
@@ -212,7 +212,7 @@ public class BaseEventListener implements Listener {
                 }
             }
 
-            if(GameAPI.allow_move_event){
+            if(GameAPI.updateMoveEvent){
                 RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(room, player, event.getFrom(), event.getTo(), event.isResetBlocksAround());
                 if(roomPlayerMoveEvent.isCancelled()){
                     event.setCancelled(true);

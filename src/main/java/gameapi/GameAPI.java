@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.Listener;
-import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import cn.nukkit.plugin.Plugin;
@@ -47,7 +46,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class GameAPI extends PluginBase implements Listener {
 
-    public static ConcurrentHashMap<String, List<Room>> RoomHashMap = new ConcurrentHashMap<>(); //房间状态
+    public static ConcurrentHashMap<String, List<Room>> loadedRooms = new ConcurrentHashMap<>(); //房间状态
     public static HashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
     public static String path = null;
 
@@ -57,7 +56,7 @@ public class GameAPI extends PluginBase implements Listener {
     public static int entityRefreshIntervals = 100;
     public static boolean saveBag;
 
-    public static boolean allow_move_event;
+    public static boolean updateMoveEvent;
 
     //此处引用lt-name的CrystalWar内的复原地图部分源码
     public static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
@@ -68,8 +67,6 @@ public class GameAPI extends PluginBase implements Listener {
             new SynchronousQueue<>(),
             task -> new Thread(task, "GameAPI Restore World Thread")
     );
-
-    protected static List<String> loadedGames = new ArrayList<>();
 
     protected static Language language = new Language("GameAPI");
 
@@ -90,7 +87,7 @@ public class GameAPI extends PluginBase implements Listener {
         file1.mkdir();
         Config config = new Config(path+"/config.yml", Config.YAML);
         saveBag = config.getBoolean("save_bag", false);
-        allow_move_event = config.getBoolean("allow_move_event", true);
+        updateMoveEvent = config.getBoolean("allow_move_event", true);
         language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
         //loadSkills();
         loadAllGameRecord();
@@ -199,10 +196,10 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onDisable() {
-        loadedGames.forEach(s -> Arena.delWorld(s));
+        loadedRooms.keySet().forEach(Arena::delWorld);
         EntityTools.closeAll();
         THREAD_POOL_EXECUTOR.shutdown();
-        RoomHashMap.clear();
+        loadedRooms.clear();
         playerRoomHashMap.clear();
         gameRecord.clear();
         GameListenerRegistry.clearAllRegisters();
@@ -224,16 +221,10 @@ public class GameAPI extends PluginBase implements Listener {
         return true;
     }
 
-    public static void addLoadedGame(String gameName){
-        loadedGames.add(gameName);
-    }
-
-    public static void removeLoadedGame(String gameName){
-        loadedGames.remove(gameName);
-    }
-
-    public static List<String> getLoadedGames() {
-        return loadedGames;
+    public static void loadRoom(Room room){
+        List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
+        rooms.add(room);
+        GameAPI.loadedRooms.put(room.getGameName(), rooms);
     }
 
     public static Language getLanguage() {
