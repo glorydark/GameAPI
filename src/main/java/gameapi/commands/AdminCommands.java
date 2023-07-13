@@ -88,10 +88,10 @@ public class AdminCommands extends Command {
                                     File file = new File(saveDic.getPath() + "/" + key + "_" + room.getRoomName() + ".json");
                                     Config config = new Config(file, Config.JSON);
                                     LinkedHashMap<String, Object> players = new LinkedHashMap<>();
-                                    room.getPlayers().forEach(player -> players.put(player.getName(), getPlayerDatas(player)));
+                                    room.getPlayers().forEach(player -> players.put(player.getName(), getPlayerData(player)));
                                     LinkedHashMap<String, Object> objectMap = new LinkedHashMap<>();
                                     objectMap.put("players", players);
-                                    objectMap.put("players_properties", getPropertiesDatas(room.getPlayerProperties()));
+                                    objectMap.put("players_properties", getPropertiesData(room.getPlayerProperties()));
                                     objectMap.put("room_properties", room.getRoomProperties());
                                     objectMap.put("room_datas", new Gson().fromJson(room.toString(), Map.class));
                                     config.setAll(objectMap);
@@ -220,7 +220,7 @@ public class AdminCommands extends Command {
         return true;
     }
 
-    public LinkedHashMap<String, Object> getPlayerDatas(Player player){
+    public LinkedHashMap<String, Object> getPlayerData(Player player){
         LinkedHashMap<String, Object> maps = new LinkedHashMap<>();
         maps.put("Location", player.getX() + ":" + player.getY() + ":" + player.getZ()+ ":" + player.getLevel().getName());
         maps.put("Health", player.getHealth());
@@ -235,7 +235,7 @@ public class AdminCommands extends Command {
         return maps;
     }
 
-    public LinkedHashMap<String, Object> getPropertiesDatas(LinkedHashMap<String, LinkedHashMap<String, Object>> playerObjectMap){
+    public LinkedHashMap<String, Object> getPropertiesData(LinkedHashMap<String, LinkedHashMap<String, Object>> playerObjectMap){
         LinkedHashMap<String, Object> maps = new LinkedHashMap<>();
         for(String key: playerObjectMap.keySet()){
             maps.put(key, playerObjectMap.get(key));
