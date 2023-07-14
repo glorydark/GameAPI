@@ -25,6 +25,7 @@ import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 import gameapi.room.Room;
+import gameapi.room.RoomStatus;
 import gameapi.task.RoomTask;
 import gameapi.utils.GameRecord;
 import gameapi.utils.GsonAdapter;
@@ -221,10 +222,11 @@ public class GameAPI extends PluginBase implements Listener {
         return true;
     }
 
-    public static void loadRoom(Room room){
+    public static void loadRoom(Room room, RoomStatus baseStatus){
         List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
         rooms.add(room);
         GameAPI.loadedRooms.put(room.getGameName(), rooms);
+        room.setRoomStatus(baseStatus);
     }
 
     public static Language getLanguage() {

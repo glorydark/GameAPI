@@ -2,7 +2,6 @@ package gameapi.form;
 
 import cn.nukkit.Player;
 import cn.nukkit.form.element.Element;
-import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseCustom;
 import cn.nukkit.form.window.FormWindowCustom;

@@ -14,6 +14,7 @@ public class RoomRule {
     private boolean allowBreakBlock = true;
 
     private boolean allowPlaceBlock = true;
+
     private int gameMode;
 
     private boolean allowReadyStartWalk = true;

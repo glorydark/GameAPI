@@ -31,7 +31,6 @@ import gameapi.room.RoomChatData;
 import gameapi.room.RoomStatus;
 import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
-import gameapi.utils.SmartTools;
 import lombok.Data;
 
 import java.util.*;
@@ -410,13 +409,13 @@ public class BaseEventListener implements Listener {
                 if(room.getTeams().size() > 0){
                     BaseTeam team = room.getPlayerTeam(player);
                     if(team != null){
-                        SmartTools.sendMessage(team.getPlayers(), msg.replaceFirst("@", ""));
+                        team.sendMessageToAll(msg.replaceFirst("@", ""));
                     }
                 }else{
-                    SmartTools.sendMessage(room.getPlayers(), msg);
+                    room.sendMessageToAll(msg);
                 }
             }else{
-                SmartTools.sendMessage(room.getPlayers(), msg);
+                room.sendMessageToAll(msg);
             }
         }
         event.setCancelled(true);

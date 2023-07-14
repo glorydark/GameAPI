@@ -5,7 +5,6 @@ import cn.nukkit.event.Event;
 import gameapi.annotation.Experimental;
 
 import java.util.HashMap;
-import java.util.function.BiConsumer;
 
 @Experimental
 public class EditData {

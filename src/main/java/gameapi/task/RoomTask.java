@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RoomTask extends AsyncTask {
 
-    public boolean checkState(Room room){
+    public boolean checkStateAndUpdate(Room room){
         if (room == null) {
             return false;
         }
@@ -133,7 +133,7 @@ public class RoomTask extends AsyncTask {
             for(Map.Entry<String, List<Room>> entry : GameAPI.loadedRooms.entrySet()){
                 List<Room> rooms = new ArrayList<>(entry.getValue());
                 for(Room room: rooms) {
-                    if(!checkState(room)){
+                    if(!checkStateAndUpdate(room)){
                         GameAPI.loadedRooms.get(entry.getKey()).remove(room);
                     }
                 }

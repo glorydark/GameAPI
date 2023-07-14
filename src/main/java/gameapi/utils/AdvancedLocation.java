@@ -1,10 +1,8 @@
 package gameapi.utils;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import gameapi.GameAPI;
 import lombok.Data;
 
 /**
@@ -18,19 +16,24 @@ public class AdvancedLocation {
     private double headYaw;
     private int version;
 
+    private String inputString;
+
     public AdvancedLocation(){}
 
     public AdvancedLocation(String string){
-        AdvancedLocation loc = getLocationByString(string);
-        switch (loc.getVersion()){
-            case 2:
-                this.headYaw = loc.getHeadYaw();
-            case 1:
-                this.yaw = loc.getYaw();
-                this.pitch = loc.getPitch();
-            case 0:
-                this.location = loc.getLocation();
-                break;
+        this.inputString = string;
+        AdvancedLocation loc = SmartTools.parseLocation(string);
+        if(loc != null){
+            switch (loc.getVersion()){
+                case 2:
+                    this.headYaw = loc.getHeadYaw();
+                case 1:
+                    this.yaw = loc.getYaw();
+                    this.pitch = loc.getPitch();
+                case 0:
+                    this.location = loc.getLocation();
+                    break;
+            }
         }
     }
 
@@ -57,54 +60,5 @@ public class AdvancedLocation {
                 break;
         }
         player.teleportImmediate(out, null);
-    }
-
-    public AdvancedLocation getLocationByString(String string){
-        String[] positions = string.split(":");
-        if(positions.length < 4){
-            if(positions.length == 3){
-                AdvancedLocation loc = new AdvancedLocation();
-                loc.setLocation(new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2])));
-                loc.setVersion(0);
-                return loc;
-            }
-            GameAPI.plugin.getLogger().warning("Wrong Location Format! Please check it again, text: "+string);
-            return null;
-        }
-        if(!Server.getInstance().isLevelLoaded(positions[3])){
-            if(Server.getInstance().loadLevel(positions[3])){
-                Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
-                AdvancedLocation advancedLocation = new AdvancedLocation();
-                advancedLocation.setLocation(location);
-                advancedLocation.setVersion(0);
-                if(positions.length >= 6){
-                    advancedLocation.setYaw(Double.parseDouble(positions[4]));
-                    advancedLocation.setPitch(Double.parseDouble(positions[5]));
-                    advancedLocation.setVersion(1);
-                    if(positions.length == 7){
-                        advancedLocation.setHeadYaw(Double.parseDouble(positions[6]));
-                        advancedLocation.setVersion(2);
-                    }
-                }
-                return advancedLocation;
-            }else{
-                return null;
-            }
-        }else{
-            Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
-            AdvancedLocation advancedLocation = new AdvancedLocation();
-            advancedLocation.setLocation(location);
-            advancedLocation.setVersion(0);
-            if(positions.length >= 6){
-                advancedLocation.setYaw(Double.parseDouble(positions[4]));
-                advancedLocation.setPitch(Double.parseDouble(positions[5]));
-                advancedLocation.setVersion(1);
-                if(positions.length == 7){
-                    advancedLocation.setHeadYaw(Double.parseDouble(positions[6]));
-                    advancedLocation.setVersion(2);
-                }
-            }
-            return advancedLocation;
-        }
     }
 }

@@ -164,6 +164,11 @@ public class Arena {
             if (FileUtil.delete(levelFile) && FileUtil.copy(backup, newLevelFile)) {
                 if (Server.getInstance().loadLevel(newName)) {
                     if (Server.getInstance().isLevelLoaded(newName)) {
+                        // Clear the previous location
+                        room.setStartSpawn(new ArrayList<>());
+                        room.setSpectatorSpawn(new ArrayList<>());
+
+                        // Renew the location
                         Level loadLevel = Server.getInstance().getLevelByName(newName);
                         room.setPlayLevel(loadLevel);
                         data.forEach(roomLevelData -> {

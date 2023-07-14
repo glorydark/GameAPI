@@ -7,7 +7,7 @@ import gameapi.annotation.Experimental;
 import gameapi.event.RoomEvent;
 import gameapi.event.block.RoomBlockEvent;
 import gameapi.event.player.RoomPlayerInteractEvent;
-import gameapi.extensions.block.AdvancedBlockRegistry;
+import gameapi.block.AdvancedBlockRegistry;
 import gameapi.listener.base.annotations.GameEventHandler;
 import gameapi.listener.base.interfaces.GameListener;
 import gameapi.room.Room;

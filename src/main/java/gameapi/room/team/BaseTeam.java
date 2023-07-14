@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import gameapi.GameAPI;
 import gameapi.room.Room;
 import gameapi.utils.AdvancedLocation;
+import gameapi.utils.PlayerTools;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -76,6 +77,22 @@ public class BaseTeam {
         for(Player player: players){
             location.teleport(player);
         }
+    }
+
+    public void sendMessageToAll(String string){
+        PlayerTools.sendMessage(players, string);
+    }
+
+    public void sendActionbarToAll(String string){
+        PlayerTools.sendActionbar(players, string);
+    }
+
+    public void sendTitleToAll(String string){
+        PlayerTools.sendTitle(players, string);
+    }
+
+    public void sendTipToAll(String string){
+        PlayerTools.sendTip(players, string);
     }
 
     @Override

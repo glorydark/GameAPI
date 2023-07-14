@@ -5,7 +5,6 @@ import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseModal;
 import cn.nukkit.form.window.FormWindowModal;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class AdvancedFormWindowModal extends FormWindowModal implements AdvancedForm {

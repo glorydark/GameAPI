@@ -15,6 +15,7 @@ import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
+import gameapi.utils.PlayerTools;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -719,6 +720,26 @@ public class Room {
         this.roomRule.setPersonal(personal);
         this.inheritProperties.put("personal_owner", player);
         this.preStartPass = true;
+    }
+
+    public void sendMessageToAll(String string){
+        PlayerTools.sendMessage(players, string);
+        PlayerTools.sendMessage(spectators, string);
+    }
+
+    public void sendActionbarToAll(String string){
+        PlayerTools.sendActionbar(players, string);
+        PlayerTools.sendActionbar(spectators, string);
+    }
+
+    public void sendTitleToAll(String string){
+        PlayerTools.sendTitle(players, string);
+        PlayerTools.sendTitle(spectators, string);
+    }
+
+    public void sendTipToAll(String string){
+        PlayerTools.sendTip(players, string);
+        PlayerTools.sendTip(spectators, string);
     }
 
 }
