@@ -744,23 +744,23 @@ public class Room {
     }
 
     public void sendMessageToAll(Language language, String string, Object... params){
-        PlayerTools.sendMessage(players, string);
-        PlayerTools.sendMessage(spectators, string);
+        PlayerTools.sendMessage(players, language, string, params);
+        PlayerTools.sendMessage(spectators, language, string, params);
     }
 
-    public void sendActionbarToAll(Language language, String string){
-        PlayerTools.sendActionbar(players, string);
-        PlayerTools.sendActionbar(spectators, string);
+    public void sendActionbarToAll(Language language, String string, Object... params){
+        PlayerTools.sendActionbar(players, language, string, params);
+        PlayerTools.sendActionbar(spectators, language, string, params);
     }
 
-    public void sendTitleToAll(Language language, String string){
-        PlayerTools.sendTitle(players, string);
-        PlayerTools.sendTitle(spectators, string);
+    public void sendTitleToAll(Language language, String string, Object... params){
+        PlayerTools.sendTitle(players, language, string, params);
+        PlayerTools.sendTitle(spectators, language, string, params);
     }
 
-    public void sendTipToAll(Language language, String string){
-        PlayerTools.sendTip(players, string);
-        PlayerTools.sendTip(spectators, string);
+    public void sendTipToAll(Language language, String string, Object... params){
+        PlayerTools.sendTip(players, language, string, params);
+        PlayerTools.sendTip(spectators, language, string, params);
     }
 
 }

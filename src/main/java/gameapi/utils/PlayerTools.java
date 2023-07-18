@@ -202,7 +202,7 @@ public class PlayerTools {
         }
     }
 
-    public static void sendActionBar(Collection<Player> players, Language language, String string, Object... params) {
+    public static void sendActionbar(Collection<Player> players, Language language, String string, Object... params) {
         for (Player player : players) {
             player.sendActionBar(language.getTranslation(player, string, params));
         }
