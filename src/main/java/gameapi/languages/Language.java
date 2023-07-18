@@ -11,9 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Language {
+
     protected HashMap<String, Map<String, Object>> lang;
 
     protected String pluginName;
+
     protected String defaultLanguage;
 
     public Language(String pluginName){
@@ -47,7 +49,7 @@ public class Language {
     }
 
     public String getTranslation(String key, Object... param){
-        return getTranslationWithDefaultValue(defaultLanguage, key, null, param);
+        return getTranslationWithDefaultValue(defaultLanguage, key, key, param);
     }
 
     public String getTranslation(CommandSender sender, String key, Object... param){
@@ -59,7 +61,7 @@ public class Language {
     }
 
     public String getTranslation(Player player, String key, Object... param){
-        return getTranslationWithDefaultValue(getLang(player), key, null, param);
+        return getTranslationWithDefaultValue(getLang(player), key, key, param);
     }
 
     private String getLang(Player player){

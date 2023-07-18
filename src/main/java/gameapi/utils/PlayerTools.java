@@ -8,6 +8,7 @@ import cn.nukkit.network.protocol.OnScreenTextureAnimationPacket;
 import cn.nukkit.network.protocol.SetTitlePacket;
 import cn.nukkit.network.protocol.TextPacket;
 import com.google.common.base.Strings;
+import gameapi.languages.Language;
 
 import java.util.Collection;
 
@@ -183,6 +184,33 @@ public class PlayerTools {
     public static void showOnScreenTextureAnimation(Collection<Player> players, int effectId){
         for (Player p : players) {
             showOnScreenTextureAnimation(p, effectId);
+        }
+    }
+
+
+    // Translation
+
+    public static void sendMessage(Collection<Player> players, Language language, String string, Object... params) {
+        for (Player player : players) {
+            player.sendMessage(language.getTranslation(player, string, params));
+        }
+    }
+
+    public static void sendTitle(Collection<Player> players, Language language, String string, Object... params) {
+        for (Player player : players) {
+            player.sendTitle(language.getTranslation(player, string, params));
+        }
+    }
+
+    public static void sendActionBar(Collection<Player> players, Language language, String string, Object... params) {
+        for (Player player : players) {
+            player.sendActionBar(language.getTranslation(player, string, params));
+        }
+    }
+
+    public static void sendTip(Collection<Player> players, Language language, String string, Object... params) {
+        for (Player player : players) {
+            player.sendTip(language.getTranslation(player, string, params));
         }
     }
 

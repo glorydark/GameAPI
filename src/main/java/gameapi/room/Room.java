@@ -10,6 +10,7 @@ import gameapi.arena.Arena;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.inventory.InventoryTools;
+import gameapi.languages.Language;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
@@ -738,6 +739,26 @@ public class Room {
     }
 
     public void sendTipToAll(String string){
+        PlayerTools.sendTip(players, string);
+        PlayerTools.sendTip(spectators, string);
+    }
+
+    public void sendMessageToAll(Language language, String string, Object... params){
+        PlayerTools.sendMessage(players, string);
+        PlayerTools.sendMessage(spectators, string);
+    }
+
+    public void sendActionbarToAll(Language language, String string){
+        PlayerTools.sendActionbar(players, string);
+        PlayerTools.sendActionbar(spectators, string);
+    }
+
+    public void sendTitleToAll(Language language, String string){
+        PlayerTools.sendTitle(players, string);
+        PlayerTools.sendTitle(spectators, string);
+    }
+
+    public void sendTipToAll(Language language, String string){
         PlayerTools.sendTip(players, string);
         PlayerTools.sendTip(spectators, string);
     }
