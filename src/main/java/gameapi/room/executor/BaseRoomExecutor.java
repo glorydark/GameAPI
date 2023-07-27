@@ -204,7 +204,7 @@ public class BaseRoomExecutor implements RoomExecutor {
                         AdvancedLocation location = room.getStartSpawn().get(random.nextInt(room.getStartSpawn().size()));
                         location.teleport(player);
                     }else{
-                        player.teleportImmediate(room.getPlayers().get(0).getLocation(), null);
+                        player.teleport(room.getPlayers().get(0).getLocation());
                     }
                 }
             });

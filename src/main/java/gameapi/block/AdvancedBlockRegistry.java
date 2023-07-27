@@ -36,6 +36,7 @@ public class AdvancedBlockRegistry {
 
     private static void trigger(Block block, RoomEvent roomEvent){
         String idString = block.getId()+":"+block.getDamage();
+        //String pnxIdString = block.toItem().getNamespaceId();
         if(blockHashmap.containsKey(idString)){
             Class advancedBlockClass = blockHashmap.get(idString);
             try {
@@ -50,5 +51,21 @@ public class AdvancedBlockRegistry {
                 throw new RuntimeException(e);
             }
         }
+        /*
+        if(blockHashmap.containsKey(pnxIdString)){
+            Class advancedBlockClass = blockHashmap.get(pnxIdString);
+            try {
+                for(Method method: advancedBlockClass.getMethods()) {
+                    for (Class param : method.getParameterTypes()) {
+                        if (roomEvent.getClass().isAssignableFrom(param)) {
+                            method.invoke(advancedBlockClass.newInstance(), roomEvent);
+                        }
+                    }
+                }
+            } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+         */
     }
 }

@@ -59,6 +59,6 @@ public class AdvancedLocation {
                 out.setLevel(location.getLevel());
                 break;
         }
-        player.teleportImmediate(out, null);
+        player.teleport(out);
     }
 }

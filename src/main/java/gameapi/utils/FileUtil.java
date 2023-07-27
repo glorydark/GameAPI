@@ -11,10 +11,6 @@ import java.io.IOException;
  */
 public class FileUtil {
 
-    public static boolean delete(String file) {
-        return delete(new File(file));
-    }
-
     public static boolean delete(File file) {
         try {
             if (!file.exists()) {
@@ -24,14 +20,16 @@ public class FileUtil {
             if (files != null) {
                 for (File getFile : files) {
                     if (getFile.isDirectory()) {
-                        delete(getFile);
-                    }else if (!getFile.delete()) {
-                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("file.delete.failed", file.getName()));
+                        File[] listFiles = getFile.listFiles();
+                        if(listFiles != null){
+                            for (File listFile : listFiles) {
+                                delete(listFile);
+                            }
+                        }
+                    }else{
+                        return getFile.delete();
                     }
                 }
-            }
-            if (!file.delete()) {
-                GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("file.delete.failed", file.getName()));
             }
             return true;
         } catch (Exception e) {
@@ -43,14 +41,6 @@ public class FileUtil {
 
     public static boolean copy(String from, String to) {
         return copy(new File(from), new File(to));
-    }
-
-    public static boolean copy(String from, File to) {
-        return copy(new File(from), to);
-    }
-
-    public static boolean copy(File from, String to) {
-        return copy(from, new File(to));
     }
 
     public static boolean copy(File from, File to) {
@@ -76,4 +66,5 @@ public class FileUtil {
         }
         return false;
     }
+
 }

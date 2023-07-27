@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import gameapi.arena.Arena;
+import gameapi.arena.WorldTools;
 import gameapi.commands.AdminCommands;
 import gameapi.entity.EntityTools;
 import gameapi.languages.Language;
@@ -48,13 +48,19 @@ import java.util.concurrent.TimeUnit;
 public class GameAPI extends PluginBase implements Listener {
 
     public static ConcurrentHashMap<String, List<Room>> loadedRooms = new ConcurrentHashMap<>(); //房间状态
-    public static HashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
-    public static String path = null;
 
-    public static Plugin plugin = null;
+    public static HashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
+
+    public static String path;
+
+    public static Plugin plugin;
+
     public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
+
     public static List<Player> debug = new ArrayList<>();
+
     public static int entityRefreshIntervals = 100;
+
     public static boolean saveBag;
 
     public static boolean updateMoveEvent;
@@ -126,6 +132,7 @@ public class GameAPI extends PluginBase implements Listener {
                         out += "手持物品id: [" + item.getId() + ":" + item.getDamage() + "] 数量:" + item.getCount() + "\n";
                         Block block = player.getTargetBlock(32);
                         if (block != null) {
+                            //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
                             out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 方块名称:" + block.getName() + "\n";
                             out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
                         } else {
@@ -134,7 +141,8 @@ public class GameAPI extends PluginBase implements Listener {
                         }
                         Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
                         if(under != null){
-                            out+= "所踩方块: "+under.getId()+":"+under.getDamage();
+                            //out += "所踩方块: " + under.toItem().getNamespaceId();
+                            out += "所踩方块: " + under.getId() + ":" + under.getDamage();
                         }else{
                             out+= "所踩方块: [无]";
                         }
@@ -197,7 +205,7 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onDisable() {
-        loadedRooms.keySet().forEach(Arena::delWorld);
+        loadedRooms.keySet().forEach(WorldTools::delWorldByPrefix);
         EntityTools.closeAll();
         THREAD_POOL_EXECUTOR.shutdown();
         loadedRooms.clear();

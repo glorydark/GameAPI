@@ -2,11 +2,10 @@ package gameapi.room;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import gameapi.GameAPI;
-import gameapi.arena.Arena;
+import gameapi.arena.WorldTools;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.inventory.InventoryTools;
@@ -31,31 +30,55 @@ import java.util.stream.Collectors;
  */
 @Data
 public class Room {
+
     // Used as a temporary room and will be deleted after the game.
     private RoomExecutor statusExecutor = new BaseRoomExecutor(this);
-    private boolean temporary = false;
-    private boolean resetMap = true; // Resetting map is default set to false.
-    private String roomName = "null";
-    private RoomRule roomRule;
-    private RoomStatus roomStatus = RoomStatus.ROOM_STATUS_WAIT;
-    private List<Player> players = new ArrayList<>();
-    private int maxPlayer = 2; //最大人数
-    private int minPlayer = 16; //最少人数
-    private int waitTime = 10; //等待时间
-    private int gameWaitTime = 10; //开始缓冲时间
-    private int gameTime = 10; //游戏开始时间
-    private int ceremonyTime = 10; //颁奖典礼时间
 
-    private int gameEndTime = 10; //游戏结束缓冲时间
+    private boolean temporary = false;
+
+    private boolean resetMap = true; // Resetting map is default set to false.
+
+    private String roomName = "null";
+
+    private RoomRule roomRule;
+
+    private RoomStatus roomStatus = RoomStatus.ROOM_STATUS_WAIT;
+
+    private List<Player> players = new ArrayList<>();
+
+    private int maxPlayer = 2;
+
+    private int minPlayer = 16;
+
+    private int waitTime = 10;
+
+    private int gameWaitTime = 10;
+
+    private int gameTime = 10;
+
+    private int ceremonyTime = 10;
+
+
+    private int gameEndTime = 10;
+
     private int maxRound;
+
     private int round = 0;
+
     private int time = 0; // Spent Seconds
+
     private boolean preStartPass = true;
+
     private List<Player> spectators = new ArrayList<>();
+
     private Level playLevel;
+
     private AdvancedLocation waitSpawn = new AdvancedLocation();
+
     private List<AdvancedLocation> startSpawn = new ArrayList<>();
+
     private AdvancedLocation endSpawn;
+
     private List<AdvancedLocation> spectatorSpawn = new ArrayList<>();
 
     @Setter(AccessLevel.NONE)
@@ -63,9 +86,13 @@ public class Room {
 
     @Setter(AccessLevel.NONE)
     protected HashMap<Player, Float> playersHealth = new HashMap<>();
+
     private String roomLevelBackup;
+
     private String gameName;
+
     private List<String> winConsoleCommands = new ArrayList<>();
+
     private List<String> loseConsoleCommands = new ArrayList<>();
 
     @Setter(AccessLevel.NONE)
@@ -78,15 +105,19 @@ public class Room {
     // Save data for some inherited properties, used by the author to restore some inner info.
     @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, Object> inheritProperties = new LinkedHashMap<>();
+
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
 
-    //Provide this variable in order to realise some functions
+    // Provide this variable in order to realise some functions
     protected String joinPassword = "";
 
-    public Room(String gameName, RoomRule roomRule, String roomLevelBackup, int round) {
+    protected boolean levelLock = false;
+
+    public Room(String gameName, RoomRule roomRule, Level playLevel, String roomLevelBackup, int round) {
         this.maxRound = round;
         this.roomRule = roomRule;
+        this.playLevel = playLevel;
         this.roomLevelBackup = roomLevelBackup;
         this.gameName = gameName;
         AdvancedLocation endSpawn = new AdvancedLocation();
@@ -279,9 +310,8 @@ public class Room {
     }
 
     public void removePlayer(Player player, Boolean saveBag){
-        RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this,player);
+        RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
-        //GameListenerRegistry.callEvent(this.getGameName(), ev);
         if(!ev.isCancelled()) {
             player.getInventory().clearAll();
             if (saveBag) {
@@ -324,43 +354,6 @@ public class Room {
         return null;
     }
 
-    public void detectToReset(){
-        this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
-        new ArrayList<>(this.spectators).forEach(this::removeSpectator);
-        this.round = 0;
-        this.playerProperties = new LinkedHashMap<>();
-        this.playersHealth = new HashMap<>();
-        this.chatDataList = new ArrayList<>();
-        this.time = 0;
-        this.teamCache.forEach((key, value) -> value.resetAll());
-        if (playLevel != null) {
-            for (Entity entity : playLevel.getEntities()) {
-                if (!(entity instanceof Player)) {
-                    entity.kill();
-                    entity.close();
-                }
-            }
-        }
-        if(this.temporary){
-            GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("room.detect_delete", this.getRoomName()));
-            if(this.getPlayLevel() != null) {
-                String levelName = this.getPlayLevel().getName();
-                Arena.unloadLevel(this, this.getPlayLevel());
-                Arena.delWorldByName(levelName);
-            }
-            List<Room> rooms = GameAPI.loadedRooms.getOrDefault(this.getGameName(), new ArrayList<>());
-            GameAPI.loadedRooms.put(this.getGameName(), rooms);
-        }else {
-            if(this.getRoomStatus() != RoomStatus.ROOM_MapInitializing && this.getRoomStatus() != RoomStatus.ROOM_STATUS_WAIT) {
-                if (this.resetMap) {
-                    GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("detect_resetRoomAndMap", this.getRoomName()));
-                    Arena.reloadLevel(this);
-                }
-                this.roomStatus = RoomStatus.ROOM_STATUS_WAIT;
-            }
-        }
-    }
-
     public void setRoomStatus(RoomStatus status){
         this.setRoomStatus(status, true);
     }
@@ -389,13 +382,16 @@ public class Room {
     }
 
     public void resetAll(){
+        if(this.levelLock){
+            return;
+        }
+        this.levelLock = true;
         this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
         new ArrayList<>(this.spectators).forEach(this::removeSpectator);
         for(Player player: players){
             RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this,player);
             GameListenerRegistry.callEvent(this, ev);
             player.getInventory().clearAll();
-            //GameListenerRegistry.callEvent(this.getGameName(), ev);
             InventoryTools.loadBag(player);
             AdvancedLocation location = getEndSpawn();
             location.teleport(player);
@@ -409,12 +405,20 @@ public class Room {
         this.playerProperties = new LinkedHashMap<>();
         this.teamCache.forEach((s, team) -> team.resetAll());
         this.chatDataList = new ArrayList<>();
+        if(this.playLevel == null){
+            return;
+        }
+        String levelName = this.getPlayLevel().getName();
         if(!this.temporary) {
             if (this.resetMap) {
                 GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_resetRoomAndMap", this.getRoomName()));
-                Arena.reloadLevel(this);
-                this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
+                if(WorldTools.unloadLevel(this, true)){
+                    WorldTools.reloadLevel(this, levelName);
+                    this.levelLock = false;
+                    this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
+                }
             } else {
+                this.levelLock = false;
                 GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_resetRoom", this.getRoomName()));
                 this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
             }
@@ -422,9 +426,7 @@ public class Room {
             GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_delete", this.getRoomName()));
             Level level = this.getPlayLevel();
             if(level != null){
-                String levelName = level.getName();
-                Arena.unloadLevel(this, level);
-                Arena.delWorldByName(levelName);
+                WorldTools.unloadLevel(this, true);
             }
             List<Room> rooms = GameAPI.loadedRooms.getOrDefault(this.getGameName(), new ArrayList<>());
             GameAPI.loadedRooms.put(this.getGameName(), rooms);

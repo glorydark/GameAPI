@@ -6,4 +6,4 @@ format:
   runnerUp_prefix: "§e"
   secondRunnerUp_prefix: "§a"
   no_data: "§a§l暂无数据"
-list: {}
+list: []

@@ -7,7 +7,6 @@ import cn.nukkit.lang.TranslationContainer;
 import cn.nukkit.network.protocol.OnScreenTextureAnimationPacket;
 import cn.nukkit.network.protocol.SetTitlePacket;
 import cn.nukkit.network.protocol.TextPacket;
-import com.google.common.base.Strings;
 import gameapi.languages.Language;
 
 import java.util.Collection;
@@ -84,11 +83,11 @@ public class PlayerTools {
 
     public static void sendTitle(Player[] players, String title, String subtitle, int fadeIn, int stay, int fadeOut) {
         setTitleAnimationTimes(players, fadeIn, stay, fadeOut);
-        if (!Strings.isNullOrEmpty(subtitle)) {
+        if (!subtitle.equals("")) {
             setSubtitle(players, subtitle);
         }
 
-        setTitle(players, Strings.isNullOrEmpty(title) ? " " : title);
+        setTitle(players, title);
     }
 
     public static void setTitleAnimationTimes(Player[] players, int fadein, int duration, int fadeout) {

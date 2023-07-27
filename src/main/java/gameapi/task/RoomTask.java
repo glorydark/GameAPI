@@ -24,17 +24,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RoomTask extends AsyncTask {
 
-    public boolean checkStateAndUpdate(Room room){
+    public boolean onUpdate(Room room){
         if (room == null) {
             return false;
         }
         if(room.getRoomStatus() == RoomStatus.ROOM_MapLoadFailed || room.getRoomStatus() == RoomStatus.ROOM_MapInitializing){
             return false;
         }
+        room.getPlayers().removeIf(player -> player == null || !player.isOnline());
         for(Player player: room.getPlayers()){
-            if(player == null || !player.isOnline()){
-                room.removePlayer(player, false);
-            }else{
+            if(player.isOnline()){
                 Block block = player.getLevelBlock();
                 if(!(block instanceof BlockLiquid) && player.getY() == player.getPosition().round().getY()){
                     RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(room, block, player);
@@ -45,7 +44,8 @@ public class RoomTask extends AsyncTask {
         switch (room.getRoomStatus()) {
             case ROOM_STATUS_WAIT:
                 if(room.isTemporary() && room.getPlayers().size() < 1){
-                    room.detectToReset();
+                    room.resetAll();
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomWaitListener(room));
@@ -53,7 +53,8 @@ public class RoomTask extends AsyncTask {
                 break;
             case ROOM_STATUS_GameEnd:
                 if(room.getPlayers().size() < 1){
-                    room.detectToReset();
+                    room.resetAll();
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomGameEndListener(room));
@@ -61,7 +62,8 @@ public class RoomTask extends AsyncTask {
                 break;
             case ROOM_STATUS_Ceremony:
                 if(room.getPlayers().size() < 1){
-                    room.detectToReset();
+                    room.resetAll();
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomCeremonyListener(room));
@@ -77,7 +79,8 @@ public class RoomTask extends AsyncTask {
                 break;
             case ROOM_STATUS_GameStart:
                 if(room.getPlayers().size() < 1){
-                    room.detectToReset();
+                    room.resetAll();
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                     return true;
                 }else{
                     if(room.getTeams().size() > 1) {
@@ -113,7 +116,8 @@ public class RoomTask extends AsyncTask {
                 break;
             case ROOM_STATUS_GameReadyStart:
                 if(room.getPlayers().size() < 1){
-                    room.detectToReset();
+                    room.resetAll();
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomReadyStartListener(room));
@@ -133,7 +137,7 @@ public class RoomTask extends AsyncTask {
             for(Map.Entry<String, List<Room>> entry : GameAPI.loadedRooms.entrySet()){
                 List<Room> rooms = new ArrayList<>(entry.getValue());
                 for(Room room: rooms) {
-                    if(!checkStateAndUpdate(room)){
+                    if(!onUpdate(room)){
                         GameAPI.loadedRooms.get(entry.getKey()).remove(room);
                     }
                 }

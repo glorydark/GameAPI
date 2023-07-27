@@ -1,7 +1,6 @@
 package gameapi.languages;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
@@ -31,9 +30,9 @@ public class Language {
         if(file.getName().endsWith(".properties")){
             String locale = file.getName().replace(".properties", "");
             lang.put(locale, new Config(file, Config.PROPERTIES).getAll());
-            Server.getInstance().getLogger().info("§aLanguage Loaded: "+locale);
+            GameAPI.plugin.getLogger().info("§aLanguage Loaded: "+locale);
         }else{
-            Server.getInstance().getLogger().info("§cInvalid Language File: "+file.getName());
+            GameAPI.plugin.getLogger().info("§cInvalid Language File: "+file.getName());
         }
     }
 

@@ -17,7 +17,10 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Glorydark
  * Some methods using in this class came from others, and you can find the original author in some specific classes!
+ *
+ * This class is replaced by WorldTools.java
  */
+@Deprecated
 public class Arena {
     public static Boolean saveWorld(Level world){
         String rootPath = Server.getInstance().getFilePath()+"/worlds/"+world.getName()+"/";
@@ -182,7 +185,7 @@ public class Arena {
                     //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
                 }
             } else {
-                GameAPI.plugin.getLogger().error("§c游戏房间: " + levelName + " 地图还原失败！请检查文件权限！");
+                GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", newName));
                 room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                 //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
             }
