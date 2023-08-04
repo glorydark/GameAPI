@@ -7,3 +7,5 @@ description: GameAPI
 load: POSTWORLD
 depend:
   - ScoreboardPlugin
+softdepend:
+  - Tips

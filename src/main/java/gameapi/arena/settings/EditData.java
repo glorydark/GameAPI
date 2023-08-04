@@ -6,7 +6,10 @@ import gameapi.annotation.Experimental;
 
 import java.util.HashMap;
 
-@Experimental
+/*
+   This class is deprecated. Try RoomSetData.class!
+ */
+@Deprecated
 public class EditData {
 
     Player player;

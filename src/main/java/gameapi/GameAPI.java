@@ -10,13 +10,10 @@ import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 import gameapi.arena.WorldTools;
 import gameapi.commands.AdminCommands;
 import gameapi.entity.EntityTools;
+import gameapi.form.AdvancedFormMain;
 import gameapi.languages.Language;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -25,15 +22,12 @@ import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 import gameapi.room.Room;
+import gameapi.room.RoomEdit;
 import gameapi.room.RoomStatus;
 import gameapi.task.RoomTask;
 import gameapi.utils.GameRecord;
-import gameapi.utils.GsonAdapter;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,6 +58,10 @@ public class GameAPI extends PluginBase implements Listener {
     public static boolean saveBag;
 
     public static boolean updateMoveEvent;
+
+    public static boolean tipsEnabled;
+
+    public static HashMap<Player, RoomEdit> editDataHashMap = new HashMap<>();
 
     //此处引用lt-name的CrystalWar内的复原地图部分源码
     public static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
@@ -96,13 +94,9 @@ public class GameAPI extends PluginBase implements Listener {
         saveBag = config.getBoolean("save_bag", false);
         updateMoveEvent = config.getBoolean("allow_move_event", true);
         language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
-        //loadSkills();
         loadAllGameRecord();
         if(new File(path+"/rankings.yml").exists()){
             Config rankingConfig = new Config(path+"/rankings.yml", Config.YAML);
-            /*
-                Allow users to customize ranking format.
-             */
             if(rankingConfig.exists("format")){
                 RankingFormat rankingFormat = new RankingFormat(rankingConfig.getString("score_show_format"), rankingConfig.getString("champion_prefix"), rankingConfig.getString("runnerUp_prefix"), rankingConfig.getString("secondRunnerUp_prefix"));
                 GameRecord.setRankingFormat(rankingFormat);
@@ -111,9 +105,7 @@ public class GameAPI extends PluginBase implements Listener {
         loadAllRankingListEntities();
         this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(),20, true);
         this.getServer().getPluginManager().registerEvents(new BaseEventListener(),this);
-        //GameListenerRegistry.registerEvents("test", new TestListener(), this);
-        //GameListenerRegistry.callEvent("test", new RoomPlayerJoinEvent(null, null));
-        //AdvancedBlockRegistry.registerAdvancedBlock(152, 0, TestAdvancedBlockListenerListener.class);
+        this.getServer().getPluginManager().registerEvents(new AdvancedFormMain(), this);
         this.getServer().getCommandMap().register("",new AdminCommands("gameapi"));
         Server.getInstance().getScheduler().scheduleRepeatingTask(this, new NukkitRunnable() {
             @Override
@@ -151,6 +143,7 @@ public class GameAPI extends PluginBase implements Listener {
                 );
             }
         }, 5);
+        tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") == null;
         this.getLogger().info("§aDGameAPI Enabled!");
     }
     @Override
@@ -215,26 +208,16 @@ public class GameAPI extends PluginBase implements Listener {
         this.getLogger().info("DGameAPI Disabled!");
     }
 
-    public static boolean saveJsonToCore(String savePath, InputStream stream, int type){
-        File file = new File(path + "/" + savePath);
-        if(file.exists()){ return true; }
-        Gson gson = new GsonBuilder().registerTypeAdapter(new TypeToken<Map<String, Object>>() {}.getType(), new GsonAdapter()).create();
-        Map<String, Object> mainMap;
-        JsonReader reader = new JsonReader(new InputStreamReader(stream, StandardCharsets.UTF_8)); //一定要以utf-8读取
-        mainMap = gson.fromJson(reader, new TypeToken<Map<String, Object>>(){}.getType());
-        Config config = new Config(file, type);
-        LinkedHashMap<String, Object> save = new LinkedHashMap<>();
-        mainMap.keySet().forEach(key -> save.put(key, mainMap.get(key)));
-        config.setAll(save);
-        config.save();
-        return true;
-    }
-
     public static void loadRoom(Room room, RoomStatus baseStatus){
         List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
         rooms.add(room);
         GameAPI.loadedRooms.put(room.getGameName(), rooms);
         room.setRoomStatus(baseStatus);
+    }
+
+    public static void addRoomEdit(Player player, RoomEdit roomEdit){
+        roomEdit.init();
+        editDataHashMap.put(player, roomEdit);
     }
 
     public static Language getLanguage() {

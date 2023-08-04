@@ -6,11 +6,13 @@ import cn.nukkit.form.element.ElementButtonImageData;
 import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseSimple;
 import cn.nukkit.form.window.FormWindowSimple;
+import gameapi.annotation.Future;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+@Future
 public class AdvancedFormWindowSimple extends FormWindowSimple implements AdvancedForm {
 
     protected BiConsumer<Player, FormResponseSimple> responseExecutor;
@@ -50,12 +52,12 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
 
         }
 
-        public Builder setTitle(String title){
+        public Builder title(String title){
             this.title = title;
             return this;
         }
 
-        public Builder setContent(String content){
+        public Builder content(String content){
             this.content = content;
             return this;
         }
@@ -70,12 +72,12 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
             return this;
         }
 
-        public Builder responseExecute(BiConsumer<Player, FormResponseSimple> responseExecutor){
+        public Builder onButtonClick(BiConsumer<Player, FormResponseSimple> responseExecutor){
             this.responseExecutor = responseExecutor;
             return this;
         }
 
-        public Builder responseExecute(Consumer<Player> noResponseExecutor){
+        public Builder onClose(Consumer<Player> noResponseExecutor){
             this.noResponseExecutor = noResponseExecutor;
             return this;
         }

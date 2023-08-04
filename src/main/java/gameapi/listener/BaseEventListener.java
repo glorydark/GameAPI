@@ -45,36 +45,40 @@ public class BaseEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerLocallyInitializedEvent(PlayerLocallyInitializedEvent event) {
-        GameAPI.playerRoomHashMap.put(event.getPlayer(), null);
-        if (event.getPlayer() != null) {
+        Player player = event.getPlayer();
+        GameAPI.playerRoomHashMap.put(player, null);
+        if (player != null) {
             if (GameAPI.saveBag) {
-                if (InventoryTools.getPlayerBagConfig(event.getPlayer()) != null) {
-                    InventoryTools.loadBag(event.getPlayer());
-                    event.getPlayer().getFoodData().setLevel(20, 20.0F);
-                    Server.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("baseEvent.join.bagCacheExisted", event.getPlayer().getName()));
+                if (InventoryTools.getPlayerBagConfig(player) != null) {
+                    InventoryTools.loadBag(player);
+                    player.getFoodData().setLevel(20, 20.0F);
+                    Server.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("baseEvent.join.bagCacheExisted", player.getName()));
                 }
             }
-            event.getPlayer().setLocale(Locale.US);
+            //event.getPlayer().setLocale(Locale.US);
             for (TextEntity entity : EntityTools.entityList) {
-                entity.spawnTo(event.getPlayer());
+                entity.spawnTo(player);
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerQuitEvent(PlayerQuitEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
             for (Player p : room.getPlayers()) {
-                p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.roomQuit", event.getPlayer().getName()));
+                p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.roomQuit", player.getName()));
             }
-            room.removePlayer(event.getPlayer(), true);
+            room.removePlayer(player, true);
         }
+        GameAPI.editDataHashMap.remove(player);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void BlockBreakEvent(BlockBreakEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                 event.setCancelled(true);
@@ -83,7 +87,7 @@ public class BaseEventListener implements Listener {
                 if (!room.getRoomRule().getAllowBreakBlocks().contains(event.getBlock().getId() + ":" + event.getBlock().getDamage())) {
                     event.setCancelled(true);
                 } else {
-                    RoomBlockBreakEvent roomBlockBreakEvent = new RoomBlockBreakEvent(room, event.getBlock(), event.getPlayer(), event.getItem(), event.getInstaBreak(), event.getDrops(), event.getDropExp(), event.getFace());
+                    RoomBlockBreakEvent roomBlockBreakEvent = new RoomBlockBreakEvent(room, event.getBlock(), player, event.getItem(), event.getInstaBreak(), event.getDrops(), event.getDropExp(), event.getFace());
                     GameListenerRegistry.callEvent(room, roomBlockBreakEvent);
                     if (roomBlockBreakEvent.isCancelled()) {
                         event.setCancelled(true);
@@ -94,7 +98,7 @@ public class BaseEventListener implements Listener {
                     }
                 }
             } else {
-                RoomBlockBreakEvent roomBlockBreakEvent = new RoomBlockBreakEvent(room, event.getBlock(), event.getPlayer(), event.getItem(), event.getInstaBreak(), event.getDrops(), event.getDropExp(), event.getFace());
+                RoomBlockBreakEvent roomBlockBreakEvent = new RoomBlockBreakEvent(room, event.getBlock(), player, event.getItem(), event.getInstaBreak(), event.getDrops(), event.getDropExp(), event.getFace());
                 GameListenerRegistry.callEvent(room, roomBlockBreakEvent);
                 if (roomBlockBreakEvent.isCancelled()) {
                     event.setCancelled(true);
@@ -104,12 +108,17 @@ public class BaseEventListener implements Listener {
                     event.setDrops(roomBlockBreakEvent.getDrops());
                 }
             }
+        }else{
+            if(GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null){
+                GameAPI.editDataHashMap.get(player).respondEvent(event);
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void BlockPlaceEvent(BlockPlaceEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                 event.setCancelled(true);
@@ -118,32 +127,37 @@ public class BaseEventListener implements Listener {
                     if (!room.getRoomRule().getAllowPlaceBlocks().contains(event.getBlock().getId() + ":" + event.getBlock().getDamage())) {
                         event.setCancelled(true);
                     } else {
-                        RoomBlockPlaceEvent roomBlockPlaceEvent = new RoomBlockPlaceEvent(room, event.getBlock(), event.getPlayer(), event.getItem(), event.getBlockAgainst(), event.getBlockReplace());
+                        RoomBlockPlaceEvent roomBlockPlaceEvent = new RoomBlockPlaceEvent(room, event.getBlock(), player, event.getItem(), event.getBlockAgainst(), event.getBlockReplace());
                         GameListenerRegistry.callEvent(room, roomBlockPlaceEvent);
                         if (roomBlockPlaceEvent.isCancelled()) {
                             event.setCancelled(true);
                         }
                     }
                 } else {
-                    RoomBlockPlaceEvent roomBlockPlaceEvent = new RoomBlockPlaceEvent(room, event.getBlock(), event.getPlayer(), event.getItem(), event.getBlockAgainst(), event.getBlockReplace());
+                    RoomBlockPlaceEvent roomBlockPlaceEvent = new RoomBlockPlaceEvent(room, event.getBlock(), player, event.getItem(), event.getBlockAgainst(), event.getBlockReplace());
                     GameListenerRegistry.callEvent(room, roomBlockPlaceEvent);
                     if (roomBlockPlaceEvent.isCancelled()) {
                         event.setCancelled(true);
                     }
                 }
             }
+        }else{
+            if(GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null){
+                GameAPI.editDataHashMap.get(player).respondEvent(event);
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerDropItemEvent(PlayerDropItemEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                 if (room.getRoomRule().isAllowDropItem()) {
                     event.setCancelled(true);
                 }else{
-                    RoomPlayerDropItemEvent roomPlayerDropItemEvent = new RoomPlayerDropItemEvent(room, event.getPlayer(), event.getItem());
+                    RoomPlayerDropItemEvent roomPlayerDropItemEvent = new RoomPlayerDropItemEvent(room, player, event.getItem());
                     GameListenerRegistry.callEvent(room, roomPlayerDropItemEvent);
                     if(roomPlayerDropItemEvent.isCancelled()){
                         event.setCancelled(true);
@@ -355,25 +369,16 @@ public class BaseEventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onCraft(CraftItemEvent event) {
-        if(event.getPlayer() == null){
+    public void CraftItemEvent(CraftItemEvent event) {
+        Player player = event.getPlayer();
+        if(player == null){
             return;
         }
-        Room room = Room.getRoom(event.getPlayer());
+        Room room = Room.getRoom(player);
         if (room != null) {
             if(!room.getRoomRule().isAllowCraft()){
                 event.setCancelled(true);
             }
-        }
-    }
-
-    @EventHandler
-    public void PlayerInvalidMoveEvent(PlayerInvalidMoveEvent event) {
-        if (Room.getRoom(event.getPlayer()) == null) {
-            return;
-        }
-        if (!event.getPlayer().isOp()) {
-            event.setCancelled(true);
         }
     }
 
@@ -424,18 +429,20 @@ public class BaseEventListener implements Listener {
     // Extra listener for GameListeners
     @EventHandler
     public void PlayerJumpEvent(PlayerJumpEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
-            RoomPlayerJumpEvent roomPlayerJumpEvent = new RoomPlayerJumpEvent(room, event.getPlayer());
+            RoomPlayerJumpEvent roomPlayerJumpEvent = new RoomPlayerJumpEvent(room, player);
             GameListenerRegistry.callEvent(room, roomPlayerJumpEvent);
         }
     }
 
     @EventHandler
     public void PlayerToggleGlideEvent(PlayerToggleGlideEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
-            RoomPlayerToggleGlideEvent roomPlayerToggleGlideEvent = new RoomPlayerToggleGlideEvent(room, event.getPlayer(), event.isGliding());
+            RoomPlayerToggleGlideEvent roomPlayerToggleGlideEvent = new RoomPlayerToggleGlideEvent(room, player, event.isGliding());
             GameListenerRegistry.callEvent(room, roomPlayerToggleGlideEvent);
             if (roomPlayerToggleGlideEvent.isCancelled()) {
                 event.setCancelled(true);
@@ -445,9 +452,10 @@ public class BaseEventListener implements Listener {
 
     @EventHandler
     public void PlayerToggleSneakEvent(PlayerToggleSneakEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
-            RoomPlayerToggleSneakEvent roomPlayerToggleSneakEvent = new RoomPlayerToggleSneakEvent(room, event.getPlayer(), event.isSneaking());
+            RoomPlayerToggleSneakEvent roomPlayerToggleSneakEvent = new RoomPlayerToggleSneakEvent(room, player, event.isSneaking());
             GameListenerRegistry.callEvent(room, roomPlayerToggleSneakEvent);
             if (roomPlayerToggleSneakEvent.isCancelled()) {
                 event.setCancelled(true);
@@ -457,9 +465,10 @@ public class BaseEventListener implements Listener {
 
     @EventHandler
     public void PlayerToggleSprintEvent(PlayerToggleSprintEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
-            RoomPlayerToggleSprintEvent roomPlayerToggleSprintEvent = new RoomPlayerToggleSprintEvent(room, event.getPlayer(), event.isSprinting());
+            RoomPlayerToggleSprintEvent roomPlayerToggleSprintEvent = new RoomPlayerToggleSprintEvent(room, player, event.isSprinting());
             GameListenerRegistry.callEvent(room, roomPlayerToggleSprintEvent);
             if (roomPlayerToggleSprintEvent.isCancelled()) {
                 event.setCancelled(true);
@@ -469,21 +478,27 @@ public class BaseEventListener implements Listener {
 
     @EventHandler
     public void PlayerInteractEvent(PlayerInteractEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
-            RoomPlayerInteractEvent roomPlayerInteractEvent = new RoomPlayerInteractEvent(room, event.getPlayer(), event.getBlock(), event.getTouchVector(), event.getFace(), event.getItem(), event.getAction());
+            RoomPlayerInteractEvent roomPlayerInteractEvent = new RoomPlayerInteractEvent(room, player, event.getBlock(), event.getTouchVector(), event.getFace(), event.getItem(), event.getAction());
             GameListenerRegistry.callEvent(room, roomPlayerInteractEvent);
             if(roomPlayerInteractEvent.isCancelled()){
                 event.setCancelled(true);
+            }
+        }else{
+            if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null){
+                GameAPI.editDataHashMap.get(player).respondEvent(event);
             }
         }
     }
 
     @EventHandler
     public void PlayerItemConsumeEvent(PlayerItemConsumeEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
-            RoomPlayerItemConsumeEvent roomPlayerItemConsumeEvent = new RoomPlayerItemConsumeEvent(room, event.getPlayer(), event.getItem());
+            RoomPlayerItemConsumeEvent roomPlayerItemConsumeEvent = new RoomPlayerItemConsumeEvent(room, player, event.getItem());
             GameListenerRegistry.callEvent(room, roomPlayerItemConsumeEvent);
             if(roomPlayerItemConsumeEvent.isCancelled()){
                 event.setCancelled(true);
@@ -493,9 +508,10 @@ public class BaseEventListener implements Listener {
 
     @EventHandler
     public void PlayerItemHeldEvent(PlayerItemHeldEvent event) {
-        Room room = Room.getRoom(event.getPlayer());
+        Player player = event.getPlayer();
+        Room room = Room.getRoom(player);
         if (room != null) {
-            RoomPlayerItemHeldEvent roomPlayerItemHeldEvent = new RoomPlayerItemHeldEvent(room, event.getPlayer(), event.getItem());
+            RoomPlayerItemHeldEvent roomPlayerItemHeldEvent = new RoomPlayerItemHeldEvent(room, player, event.getItem());
             GameListenerRegistry.callEvent(room, roomPlayerItemHeldEvent);
             if(roomPlayerItemHeldEvent.isCancelled()){
                 event.setCancelled(true);
@@ -527,11 +543,6 @@ public class BaseEventListener implements Listener {
                 event.setCancelled(true);
             }
         }
-    }
-
-    @EventHandler
-    public void PlayerFormRespondedEvent(PlayerFormRespondedEvent event){
-
     }
 
 }

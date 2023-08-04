@@ -16,6 +16,7 @@ import gameapi.room.executor.RoomExecutor;
 import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.PlayerTools;
+import gameapi.utils.Tips;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -302,6 +303,9 @@ public class Room {
                         p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
                     }
                     GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
+                    if(GameAPI.tipsEnabled){
+                        Tips.closeTipsShow(this.getPlayLevel().getName(), player);
+                    }
                 }
                 return true;
             }

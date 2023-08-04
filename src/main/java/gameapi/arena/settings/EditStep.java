@@ -6,6 +6,10 @@ import cn.nukkit.event.Event;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/*
+   This class is deprecated. Try RoomSetData.class!
+ */
+@Deprecated
 public class EditStep {
 
     private BiConsumer<Player, Event> responseExecutor;

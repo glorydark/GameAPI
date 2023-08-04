@@ -4,14 +4,16 @@ import cn.nukkit.Player;
 import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseModal;
 import cn.nukkit.form.window.FormWindowModal;
+import gameapi.annotation.Future;
 
 import java.util.function.Consumer;
 
+@Future
 public class AdvancedFormWindowModal extends FormWindowModal implements AdvancedForm {
 
-    protected Consumer<Player> firstButtonResponseExecutor;
+    protected Consumer<Player> trueButtonResponseExecutor;
 
-    protected Consumer<Player> secondButtonResponseExecutor;
+    protected Consumer<Player> falseButtonResponseExecutor;
 
     protected Consumer<Player> noResponseExecutor;
 
@@ -31,10 +33,10 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
         }else{
             switch (responseModal.getClickedButtonId()){
                 case 0:
-                    firstButtonResponseExecutor.accept(player);
+                    trueButtonResponseExecutor.accept(player);
                     break;
                 case 1:
-                    secondButtonResponseExecutor.accept(player);
+                    falseButtonResponseExecutor.accept(player);
                     break;
             }
         }
@@ -60,37 +62,37 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
 
         }
 
-        public Builder setTitle(String title){
+        public Builder title(String title){
             this.title = title;
             return this;
         }
 
-        public Builder setContent(String content){
+        public Builder content(String content){
             this.content = content;
             return this;
         }
 
-        public Builder setTrueButtonText(String text){
+        public Builder trueButtonText(String text){
             this.trueButtonText = text;
             return this;
         }
 
-        public Builder setFalseButtonText(String text){
+        public Builder falseButtonText(String text){
             this.falseButtonText = text;
             return this;
         }
 
-        public Builder firstButtonResponseExecute(Consumer<Player> firstButtonResponseExecutor){
+        public Builder onTrueButtonClick(Consumer<Player> firstButtonResponseExecutor){
             this.firstButtonResponseExecutor = firstButtonResponseExecutor;
             return this;
         }
 
-        public Builder secondButtonResponseExecute(Consumer<Player> secondButtonResponseExecutor){
+        public Builder onFalseButtonClick(Consumer<Player> secondButtonResponseExecutor){
             this.secondButtonResponseExecutor = secondButtonResponseExecutor;
             return this;
         }
 
-        public Builder responseExecute(Consumer<Player> noResponseExecutor){
+        public Builder onClose(Consumer<Player> noResponseExecutor){
             this.noResponseExecutor = noResponseExecutor;
             return this;
         }
@@ -101,8 +103,8 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
             modal.setContent(content);
             modal.setButton1(trueButtonText);
             modal.setButton2(falseButtonText);
-            modal.firstButtonResponseExecutor = this.firstButtonResponseExecutor;
-            modal.secondButtonResponseExecutor = this.secondButtonResponseExecutor;
+            modal.trueButtonResponseExecutor = this.firstButtonResponseExecutor;
+            modal.falseButtonResponseExecutor = this.secondButtonResponseExecutor;
             modal.noResponseExecutor = this.noResponseExecutor;
             return modal;
         }
