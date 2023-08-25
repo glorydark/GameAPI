@@ -11,6 +11,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
+@Deprecated
 public class RoomLevelData {
     private int type; //0 wait  1 start  2 end  3 spectator
     private AdvancedLocation advancedLocation;

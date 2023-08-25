@@ -73,7 +73,8 @@ public class Language {
                 return defaultLanguage;
             }
         }else{
-            return defaultLanguage;
+            String languageCode = player.getLoginChainData().getLanguageCode();
+            return lang.containsKey(languageCode)? languageCode : defaultLanguage;
         }
     }
 
