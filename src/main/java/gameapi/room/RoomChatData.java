@@ -31,6 +31,6 @@ public class RoomChatData {
 
     @Override
     public String toString() {
-        return "["+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(timeMillis))+"]"+playerName+": "+ message;
+        return "["+new SimpleDateFormat("yyyy年MM月dd日 HH时mm分ss秒SSS毫秒").format(new Date(timeMillis))+"]"+playerName+": "+ message;
     }
 }

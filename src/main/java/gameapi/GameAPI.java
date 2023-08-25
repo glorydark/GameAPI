@@ -13,6 +13,7 @@ import cn.nukkit.utils.Config;
 import gameapi.arena.WorldTools;
 import gameapi.commands.AdminCommands;
 import gameapi.entity.EntityTools;
+import gameapi.form.AdvancedFormMain;
 import gameapi.languages.Language;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -104,6 +105,7 @@ public class GameAPI extends PluginBase implements Listener {
         loadAllRankingListEntities();
         this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(),20, true);
         this.getServer().getPluginManager().registerEvents(new BaseEventListener(),this);
+        this.getServer().getPluginManager().registerEvents(new AdvancedFormMain(), this);
         this.getServer().getCommandMap().register("",new AdminCommands("gameapi"));
         Server.getInstance().getScheduler().scheduleRepeatingTask(this, new NukkitRunnable() {
             @Override

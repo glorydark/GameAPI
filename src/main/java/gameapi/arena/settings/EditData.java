@@ -9,7 +9,7 @@ import java.util.HashMap;
 /*
    This class is deprecated. Try RoomSetData.class!
  */
-@Deprecated
+@Experimental
 public class EditData {
 
     Player player;
