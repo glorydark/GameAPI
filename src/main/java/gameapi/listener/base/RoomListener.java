@@ -39,7 +39,7 @@ public class RoomListener implements GameListener {
     }
 
     public void callEvent(String gameName, RoomEvent event) throws EventException {
-        if(!gameName.equals(getGameName())){
+        if (!gameName.equals(getGameName())) {
             return;
         }
         if (!(event instanceof Cancellable) || !event.isCancelled() || !this.isIgnoringCancelled()) {

@@ -10,7 +10,7 @@ public interface RoomExecutor {
         return null; // Here developers need to override it.
     }
 
-    default Room restartRoom(){
+    default Room restartRoom() {
         return null;
     }
 
@@ -27,7 +27,7 @@ public interface RoomExecutor {
     void onCeremony();
 
     void onNextRoundPreStart();
-    
+
     void beginPreStart();
 
     void beginReadyStart();
@@ -35,9 +35,9 @@ public interface RoomExecutor {
     void beginGameStart();
 
     void beginGameEnd();
-    
+
     void beginCeremony();
-    
+
     void beginNextRoundPreStart();
-    
+
 }

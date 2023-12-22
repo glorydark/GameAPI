@@ -27,11 +27,11 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
         super("", "");
     }
 
-    public void dealResponse(Player player, FormResponse response){
+    public void dealResponse(Player player, FormResponse response) {
         FormResponseSimple responseSimple = (FormResponseSimple) response;
-        if(this.wasClosed() || response == null){
+        if (this.wasClosed() || response == null) {
             noResponseExecutor.accept(player);
-        }else{
+        } else {
             responseExecutor.accept(player, responseSimple);
         }
     }
@@ -48,41 +48,41 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
 
         private Consumer<Player> noResponseExecutor;
 
-        public Builder(){
+        public Builder() {
 
         }
 
-        public Builder title(String title){
+        public Builder title(String title) {
             this.title = title;
             return this;
         }
 
-        public Builder content(String content){
+        public Builder content(String content) {
             this.content = content;
             return this;
         }
 
-        public Builder addButton(String text){
+        public Builder addButton(String text) {
             buttonList.add(new ElementButton(text));
             return this;
         }
 
-        public Builder addButton(String text, String icon, String iconPathType){
+        public Builder addButton(String text, String icon, String iconPathType) {
             buttonList.add(new ElementButton(text, new ElementButtonImageData(icon, iconPathType)));
             return this;
         }
 
-        public Builder onButtonClick(BiConsumer<Player, FormResponseSimple> responseExecutor){
+        public Builder onButtonClick(BiConsumer<Player, FormResponseSimple> responseExecutor) {
             this.responseExecutor = responseExecutor;
             return this;
         }
 
-        public Builder onClose(Consumer<Player> noResponseExecutor){
+        public Builder onClose(Consumer<Player> noResponseExecutor) {
             this.noResponseExecutor = noResponseExecutor;
             return this;
         }
 
-        public AdvancedFormWindowSimple build(){
+        public AdvancedFormWindowSimple build() {
             AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple();
             simple.setTitle(title);
             simple.setContent(content);

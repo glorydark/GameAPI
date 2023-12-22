@@ -11,30 +11,27 @@ import java.io.IOException;
  */
 public class FileUtil {
 
-    public static boolean delete(File file) {
+    public static boolean delete(File deleteFile) {
         try {
-            if (!file.exists()) {
+            if (!deleteFile.exists()) {
                 return true;
             }
-            File[] files = file.listFiles();
+            File[] files = deleteFile.listFiles();
             if (files != null) {
-                for (File getFile : files) {
-                    if (getFile.isDirectory()) {
-                        File[] listFiles = getFile.listFiles();
-                        if(listFiles != null){
-                            for (File listFile : listFiles) {
-                                delete(listFile);
-                            }
-                        }
-                    }else{
-                        return getFile.delete();
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        delete(file);
+                    }else if (!file.delete()) {
+                        throw new IOException(GameAPI.getLanguage().getTranslation("file.delete.error", file.getName()));
                     }
                 }
             }
+            if (!deleteFile.delete()) {
+                throw new IOException(GameAPI.getLanguage().getTranslation("file.delete.error", deleteFile.getName()));
+            }
             return true;
         } catch (Exception e) {
-            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("file.delete.error", file.getName()));
-            //e.printStackTrace();
+            e.printStackTrace();
         }
         return false;
     }
@@ -45,7 +42,7 @@ public class FileUtil {
 
     public static boolean copy(File from, File to) {
         try {
-            File [] files = from.listFiles();
+            File[] files = from.listFiles();
             if (files != null) {
                 if (!to.exists() && !to.mkdirs()) {
                     throw new IOException(GameAPI.getLanguage().getTranslation("file.folder.create.failed", to.getName()));
@@ -53,12 +50,12 @@ public class FileUtil {
                 for (File file : files) {
                     if (file.isDirectory()) {
                         copy(file, new File(to, file.getName()));
-                    }else {
+                    } else {
                         Utils.copyFile(file, new File(to, file.getName()));
                     }
                 }
                 return true;
-            }else {
+            } else {
                 return false;
             }
         } catch (Exception e) {

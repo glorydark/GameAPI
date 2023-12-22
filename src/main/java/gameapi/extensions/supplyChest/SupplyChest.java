@@ -23,39 +23,39 @@ public class SupplyChest {
 
     long intervalTicks; // If this equal to zero, it would not regenerate again.
 
-    public boolean isCoolDownEnd(){
-        if(intervalTicks > 0) {
+    public boolean isCoolDownEnd() {
+        if (intervalTicks > 0) {
             return this.getCoolDown() >= intervalTicks;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public long getCoolDown(){
+    public long getCoolDown() {
         return System.currentTimeMillis() - lastMillis;
     }
 
     public boolean onUpdate() {
         // If it is not allowed to refresh, it will no longer refresh the items in the chest
-        if(!this.isRefreshable()){
+        if (!this.isRefreshable()) {
             return false;
         }
         // If the subtraction is less than intervalTicks, it will not refresh the supplies in the chest
-        if(this.getCoolDown() < intervalTicks){
+        if (this.getCoolDown() < intervalTicks) {
             return false;
         }
         // Update the latestMillis
         lastMillis = System.currentTimeMillis();
         BlockEntityChest entityChest = this.getEntity();
-        if(entityChest != null) {
+        if (entityChest != null) {
             entityChest.getInventory().clearAll();
             // Try to get the refreshments
             int count = 0;
-            for(SupplyItem supplyItem: supplyItemList){
-                if(count >= maxItemCount){
+            for (SupplyItem supplyItem : supplyItemList) {
+                if (count >= maxItemCount) {
                     return true;
                 }
-                if(this.processFakeRandom(supplyItem.possibility)){
+                if (this.processFakeRandom(supplyItem.possibility)) {
                     entityChest.getInventory().addItem(supplyItem.getItem());
                     count++;
                 }
@@ -66,12 +66,12 @@ public class SupplyChest {
     }
 
     public boolean isRefreshable() {
-        return intervalTicks!=0;
+        return intervalTicks != 0;
     }
 
-    public BlockEntityChest getEntity(){
+    public BlockEntityChest getEntity() {
         Block block = location.getLevel().getBlock(location.getLocation());
-        if(block.getId() == 54) {
+        if (block.getId() == 54) {
             return (BlockEntityChest) location.getLevel().getBlockEntity(location.getLocation());
         }
         return null;
@@ -80,14 +80,14 @@ public class SupplyChest {
     /**
      * This is a method to get a random choice about whether it hits a winning streak or it is on a losing one.
      */
-    public boolean processFakeRandom(int possibilities){
+    public boolean processFakeRandom(int possibilities) {
         Set<Integer> originIntegerSet = new HashSet<>();
-        for(int i=1; i<=100; i++){
+        for (int i = 1; i <= 100; i++) {
             originIntegerSet.add(i);
         }
 
-        for(int i=1; i<=Math.min(possibilities, 100); i++){
-            if(originIntegerSet.contains(random.nextRange(1, 100))){
+        for (int i = 1; i <= Math.min(possibilities, 100); i++) {
+            if (originIntegerSet.contains(random.nextRange(1, 100))) {
                 return true;
             }
         }

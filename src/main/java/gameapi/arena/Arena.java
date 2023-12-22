@@ -17,23 +17,23 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Glorydark
  * Some methods using in this class came from others, and you can find the original author in some specific classes!
- *
+ * <p>
  * This class is replaced by WorldTools.java
  */
 @Deprecated
 public class Arena {
-    public static Boolean saveWorld(Level world){
-        String rootPath = Server.getInstance().getFilePath()+"/worlds/"+world.getName()+"/";
-        String savePath = GameAPI.path+"/worlds/"+world.getName()+"/";
-        return FileUtil.copy(rootPath,savePath);
+    public static Boolean saveWorld(Level world) {
+        String rootPath = Server.getInstance().getFilePath() + "/worlds/" + world.getName() + "/";
+        String savePath = GameAPI.path + "/worlds/" + world.getName() + "/";
+        return FileUtil.copy(rootPath, savePath);
     }
 
-    public static Boolean delWorld(String prefix){
-        String rootPath = Server.getInstance().getDataPath()+"/worlds/";
-        for(File file: Objects.requireNonNull(new File(rootPath).listFiles())) {
-            if(file.getName().startsWith(prefix+"_")) {
-                if(Server.getInstance().isLevelLoaded(file.getName())){
-                    if(!Server.getInstance().getLevelByName(file.getName()).unload(true)) {
+    public static Boolean delWorld(String prefix) {
+        String rootPath = Server.getInstance().getDataPath() + "/worlds/";
+        for (File file : Objects.requireNonNull(new File(rootPath).listFiles())) {
+            if (file.getName().startsWith(prefix + "_")) {
+                if (Server.getInstance().isLevelLoaded(file.getName())) {
+                    if (!Server.getInstance().getLevelByName(file.getName()).unload(true)) {
                         GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.unloadFailed", file.getName()));
                         continue;
                     }
@@ -45,23 +45,23 @@ public class Arena {
         return true;
     }
 
-    public static Boolean delWorldByName(String name){
-        String rootPath = Server.getInstance().getDataPath()+"/worlds/"+name+"/";
+    public static Boolean delWorldByName(String name) {
+        String rootPath = Server.getInstance().getDataPath() + "/worlds/" + name + "/";
         FileUtil.delete(new File(rootPath));
         return true;
     }
 
-    public static Boolean copyWorld(String loadName,String backupName){
+    public static Boolean copyWorld(String loadName, String backupName) {
         Server.getInstance().broadcastMessage(Server.getInstance().getDataPath());
-        String worldPath = Server.getInstance().getDataPath()+"/worlds/"+loadName+"/";
-        String savePath = GameAPI.path+"/worlds/"+backupName+"/";
+        String worldPath = Server.getInstance().getDataPath() + "/worlds/" + loadName + "/";
+        String savePath = GameAPI.path + "/worlds/" + backupName + "/";
         return FileUtil.copy(savePath, worldPath);
     }
 
-    public static Boolean copyWorldAndLoad(String loadName,String backupName) {
-        String savePath = GameAPI.path+"/worlds/"+backupName;
-        String worldPath = Server.getInstance().getDataPath()+"/worlds/"+loadName;
-        if(new File(savePath).exists()) {
+    public static Boolean copyWorldAndLoad(String loadName, String backupName) {
+        String savePath = GameAPI.path + "/worlds/" + backupName;
+        String worldPath = Server.getInstance().getDataPath() + "/worlds/" + loadName;
+        if (new File(savePath).exists()) {
             if (FileUtil.copy(savePath, worldPath)) {
                 return Server.getInstance().loadLevel(loadName);
             }
@@ -69,13 +69,13 @@ public class Arena {
         return false;
     }
 
-    public static Boolean deleteDir(String saveWorld){
-        String worldPath = Server.getInstance().getDataPath()+"/worlds/"+saveWorld+"/";
+    public static Boolean deleteDir(String saveWorld) {
+        String worldPath = Server.getInstance().getDataPath() + "/worlds/" + saveWorld + "/";
         File file = new File(worldPath);
         return FileUtil.delete(file);
     }
 
-    public static void createVoidWorld(String worldname){
+    public static void createVoidWorld(String worldname) {
         Server.getInstance().generateLevel(worldname);
     }
 
@@ -103,14 +103,14 @@ public class Arena {
             strings.put(levelName, data);
         });
 
-        if(room.getWaitSpawn() != null) {
+        if (room.getWaitSpawn() != null) {
             String waitName = room.getWaitSpawn().getLevel().getName();
             List<RoomLevelData> waitData = strings.getOrDefault(waitName, new ArrayList<>());
             waitData.add(new RoomLevelData(room.getWaitSpawn(), room, 0));
             strings.put(room.getWaitSpawn().getLevel().getName(), waitData);
         }
 
-        if(room.getEndSpawn() != null) {
+        if (room.getEndSpawn() != null) {
             String endName = room.getEndSpawn().getLevel().getName();
             List<RoomLevelData> endData = strings.getOrDefault(endName, new ArrayList<>());
             endData.add(new RoomLevelData(room.getEndSpawn(), room, 2));
@@ -118,15 +118,15 @@ public class Arena {
         }
         room.setStartSpawn(new ArrayList<>());
         room.setSpectatorSpawn(new ArrayList<>());
-        for (String levelName: strings.keySet()) {
+        for (String levelName : strings.keySet()) {
             String[] levelSplits = levelName.split("_");
-            if(levelSplits.length == 3 && levelSplits[0].equals(room.getGameName()) && levelSplits[1].equals(room.getRoomLevelBackup())) {
+            if (levelSplits.length == 3 && levelSplits[0].equals(room.getGameName()) && levelSplits[1].equals(room.getRoomLevelBackup())) {
                 reloadLevelByName(room, levelName, strings.get(levelName));
             }
         }
     }
 
-    public static void unloadLevel(Room room, Level level){
+    public static void unloadLevel(Room room, Level level) {
         if (level == null) {
             GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.notFound", room.getRoomName()));
             room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
@@ -151,7 +151,9 @@ public class Arena {
         Server.getInstance().unloadLevel(level, true);
     }
 
-    public static void reloadLevelByName(Room room, String levelName, List<RoomLevelData> data){
+
+    public static void reloadLevelByName(Room room, String levelName, List<RoomLevelData> data) {
+        /*
         Level level = Server.getInstance().getLevelByName(levelName);
         unloadLevel(room, level);
         File levelFile = new File(Server.getInstance().getFilePath() + "/worlds/" + levelName);
@@ -189,6 +191,6 @@ public class Arena {
                 room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                 //GameAPI.RoomHashMap.get(room.getGameName()).remove(room);
             }
-        }, GameAPI.THREAD_POOL_EXECUTOR);
+        }, GameAPI.THREAD_POOL_EXECUTOR); */
     }
 }

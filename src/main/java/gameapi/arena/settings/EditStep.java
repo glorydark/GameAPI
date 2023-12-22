@@ -32,26 +32,26 @@ public class EditStep {
         this.responseExecutor = responseExecutor;
     }
 
-    public static class Builder{
+    public static class Builder {
         private BiConsumer<Player, Event> responseExecutor;
 
         private Consumer<Player> startExecutor;
 
-        public Builder(){
+        public Builder() {
 
         }
 
-        public Builder responseExecute(BiConsumer<Player, Event> responseExecutor){
+        public Builder responseExecute(BiConsumer<Player, Event> responseExecutor) {
             this.responseExecutor = responseExecutor;
             return this;
         }
 
-        public Builder startExecute(Consumer<Player> startExecutor){
+        public Builder startExecute(Consumer<Player> startExecutor) {
             this.startExecutor = startExecutor;
             return this;
         }
 
-        public EditStep build(){
+        public EditStep build() {
             EditStep editStep = new EditStep();
             editStep.setResponseExecutor(this.responseExecutor);
             editStep.setStartExecutor(this.startExecutor);

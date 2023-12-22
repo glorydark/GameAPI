@@ -14,7 +14,7 @@ public class RoomPlayerMoveEvent extends RoomPlayerEvent implements Cancellable 
     protected Location to;
     protected boolean resetBlocksAround;
 
-    public RoomPlayerMoveEvent(Room room, Player player, Location from, Location to, boolean resetBlocksAround){
+    public RoomPlayerMoveEvent(Room room, Player player, Location from, Location to, boolean resetBlocksAround) {
         this.room = room;
         this.player = player;
         this.from = from;
@@ -26,23 +26,23 @@ public class RoomPlayerMoveEvent extends RoomPlayerEvent implements Cancellable 
         return resetBlocksAround;
     }
 
-    public Location getFrom() {
-        return from;
+    public void setResetBlocksAround(boolean resetBlocksAround) {
+        this.resetBlocksAround = resetBlocksAround;
     }
 
-    public Location getTo() {
-        return to;
+    public Location getFrom() {
+        return from;
     }
 
     public void setFrom(Location from) {
         this.from = from;
     }
 
-    public void setTo(Location to) {
-        this.to = to;
+    public Location getTo() {
+        return to;
     }
 
-    public void setResetBlocksAround(boolean resetBlocksAround) {
-        this.resetBlocksAround = resetBlocksAround;
+    public void setTo(Location to) {
+        this.to = to;
     }
 }

@@ -12,7 +12,7 @@ public class RoomPlayerDropItemEvent extends RoomPlayerEvent implements Cancella
 
     protected Item item;
 
-    public RoomPlayerDropItemEvent(Room room, Player player, Item item){
+    public RoomPlayerDropItemEvent(Room room, Player player, Item item) {
         this.room = room;
         this.player = player;
         this.item = item;

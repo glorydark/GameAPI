@@ -3,7 +3,7 @@ package gameapi.ranking;
 import lombok.Data;
 
 @Data
-public class RankingFormat{
+public class RankingFormat {
 
     String scoreShowFormat = "[%rank%] %player%: %score%";
 
@@ -13,11 +13,11 @@ public class RankingFormat{
 
     String secondRunnerUpPrefix = "§a";
 
-    public RankingFormat(){
+    public RankingFormat() {
 
     }
 
-    public RankingFormat(String scoreShowFormat, String champion_prefix, String runnerUpPrefix, String secondRunnerUpPrefix){
+    public RankingFormat(String scoreShowFormat, String champion_prefix, String runnerUpPrefix, String secondRunnerUpPrefix) {
         this.scoreShowFormat = scoreShowFormat;
         this.championPrefix = champion_prefix;
         this.runnerUpPrefix = runnerUpPrefix;

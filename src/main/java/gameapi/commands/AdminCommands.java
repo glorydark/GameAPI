@@ -9,6 +9,7 @@ import cn.nukkit.level.Sound;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
+import gameapi.arena.WorldTools;
 import gameapi.entity.EntityTools;
 import gameapi.inventory.InventoryTools;
 import gameapi.ranking.RankingSortSequence;
@@ -65,7 +66,7 @@ public class AdminCommands extends Command {
                     if (strings.length != 2) {
                         return false;
                     }
-                    if(commandSender.isPlayer()){
+                    if (commandSender.isPlayer()) {
                         switch (strings[1]) {
                             case "true":
                                 GameAPI.debug.add((Player) commandSender);
@@ -75,13 +76,13 @@ public class AdminCommands extends Command {
                                 GameAPI.debug.remove((Player) commandSender);
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.debug.off"));
                         }
-                    }else{
+                    } else {
                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.useInGame"));
                     }
                     break;
                 case "savebattles": // For Tournament Restart Procedures
-                    File saveDic = new File(GameAPI.path+"/saves/"+ SmartTools.dateToString(Calendar.getInstance().getTime()) + "/");
-                    if(saveDic.exists() || saveDic.mkdirs()) {
+                    File saveDic = new File(GameAPI.path + "/saves/" + SmartTools.dateToString(Calendar.getInstance().getTime()) + "/");
+                    if (saveDic.exists() || saveDic.mkdirs()) {
                         for (String key : GameAPI.loadedRooms.keySet()) {
                             for (Room room : GameAPI.loadedRooms.get(key)) {
                                 if (room.getRoomStatus().equals(RoomStatus.ROOM_STATUS_GameStart)) {
@@ -99,24 +100,24 @@ public class AdminCommands extends Command {
                                 }
                             }
                         }
-                    }else{
+                    } else {
                         GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation(commandSender, "command.saveBattle.folderCreatedFailed", saveDic.getPath()));
                     }
                     break;
                 case "addrank":
-                    if(commandSender.isPlayer()) {
+                    if (commandSender.isPlayer()) {
                         if (strings.length == 3) {
                             Player player = (Player) commandSender;
                             EntityTools.addRankingList(player, strings[1], strings[2], RankingSortSequence.DESCEND);
                         }
-                    }else{
+                    } else {
                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.useInGame"));
                     }
                     break;
                 case "stoproom":
-                    if(strings.length == 3){
+                    if (strings.length == 3) {
                         Room room = Room.getRoom(strings[1], strings[2]);
-                        if(room != null){
+                        if (room != null) {
                             for (Player player : room.getPlayers()) {
                                 player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
                                 player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
@@ -124,16 +125,16 @@ public class AdminCommands extends Command {
                             }
                             room.setRoomStatus(RoomStatus.ROOM_STOPPED);
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
-                        }else{
+                        } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
                         }
                     }
                     break;
                 case "halt":
-                    if(strings.length == 3){
+                    if (strings.length == 3) {
                         Room room = Room.getRoom(strings[1], strings[2]);
-                        if(room != null){
-                            if(room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart){
+                        if (room != null) {
+                            if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room.notProcessing"));
                                 return true;
                             }
@@ -143,76 +144,90 @@ public class AdminCommands extends Command {
                             }
                             room.setRoomStatus(RoomStatus.ROOM_HALTED);
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.halt"));
-                        }else{
+                        } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
                         }
                     }
                     break;
                 case "restart":
-                    if(strings.length == 3){
+                    if (strings.length == 3) {
                         Room room = Room.getRoom(strings[1], strings[2]);
-                        if(room != null){
+                        if (room != null) {
                             for (Player player : room.getPlayers()) {
-                                if(player.isOnline()){
+                                if (player.isOnline()) {
                                     player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
                                     player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.restart"));
-                                }else{
+                                } else {
                                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.playerOffline", player.getName()));
                                 }
                             }
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart);
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.restart"));
-                        }else{
+                        } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
                         }
                     }
                     break;
                 case "status":
                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.getting"));
-                    if(GameAPI.loadedRooms.size() > 0){
-                        for(Map.Entry<String, List<Room>> game: GameAPI.loadedRooms.entrySet()){
+                    if (GameAPI.loadedRooms.size() > 0) {
+                        for (Map.Entry<String, List<Room>> game : GameAPI.loadedRooms.entrySet()) {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.title", game));
                             List<Room> rooms = game.getValue();
-                            if(rooms.size() > 0){
-                                for(Room room: rooms){
-                                    if(room.getRoomRule().isNeedPreStartPass()){
+                            if (rooms.size() > 0) {
+                                for (Room room : rooms) {
+                                    if (room.getRoomRule().isNeedPreStartPass()) {
                                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.needStartPass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
-                                    }else{
+                                    } else {
                                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
                                     }
                                 }
-                            }else{
+                            } else {
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.noRoomLoaded"));
                             }
                         }
-                    }else{
+                    } else {
                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.noGameLoaded"));
                     }
                     break;
                 case "roomstart":
-                    if(strings.length == 3){
+                    if (strings.length == 3) {
                         Room room = Room.getRoom(strings[1], strings[2]);
-                        if(room != null){
-                            if(room.isPreStartPass()){
+                        if (room != null) {
+                            if (room.isPreStartPass()) {
                                 room.setPreStartPass(true);
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.startPass.endowed", room.getRoomName()));
                             }
-                        }else{
+                        } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
                         }
                     }
                     break;
                 case "setpwd":
-                    if(strings.length == 4){
+                    if (strings.length == 4) {
                         Room room = Room.getRoom(strings[1], strings[2]);
-                        if(room != null){
-                            if(room.isPreStartPass()){
+                        if (room != null) {
+                            if (room.isPreStartPass()) {
                                 room.setJoinPassword(strings[3]);
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.setPassword", strings[3]));
                             }
-                        }else{
+                        } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
                         }
+                    }
+                    break;
+                case "test":
+                    String name = "test_" + UUID.randomUUID();
+                    if (WorldTools.loadLevelFromBackUp(name, "ParkourSquare-Easy")) {
+                        GameAPI.plugin.getLogger().alert("加载世界测试完成，准备测试删除世界...");
+                        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, ()-> {
+                            WorldTools.unloadLevel(Server.getInstance().getLevelByName(name), true);
+                            if (Server.getInstance().isLevelLoaded(name)) {
+                                GameAPI.plugin.getLogger().alert("删除世界失败");
+                            } else {
+                                GameAPI.plugin.getLogger().alert("删除世界成功");
+                            }
+                        }, 40, true);
                     }
                     break;
             }
@@ -220,24 +235,24 @@ public class AdminCommands extends Command {
         return true;
     }
 
-    public LinkedHashMap<String, Object> getPlayerData(Player player){
+    public LinkedHashMap<String, Object> getPlayerData(Player player) {
         LinkedHashMap<String, Object> maps = new LinkedHashMap<>();
-        maps.put("Location", player.getX() + ":" + player.getY() + ":" + player.getZ()+ ":" + player.getLevel().getName());
+        maps.put("Location", player.getX() + ":" + player.getY() + ":" + player.getZ() + ":" + player.getLevel().getName());
         maps.put("Health", player.getHealth());
         List<String> invs = new ArrayList<>();
         player.getInventory().getContents().values().forEach(item -> invs.add(InventoryTools.getItemString(item)));
         maps.put("Inventory", invs);
         List<String> armors = new ArrayList<>();
-        for(Item item: player.getInventory().getArmorContents()){
+        for (Item item : player.getInventory().getArmorContents()) {
             armors.add(InventoryTools.getItemString(item));
         }
         maps.put("ArmorContents", armors);
         return maps;
     }
 
-    public LinkedHashMap<String, Object> getPropertiesData(LinkedHashMap<String, LinkedHashMap<String, Object>> playerObjectMap){
+    public LinkedHashMap<String, Object> getPropertiesData(LinkedHashMap<String, LinkedHashMap<String, Object>> playerObjectMap) {
         LinkedHashMap<String, Object> maps = new LinkedHashMap<>();
-        for(String key: playerObjectMap.keySet()){
+        for (String key : playerObjectMap.keySet()) {
             maps.put(key, playerObjectMap.get(key));
         }
         return maps;

@@ -15,16 +15,16 @@ public class AdvancedBlockRegistry {
 
     protected static HashMap<String, Class<?>> blockHashmap = new HashMap<>();
 
-    public static void registerAdvancedBlock(int id, int meta, Class<?> blockClass){
-        blockHashmap.put(id+":"+meta, blockClass);
+    public static void registerAdvancedBlock(int id, int meta, Class<?> blockClass) {
+        blockHashmap.put(id + ":" + meta, blockClass);
     }
 
-    public static void unregisterAdvancedBlock(int id, int meta){
-        blockHashmap.remove(id+":"+meta);
+    public static void unregisterAdvancedBlock(int id, int meta) {
+        blockHashmap.remove(id + ":" + meta);
     }
 
     public static void triggerBlock(RoomPlayerInteractEvent roomPlayerInteractEvent) {
-        if(roomPlayerInteractEvent.getBlock() == null){
+        if (roomPlayerInteractEvent.getBlock() == null) {
             return;
         }
         trigger(roomPlayerInteractEvent.getBlock(), roomPlayerInteractEvent);
@@ -34,13 +34,13 @@ public class AdvancedBlockRegistry {
         trigger(roomBlockEvent.getBlock(), roomBlockEvent);
     }
 
-    private static void trigger(Block block, RoomEvent roomEvent){
-        String idString = block.getId()+":"+block.getDamage();
+    private static void trigger(Block block, RoomEvent roomEvent) {
+        String idString = block.getId() + ":" + block.getDamage();
         //String pnxIdString = block.toItem().getNamespaceId();
-        if(blockHashmap.containsKey(idString)){
+        if (blockHashmap.containsKey(idString)) {
             Class advancedBlockClass = blockHashmap.get(idString);
             try {
-                for(Method method: advancedBlockClass.getMethods()) {
+                for (Method method : advancedBlockClass.getMethods()) {
                     for (Class param : method.getParameterTypes()) {
                         if (roomEvent.getClass().isAssignableFrom(param)) {
                             method.invoke(advancedBlockClass.newInstance(), roomEvent);

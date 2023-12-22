@@ -31,9 +31,6 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Glorydark
@@ -41,39 +38,35 @@ import java.util.concurrent.TimeUnit;
  */
 public class GameAPI extends PluginBase implements Listener {
 
-    public static ConcurrentHashMap<String, List<Room>> loadedRooms = new ConcurrentHashMap<>(); //房间状态
-
-    public static HashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
-
-    public static String path;
-
-    public static Plugin plugin;
-
-    public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
-
-    public static List<Player> debug = new ArrayList<>();
-
-    public static int entityRefreshIntervals = 100;
-
-    public static boolean saveBag;
-
-    public static boolean updateMoveEvent;
-
-    public static boolean tipsEnabled;
-
-    public static HashMap<Player, RoomEdit> editDataHashMap = new HashMap<>();
-
     //此处引用lt-name的CrystalWar内的复原地图部分源码
-    public static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
-            0,
-            Integer.MAX_VALUE,
-            5,
-            TimeUnit.SECONDS,
-            new SynchronousQueue<>(),
-            task -> new Thread(task, "GameAPI Restore World Thread")
-    );
-
+    public static ConcurrentHashMap<String, List<Room>> loadedRooms = new ConcurrentHashMap<>(); //房间状态
+    public static HashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
+    public static String path;
+    public static Plugin plugin;
+    public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
+    public static List<Player> debug = new ArrayList<>();
+    public static int entityRefreshIntervals = 100;
+    public static boolean saveBag;
+    public static boolean updateMoveEvent;
+    public static boolean tipsEnabled;
+    public static HashMap<Player, RoomEdit> editDataHashMap = new HashMap<>();
     protected static Language language = new Language("GameAPI");
+
+    public static void loadRoom(Room room, RoomStatus baseStatus) {
+        List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
+        rooms.add(room);
+        GameAPI.loadedRooms.put(room.getGameName(), rooms);
+        room.setRoomStatus(baseStatus);
+    }
+
+    public static void addRoomEdit(Player player, RoomEdit roomEdit) {
+        roomEdit.init();
+        editDataHashMap.put(player, roomEdit);
+    }
+
+    public static Language getLanguage() {
+        return language;
+    }
 
     @Override
     public void onEnable() {
@@ -84,78 +77,79 @@ public class GameAPI extends PluginBase implements Listener {
         this.saveResource("rankings.yml", false);
         this.saveResource("languages/zh_CN.properties", false);
         this.saveResource("languages/en_US.properties", false);
-        language.addLanguage(new File(path+"/languages/zh_CN.properties"));
-        language.addLanguage(new File(path+"/languages/en_US.properties"));
-        File file = new File(path+"/worlds/");
-        File file1 = new File(path+"/gameRecords/");
+        language.addLanguage(new File(path + "/languages/zh_CN.properties"));
+        language.addLanguage(new File(path + "/languages/en_US.properties"));
+        File file = new File(path + "/worlds/");
+        File file1 = new File(path + "/gameRecords/");
         file.mkdirs();
         file1.mkdir();
-        Config config = new Config(path+"/config.yml", Config.YAML);
+        Config config = new Config(path + "/config.yml", Config.YAML);
         saveBag = config.getBoolean("save_bag", false);
         updateMoveEvent = config.getBoolean("allow_move_event", true);
         language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
         loadAllGameRecord();
-        if(new File(path+"/rankings.yml").exists()){
-            Config rankingConfig = new Config(path+"/rankings.yml", Config.YAML);
-            if(rankingConfig.exists("format")){
+        if (new File(path + "/rankings.yml").exists()) {
+            Config rankingConfig = new Config(path + "/rankings.yml", Config.YAML);
+            if (rankingConfig.exists("format")) {
                 RankingFormat rankingFormat = new RankingFormat(rankingConfig.getString("score_show_format"), rankingConfig.getString("champion_prefix"), rankingConfig.getString("runnerUp_prefix"), rankingConfig.getString("secondRunnerUp_prefix"));
                 GameRecord.setRankingFormat(rankingFormat);
             }
         }
         loadAllRankingListEntities();
-        this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(),20, true);
-        this.getServer().getPluginManager().registerEvents(new BaseEventListener(),this);
+        this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(), 20, true);
+        this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
         this.getServer().getPluginManager().registerEvents(new AdvancedFormMain(), this);
-        this.getServer().getCommandMap().register("",new AdminCommands("gameapi"));
+        this.getServer().getCommandMap().register("", new AdminCommands("gameapi"));
         Server.getInstance().getScheduler().scheduleRepeatingTask(this, new NukkitRunnable() {
             @Override
             public void run() {
                 List<Player> players = new ArrayList<>(debug);
                 players.forEach(player -> {
-                        if (player == null || !player.isOnline()) {
-                            debug.remove(player);
-                            return;
+                            if (player == null || !player.isOnline()) {
+                                debug.remove(player);
+                                return;
+                            }
+                            DecimalFormat df = new DecimalFormat("#0.00");
+                            String out = "GameAPI Debug\n";
+                            out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
+                            out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
+                            Item item = player.getInventory().getItemInHand();
+                            out += "手持物品id: [" + item.getId() + ":" + item.getDamage() + "] 数量:" + item.getCount() + "\n";
+                            Block block = player.getTargetBlock(32);
+                            if (block != null) {
+                                //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
+                                out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 方块名称:" + block.getName() + "\n";
+                                out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
+                            } else {
+                                out += "所指方块id: [无] 方块名称:无" + "\n";
+                                out += "所指方块位置: [无]" + "\n";
+                            }
+                            Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
+                            if (under != null) {
+                                //out += "所踩方块: " + under.toItem().getNamespaceId();
+                                out += "所踩方块: " + under.getId() + ":" + under.getDamage();
+                            } else {
+                                out += "所踩方块: [无]";
+                            }
+                            player.sendActionBar(out);
                         }
-                        DecimalFormat df = new DecimalFormat("#0.00");
-                        String out = "GameAPI Debug\n";
-                        out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
-                        out +=  "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
-                        Item item = player.getInventory().getItemInHand();
-                        out += "手持物品id: [" + item.getId() + ":" + item.getDamage() + "] 数量:" + item.getCount() + "\n";
-                        Block block = player.getTargetBlock(32);
-                        if (block != null) {
-                            //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
-                            out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 方块名称:" + block.getName() + "\n";
-                            out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
-                        } else {
-                            out += "所指方块id: [无] 方块名称:无"  + "\n";
-                            out += "所指方块位置: [无]"  + "\n";
-                        }
-                        Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
-                        if(under != null){
-                            //out += "所踩方块: " + under.toItem().getNamespaceId();
-                            out += "所踩方块: " + under.getId() + ":" + under.getDamage();
-                        }else{
-                            out+= "所踩方块: [无]";
-                        }
-                        player.sendActionBar(out);
-                }
                 );
             }
         }, 5);
         tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") == null;
         this.getLogger().info("§aDGameAPI Enabled!");
     }
+
     @Override
     public void onLoad() {
         this.getLogger().info("§aDGameAPI OnLoad!");
         this.getLogger().info("§aAuthor:glorydark");
     }
 
-    public void loadAllGameRecord(){
-        File[] files = new File(path+"/gameRecords/").listFiles();
-        if(files != null && files.length > 0){
-            for(File file:files){
+    public void loadAllGameRecord() {
+        File[] files = new File(path + "/gameRecords/").listFiles();
+        if (files != null && files.length > 0) {
+            for (File file : files) {
                 String fileName = file.getName().split("\\.")[0];
                 Config config;
                 config = new Config(file.getPath(), Config.YAML);
@@ -164,31 +158,31 @@ public class GameAPI extends PluginBase implements Listener {
         }
     }
 
-    public void loadAllRankingListEntities(){
-        Config config = new Config(path+ "/rankings.yml");
+    public void loadAllRankingListEntities() {
+        Config config = new Config(path + "/rankings.yml");
         entityRefreshIntervals = config.getInt("refresh_interval", 100);
         List<Map<String, Object>> maps = config.get("list", new ArrayList<>());
-        for(Map<String, Object> map: maps){
+        for (Map<String, Object> map : maps) {
             String level = (String) map.get("level");
-            if(Server.getInstance().getLevelByName(level) == null){
-                if(!Server.getInstance().loadLevel(level)){
+            if (Server.getInstance().getLevelByName(level) == null) {
+                if (!Server.getInstance().loadLevel(level)) {
                     this.getLogger().warning(language.getTranslation("loading.ranking_loader.unknown_world", level));
                     continue;
-                }else{
+                } else {
                     this.getLogger().info(language.getTranslation("loading.ranking_loader.world_onLoad", level));
                 }
-            }else{
+            } else {
                 this.getLogger().info(language.getTranslation("loading.ranking_loader.world_alreadyLoaded", level));
             }
             Location location = new Location((Double) map.get("x"), (Double) map.get("y"), (Double) map.get("z"), this.getServer().getLevelByName((String) map.get("level")));
-            if(location.getChunk() == null){
-                if(!location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ())){
+            if (location.getChunk() == null) {
+                if (!location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ())) {
                     this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk_onLoad", location.getChunkX(), location.getChunkZ()));
                     return;
-                }else{
+                } else {
                     this.getLogger().warning(language.getTranslation("loading.ranking_loader.chunk_loadedFailed", location.getChunkX(), location.getChunkZ()));
                 }
-            }else{
+            } else {
                 this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk_alreadyLoaded", location.getChunkX(), location.getChunkZ()));
             }
             Ranking ranking = new SimpleRanking(location, (String) map.get("game_name"), "No Data", new RankingFormat(), RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
@@ -200,28 +194,11 @@ public class GameAPI extends PluginBase implements Listener {
     public void onDisable() {
         loadedRooms.keySet().forEach(WorldTools::delWorldByPrefix);
         EntityTools.closeAll();
-        THREAD_POOL_EXECUTOR.shutdown();
         loadedRooms.clear();
         playerRoomHashMap.clear();
         gameRecord.clear();
         GameListenerRegistry.clearAllRegisters();
         this.getLogger().info("DGameAPI Disabled!");
-    }
-
-    public static void loadRoom(Room room, RoomStatus baseStatus){
-        List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
-        rooms.add(room);
-        GameAPI.loadedRooms.put(room.getGameName(), rooms);
-        room.setRoomStatus(baseStatus);
-    }
-
-    public static void addRoomEdit(Player player, RoomEdit roomEdit){
-        roomEdit.init();
-        editDataHashMap.put(player, roomEdit);
-    }
-
-    public static Language getLanguage() {
-        return language;
     }
 
 }

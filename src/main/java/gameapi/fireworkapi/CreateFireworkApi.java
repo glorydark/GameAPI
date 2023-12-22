@@ -59,7 +59,7 @@ public class CreateFireworkApi {
         compoundTag.putByte("FireworkType", type.ordinal());
         EntityFirework entity = new EntityFirework(level.getChunk((int) position.x >> 4, (int) position.z >> 4), nbt);
         entity.spawnToAll();
-        if(isImmediateBomb){
+        if (isImmediateBomb) {
             EntityEventPacket pk = new EntityEventPacket();
             pk.data = 0;
             pk.event = 25;
@@ -70,8 +70,8 @@ public class CreateFireworkApi {
         }
     }
 
-    public static ItemFirework.FireworkExplosion.ExplosionType getExplosionTypeByString(String s){
-        switch (s){
+    public static ItemFirework.FireworkExplosion.ExplosionType getExplosionTypeByString(String s) {
+        switch (s) {
             case "LARGE_BALL":
                 return ItemFirework.FireworkExplosion.ExplosionType.LARGE_BALL;
             case "SMALL_BALL":
@@ -85,8 +85,8 @@ public class CreateFireworkApi {
         }
     }
 
-    public static ItemFirework.FireworkExplosion.ExplosionType getExplosionTypeByInt(int enumNumber){
-        switch (enumNumber){
+    public static ItemFirework.FireworkExplosion.ExplosionType getExplosionTypeByInt(int enumNumber) {
+        switch (enumNumber) {
             case 2:
                 return ItemFirework.FireworkExplosion.ExplosionType.LARGE_BALL;
             case 3:
@@ -100,8 +100,8 @@ public class CreateFireworkApi {
         }
     }
 
-    public static DyeColor getColorByString(String s){
-        switch (s){
+    public static DyeColor getColorByString(String s) {
+        switch (s) {
             case "RED":
                 return DyeColor.RED;
             case "BLACK":
@@ -137,8 +137,8 @@ public class CreateFireworkApi {
         }
     }
 
-    public static DyeColor getColorByInt(Integer integer){
-        switch (integer){
+    public static DyeColor getColorByInt(Integer integer) {
+        switch (integer) {
             case 1:
                 return DyeColor.RED;
             case 2:

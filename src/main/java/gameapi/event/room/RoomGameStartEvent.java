@@ -6,7 +6,7 @@ import gameapi.room.Room;
 
 public class RoomGameStartEvent extends RoomEvent implements Cancellable {
 
-    public RoomGameStartEvent(Room room){
+    public RoomGameStartEvent(Room room) {
         this.room = room;
     }
 

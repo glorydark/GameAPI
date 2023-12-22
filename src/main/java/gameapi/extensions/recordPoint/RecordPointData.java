@@ -17,7 +17,7 @@ public class RecordPointData {
 
     private Particle particle = new DustParticle(new Vector3(0, 0, 0), BlockColor.YELLOW_BLOCK_COLOR);
 
-    public RecordPointData(Location location, double radius){
+    public RecordPointData(Location location, double radius) {
         this.location = location;
         this.radius = radius;
     }
@@ -29,8 +29,8 @@ public class RecordPointData {
      * @param player the player you want to check
      * @return bool: is that player in range
      */
-    public boolean isInRange(Player player){
-        if(player.getLevel() != location.getLevel()){
+    public boolean isInRange(Player player) {
+        if (player.getLevel() != location.getLevel()) {
             return false;
         }
         return location.distance(player) <= radius;
@@ -39,7 +39,7 @@ public class RecordPointData {
     /**
      * This method is to summon a particle mark.
      */
-    public void showParticleMarks(){
+    public void showParticleMarks() {
         for (int angle = 0; angle < 720; angle++) {
             double x1 = location.getX() + radius * Math.cos(angle * 3.14 / 180);
             double z1 = location.getZ() + radius * Math.sin(angle * 3.14 / 180);

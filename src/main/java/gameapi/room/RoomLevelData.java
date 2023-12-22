@@ -17,18 +17,18 @@ public class RoomLevelData {
     private AdvancedLocation advancedLocation;
     private Room room;
 
-    public RoomLevelData(AdvancedLocation location, Room room, int type){
+    public RoomLevelData(AdvancedLocation location, Room room, int type) {
         this.type = type;
         this.advancedLocation = location;
         this.room = room;
     }
 
-    public void resetLevel(Level level){
+    public void resetLevel(Level level) {
         AdvancedLocation loc = advancedLocation;
         Location location = loc.getLocation();
         location.setLevel(level);
         advancedLocation.setLocation(location);
-        switch (type){
+        switch (type) {
             case 0:
                 room.setWaitSpawn(advancedLocation);
                 break;

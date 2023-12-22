@@ -19,12 +19,12 @@ public class AdvancedFormMain implements Listener {
         playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(window), window);
     }
 
-    protected void execute(PlayerFormRespondedEvent event){
+    protected void execute(PlayerFormRespondedEvent event) {
         Player player = event.getPlayer();
-        if(playerFormWindows.containsKey(player)){
+        if (playerFormWindows.containsKey(player)) {
             FormWindow window = playerFormWindows.getOrDefault(player, new LinkedHashMap<>()).get(event.getFormID());
-            if(window != null){
-                if(window instanceof AdvancedForm){
+            if (window != null) {
+                if (window instanceof AdvancedForm) {
                     ((AdvancedForm) window).dealResponse(player, event.getResponse());
                 }
             }
@@ -32,7 +32,7 @@ public class AdvancedFormMain implements Listener {
     }
 
     @EventHandler
-    public void PlayerFormRespondedEvent(PlayerFormRespondedEvent event){
+    public void PlayerFormRespondedEvent(PlayerFormRespondedEvent event) {
         this.execute(event);
     }
 

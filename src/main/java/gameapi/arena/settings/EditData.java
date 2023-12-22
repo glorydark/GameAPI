@@ -18,35 +18,35 @@ public class EditData {
 
     HashMap<Integer, EditStep> stepExecutors = new HashMap<>();
 
-    public EditData(Player player){
+    public EditData(Player player) {
         this.player = player;
         process();
     }
 
-    protected void process(){
+    protected void process() {
         start(currentStep);
-        if(currentStep < stepExecutors.size()) {
+        if (currentStep < stepExecutors.size()) {
             currentStep++;
-        }else{
+        } else {
             end();
         }
     }
 
-    public void start(int currentStep){
+    public void start(int currentStep) {
         EditStep step = stepExecutors.get(currentStep);
-        if(step != null){
+        if (step != null) {
             step.getStartExecutor().accept(player);
         }
     }
 
-    public void dealResponse(Event event){
+    public void dealResponse(Event event) {
         EditStep step = stepExecutors.get(currentStep);
-        if(step != null){
+        if (step != null) {
             step.getResponseExecutor().accept(player, event);
         }
     }
 
-    protected void end(){
+    protected void end() {
         player.getInventory().clearAll();
         player.sendMessage("设置完成！");
     }

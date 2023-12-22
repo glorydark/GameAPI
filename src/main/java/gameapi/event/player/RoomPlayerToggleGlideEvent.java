@@ -11,7 +11,7 @@ public class RoomPlayerToggleGlideEvent extends RoomPlayerEvent implements Cance
 
     protected final boolean isGliding;
 
-    public RoomPlayerToggleGlideEvent(Room room, Player player, boolean isGliding){
+    public RoomPlayerToggleGlideEvent(Room room, Player player, boolean isGliding) {
         this.room = room;
         this.player = player;
         this.isGliding = isGliding;

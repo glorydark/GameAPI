@@ -77,7 +77,7 @@ public class RoomRule {
 
     private List<String> allowJoinPlayers = new ArrayList<>();
 
-    public RoomRule(Integer gameMode){
+    public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
     }
 

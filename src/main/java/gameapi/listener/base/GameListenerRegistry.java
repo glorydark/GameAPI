@@ -20,11 +20,7 @@ import java.util.stream.Collectors;
 public class GameListenerRegistry {
     private static HashMap<String, List<RoomListener>> listeners = new HashMap<>();
 
-    public void unregisterAllEvents(String gameName){
-        listeners.put(gameName, new ArrayList<>());
-    }
-
-    public static void clearAllRegisters(){
+    public static void clearAllRegisters() {
         listeners = new HashMap<>();
     }
 
@@ -44,17 +40,17 @@ public class GameListenerRegistry {
                 return;
             }
 
-            for(Method method: methods) {
+            for (Method method : methods) {
                 GameEventHandler eh = method.getAnnotation(GameEventHandler.class);
                 RoomListener evl;
-                if(eh != null){
+                if (eh != null) {
                     evl = new RoomListener(gameName, listener, new MethodGameEventExecutor(method), eh.priority(), plugin, eh.ignoreCancelled());
-                }else{
+                } else {
                     evl = new RoomListener(gameName, listener, new MethodGameEventExecutor(method), EventPriority.NORMAL, plugin, false);
                 }
-                if(listeners.containsKey(gameName)){
+                if (listeners.containsKey(gameName)) {
                     listeners.get(gameName).add(evl);
-                }else {
+                } else {
                     listeners.put(gameName, new ArrayList<>());
                     listeners.get(gameName).add(evl);
                 }
@@ -66,13 +62,17 @@ public class GameListenerRegistry {
         String gameName = room.getGameName();
         List<RoomListener> find = new ArrayList<>(listeners.getOrDefault(gameName, new ArrayList<>()));
         find = find.stream().sorted(Comparator.comparingInt(o -> o.getPriority().getSlot())).collect(Collectors.toList());
-        for(RoomListener listener: find){
+        for (RoomListener listener : find) {
             listener.callEvent(gameName, event);
         }
-        if(event instanceof RoomBlockEvent){
+        if (event instanceof RoomBlockEvent) {
             AdvancedBlockRegistry.triggerBlock((RoomBlockEvent) event);
-        }else if(event instanceof RoomPlayerInteractEvent){
+        } else if (event instanceof RoomPlayerInteractEvent) {
             AdvancedBlockRegistry.triggerBlock(((RoomPlayerInteractEvent) event));
         }
+    }
+
+    public void unregisterAllEvents(String gameName) {
+        listeners.put(gameName, new ArrayList<>());
     }
 }

@@ -8,8 +8,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import gameapi.GameAPI;
 import gameapi.ranking.Ranking;
 
-public class RankingListEntity extends TextEntity
-{
+public class RankingListEntity extends TextEntity {
 
     protected Ranking ranking;
 
@@ -18,12 +17,11 @@ public class RankingListEntity extends TextEntity
         this.ranking = ranking;
     }
 
-    public boolean onUpdate(int currentTick)
-    {
-        if(this.health <= 0){
-            this.health+=this.getMaxHealth();
+    public boolean onUpdate(int currentTick) {
+        if (this.health <= 0) {
+            this.health += this.getMaxHealth();
         }
-        if(currentTick % GameAPI.entityRefreshIntervals == 0){
+        if (currentTick % GameAPI.entityRefreshIntervals == 0) {
             ranking.refreshRankingData();
             this.setNameTag(ranking.getDisplayContent());
         }

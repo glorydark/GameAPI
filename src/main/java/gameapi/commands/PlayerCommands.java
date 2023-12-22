@@ -20,7 +20,7 @@ public class PlayerCommands extends Command {
             if (strings.length > 0) {
                 switch (strings[0].toLowerCase()) {
                     case "setlang":
-                        if(strings.length == 2) {
+                        if (strings.length == 2) {
                             GameAPI.getLanguage().setPlayerPreferLanguage((Player) commandSender, strings[1]);
                         }
                         break;

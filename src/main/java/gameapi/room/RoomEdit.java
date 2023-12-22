@@ -12,44 +12,41 @@ import java.util.Map;
  */
 public class RoomEdit {
 
+    private final int maxStep;
     protected Player player;
-
+    Map<Integer, Item> inventoryCache;
     private int step = 0;
 
-    private final int maxStep;
-
-    Map<Integer, Item> inventoryCache;
-
-    public RoomEdit(Player player, int maxStep){
+    public RoomEdit(Player player, int maxStep) {
         this.player = player;
         this.maxStep = maxStep;
     }
 
-    public void init(){
+    public void init() {
         inventoryCache = player.getInventory().getContents();
         player.getInventory().clearAll();
         this.start();
         this.nextStep();
     }
 
-    public void start(){
+    public void start() {
         player.sendMessage("您已进入编辑模式！");
     }
 
-    public void end(){
+    public void end() {
         player.sendMessage("您已退出编辑模式！");
     }
 
-    public void respondEvent(Event event){
+    public void respondEvent(Event event) {
 
     }
 
-    public void startStep(int step){
+    public void startStep(int step) {
 
     }
 
-    public void prevStep(){
-        if(step <= 1){
+    public void prevStep() {
+        if (step <= 1) {
             return;
         }
         // Automatically clean player's inventory
@@ -58,8 +55,8 @@ public class RoomEdit {
         this.startStep(this.step);
     }
 
-    public void nextStep(){
-        if(step >= maxStep){
+    public void nextStep() {
+        if (step >= maxStep) {
             this.end();
             return;
         }

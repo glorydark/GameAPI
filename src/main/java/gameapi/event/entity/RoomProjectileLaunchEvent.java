@@ -7,7 +7,7 @@ import gameapi.room.Room;
 public class RoomProjectileLaunchEvent extends RoomEntityEvent implements Cancellable {
 
 
-    public RoomProjectileLaunchEvent(Room room, Entity entity){
+    public RoomProjectileLaunchEvent(Room room, Entity entity) {
         this.room = room;
         this.entity = entity;
     }

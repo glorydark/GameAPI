@@ -31,7 +31,7 @@ public class Ranking {
 
     private Location location;
 
-    public Ranking(Location location, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence){
+    public Ranking(Location location, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence) {
         this.location = location;
         this.title = title;
         this.noDataContent = noDataContent;
@@ -40,12 +40,12 @@ public class Ranking {
         this.rankingSortSequence = rankingSortSequence;
     }
 
-    public String getDisplayContent(){
+    public String getDisplayContent() {
         StringBuilder builder = new StringBuilder().append(title.replace("\\n", "\n"));
-        if(rankingData.size() > 0) {
+        if (rankingData.size() > 0) {
             int i = 1;
             for (Map.Entry<String, Integer> entry : rankingData.entrySet()) {
-                String text = rankingFormat.getScoreShowFormat().replace("%rank%", String.valueOf(i+1)).replace("%player%", entry.getKey()).replace("%score%", String.valueOf(entry.getValue())).replace("\\n", "\n");
+                String text = rankingFormat.getScoreShowFormat().replace("%rank%", String.valueOf(i + 1)).replace("%player%", entry.getKey()).replace("%score%", String.valueOf(entry.getValue())).replace("\\n", "\n");
                 switch (i) {
                     case 0:
                         builder.append("§f\n").append(rankingFormat.getChampionPrefix());
@@ -63,33 +63,33 @@ public class Ranking {
                 builder.append(text);
                 i++;
             }
-        }else{
+        } else {
             builder.append(noDataContent.replace("\\n", "\n"));
         }
         return builder.toString();
     }
 
-    public void refreshRankingData(){
+    public void refreshRankingData() {
         Map<String, Integer> output = new HashMap<>(getRankingData());
         // 先转换成Map.Entry进行排序
         List<Map.Entry<String, Integer>> entryList_temp;
-        if(this.rankingSortSequence == RankingSortSequence.DESCEND){
+        if (this.rankingSortSequence == RankingSortSequence.DESCEND) {
             entryList_temp = output.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toList());
-        }else{
+        } else {
             entryList_temp = output.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
         }
         // 导出为Map
-        for(Map.Entry<String, Integer> final_entry: entryList_temp){
+        for (Map.Entry<String, Integer> final_entry : entryList_temp) {
             output.put(final_entry.getKey(), final_entry.getValue());
         }
         this.rankingData = output;
     }
 
-    public Map<String, Integer> getRankingData(){
+    public Map<String, Integer> getRankingData() {
         return new HashMap<>();
     }
 
-    public void spawnEntity(){
+    public void spawnEntity() {
         EntityTools.spawnTextEntity(this.location, this);
     }
 

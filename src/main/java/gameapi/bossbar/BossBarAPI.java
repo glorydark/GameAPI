@@ -12,8 +12,8 @@ import java.util.HashMap;
 public class BossBarAPI {
     public static HashMap<Player, Long> bossBars;
 
-    public static void createBossBar(Player player, String text, float length, BossBarColor bossBarColor){
-        if(bossBars.getOrDefault(player, null) != null){
+    public static void createBossBar(Player player, String text, float length, BossBarColor bossBarColor) {
+        if (bossBars.getOrDefault(player, null) != null) {
             player.removeBossBar(bossBars.get(player));
         }
         DummyBossBar bossBar = new DummyBossBar.Builder(player).text(text).color(bossBarColor).length(length).build();
@@ -21,7 +21,7 @@ public class BossBarAPI {
         player.createBossBar(bossBar);
     }
 
-    public static void removeBossBar(Player player){
+    public static void removeBossBar(Player player) {
         player.removeBossBar(bossBars.getOrDefault(player, 0L));
     }
 

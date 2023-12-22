@@ -40,32 +40,32 @@ public class EasyEffect {
         this.bad = bad;
         this.visible = visible;
         this.ambient = ambient;
-        if(SmartTools.isInRange(0, 255, r) && SmartTools.isInRange(0, 255, g) && SmartTools.isInRange(0, 255, b)){
+        if (SmartTools.isInRange(0, 255, r) && SmartTools.isInRange(0, 255, g) && SmartTools.isInRange(0, 255, b)) {
             this.rgb = new int[]{r, g, b};
         }
     }
 
-    public EasyEffect(int id, int amplifier, int duration){
+    public EasyEffect(int id, int amplifier, int duration) {
         this(id, amplifier, duration, false, false, false, -1, -1, -1);
     }
 
-    public EasyEffect(Map<String, Object> map){
+    public EasyEffect(Map<String, Object> map) {
         this.id = (Integer) map.get("id");
         this.amplifier = (Integer) map.get("amplifier");
         this.duration = (Integer) map.get("duration");
-        if(map.containsKey("name")){
+        if (map.containsKey("name")) {
             this.name = (String) map.get("name");
         }
-        if(map.containsKey("bad")){
+        if (map.containsKey("bad")) {
             this.bad = (boolean) map.get("bad");
         }
-        if(map.containsKey("visible")){
+        if (map.containsKey("visible")) {
             this.bad = (boolean) map.get("visible");
         }
-        if(map.containsKey("ambient")){
+        if (map.containsKey("ambient")) {
             this.bad = (boolean) map.get("ambient");
         }
-        if(map.containsKey("color")){
+        if (map.containsKey("color")) {
             List<Integer> rgbs = (List<Integer>) map.get("color");
             rgb[0] = rgbs.get(0);
             rgb[1] = rgbs.get(1);
@@ -78,7 +78,7 @@ public class EasyEffect {
         effect.setDuration(duration);
         effect.setAmplifier(amplifier);
         effect.setVisible(visible);
-        if(rgb != null) {
+        if (rgb != null) {
             effect.setColor(rgb[0], rgb[1], rgb[2]);
         }
         effect.setAmbient(ambient);

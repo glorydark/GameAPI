@@ -17,7 +17,7 @@ public class Language {
 
     protected String defaultLanguage;
 
-    public Language(String pluginName){
+    public Language(String pluginName) {
         lang = new HashMap<>();
         this.pluginName = pluginName;
     }
@@ -26,60 +26,60 @@ public class Language {
         return pluginName;
     }
 
-    public void addLanguage(File file){
-        if(file.getName().endsWith(".properties")){
+    public void addLanguage(File file) {
+        if (file.getName().endsWith(".properties")) {
             String locale = file.getName().replace(".properties", "");
             lang.put(locale, new Config(file, Config.PROPERTIES).getAll());
-            GameAPI.plugin.getLogger().info("§aLanguage Loaded: "+locale);
-        }else{
-            GameAPI.plugin.getLogger().info("§cInvalid Language File: "+file.getName());
+            GameAPI.plugin.getLogger().info("§aLanguage Loaded: " + locale);
+        } else {
+            GameAPI.plugin.getLogger().info("§cInvalid Language File: " + file.getName());
         }
     }
 
-    public String getTranslationWithDefaultValue(String language, String key, String defaultValue, Object... param){
-        String processedText = (String) lang.getOrDefault(language, new HashMap<>()).getOrDefault(key, defaultValue == null? "§cNot Found!": defaultValue);
-        if(param.length > 0){
-            for(int i = 1; i<=param.length; i++){
-                processedText = processedText.replaceAll("%"+i+"%", String.valueOf(param[i-1]));
+    public String getTranslationWithDefaultValue(String language, String key, String defaultValue, Object... param) {
+        String processedText = (String) lang.getOrDefault(language, new HashMap<>()).getOrDefault(key, defaultValue == null ? "§cNot Found!" : defaultValue);
+        if (param.length > 0) {
+            for (int i = 1; i <= param.length; i++) {
+                processedText = processedText.replaceAll("%" + i + "%", String.valueOf(param[i - 1]));
             }
         }
         processedText = processedText.replace("\\n", "\n");
         return processedText;
     }
 
-    public String getTranslation(String key, Object... param){
+    public String getTranslation(String key, Object... param) {
         return getTranslationWithDefaultValue(defaultLanguage, key, key, param);
     }
 
-    public String getTranslation(CommandSender sender, String key, Object... param){
-        if(sender.isPlayer()){
+    public String getTranslation(CommandSender sender, String key, Object... param) {
+        if (sender.isPlayer()) {
             return getTranslation((Player) sender, key, param);
-        }else{
+        } else {
             return getTranslation(key, param);
         }
     }
 
-    public String getTranslation(Player player, String key, Object... param){
+    public String getTranslation(Player player, String key, Object... param) {
         return getTranslationWithDefaultValue(getLang(player), key, key, param);
     }
 
-    private String getLang(Player player){
-        Config config = new Config(GameAPI.path+"/language_cache.yml", Config.YAML);
-        if(config.exists(player.getName())){
+    private String getLang(Player player) {
+        Config config = new Config(GameAPI.path + "/language_cache.yml", Config.YAML);
+        if (config.exists(player.getName())) {
             String prefer = config.getString(player.getName());
-            if(lang.containsKey(prefer)){
+            if (lang.containsKey(prefer)) {
                 return prefer;
-            }else{
+            } else {
                 return defaultLanguage;
             }
-        }else{
+        } else {
             String languageCode = player.getLoginChainData().getLanguageCode();
-            return lang.containsKey(languageCode)? languageCode : defaultLanguage;
+            return lang.containsKey(languageCode) ? languageCode : defaultLanguage;
         }
     }
 
-    public void setPlayerPreferLanguage(Player player, String langName){
-        Config config = new Config(GameAPI.path+"/language_cache.yml", Config.YAML);
+    public void setPlayerPreferLanguage(Player player, String langName) {
+        Config config = new Config(GameAPI.path + "/language_cache.yml", Config.YAML);
         config.set(player.getName(), langName);
         config.save();
     }

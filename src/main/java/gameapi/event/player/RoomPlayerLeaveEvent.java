@@ -9,7 +9,7 @@ import gameapi.room.Room;
  */
 public class RoomPlayerLeaveEvent extends RoomPlayerEvent implements Cancellable {
 
-    public RoomPlayerLeaveEvent(Room room, Player player){
+    public RoomPlayerLeaveEvent(Room room, Player player) {
         this.room = room;
         this.player = player;
     }

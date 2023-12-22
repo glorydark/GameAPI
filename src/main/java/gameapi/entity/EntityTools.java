@@ -19,14 +19,14 @@ public class EntityTools {
 
     public static void closeAll() {
         entityList.forEach(textEntity -> {
-            if(!textEntity.closed) {
+            if (!textEntity.closed) {
                 textEntity.kill();
                 textEntity.close();
             }
         });
     }
 
-    public static void spawnTextEntity(Position position, Ranking ranking){
+    public static void spawnTextEntity(Position position, Ranking ranking) {
         ranking.refreshRankingData();
         TextEntity entity = new TextEntity(position.getChunk(), position, ranking.getDisplayContent(), Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
         entity.setImmobile(true);
@@ -34,8 +34,8 @@ public class EntityTools {
         entityList.add(entity);
     }
 
-    public static void addRankingList(Player player, String gameName, String comparedType, RankingSortSequence rankingSortSequence){
-        Config config = new Config(GameAPI.path+ "/rankings.yml");
+    public static void addRankingList(Player player, String gameName, String comparedType, RankingSortSequence rankingSortSequence) {
+        Config config = new Config(GameAPI.path + "/rankings.yml");
         List<Map<String, Object>> maps = (List<Map<String, Object>>) config.get("list");
         Map<String, Object> add = new LinkedHashMap<>();
         add.put("game_name", gameName);

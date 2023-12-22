@@ -5,9 +5,8 @@ import gameapi.room.Room;
 
 public abstract class RoomEvent {
     protected String eventName = null;
-    private boolean isCancelled = false;
-
     protected Room room;
+    private boolean isCancelled = false;
 
     public RoomEvent(Room room) {
         this.room = room;
@@ -28,16 +27,16 @@ public abstract class RoomEvent {
         }
     }
 
-    public void setCancelled() {
-        this.setCancelled(true);
-    }
-
     public void setCancelled(boolean value) {
         if (!(this instanceof Cancellable)) {
             throw new GameEventException("Event is not Cancellable");
         } else {
             this.isCancelled = value;
         }
+    }
+
+    public void setCancelled() {
+        this.setCancelled(true);
     }
 
     public Room getRoom() {

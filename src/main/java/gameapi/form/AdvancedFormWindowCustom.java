@@ -13,7 +13,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Future
-public class AdvancedFormWindowCustom extends FormWindowCustom implements AdvancedForm{
+public class AdvancedFormWindowCustom extends FormWindowCustom implements AdvancedForm {
 
     protected BiConsumer<Player, FormResponseCustom> responseExecutor;
 
@@ -30,49 +30,46 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
     }
 
 
-    public void dealResponse(Player player, FormResponse response){
-        if(this.wasClosed() || response == null){
+    public void dealResponse(Player player, FormResponse response) {
+        if (this.wasClosed() || response == null) {
             noResponseExecutor.accept(player);
-        }else{
+        } else {
             responseExecutor.accept(player, (FormResponseCustom) response);
         }
     }
 
     public static class Builder {
 
+        protected List<Element> elements = new ArrayList<>();
         private String title;
-
         private BiConsumer<Player, FormResponseCustom> responseExecutor;
-
         private Consumer<Player> noResponseExecutor;
 
-        protected List<Element> elements = new ArrayList<>();
-
-        public Builder(){
+        public Builder() {
 
         }
 
-        public Builder setTitle(String title){
+        public Builder setTitle(String title) {
             this.title = title;
             return this;
         }
 
-        public Builder onResponse(BiConsumer<Player, FormResponseCustom> responseExecutor){
+        public Builder onResponse(BiConsumer<Player, FormResponseCustom> responseExecutor) {
             this.responseExecutor = responseExecutor;
             return this;
         }
 
-        public Builder onClose(Consumer<Player> noResponseExecutor){
+        public Builder onClose(Consumer<Player> noResponseExecutor) {
             this.noResponseExecutor = noResponseExecutor;
             return this;
         }
 
-        public Builder addElement(Element element){
+        public Builder addElement(Element element) {
             this.elements.add(element);
             return this;
         }
 
-        public AdvancedFormWindowCustom build(){
+        public AdvancedFormWindowCustom build() {
             AdvancedFormWindowCustom custom = new AdvancedFormWindowCustom();
             custom.setTitle(title);
             custom.elements = elements;

@@ -94,7 +94,7 @@ public class BaseEventListener implements Listener {
                     GameListenerRegistry.callEvent(room, roomBlockBreakEvent);
                     if (roomBlockBreakEvent.isCancelled()) {
                         event.setCancelled(true);
-                    }else {
+                    } else {
                         event.setDropExp(roomBlockBreakEvent.getDropExp());
                         event.setInstaBreak(roomBlockBreakEvent.isInstaBreak());
                         event.setDrops(roomBlockBreakEvent.getDrops());
@@ -105,14 +105,14 @@ public class BaseEventListener implements Listener {
                 GameListenerRegistry.callEvent(room, roomBlockBreakEvent);
                 if (roomBlockBreakEvent.isCancelled()) {
                     event.setCancelled(true);
-                }else {
+                } else {
                     event.setDropExp(roomBlockBreakEvent.getDropExp());
                     event.setInstaBreak(roomBlockBreakEvent.isInstaBreak());
                     event.setDrops(roomBlockBreakEvent.getDrops());
                 }
             }
-        }else{
-            if(GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null){
+        } else {
+            if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
                 GameAPI.editDataHashMap.get(player).respondEvent(event);
             }
         }
@@ -144,8 +144,8 @@ public class BaseEventListener implements Listener {
                     }
                 }
             }
-        }else{
-            if(GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null){
+        } else {
+            if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
                 GameAPI.editDataHashMap.get(player).respondEvent(event);
             }
         }
@@ -159,10 +159,10 @@ public class BaseEventListener implements Listener {
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                 if (room.getRoomRule().isAllowDropItem()) {
                     event.setCancelled(true);
-                }else{
+                } else {
                     RoomPlayerDropItemEvent roomPlayerDropItemEvent = new RoomPlayerDropItemEvent(room, player, event.getItem());
                     GameListenerRegistry.callEvent(room, roomPlayerDropItemEvent);
-                    if(roomPlayerDropItemEvent.isCancelled()){
+                    if (roomPlayerDropItemEvent.isCancelled()) {
                         event.setCancelled(true);
                     }
                 }
@@ -186,8 +186,8 @@ public class BaseEventListener implements Listener {
                 if (!room.getRoomRule().isAllowExplosion()) {
                     event.getEntity().kill();
                     event.setCancelled(true);
-                }else{
-                    if(!room.getRoomRule().isAllowExplosionBreakBlock()){
+                } else {
+                    if (!room.getRoomRule().isAllowExplosionBreakBlock()) {
                         event.setBlockList(new ArrayList<>());
                     }
                 }
@@ -228,11 +228,11 @@ public class BaseEventListener implements Listener {
                 }
             }
 
-            if(GameAPI.updateMoveEvent){
+            if (GameAPI.updateMoveEvent) {
                 RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(room, player, event.getFrom(), event.getTo(), event.isResetBlocksAround());
-                if(roomPlayerMoveEvent.isCancelled()){
+                if (roomPlayerMoveEvent.isCancelled()) {
                     event.setCancelled(true);
-                }else{
+                } else {
                     event.setTo(roomPlayerMoveEvent.getTo());
                     event.setFrom(roomPlayerMoveEvent.getFrom());
                     event.setResetBlocksAround(roomPlayerMoveEvent.isResetBlocksAround());
@@ -290,7 +290,7 @@ public class BaseEventListener implements Listener {
                 Player p2 = (Player) event.getDamager();
                 if (room1.getTeams().size() > 0) {
                     if (room1.getPlayerTeam(p1) != null && room1.getPlayerTeam(p1) == room2.getPlayerTeam(p2)) {
-                        p1.sendMessage(GameAPI.getLanguage().getTranslation(p1,"baseEvent.teamDamage.notAllowed"));
+                        p1.sendMessage(GameAPI.getLanguage().getTranslation(p1, "baseEvent.teamDamage.notAllowed"));
                         event.setCancelled(true);
                     } else {
                         addDamageSource(p1.getName(), p2.getName());
@@ -304,10 +304,10 @@ public class BaseEventListener implements Listener {
             if (roomEntityDamageByEntityEvent.isCancelled()) {
                 event.setCancelled(true);
             } else {
-                if(room1.getRoomRule().isExperimentalFeature()){
-                    if(event.getDamager() instanceof Player){
+                if (room1.getRoomRule().isExperimentalFeature()) {
+                    if (event.getDamager() instanceof Player) {
                         Player damagePlayer = (Player) event.getDamager();
-                        if(damagePlayer.fallDistance >= 0.5 && damagePlayer.getInventory().getItemInHand().isAxe()){
+                        if (damagePlayer.fallDistance >= 0.5 && damagePlayer.getInventory().getItemInHand().isAxe()) {
                             entity.getLevel().addParticleEffect(entity.getPosition(), ParticleEffect.CRITICAL_HIT);
                             roomEntityDamageByEntityEvent.setDamage(roomEntityDamageByEntityEvent.getDamage() * 1.5f);
                         }
@@ -324,17 +324,6 @@ public class BaseEventListener implements Listener {
         List<DamageSource> temp = new ArrayList<>(damageSources.getOrDefault(player, new ArrayList<>()));
         temp.add(new DamageSource(damager, System.currentTimeMillis()));
         damageSources.put(player, temp);
-    }
-
-    @Data
-    public static class DamageSource {
-        private String damager;
-        private long milliseconds;
-
-        public DamageSource(String damager, long milliseconds) {
-            this.damager = damager;
-            this.milliseconds = milliseconds;
-        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -374,12 +363,12 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void CraftItemEvent(CraftItemEvent event) {
         Player player = event.getPlayer();
-        if(player == null){
+        if (player == null) {
             return;
         }
         Room room = Room.getRoom(player);
         if (room != null) {
-            if(!room.getRoomRule().isAllowCraft()){
+            if (!room.getRoomRule().isAllowCraft()) {
                 event.setCancelled(true);
             }
         }
@@ -389,9 +378,9 @@ public class BaseEventListener implements Listener {
     public void EntityLevelChangeEvent(EntityLevelChangeEvent event) {
         if (event.getEntity() instanceof Player) {
             for (TextEntity entity : EntityTools.entityList) {
-                if(entity.getLevel() == event.getEntity().getLevel()){
+                if (entity.getLevel() == event.getEntity().getLevel()) {
                     entity.spawnTo((Player) event.getEntity());
-                }else{
+                } else {
                     entity.despawnFrom((Player) event.getEntity());
                 }
             }
@@ -413,16 +402,16 @@ public class BaseEventListener implements Listener {
         GameListenerRegistry.callEvent(room, chatEvent);
         if (!chatEvent.isCancelled()) {
             String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatEvent.getRoomChatData().getDefaultChatMsg());
-            if(msg.startsWith("@")){
-                if(room.getTeams().size() > 0){
+            if (msg.startsWith("@")) {
+                if (room.getTeams().size() > 0) {
                     BaseTeam team = room.getPlayerTeam(player);
-                    if(team != null){
+                    if (team != null) {
                         team.sendMessageToAll(msg.replaceFirst("@", ""));
                     }
-                }else{
+                } else {
                     room.sendMessageToAll(msg);
                 }
-            }else{
+            } else {
                 room.sendMessageToAll(msg);
             }
         }
@@ -486,11 +475,11 @@ public class BaseEventListener implements Listener {
         if (room != null) {
             RoomPlayerInteractEvent roomPlayerInteractEvent = new RoomPlayerInteractEvent(room, player, event.getBlock(), event.getTouchVector(), event.getFace(), event.getItem(), event.getAction());
             GameListenerRegistry.callEvent(room, roomPlayerInteractEvent);
-            if(roomPlayerInteractEvent.isCancelled()){
+            if (roomPlayerInteractEvent.isCancelled()) {
                 event.setCancelled(true);
             }
-        }else{
-            if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null){
+        } else {
+            if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
                 GameAPI.editDataHashMap.get(player).respondEvent(event);
             }
         }
@@ -503,7 +492,7 @@ public class BaseEventListener implements Listener {
         if (room != null) {
             RoomPlayerItemConsumeEvent roomPlayerItemConsumeEvent = new RoomPlayerItemConsumeEvent(room, player, event.getItem());
             GameListenerRegistry.callEvent(room, roomPlayerItemConsumeEvent);
-            if(roomPlayerItemConsumeEvent.isCancelled()){
+            if (roomPlayerItemConsumeEvent.isCancelled()) {
                 event.setCancelled(true);
             }
         }
@@ -516,35 +505,46 @@ public class BaseEventListener implements Listener {
         if (room != null) {
             RoomPlayerItemHeldEvent roomPlayerItemHeldEvent = new RoomPlayerItemHeldEvent(room, player, event.getItem());
             GameListenerRegistry.callEvent(room, roomPlayerItemHeldEvent);
-            if(roomPlayerItemHeldEvent.isCancelled()){
+            if (roomPlayerItemHeldEvent.isCancelled()) {
                 event.setCancelled(true);
             }
         }
     }
 
     @EventHandler
-    public void ProjectileHitEvent(ProjectileHitEvent event){
-        if(event.getEntity() instanceof GameProjectileEntity){
+    public void ProjectileHitEvent(ProjectileHitEvent event) {
+        if (event.getEntity() instanceof GameProjectileEntity) {
             Room room = ((GameProjectileEntity) event.getEntity()).getRoom();
             RoomProjectileHitEvent roomProjectileHitEvent = new RoomProjectileHitEvent(room, event.getEntity(), event.getMovingObjectPosition());
             GameListenerRegistry.callEvent(room, roomProjectileHitEvent);
-            if(roomProjectileHitEvent.isCancelled()){
+            if (roomProjectileHitEvent.isCancelled()) {
                 event.setCancelled(true);
-            }else{
+            } else {
                 event.setMovingObjectPosition(roomProjectileHitEvent.getMovingObjectPosition());
             }
         }
     }
 
     @EventHandler
-    public void ProjectileLaunchEvent(ProjectileLaunchEvent event){
-        if(event.getEntity() instanceof GameProjectileEntity){
+    public void ProjectileLaunchEvent(ProjectileLaunchEvent event) {
+        if (event.getEntity() instanceof GameProjectileEntity) {
             Room room = ((GameProjectileEntity) event.getEntity()).getRoom();
             RoomProjectileLaunchEvent roomProjectileLaunchEvent = new RoomProjectileLaunchEvent(room, event.getEntity());
             GameListenerRegistry.callEvent(room, roomProjectileLaunchEvent);
-            if(roomProjectileLaunchEvent.isCancelled()){
+            if (roomProjectileLaunchEvent.isCancelled()) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @Data
+    public static class DamageSource {
+        private String damager;
+        private long milliseconds;
+
+        public DamageSource(String damager, long milliseconds) {
+            this.damager = damager;
+            this.milliseconds = milliseconds;
         }
     }
 

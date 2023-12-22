@@ -33,7 +33,7 @@ public class BaseTeam {
 
     private HashMap<String, Object> properties = new HashMap<>();
 
-    public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, int spawnIndex){
+    public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, int spawnIndex) {
         this.room = room;
         this.registryName = registryName;
         this.prefix = prefix;
@@ -41,57 +41,61 @@ public class BaseTeam {
         this.maxPlayer = maxPlayer;
     }
 
-    public void addPlayer(Player player){
-        if(isAvailable()) {
+    public void addPlayer(Player player) {
+        if (isAvailable()) {
             players.add(player);
-        }else{
+        } else {
             player.sendMessage(GameAPI.getLanguage().getTranslation("room.team.full"));
         }
     }
 
-    public int getSize(){
+    public int getSize() {
         return players.size();
     }
 
-    public boolean isAvailable(){
+    public boolean isAvailable() {
         return players.size() < maxPlayer;
     }
 
-    public void removePlayer(Player player){
+    public void removePlayer(Player player) {
         players.remove(player);
     }
 
-    public boolean hasPlayer(Player player){
+    public boolean hasPlayer(Player player) {
         return players.contains(player);
     }
 
-    public void resetAll(){
+    public void resetAll() {
         this.players.clear();
         this.isAlive = true;
     }
 
-    public void teleportToSpawn(){
-        if(room.getStartSpawn().size() == 0){ return; }
-        if(room.getStartSpawn().size() < spawnIndex + 1){ return; }
+    public void teleportToSpawn() {
+        if (room.getStartSpawn().size() == 0) {
+            return;
+        }
+        if (room.getStartSpawn().size() < spawnIndex + 1) {
+            return;
+        }
         AdvancedLocation location = room.getStartSpawn().get(spawnIndex);
-        for(Player player: players){
+        for (Player player : players) {
             location.teleport(player);
         }
     }
 
-    public void sendMessageToAll(String string){
+    public void sendMessageToAll(String string) {
         PlayerTools.sendMessage(players, string);
     }
 
-    public void sendActionbarToAll(String string){
+    public void sendActionbarToAll(String string) {
         PlayerTools.sendActionbar(players, string);
     }
 
-    public void sendTitleToAll(String string){
+    public void sendTitleToAll(String string) {
         PlayerTools.sendTitle(players, string);
     }
 
-    public void sendTipToAll(String string){
+    public void sendTipToAll(String string) {
         PlayerTools.sendTip(players, string);
     }
 

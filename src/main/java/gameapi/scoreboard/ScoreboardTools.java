@@ -14,36 +14,36 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ScoreboardTools {
     public static ConcurrentHashMap<Player, Scoreboard> scoreboardConcurrentHashMap = new ConcurrentHashMap<>();
 
-    public static void drawScoreBoardEntry(Player player, String objectiveName, String displayName, String string){
+    public static void drawScoreBoardEntry(Player player, String objectiveName, String displayName, String string) {
         removeScoreboard(player);
         Scoreboard scoreboard = de.theamychan.scoreboard.api.ScoreboardAPI.createScoreboard();
-        ScoreboardDisplay scoreboardDisplay = scoreboard.addDisplay( DisplaySlot.SIDEBAR, objectiveName, displayName );
-        scoreboardDisplay.addLine(string,0);
-        de.theamychan.scoreboard.api.ScoreboardAPI.setScoreboard(player,scoreboard);
+        ScoreboardDisplay scoreboardDisplay = scoreboard.addDisplay(DisplaySlot.SIDEBAR, objectiveName, displayName);
+        scoreboardDisplay.addLine(string, 0);
+        de.theamychan.scoreboard.api.ScoreboardAPI.setScoreboard(player, scoreboard);
         scoreboard.showFor(player);
-        scoreboardConcurrentHashMap.put(player,scoreboard);
+        scoreboardConcurrentHashMap.put(player, scoreboard);
     }
 
-    public static void drawScoreBoardEntry(Player player, String objectiveName, String displayName, String string, String string1){
+    public static void drawScoreBoardEntry(Player player, String objectiveName, String displayName, String string, String string1) {
         removeScoreboard(player);
         Scoreboard scoreboard = de.theamychan.scoreboard.api.ScoreboardAPI.createScoreboard();
-        ScoreboardDisplay scoreboardDisplay = scoreboard.addDisplay( DisplaySlot.SIDEBAR, objectiveName, displayName );
-        scoreboardDisplay.addLine(string,0);
-        scoreboardDisplay.addLine(string1,0);
-        de.theamychan.scoreboard.api.ScoreboardAPI.setScoreboard(player,scoreboard);
+        ScoreboardDisplay scoreboardDisplay = scoreboard.addDisplay(DisplaySlot.SIDEBAR, objectiveName, displayName);
+        scoreboardDisplay.addLine(string, 0);
+        scoreboardDisplay.addLine(string1, 0);
+        de.theamychan.scoreboard.api.ScoreboardAPI.setScoreboard(player, scoreboard);
         scoreboard.showFor(player);
-        scoreboardConcurrentHashMap.put(player,scoreboard);
+        scoreboardConcurrentHashMap.put(player, scoreboard);
     }
 
-    public static void drawScoreBoardEntry(Player player, Scoreboard scoreboard){
+    public static void drawScoreBoardEntry(Player player, Scoreboard scoreboard) {
         removeScoreboard(player);
         scoreboard.showFor(player);
-        scoreboardConcurrentHashMap.put(player,scoreboard);
+        scoreboardConcurrentHashMap.put(player, scoreboard);
     }
 
-    public static void removeScoreboard(Player player){
-        if(scoreboardConcurrentHashMap.get(player) != null){
-            de.theamychan.scoreboard.api.ScoreboardAPI.removeScorebaord(player,scoreboardConcurrentHashMap.get(player));
+    public static void removeScoreboard(Player player) {
+        if (scoreboardConcurrentHashMap.get(player) != null) {
+            de.theamychan.scoreboard.api.ScoreboardAPI.removeScorebaord(player, scoreboardConcurrentHashMap.get(player));
         }
     }
 
@@ -54,25 +54,25 @@ public class ScoreboardTools {
 
         StringBuilder sb = new StringBuilder();
         if (hour > 0) {
-            if(hour < 10) {
+            if (hour < 10) {
                 sb.append("0").append(hour).append(":");
-            }else{
+            } else {
                 sb.append(hour).append(":");
             }
         }
         if (minute > 0) {
-            if(minute < 10) {
+            if (minute < 10) {
                 sb.append("0").append(minute).append(":");
-            }else{
+            } else {
                 sb.append(minute).append(":");
             }
-        }else{
+        } else {
             sb.append("00:");
         }
         if (second > 0) {
-            if(second < 10) {
+            if (second < 10) {
                 sb.append("0").append(second);
-            }else{
+            } else {
                 sb.append(second);
             }
         }

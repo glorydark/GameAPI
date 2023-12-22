@@ -8,7 +8,7 @@ import gameapi.room.Room;
  */
 public class RoomPlayerJumpEvent extends RoomPlayerEvent {
 
-    public RoomPlayerJumpEvent(Room room, Player player){
+    public RoomPlayerJumpEvent(Room room, Player player) {
         this.room = room;
         this.player = player;
     }

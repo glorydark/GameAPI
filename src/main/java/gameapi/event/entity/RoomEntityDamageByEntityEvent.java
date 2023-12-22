@@ -18,11 +18,11 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
 
     protected EntityDamageEvent.DamageCause cause;
 
-    public RoomEntityDamageByEntityEvent(Room room, EntityDamageByEntityEvent event){
+    public RoomEntityDamageByEntityEvent(Room room, EntityDamageByEntityEvent event) {
         this.room = room;
         this.damage = event.getDamage();
         this.attackCoolDown = event.getAttackCooldown();
-        if(!room.getRoomRule().isAllowAttackCoolDown()){
+        if (!room.getRoomRule().isAllowAttackCoolDown()) {
             this.attackCoolDown = 0;
         }
         this.entity = event.getEntity();
@@ -39,20 +39,20 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
         return attackCoolDown;
     }
 
-    public float getDamage() {
-        return damage;
+    public void setAttackCoolDown(int attackCoolDown) {
+        this.attackCoolDown = attackCoolDown;
     }
 
-    public float getKnockBack() {
-        return knockBack;
+    public float getDamage() {
+        return damage;
     }
 
     public void setDamage(float damage) {
         this.damage = damage;
     }
 
-    public void setAttackCoolDown(int attackCoolDown) {
-        this.attackCoolDown = attackCoolDown;
+    public float getKnockBack() {
+        return knockBack;
     }
 
     public void setKnockBack(float knockBack) {

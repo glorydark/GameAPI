@@ -11,7 +11,7 @@ import gameapi.room.Room;
 public class RoomSpectatorLeaveEvent extends RoomPlayerEvent implements Cancellable {
     protected Location returnLocation;
 
-    public RoomSpectatorLeaveEvent(Room room, Player player, Location returnLocation){
+    public RoomSpectatorLeaveEvent(Room room, Player player, Location returnLocation) {
         this.room = room;
         this.player = player;
         this.returnLocation = returnLocation;

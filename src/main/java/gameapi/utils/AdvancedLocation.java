@@ -18,13 +18,14 @@ public class AdvancedLocation {
 
     private String inputString;
 
-    public AdvancedLocation(){}
+    public AdvancedLocation() {
+    }
 
-    public AdvancedLocation(String string){
+    public AdvancedLocation(String string) {
         this.inputString = string;
         AdvancedLocation loc = SmartTools.parseLocation(string);
-        if(loc != null){
-            switch (loc.getVersion()){
+        if (loc != null) {
+            switch (loc.getVersion()) {
                 case 2:
                     this.headYaw = loc.getHeadYaw();
                 case 1:
@@ -41,10 +42,12 @@ public class AdvancedLocation {
         return location.getLevel();
     }
 
-    public void teleport(Player player){
-        if(location == null || !location.isValid()){ return; }
+    public void teleport(Player player) {
+        if (location == null || !location.isValid()) {
+            return;
+        }
         Location out;
-        switch (version){
+        switch (version) {
             case 1:
                 out = new Location(location.getX(), location.getY(), location.getZ(), yaw, pitch);
                 out.setLevel(location.getLevel());

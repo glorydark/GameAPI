@@ -7,9 +7,11 @@ import gameapi.room.Room;
 public class RoomGameEndListener extends RoomEvent implements Cancellable {
     private final Room room;
 
-    public RoomGameEndListener(Room room){
+    public RoomGameEndListener(Room room) {
         this.room = room;
     }
 
-    public Room getRoom(){ return room;}
+    public Room getRoom() {
+        return room;
+    }
 }

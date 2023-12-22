@@ -53,8 +53,16 @@ public class RoomBlockBreakEvent extends RoomBlockEvent implements Cancellable {
         return instaBreak;
     }
 
+    public void setInstaBreak(boolean instaBreak) {
+        this.instaBreak = instaBreak;
+    }
+
     public int getDropExp() {
         return blockXP;
+    }
+
+    public void setDropExp(int blockXP) {
+        this.blockXP = blockXP;
     }
 
     public Item[] getDrops() {
@@ -63,13 +71,5 @@ public class RoomBlockBreakEvent extends RoomBlockEvent implements Cancellable {
 
     public void setDrops(Item[] blockDrops) {
         this.blockDrops = blockDrops;
-    }
-
-    public void setDropExp(int blockXP) {
-        this.blockXP = blockXP;
-    }
-
-    public void setInstaBreak(boolean instaBreak) {
-        this.instaBreak = instaBreak;
     }
 }

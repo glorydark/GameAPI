@@ -10,9 +10,11 @@ import gameapi.room.Room;
 public class RoomGameProcessingListener extends RoomEvent implements Cancellable {
     private final Room room;
 
-    public RoomGameProcessingListener(Room room){
+    public RoomGameProcessingListener(Room room) {
         this.room = room;
     }
 
-    public Room getRoom(){ return room;}
+    public Room getRoom() {
+        return room;
+    }
 }

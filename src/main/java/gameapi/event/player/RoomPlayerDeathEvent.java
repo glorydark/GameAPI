@@ -19,7 +19,7 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     private final EntityDamageEvent.DamageCause cause;
 
-    public RoomPlayerDeathEvent(Room room, Player player, EntityDamageEvent.DamageCause cause){
+    public RoomPlayerDeathEvent(Room room, Player player, EntityDamageEvent.DamageCause cause) {
         this.room = room;
         this.player = player;
         //导入的伤害来源
@@ -27,9 +27,9 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
         //利用lambda进行filter，筛掉不合格的伤害来源。
         List<BaseEventListener.DamageSource> sortedSources = inputDamageSources.stream().filter(damageSource -> System.currentTimeMillis() - damageSource.getMilliseconds() <= 10000).collect(Collectors.toList());
         sortedSources = sortedSources.stream().sorted((o1, o2) -> (int) (o1.getMilliseconds() - o2.getMilliseconds())).collect(Collectors.toList());
-        if(sortedSources.size() > 0){
-            this.lastDamageSource = sortedSources.get(sortedSources.size()-1);
-        }else{
+        if (sortedSources.size() > 0) {
+            this.lastDamageSource = sortedSources.get(sortedSources.size() - 1);
+        } else {
             this.lastDamageSource = new BaseEventListener.DamageSource("", 0);
         }
         sortedSources.remove(lastDamageSource);
@@ -38,8 +38,8 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
     }
 
     public Player getLastDamageSource() {
-        if(!lastDamageSource.getDamager().equals("")){
-            if(System.currentTimeMillis() - lastDamageSource.getMilliseconds() <= 5000){
+        if (!lastDamageSource.getDamager().equals("")) {
+            if (System.currentTimeMillis() - lastDamageSource.getMilliseconds() <= 5000) {
                 //When the difference between now and last damage time is over 5 seconds, GameAPI will regard this as an outdated damage source;
                 return Server.getInstance().getPlayer(lastDamageSource.getDamager());
             }
@@ -47,7 +47,7 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
         return null;
     }
 
-    public List<BaseEventListener.DamageSource> getAssistedSource(){
+    public List<BaseEventListener.DamageSource> getAssistedSource() {
         return assistingDamageSource;
     }
 

@@ -9,7 +9,7 @@ import gameapi.room.Room;
  */
 public class RoomReadyStartEvent extends RoomEvent implements Cancellable {
 
-    public RoomReadyStartEvent(Room room){
+    public RoomReadyStartEvent(Room room) {
         this.room = room;
     }
 

@@ -25,7 +25,8 @@ public class Tips {
 
     /**
      * 关闭Tips显示
-     * @param level 世界
+     *
+     * @param level  世界
      * @param player 玩家
      */
     public static void closeTipsShow(String level, Player player) {
@@ -34,7 +35,8 @@ public class Tips {
 
     /**
      * 移除Tips设置
-     * @param level 世界
+     *
+     * @param level  世界
      * @param player 玩家
      */
     public static void removeTipsConfig(String level, Player player) {

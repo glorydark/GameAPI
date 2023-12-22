@@ -13,13 +13,15 @@ public class RoomPreStartListener extends RoomEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final Room room;
 
+    public RoomPreStartListener(Room room) {
+        this.room = room;
+    }
+
     public static HandlerList getHandlers() {
         return handlers;
     }
 
-    public RoomPreStartListener(Room room){
-        this.room = room;
+    public Room getRoom() {
+        return room;
     }
-
-    public Room getRoom(){ return room;}
 }

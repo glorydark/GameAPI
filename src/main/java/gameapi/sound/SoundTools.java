@@ -10,10 +10,10 @@ import cn.nukkit.network.protocol.StopSoundPacket;
  */
 public class SoundTools {
     /**
-     * @description: 停止播放材质包音乐
      * @param player : 玩家
+     * @description: 停止播放材质包音乐
      */
-    public static void stopResourcePackOggSound(Player player){
+    public static void stopResourcePackOggSound(Player player) {
         StopSoundPacket pk = new StopSoundPacket();
         pk.name = " ";
         pk.stopAll = true;
@@ -21,11 +21,11 @@ public class SoundTools {
     }
 
     /**
-     * @description: 播放材质包音乐
-     * @param player : 玩家
+     * @param player    : 玩家
      * @param filename: 材质包中sound_definition的项的名称
+     * @description: 播放材质包音乐
      */
-    public static void playResourcePackOggMusic(Player player, String filename){
+    public static void playResourcePackOggMusic(Player player, String filename) {
         PlaySoundPacket pk = new PlaySoundPacket();
         pk.name = filename;
         pk.x = player.getFloorX();
@@ -36,7 +36,7 @@ public class SoundTools {
         player.dataPacket(pk);
     }
 
-    public static void addAmbientSound(Level level, Player player, cn.nukkit.level.Sound sound){
+    public static void addAmbientSound(Level level, Player player, cn.nukkit.level.Sound sound) {
         level.addSound(player.getPosition(), sound);
     }
 }
