@@ -354,9 +354,6 @@ public class Room {
     }
 
     public void resetAll() {
-        if (this.roomStatus != RoomStatus.ROOM_STATUS_End) {
-            return;
-        }
         this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
         new ArrayList<>(this.spectators).forEach(this::removeSpectator);
         for (Player player : players) {
