@@ -220,7 +220,7 @@ public class AdminCommands extends Command {
                     String name = "test_" + UUID.randomUUID();
                     if (WorldTools.loadLevelFromBackUp(name, "ParkourSquare-Easy")) {
                         GameAPI.plugin.getLogger().alert("加载世界测试完成，准备测试删除世界...");
-                        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, ()-> {
+                        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> {
                             WorldTools.unloadLevel(Server.getInstance().getLevelByName(name), true);
                             if (Server.getInstance().isLevelLoaded(name)) {
                                 GameAPI.plugin.getLogger().alert("删除世界失败");

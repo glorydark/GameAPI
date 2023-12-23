@@ -61,11 +61,6 @@ public class RoomTask extends AsyncTask {
                 this.execute(room, ListenerStatusType.GameEnd);
                 break;
             case ROOM_STATUS_Ceremony:
-                if (room.getPlayers().size() < 1) {
-                    room.resetAll();
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
-                    return true;
-                }
                 GameListenerRegistry.callEvent(room, new RoomCeremonyListener(room));
                 this.execute(room, ListenerStatusType.Ceremony);
                 break;

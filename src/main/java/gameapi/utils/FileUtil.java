@@ -21,7 +21,7 @@ public class FileUtil {
                 for (File file : files) {
                     if (file.isDirectory()) {
                         delete(file);
-                    }else if (!file.delete()) {
+                    } else if (!file.delete()) {
                         throw new IOException(GameAPI.getLanguage().getTranslation("file.delete.error", file.getName()));
                     }
                 }

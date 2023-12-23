@@ -365,11 +365,16 @@ public class Room {
             player.getInventory().clearAll();
             InventoryTools.loadBag(player);
             AdvancedLocation location = getEndSpawn();
-            location.teleport(player);
+            if (location != null) {
+                location.teleport(player, null);
+            } else {
+                player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn(), null);
+            }
         }
         for (Player player : players) {
             GameAPI.playerRoomHashMap.remove(player);
         }
+        //因为某些原因无法正常传送走玩家，就全部踹出服务器！
         this.players = new ArrayList<>();
         this.round = 0;
         this.time = 0;
@@ -377,7 +382,11 @@ public class Room {
         this.teamCache.forEach((s, team) -> team.resetAll());
         this.chatDataList = new ArrayList<>();
         if (this.playLevel == null) {
+            GameAPI.plugin.getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
             return;
+        }
+        for (Player player : this.playLevel.getPlayers().values()) {
+            player.kick("Teleport error!");
         }
         String levelName = this.getPlayLevel().getName();
         if (this.temporary) {

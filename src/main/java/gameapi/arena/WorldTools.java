@@ -9,9 +9,12 @@ import cn.nukkit.scheduler.NukkitRunnable;
 import gameapi.GameAPI;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
+import gameapi.utils.AdvancedLocation;
 import gameapi.utils.FileUtil;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -97,6 +100,7 @@ public class WorldTools {
         }
 
         if (delete) {
+            level.tickRateCounter = 99999;
             if (level.unload(true)) {
                 return deleteWorld(levelName);
             } else {
@@ -121,15 +125,27 @@ public class WorldTools {
 
         // Try Async Delayed Task
         new NukkitRunnable() {
-
             @Override
             public void run() {
                 if (FileUtil.delete(levelFile)) {
                     if (FileUtil.copy(backup, levelFile)) {
                         if (Server.getInstance().loadLevel(levelName)) {
-                            if (Server.getInstance().isLevelLoaded(levelName)) {
-                                Level loadLevel = Server.getInstance().getLevelByName(levelName);
+                            Level loadLevel = Server.getInstance().getLevelByName(levelName);
+                            if (loadLevel != null) {
                                 room.setPlayLevel(loadLevel);
+
+                                // Change referred level of each location
+                                room.getWaitSpawn().setLevel(loadLevel);
+                                for (AdvancedLocation advancedLocation : room.getStartSpawn()) {
+                                    advancedLocation.setLevel(loadLevel);
+                                }
+                                if (room.getEndSpawn() != null && room.getEndSpawn().getLevel().getProvider() == null) {
+                                    room.getEndSpawn().setLevel(loadLevel);
+                                }
+                                for (AdvancedLocation advancedLocation : room.getSpectatorSpawn()) {
+                                    advancedLocation.setLevel(loadLevel);
+                                }
+
                                 room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                                 GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("world.loadSuccessfully", levelName));
                             }
@@ -164,5 +180,4 @@ public class WorldTools {
         }
         return false;
     }
-
 }

@@ -1,6 +1,7 @@
 package gameapi.utils;
 
 import cn.nukkit.Player;
+import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import lombok.Data;
@@ -38,11 +39,19 @@ public class AdvancedLocation {
         }
     }
 
+    public void setLevel(Level level) {
+        this.location.setLevel(level);
+    }
+
     public Level getLevel() {
         return location.getLevel();
     }
 
     public void teleport(Player player) {
+        teleport(player, null);
+    }
+
+    public void teleport(Player player, PlayerTeleportEvent.TeleportCause cause) {
         if (location == null || !location.isValid()) {
             return;
         }
@@ -62,6 +71,6 @@ public class AdvancedLocation {
                 out.setLevel(location.getLevel());
                 break;
         }
-        player.teleport(out);
+        player.teleport(out, cause);
     }
 }
