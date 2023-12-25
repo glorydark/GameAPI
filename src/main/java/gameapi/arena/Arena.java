@@ -18,8 +18,6 @@ import java.util.Objects;
 
 /**
  * @author Glorydark
- * Some methods using in this class came from others, and you can find the original author in some specific classes!
- * <p>
  * This class is replaced by WorldTools.java
  */
 @Deprecated

@@ -2,7 +2,6 @@ package gameapi.room.executor;
 
 import cn.nukkit.Player;
 import cn.nukkit.level.Sound;
-import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.fireworkapi.CreateFireworkApi;
 import gameapi.room.Room;
@@ -38,7 +37,12 @@ public class BaseRoomExecutor implements RoomExecutor {
     @Override
     public void onPreStart() {
         for (Player player : room.getPlayers()) {
-            player.sendTitle(TextFormat.LIGHT_PURPLE + String.valueOf(room.getWaitTime() - room.getTime()), GameAPI.getLanguage().getTranslation(player, "room.title.preStart.subtitle"));
+            int lastSecond = room.getWaitTime() - room.getTime();
+            if (lastSecond > 3) {
+                player.sendActionBar(GameAPI.getLanguage().getTranslation("room.actionbar.preStart.countdown", lastSecond));
+            } else {
+                player.sendActionBar(GameAPI.getLanguage().getTranslation("room.actionbar.preStart.countdown.ready", lastSecond));
+            }
         }
     }
 
@@ -48,7 +52,7 @@ public class BaseRoomExecutor implements RoomExecutor {
             int lastSec = room.getGameWaitTime() - room.getTime();
             if (lastSec > 10) {
                 p.getLevel().addSound(p.getPosition(), Sound.NOTE_HARP);
-                p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart", room.getGameWaitTime() - room.getTime()));
+                p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown", room.getGameWaitTime() - room.getTime()));
             } else {
                 if (lastSec == 1) {
                     p.getLevel().addSound(p.getPosition(), Sound.NOTE_FLUTE);
@@ -57,37 +61,37 @@ public class BaseRoomExecutor implements RoomExecutor {
                 }
                 switch (lastSec) {
                     case 10:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.ten", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.ten", lastSec));
                         break;
                     case 9:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.nine", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.nine", lastSec));
                         break;
                     case 8:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.eight", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.eight", lastSec));
                         break;
                     case 7:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.seven", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.seven", lastSec));
                         break;
                     case 6:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.six", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.six", lastSec));
                         break;
                     case 5:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.five", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.five", lastSec));
                         break;
                     case 4:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.four", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.four", lastSec));
                         break;
                     case 3:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.three", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.three", lastSec));
                         break;
                     case 2:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.two", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.two", lastSec));
                         break;
                     case 1:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.one", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.one", lastSec));
                         break;
                     case 0:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.zero", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.zero", lastSec));
                         break;
                 }
             }
@@ -129,7 +133,7 @@ public class BaseRoomExecutor implements RoomExecutor {
             int lastSec = room.getGameWaitTime() - room.getTime();
             if (lastSec > 10) {
                 p.getLevel().addSound(p.getPosition(), Sound.NOTE_HARP);
-                p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart", room.getGameWaitTime() - room.getTime()));
+                p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown", room.getGameWaitTime() - room.getTime()));
             } else {
                 if (lastSec == 1) {
                     p.getLevel().addSound(p.getPosition(), Sound.NOTE_FLUTE);
@@ -138,37 +142,37 @@ public class BaseRoomExecutor implements RoomExecutor {
                 }
                 switch (lastSec) {
                     case 10:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.ten", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.ten", lastSec));
                         break;
                     case 9:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.nine", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.nine", lastSec));
                         break;
                     case 8:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.eight", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.eight", lastSec));
                         break;
                     case 7:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.seven", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.seven", lastSec));
                         break;
                     case 6:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.six", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.six", lastSec));
                         break;
                     case 5:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.five", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.five", lastSec));
                         break;
                     case 4:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.four", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.four", lastSec));
                         break;
                     case 3:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.three", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.three", lastSec));
                         break;
                     case 2:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.two", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.two", lastSec));
                         break;
                     case 1:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.one", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.one", lastSec));
                         break;
                     case 0:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.preStart.zero", lastSec));
+                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.zero", lastSec));
                         break;
                 }
             }

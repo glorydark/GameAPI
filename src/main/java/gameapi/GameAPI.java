@@ -6,6 +6,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
+import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.NukkitRunnable;
@@ -14,7 +15,7 @@ import gameapi.arena.WorldTools;
 import gameapi.commands.AdminCommands;
 import gameapi.entity.EntityTools;
 import gameapi.form.AdvancedFormMain;
-import gameapi.languages.Language;
+import gameapi.language.Language;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.ranking.Ranking;
@@ -51,6 +52,8 @@ public class GameAPI extends PluginBase implements Listener {
     public static boolean tipsEnabled;
     public static HashMap<Player, RoomEdit> editDataHashMap = new HashMap<>();
     protected static Language language = new Language("GameAPI");
+    public static SimpleAxisAlignedBB autoLoadChunkRange;
+    public static boolean autoLoadChunk = false;
 
     public static void loadRoom(Room room, RoomStatus baseStatus) {
         List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
@@ -84,6 +87,8 @@ public class GameAPI extends PluginBase implements Listener {
         file.mkdirs();
         file1.mkdir();
         Config config = new Config(path + "/config.yml", Config.YAML);
+        autoLoadChunk = config.getBoolean("auto_load_chunk.enabled", false);
+        autoLoadChunkRange = new SimpleAxisAlignedBB(config.getInt("auto_load_chunk.minX", -2), config.getInt("auto_load_chunk.maxX", 2), 0, 0, config.getInt("auto_load_chunk.minZ", -2), config.getInt("auto_load_chunk.maxZ", 2));
         saveBag = config.getBoolean("save_bag", false);
         updateMoveEvent = config.getBoolean("allow_move_event", true);
         language.setDefaultLanguage(config.getString("default_language", "zh_CN"));

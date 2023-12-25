@@ -1,10 +1,12 @@
 package gameapi.scoreboard;
 
 import cn.nukkit.Player;
+import de.theamychan.scoreboard.api.ScoreboardAPI;
 import de.theamychan.scoreboard.network.DisplaySlot;
 import de.theamychan.scoreboard.network.Scoreboard;
 import de.theamychan.scoreboard.network.ScoreboardDisplay;
 
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -14,36 +16,24 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ScoreboardTools {
     public static ConcurrentHashMap<Player, Scoreboard> scoreboardConcurrentHashMap = new ConcurrentHashMap<>();
 
-    public static void drawScoreBoardEntry(Player player, String objectiveName, String displayName, String string) {
-        removeScoreboard(player);
-        Scoreboard scoreboard = de.theamychan.scoreboard.api.ScoreboardAPI.createScoreboard();
-        ScoreboardDisplay scoreboardDisplay = scoreboard.addDisplay(DisplaySlot.SIDEBAR, objectiveName, displayName);
-        scoreboardDisplay.addLine(string, 0);
-        de.theamychan.scoreboard.api.ScoreboardAPI.setScoreboard(player, scoreboard);
-        scoreboard.showFor(player);
-        scoreboardConcurrentHashMap.put(player, scoreboard);
-    }
-
-    public static void drawScoreBoardEntry(Player player, String objectiveName, String displayName, String string, String string1) {
-        removeScoreboard(player);
-        Scoreboard scoreboard = de.theamychan.scoreboard.api.ScoreboardAPI.createScoreboard();
-        ScoreboardDisplay scoreboardDisplay = scoreboard.addDisplay(DisplaySlot.SIDEBAR, objectiveName, displayName);
-        scoreboardDisplay.addLine(string, 0);
-        scoreboardDisplay.addLine(string1, 0);
-        de.theamychan.scoreboard.api.ScoreboardAPI.setScoreboard(player, scoreboard);
-        scoreboard.showFor(player);
-        scoreboardConcurrentHashMap.put(player, scoreboard);
-    }
-
-    public static void drawScoreBoardEntry(Player player, Scoreboard scoreboard) {
-        removeScoreboard(player);
+    public static void drawScoreBoardEntry(String objectiveName, String title, Player player, String... strings) {
+        Scoreboard scoreboard = ScoreboardAPI.createScoreboard();
+        ScoreboardDisplay scoreboardDisplay = scoreboard.addDisplay(DisplaySlot.SIDEBAR, objectiveName, title);
+        if (scoreboardConcurrentHashMap.containsKey(player)) {
+            scoreboardConcurrentHashMap.get(player).hideFor(player);
+        }
+        for (int lineId = 0; lineId < strings.length; lineId++) {
+            scoreboardDisplay.addLine(strings[lineId], lineId);
+        }
         scoreboard.showFor(player);
         scoreboardConcurrentHashMap.put(player, scoreboard);
     }
 
     public static void removeScoreboard(Player player) {
-        if (scoreboardConcurrentHashMap.get(player) != null) {
-            de.theamychan.scoreboard.api.ScoreboardAPI.removeScorebaord(player, scoreboardConcurrentHashMap.get(player));
+        if (scoreboardConcurrentHashMap.containsKey(player)) {
+            Scoreboard scoreboard = scoreboardConcurrentHashMap.get(player);
+            scoreboard.hideFor(player);
+            scoreboardConcurrentHashMap.remove(player);
         }
     }
 

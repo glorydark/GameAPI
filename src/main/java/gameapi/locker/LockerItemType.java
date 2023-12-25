@@ -8,8 +8,8 @@ public enum LockerItemType {
 
     WALKING_PARTICLE,
     KILL_EFFECT,
-    DEATH_CRATE,
+    DEATH_CRATE, //todo
     SOUND,
     POTION_EFFECT,
-    PROJECTILE_TRAIL,
+    PROJECTILE_TRAIL //todo
 }

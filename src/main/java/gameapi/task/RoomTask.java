@@ -6,6 +6,7 @@ import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.scheduler.AsyncTask;
 import gameapi.GameAPI;
 import gameapi.event.block.RoomBlockTreadEvent;
+import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.room.*;
 import gameapi.inventory.InventoryTools;
 import gameapi.listener.*;
@@ -39,13 +40,21 @@ public class RoomTask extends AsyncTask {
                     RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(room, block, player);
                     GameListenerRegistry.callEvent(room, roomBlockTreadEvent);
                 }
+
+                for (Block collisionBlock : player.getCollisionBlocks()) {
+                    if (collisionBlock.getId() == 90) {
+                        RoomPlayerEnterPortalEvent roomPlayerEnterPortalEvent = new RoomPlayerEnterPortalEvent(room, player);
+                        GameListenerRegistry.callEvent(room, roomPlayerEnterPortalEvent);
+                        player.inPortalTicks = 0;
+                        break;
+                    }
+                }
             }
         }
         switch (room.getRoomStatus()) {
             case ROOM_STATUS_WAIT:
                 if (room.isTemporary() && room.getPlayers().size() < 1) {
                     room.resetAll();
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomWaitListener(room));
@@ -54,7 +63,6 @@ public class RoomTask extends AsyncTask {
             case ROOM_STATUS_GameEnd:
                 if (room.getPlayers().size() < 1) {
                     room.resetAll();
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomGameEndListener(room));
@@ -78,7 +86,6 @@ public class RoomTask extends AsyncTask {
             case ROOM_STATUS_GameStart:
                 if (room.getPlayers().size() < 1) {
                     room.resetAll();
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                     return true;
                 } else {
                     if (room.getTeams().size() > 1) {
@@ -115,7 +122,6 @@ public class RoomTask extends AsyncTask {
             case ROOM_STATUS_GameReadyStart:
                 if (room.getPlayers().size() < 1) {
                     room.resetAll();
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomReadyStartListener(room));
@@ -187,6 +193,7 @@ public class RoomTask extends AsyncTask {
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart, false);
                         room.setRound(room.getRound() + 1);
                         room.getStatusExecutor().beginGameStart();
+                        room.setStartMillis(System.currentTimeMillis());
                     }
                 } else {
                     room.getStatusExecutor().onReadyStart();

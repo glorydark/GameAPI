@@ -19,7 +19,7 @@ import java.util.Objects;
 
 /**
  * @author Glorydark
- * Some methods using in this class came from others, and you can find the original author in some specific classes!
+ * Based on lt-name's sourcecode in CrystalWar
  */
 public class WorldTools {
 
@@ -62,14 +62,22 @@ public class WorldTools {
 
      */
 
-    public static boolean unloadLevel(Room room, boolean delete) {
-        if (unloadLevel(room.getPlayLevel(), delete)) {
-            return true;
-        } else {
-            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.notFound", room.getRoomName()));
-            room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
-            return false;
+    public static boolean unloadAndReloadLevels(Room room) {
+        List<Level> originList = new ArrayList<>(room.getPlayLevels());
+        room.setPlayLevels(new ArrayList<>());
+        for (Level playLevel : originList) {
+            String loadName = playLevel.getName();
+            if (unloadLevel(playLevel, true)) {
+                if (!reloadLevel(room, loadName)) {
+                    return false;
+                }
+            } else {
+                GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.notFound", room.getRoomName()));
+                room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
+                return false;
+            }
         }
+        return true;
     }
 
     public static boolean unloadLevel(Level level, boolean delete) {
@@ -112,16 +120,18 @@ public class WorldTools {
 
     }
 
-    public static void reloadLevel(Room room, String levelName) {
+    protected static boolean reloadLevel(Room room, String loadName) {
 
         // 开始根据备份重载
-        File levelFile = new File(Server.getInstance().getDataPath() + "/worlds/" + levelName);
+        File levelFile = new File(Server.getInstance().getDataPath() + "/worlds/" + loadName);
 
-        File backup = new File(GameAPI.path + "/worlds/" + levelName);
+        File backup = new File(GameAPI.path + "/worlds/" + room.getRoomLevelBackup());
 
         if (!backup.exists()) {
-            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.notFound", levelName));
+            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.notFound", loadName));
         }
+
+        final boolean[] b = {true};
 
         // Try Async Delayed Task
         new NukkitRunnable() {
@@ -129,11 +139,25 @@ public class WorldTools {
             public void run() {
                 if (FileUtil.delete(levelFile)) {
                     if (FileUtil.copy(backup, levelFile)) {
-                        if (Server.getInstance().loadLevel(levelName)) {
-                            Level loadLevel = Server.getInstance().getLevelByName(levelName);
+                        if (Server.getInstance().loadLevel(loadName)) {
+                            Level loadLevel = Server.getInstance().getLevelByName(loadName);
                             if (loadLevel != null) {
-                                room.setPlayLevel(loadLevel);
-
+                                if (GameAPI.autoLoadChunk) {
+                                    // Trying to update chunks near the spawn points
+                                    int minX = (int) GameAPI.autoLoadChunkRange.getMinX();
+                                    int maxX = (int) GameAPI.autoLoadChunkRange.getMaxX();
+                                    int minZ = (int) GameAPI.autoLoadChunkRange.getMinZ();
+                                    int maxZ = (int) GameAPI.autoLoadChunkRange.getMaxZ();
+                                    for (int x = minX; x <= maxX; x++) {
+                                        for (int z = minZ; z <= maxZ; z++) {
+                                            if (loadLevel.isChunkLoaded(x, z)) {
+                                                loadLevel.loadChunk(x, z);
+                                                loadLevel.getChunk(x, z).populateSkyLight();
+                                            }
+                                        }
+                                    }
+                                }
+                                room.addPlayLevel(loadLevel);
                                 // Change referred level of each location
                                 room.getWaitSpawn().setLevel(loadLevel);
                                 for (AdvancedLocation advancedLocation : room.getStartSpawn()) {
@@ -145,28 +169,28 @@ public class WorldTools {
                                 for (AdvancedLocation advancedLocation : room.getSpectatorSpawn()) {
                                     advancedLocation.setLevel(loadLevel);
                                 }
-
                                 room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
-                                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("world.loadSuccessfully", levelName));
+                                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("world.loadSuccessfully", loadName));
                             }
                         } else {
-                            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", levelName));
+                            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", loadName));
                             room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                         }
                     } else {
-                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", levelName));
+                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", loadName));
                         room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                     }
                 } else {
-                    GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", levelName));
+                    GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", loadName));
                     room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                 }
+                b[0] = false;
             }
         }.runTaskAsynchronously(GameAPI.plugin);
-
+        return b[0];
     }
 
-    public static boolean loadLevelFromBackUp(String loadName, String backupName) {
+    public static boolean loadLevelFromBackup(String loadName, String backupName) {
         Level level = Server.getInstance().getLevelByName(loadName);
         if (level != null) {
             unloadLevel(level, true);

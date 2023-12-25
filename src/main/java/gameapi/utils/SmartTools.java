@@ -21,6 +21,50 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class SmartTools {
 
+    public static String timeDiffToString(long startMillis, long endMillis) {
+        if (endMillis - startMillis < 0) {
+            GameAPI.plugin.getLogger().error("End millis should not be bigger than start millis");
+            return "";
+        }
+        long diff = endMillis - startMillis;
+        long second = diff / 1000;
+        long millis = diff - second * 1000;
+        long minute = second / 60;
+        long hour = minute / 60;
+        StringBuilder sb = new StringBuilder();
+        if (hour > 0) {
+            if (hour < 10) {
+                sb.append("0").append(hour).append(":");
+            } else {
+                sb.append(hour).append(":");
+            }
+        }
+        if (minute > 0) {
+            if (minute < 10) {
+                sb.append("0").append(minute).append(":");
+            } else {
+                sb.append(minute).append(":");
+            }
+        } else {
+            sb.append("00:");
+        }
+        if (second > 0) {
+            if (second < 10) {
+                sb.append("0").append(second).append(":");
+            } else {
+                sb.append(second).append(":");
+            }
+        } else if (second == 0) {
+            sb.append("00:");
+        }
+        if (millis > 0) {
+            sb.append(millis);
+        } else {
+            sb.append("000");
+        }
+        return sb.toString();
+    }
+
     //https://blog.csdn.net/weixin_39975055/article/details/115082818
     public static String dateToString(Date date) {
         return dateToString(date, "yyyyMMdd_hhmmss");
@@ -136,9 +180,9 @@ public class SmartTools {
                 }
             case 2:
                 if (isAllCapital) {
-                    return "2RD";
+                    return "2ND";
                 } else {
-                    return "2rd";
+                    return "2nd";
                 }
             case 3:
                 if (isAllCapital) {

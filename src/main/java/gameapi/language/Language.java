@@ -1,4 +1,4 @@
-package gameapi.languages;
+package gameapi.language;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
@@ -64,24 +64,8 @@ public class Language {
     }
 
     private String getLang(Player player) {
-        Config config = new Config(GameAPI.path + "/language_cache.yml", Config.YAML);
-        if (config.exists(player.getName())) {
-            String prefer = config.getString(player.getName());
-            if (lang.containsKey(prefer)) {
-                return prefer;
-            } else {
-                return defaultLanguage;
-            }
-        } else {
-            String languageCode = player.getLoginChainData().getLanguageCode();
-            return lang.containsKey(languageCode) ? languageCode : defaultLanguage;
-        }
-    }
-
-    public void setPlayerPreferLanguage(Player player, String langName) {
-        Config config = new Config(GameAPI.path + "/language_cache.yml", Config.YAML);
-        config.set(player.getName(), langName);
-        config.save();
+        String languageCode = player.getLoginChainData().getLanguageCode();
+        return lang.containsKey(languageCode) ? languageCode : defaultLanguage;
     }
 
     public void setDefaultLanguage(String defaultLanguage) {

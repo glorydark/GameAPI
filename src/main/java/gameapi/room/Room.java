@@ -9,7 +9,7 @@ import gameapi.arena.WorldTools;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.inventory.InventoryTools;
-import gameapi.languages.Language;
+import gameapi.language.Language;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
@@ -67,7 +67,7 @@ public class Room {
     private int time = 0; // Spent Seconds
     private boolean preStartPass = true;
     private List<Player> spectators = new ArrayList<>();
-    private Level playLevel;
+    private List<Level> playLevels = new ArrayList<>();
     private AdvancedLocation waitSpawn = new AdvancedLocation();
     private List<AdvancedLocation> startSpawn = new ArrayList<>();
     private AdvancedLocation endSpawn;
@@ -78,11 +78,18 @@ public class Room {
     private List<String> loseConsoleCommands = new ArrayList<>();
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
+    private long startMillis;
 
-    public Room(String gameName, RoomRule roomRule, Level playLevel, String roomLevelBackup, int round) {
+    public Room(String gameName, RoomRule roomRule, List<Level> playLevels, String roomLevelBackup, int round) {
         this.maxRound = round;
         this.roomRule = roomRule;
-        this.playLevel = playLevel;
+        for (Level playLevel : playLevels) {
+            if (playLevel == null) {
+                GameAPI.plugin.getLogger().warning("playLevel cannot be null!");
+                return;
+            }
+            this.addPlayLevel(playLevel);
+        }
         this.roomLevelBackup = roomLevelBackup;
         this.gameName = gameName;
         AdvancedLocation endSpawn = new AdvancedLocation();
@@ -91,9 +98,13 @@ public class Room {
         this.endSpawn = endSpawn;
     }
 
+    public Room(String gameName, RoomRule roomRule, Level playLevel, String roomLevelBackup, int round) {
+        this(gameName, roomRule, new ArrayList<>(Collections.singletonList(playLevel)), roomLevelBackup, round);
+    }
+
     public static boolean isRoomCurrentPlayLevel(Level level) {
         if (GameAPI.playerRoomHashMap.size() > 0) {
-            return GameAPI.playerRoomHashMap.values().stream().anyMatch(room -> room != null && level.getName().equals(room.getPlayLevel().getName()));
+            return GameAPI.playerRoomHashMap.values().stream().anyMatch(room -> room != null && room.playLevels.stream().anyMatch(l -> l.equals(level)));
         } else {
             return false;
         }
@@ -298,7 +309,9 @@ public class Room {
                     }
                     GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
                     if (GameAPI.tipsEnabled) {
-                        Tips.closeTipsShow(this.getPlayLevel().getName(), player);
+                        for (Level playLevel : playLevels) {
+                            Tips.closeTipsShow(playLevel.getName(), player);
+                        }
                     }
                 }
                 return true;
@@ -354,6 +367,9 @@ public class Room {
     }
 
     public void resetAll() {
+        if (this.roomStatus == RoomStatus.ROOM_MapInitializing) {
+            return;
+        }
         this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
         new ArrayList<>(this.spectators).forEach(this::removeSpectator);
         for (Player player : players) {
@@ -378,27 +394,28 @@ public class Room {
         this.playerProperties = new LinkedHashMap<>();
         this.teamCache.forEach((s, team) -> team.resetAll());
         this.chatDataList = new ArrayList<>();
-        if (this.playLevel == null) {
+        if (this.playLevels == null) {
             GameAPI.plugin.getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
             return;
         }
-        for (Player player : this.playLevel.getPlayers().values()) {
-            player.kick("Teleport error!");
+        for (Level playLevel : this.playLevels) {
+            for (Player player : playLevel.getPlayers().values()) {
+                player.kick("Teleport error!");
+            }
         }
-        String levelName = this.getPlayLevel().getName();
         if (this.temporary) {
             GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_delete", this.getRoomName()));
-            Level level = this.getPlayLevel();
-            if (level != null) {
-                WorldTools.unloadLevel(this, true);
+            for (Level playLevel : this.playLevels) {
+                if (playLevel != null) {
+                    WorldTools.unloadLevel(playLevel, true);
+                }
             }
             List<Room> rooms = GameAPI.loadedRooms.getOrDefault(this.getGameName(), new ArrayList<>());
             GameAPI.loadedRooms.put(this.getGameName(), rooms);
         } else {
             if (this.resetMap) {
                 GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_resetRoomAndMap", this.getRoomName()));
-                if (WorldTools.unloadLevel(this, true)) {
-                    WorldTools.reloadLevel(this, levelName);
+                if (WorldTools.unloadAndReloadLevels(this)) {
                     this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
                 }
             } else {
@@ -743,4 +760,11 @@ public class Room {
         PlayerTools.sendTip(spectators, language, string, params);
     }
 
+    public void addPlayLevel(Level loadLevel) {
+        playLevels.add(loadLevel);
+    }
+
+    public void removePlayLevel(Level loadLevel) {
+        playLevels.remove(loadLevel);
+    }
 }

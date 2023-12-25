@@ -58,14 +58,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="Maven: de.theamychan.scoreboard.ScoreboardPlugin:ScoreboardPlugin:1.0">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/dependence/ScoreboardAPI-1.3-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" scope="PROVIDED" name="Maven: de.theamychan:ScoreboardAPI:1.3-SNAPSHOT" level="project" />
   </component>
 </module>
