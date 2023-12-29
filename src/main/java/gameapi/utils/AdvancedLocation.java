@@ -39,12 +39,12 @@ public class AdvancedLocation {
         }
     }
 
-    public void setLevel(Level level) {
-        this.location.setLevel(level);
-    }
-
     public Level getLevel() {
         return location.getLevel();
+    }
+
+    public void setLevel(Level level) {
+        this.location.setLevel(level);
     }
 
     public void teleport(Player player) {

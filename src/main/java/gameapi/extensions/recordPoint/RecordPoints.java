@@ -13,30 +13,32 @@ public class RecordPoints {
 
     private List<RecordPointData> recordPointDataList;
 
-    private HashMap<Player, RecordPointData> playerRecordPointData;
+    private HashMap<Player, Integer> playerRecordPointNumbers;
 
     public RecordPoints() {
         this.recordPointDataList = new ArrayList<>();
-        this.playerRecordPointData = new HashMap<>();
+        this.playerRecordPointNumbers = new HashMap<>();
     }
 
-    public RecordPointData getPlayerRecordPoint(Player player) {
-        return playerRecordPointData.getOrDefault(player, null);
+    public Integer getPlayerRecordPoint(Player player) {
+        return playerRecordPointNumbers.getOrDefault(player, 0);
     }
 
-    public void addPlayerRecordPoint(Player player, RecordPointData recordPointData) {
-        playerRecordPointData.put(player, recordPointData);
+    public void updatePlayerRecordPoint(Player player, RecordPointData recordPointData) {
+        int num = recordPointDataList.indexOf(recordPointData) + 1;
+        if (num >= getPlayerRecordPoint(player)) {
+            playerRecordPointNumbers.put(player, num);
+        }
     }
 
     // You must implement this method in RoomPlayerMoveEvent to check the record point
     public void onUpdate(Player player) {
         List<RecordPointData> data = recordPointDataList.stream()
-                .filter(recordPointData ->
-                        !recordPointData.equals(playerRecordPointData.get(player)) && recordPointData.isInRange(player)
-                )
+                .filter(recordPointData -> recordPointData.isInRange(player))
                 .collect(Collectors.toList());
         if (data.size() > 0) {
-            this.addPlayerRecordPoint(player, data.get(0));
+            RecordPointData newData = data.get(0);
+            this.updatePlayerRecordPoint(player, newData);
         }
     }
 

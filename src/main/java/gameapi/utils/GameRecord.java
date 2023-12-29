@@ -76,17 +76,28 @@ public class GameRecord {
     }
 
     public static int getGameRecord(String gameName, String player, String key) {
+        return (int) getGameRecord(gameName, player, key, 0);
+    }
+
+    public static Object getGameRecord(String gameName, String player, String key, Object defaultValue) {
         Map<String, Object> allData = getGameRecordAll(gameName);
         if (allData.containsKey(player)) {
             Map<String, Object> data = (Map<String, Object>) allData.get(player);
-            if (data.containsKey(key)) {
-                return (int) data.get(key);
-            } else {
-                return 0;
-            }
+            return data.getOrDefault(key, defaultValue);
         } else {
-            return 0;
+            return defaultValue;
         }
+    }
+
+    public static void setGameRecord(String gameName, String player, String key, Object value) {
+        Map<String, Object> allData = getGameRecordAll(gameName);
+        Map<String, Object> playerData = (Map<String, Object>) allData.getOrDefault(player, new LinkedHashMap<>());
+        playerData.put(key, value);
+        allData.put(player, playerData);
+        GameAPI.gameRecord.put(gameName, allData);
+        Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + ".yml", Config.YAML);
+        config.set(player, playerData);
+        config.save();
     }
 
 }

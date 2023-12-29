@@ -1,12 +1,9 @@
 package gameapi.task;
 
 import cn.nukkit.Player;
-import cn.nukkit.block.Block;
-import cn.nukkit.block.BlockLiquid;
+import cn.nukkit.Server;
 import cn.nukkit.scheduler.AsyncTask;
 import gameapi.GameAPI;
-import gameapi.event.block.RoomBlockTreadEvent;
-import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.room.*;
 import gameapi.inventory.InventoryTools;
 import gameapi.listener.*;
@@ -29,28 +26,10 @@ public class RoomTask extends AsyncTask {
         if (room == null) {
             return false;
         }
-        if (room.getRoomStatus() == RoomStatus.ROOM_MapLoadFailed || room.getRoomStatus() == RoomStatus.ROOM_MapInitializing) {
+        if (room.getRoomStatus() == RoomStatus.ROOM_MapLoadFailed || room.getRoomStatus() == RoomStatus.ROOM_REMOVE) {
             return false;
         }
         room.getPlayers().removeIf(player -> player == null || !player.isOnline());
-        for (Player player : room.getPlayers()) {
-            if (player.isOnline()) {
-                Block block = player.getLevelBlock();
-                if (!(block instanceof BlockLiquid) && player.getY() == player.getPosition().round().getY()) {
-                    RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(room, block, player);
-                    GameListenerRegistry.callEvent(room, roomBlockTreadEvent);
-                }
-
-                for (Block collisionBlock : player.getCollisionBlocks()) {
-                    if (collisionBlock.getId() == 90) {
-                        RoomPlayerEnterPortalEvent roomPlayerEnterPortalEvent = new RoomPlayerEnterPortalEvent(room, player);
-                        GameListenerRegistry.callEvent(room, roomPlayerEnterPortalEvent);
-                        player.inPortalTicks = 0;
-                        break;
-                    }
-                }
-            }
-        }
         switch (room.getRoomStatus()) {
             case ROOM_STATUS_WAIT:
                 if (room.isTemporary() && room.getPlayers().size() < 1) {
@@ -225,6 +204,11 @@ public class RoomTask extends AsyncTask {
                         RoomCeremonyEvent ev = new RoomCeremonyEvent(room);
                         GameListenerRegistry.callEvent(room, ev);
                         if (!ev.isCancelled()) {
+                            if (room.getEndSpawn() != null) {
+                                for (Player player : room.getPlayers()) {
+                                    room.getEndSpawn().teleport(player);
+                                }
+                            }
                             room.setTime(0);
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony, false);
                             room.getStatusExecutor().beginCeremony();
@@ -256,7 +240,7 @@ public class RoomTask extends AsyncTask {
                             ScoreboardTools.removeScoreboard(p);
                             ScoreboardTools.scoreboardConcurrentHashMap.remove(p);
                             //玩家先走
-                            room.getEndSpawn().teleport(p);
+                            p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                         }
                         room.resetAll();
                     }

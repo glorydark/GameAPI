@@ -2,14 +2,17 @@ package gameapi.commands;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
+import cn.nukkit.math.SimpleAxisAlignedBB;
+import cn.nukkit.math.Vector3;
+import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
-import gameapi.arena.WorldTools;
 import gameapi.entity.EntityTools;
 import gameapi.inventory.InventoryTools;
 import gameapi.ranking.RankingSortSequence;
@@ -216,6 +219,23 @@ public class AdminCommands extends Command {
                         }
                     }
                     break;
+                case "fill": // fill x y z x y z blockId blockMeta
+                    if (!commandSender.isPlayer()) {
+                        return false;
+                    }
+                    Player player = (Player) commandSender;
+                    if (strings.length == 9) {
+                        SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(new Vector3(Integer.parseInt(strings[1]), Integer.parseInt(strings[2]), Integer.parseInt(strings[3])), new Vector3(Integer.parseInt(strings[4]), Integer.parseInt(strings[5]), Integer.parseInt(strings[6])));
+                        Block block = Block.get(Integer.parseInt(strings[7]), Integer.parseInt(strings[8]));
+                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
+                            @Override
+                            public void onRun() {
+                                bb.forEach(((i, i1, i2) -> {
+                                    player.getLevel().setBlock(i, i1, i2, block, true, true);
+                                }));
+                            }
+                        });
+                    }
             }
         }
         return true;

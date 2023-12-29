@@ -17,7 +17,10 @@ public class RecordPointData {
 
     private Particle particle = new DustParticle(new Vector3(0, 0, 0), BlockColor.YELLOW_BLOCK_COLOR);
 
-    public RecordPointData(Location location, double radius) {
+    private String name;
+
+    public RecordPointData(String name, Location location, double radius) {
+        this.name = name;
         this.location = location;
         this.radius = radius;
     }

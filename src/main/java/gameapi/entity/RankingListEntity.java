@@ -12,6 +12,8 @@ public class RankingListEntity extends TextEntity {
 
     protected Ranking ranking;
 
+    protected long lastUpdateMillis = 0L;
+
     public RankingListEntity(Ranking ranking, FullChunk chunk, Position position, CompoundTag nbt) {
         super(chunk, position, ranking.getDisplayContent(), nbt);
         this.ranking = ranking;
@@ -21,9 +23,10 @@ public class RankingListEntity extends TextEntity {
         if (this.health <= 0) {
             this.health += this.getMaxHealth();
         }
-        if (currentTick % GameAPI.entityRefreshIntervals == 0) {
+        if (System.currentTimeMillis() - lastUpdateMillis >= 500) {
             ranking.refreshRankingData();
             this.setNameTag(ranking.getDisplayContent());
+            lastUpdateMillis = System.currentTimeMillis();
         }
         return super.onUpdate(currentTick);
     }

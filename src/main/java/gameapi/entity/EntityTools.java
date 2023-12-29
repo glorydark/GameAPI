@@ -50,6 +50,6 @@ public class EntityTools {
         maps.add(add);
         config.set("list", maps);
         config.save();
-        new Ranking(player.getLocation(), gameName, "No data", new RankingFormat(), rankingSortSequence).spawnEntity();
+        new Ranking(player.getLocation(), comparedType, gameName, "No data", new RankingFormat(), rankingSortSequence).spawnEntity();
     }
 }

@@ -142,21 +142,6 @@ public class WorldTools {
                         if (Server.getInstance().loadLevel(loadName)) {
                             Level loadLevel = Server.getInstance().getLevelByName(loadName);
                             if (loadLevel != null) {
-                                if (GameAPI.autoLoadChunk) {
-                                    // Trying to update chunks near the spawn points
-                                    int minX = (int) GameAPI.autoLoadChunkRange.getMinX();
-                                    int maxX = (int) GameAPI.autoLoadChunkRange.getMaxX();
-                                    int minZ = (int) GameAPI.autoLoadChunkRange.getMinZ();
-                                    int maxZ = (int) GameAPI.autoLoadChunkRange.getMaxZ();
-                                    for (int x = minX; x <= maxX; x++) {
-                                        for (int z = minZ; z <= maxZ; z++) {
-                                            if (loadLevel.isChunkLoaded(x, z)) {
-                                                loadLevel.loadChunk(x, z);
-                                                loadLevel.getChunk(x, z).populateSkyLight();
-                                            }
-                                        }
-                                    }
-                                }
                                 room.addPlayLevel(loadLevel);
                                 // Change referred level of each location
                                 room.getWaitSpawn().setLevel(loadLevel);

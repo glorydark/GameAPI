@@ -31,6 +31,6 @@ public enum RoomStatus {
 
     ROOM_STOPPED,
 
-    ROOM_EDIT
+    ROOM_REMOVE
 
 }

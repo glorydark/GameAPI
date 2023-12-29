@@ -212,5 +212,4 @@ public class PlayerTools {
             player.sendTip(language.getTranslation(player, string, params));
         }
     }
-
 }

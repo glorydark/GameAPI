@@ -1,9 +1,3 @@
 save_bag: false
 default_language: en_US
 allow_move_event: true
-auto_load_chunk:
-  enabled: false
-  minX: -2
-  maxX: 2
-  minZ: -2
-  maxZ: 4

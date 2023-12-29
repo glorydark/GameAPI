@@ -1,13 +1,16 @@
 package gameapi.room;
 
+import cn.nukkit.AdventureSettings;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import gameapi.GameAPI;
+import gameapi.annotation.Future;
 import gameapi.arena.WorldTools;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
+import gameapi.extensions.recordPoint.RecordPoints;
 import gameapi.inventory.InventoryTools;
 import gameapi.language.Language;
 import gameapi.listener.base.GameListenerRegistry;
@@ -35,7 +38,8 @@ public class Room {
     @Setter(AccessLevel.NONE)
     protected ConcurrentHashMap<String, BaseTeam> teamCache = new ConcurrentHashMap<>();
     @Setter(AccessLevel.NONE)
-    protected HashMap<Player, Float> playersHealth = new HashMap<>();
+    @Future
+    protected HashMap<Player, Float> playersHealth = new HashMap<>(); //todo 对接新版本的DmgEvent
     @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
     // Save data for the room' extra configuration.
@@ -78,7 +82,10 @@ public class Room {
     private List<String> loseConsoleCommands = new ArrayList<>();
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
+    private RecordPoints recordPoints = new RecordPoints();
     private long startMillis;
+    @Setter(AccessLevel.NONE)
+    private RoomUpdateTask roomUpdateTask;
 
     public Room(String gameName, RoomRule roomRule, List<Level> playLevels, String roomLevelBackup, int round) {
         this.maxRound = round;
@@ -92,14 +99,12 @@ public class Room {
         }
         this.roomLevelBackup = roomLevelBackup;
         this.gameName = gameName;
-        AdvancedLocation endSpawn = new AdvancedLocation();
-        endSpawn.setLocation(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation());
-        endSpawn.setVersion(0);
-        this.endSpawn = endSpawn;
+        this.roomUpdateTask = new RoomUpdateTask(this);
     }
 
     public Room(String gameName, RoomRule roomRule, Level playLevel, String roomLevelBackup, int round) {
         this(gameName, roomRule, new ArrayList<>(Collections.singletonList(playLevel)), roomLevelBackup, round);
+        this.roomUpdateTask = new RoomUpdateTask(this);
     }
 
     public static boolean isRoomCurrentPlayLevel(Level level) {
@@ -138,6 +143,7 @@ public class Room {
         return this.getPlayerProperties(player.getName(), key, defaultValue);
     }
 
+
     public void setPlayerProperties(Player player, String key, Object value) {
         this.setPlayerProperties(player.getName(), key, value);
     }
@@ -159,6 +165,14 @@ public class Room {
         }
     }
 
+    public boolean hasPlayerProperties(String player, String key) {
+        if (playerProperties.containsKey(player)) {
+            return playerProperties.get(player).containsKey(key);
+        } else {
+            return false;
+        }
+    }
+
     public Object getRoomProperties(String key) {
         return roomProperties.getOrDefault(key, null);
     }
@@ -171,15 +185,19 @@ public class Room {
         this.roomProperties.put(key, value);
     }
 
+    public boolean hasRoomProperties(String key) {
+        return roomProperties.containsKey(key);
+    }
+
     public void executeLoseCommands(Player player) {
         for (String string : loseConsoleCommands) {
-            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", player.getName()).replace("%level%", player.getLevel().getName()).replace("%gamename%", gameName).replace("%roomname", roomName));
+            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", player.getName()).replace("%level%", player.getLevel().getName()).replace("%game_name%", gameName).replace("%room_name%", roomName));
         }
     }
 
     public void executeWinCommands(Player player) {
         for (String string : winConsoleCommands) {
-            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", player.getName()).replace("%level%", player.getLevel().getName()).replace("%gamename%", gameName).replace("%roomname", roomName));
+            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", player.getName()).replace("%level%", player.getLevel().getName()).replace("%game_name%", gameName).replace("%room_name%", roomName));
         }
     }
 
@@ -279,7 +297,7 @@ public class Room {
         }
         if (roomStatus != RoomStatus.ROOM_STATUS_WAIT && roomStatus != RoomStatus.ROOM_STATUS_PreStart) {
             if (this.getRoomRule().isAllowSpectators()) {
-                this.setSpectator(player, this.getRoomRule().getSpectatorGameMode(), false);
+                this.processJoinSpectator(player);
             } else {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
                 return false;
@@ -290,13 +308,14 @@ public class Room {
             return false;
         }
         if (this.players.size() < this.maxPlayer) {
-            if (this.players.contains(player)) {
+            if (this.hasPlayer(player)) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.isInThisRoom"));
                 return false;
             } else {
                 RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
                 GameListenerRegistry.callEvent(this, ev);
                 if (!ev.isCancelled()) {
+                    roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
                     GameAPI.playerRoomHashMap.put(player, this);
                     InventoryTools.saveBag(player);
                     playerProperties.put(player.getName(), new LinkedHashMap<>());
@@ -304,6 +323,7 @@ public class Room {
                     waitSpawn.teleport(player);
                     player.setGamemode(2);
                     player.getFoodData().reset();
+                    player.setHealth(player.getMaxHealth());
                     for (Player p : this.players) {
                         p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
                     }
@@ -324,11 +344,12 @@ public class Room {
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
+            player.removeAllEffects();
             player.getInventory().clearAll();
             if (saveBag) {
                 InventoryTools.loadBag(player);
             }
-            player.teleportImmediate(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation());
+            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             player.setGamemode(0);
             if (this.getPlayerTeam(player) != null) {
                 this.getPlayerTeam(player).removePlayer(player);
@@ -372,20 +393,8 @@ public class Room {
         }
         this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
         new ArrayList<>(this.spectators).forEach(this::removeSpectator);
-        for (Player player : players) {
-            RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
-            GameListenerRegistry.callEvent(this, ev);
-            player.getInventory().clearAll();
-            InventoryTools.loadBag(player);
-            AdvancedLocation location = getEndSpawn();
-            if (location != null) {
-                location.teleport(player, null);
-            } else {
-                player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn(), null);
-            }
-        }
-        for (Player player : players) {
-            GameAPI.playerRoomHashMap.remove(player);
+        for (Player player : new ArrayList<>(players)) {
+            this.removePlayer(player, GameAPI.saveBag);
         }
         //因为某些原因无法正常传送走玩家，就全部踹出服务器！
         this.players = new ArrayList<>();
@@ -410,8 +419,7 @@ public class Room {
                     WorldTools.unloadLevel(playLevel, true);
                 }
             }
-            List<Room> rooms = GameAPI.loadedRooms.getOrDefault(this.getGameName(), new ArrayList<>());
-            GameAPI.loadedRooms.put(this.getGameName(), rooms);
+            GameAPI.unloadRoom(this);
         } else {
             if (this.resetMap) {
                 GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_resetRoomAndMap", this.getRoomName()));
@@ -546,6 +554,10 @@ public class Room {
         this.endSpawn = location;
     }
 
+    public boolean hasPlayer(Player player) {
+        return players.contains(player);
+    }
+
     public List<Player> getPlayers() {
         return players;
     }
@@ -589,30 +601,24 @@ public class Room {
             return false;
         }
         player.setGamemode(0);
-        player.teleportImmediate(roomSpectatorLeaveEvent.getReturnLocation());
+        player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
         player.sendMessage(GameAPI.getLanguage().getTranslation("room.spectator.quit"));
         return spectators.remove(player);
     }
 
-    public void setSpectator(Player player, int gameMode, boolean dead) {
+    protected void processJoinSpectator(Player player) {
         if (this.getRoomStatus().ordinal() > 4) {
             // Player are not allowed to become spectators after the game wrap up(Aka: after RoomGameEnd).
             GameAPI.getLanguage().getTranslation("room.spectator.join.notAllowed");
             return;
         }
-        if (!dead) {
-            RoomSpectatorJoinEvent roomSpectatorJoinEvent = new RoomSpectatorJoinEvent(this, player);
-            GameListenerRegistry.callEvent(this, roomSpectatorJoinEvent);
-            if (roomSpectatorJoinEvent.isCancelled()) {
-                return;
-            }
+        RoomSpectatorJoinEvent roomSpectatorJoinEvent = new RoomSpectatorJoinEvent(this, player);
+        GameListenerRegistry.callEvent(this, roomSpectatorJoinEvent);
+        if (!roomSpectatorJoinEvent.isCancelled()) {
+            processJoinSpectator(player);
         }
-        processJoinSpectator(player, gameMode, dead);
-    }
-
-    protected void processJoinSpectator(Player player, int gameMode, boolean dead) {
         player.getInventory().clearAll();
-        player.setGamemode(gameMode);
+        player.setGamemode(3);
         player.setHealth(player.getMaxHealth());
         switch (this.getRoomStatus()) {
             case ROOM_STATUS_GameReadyStart:
@@ -627,7 +633,7 @@ public class Room {
                         AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
                         location.teleport(player);
                     } else {
-                        player.teleportImmediate(players.get(0).getLocation(), null);
+                        player.teleport(players.get(0).getLocation(), null);
                     }
                 }
                 break;
@@ -638,27 +644,30 @@ public class Room {
                 }
                 break;
         }
-        if (dead) {
-            player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);
-            if (spectatorSpawn.size() != 0) {
-                Random random = new Random();
-                spectatorSpawn.get(random.nextInt(spectatorSpawn.size())).teleport(player);
-                teleportToSpawn(player);
-            }
-            if (roomRule.isAllowRespawn()) {
-                RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player);
-                Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> {
-                    GameListenerRegistry.callEvent(this, ev);
-                    if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
-                        player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
-                        player.setGamemode(0);
-                        teleportToSpawn(player);
-                    }
-                }, roomRule.getRespawnCoolDownTick());
-            }
-        } else {
-            spectators.add(player);
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
+        spectators.add(player);
+        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
+    }
+
+    public void processRespawn(Player player, int originalGamemode) {
+        player.getInventory().clearAll();
+        player.setGamemode(originalGamemode);
+        player.setHealth(player.getMaxHealth());
+        player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);
+        if (spectatorSpawn.size() != 0) {
+            Random random = new Random();
+            spectatorSpawn.get(random.nextInt(spectatorSpawn.size())).teleport(player);
+            teleportToSpawn(player);
+        }
+        if (roomRule.isAllowRespawn()) {
+            RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player);
+            Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> {
+                GameListenerRegistry.callEvent(this, ev);
+                if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
+                    player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
+                    player.setGamemode(0);
+                    teleportToSpawn(player);
+                }
+            }, roomRule.getRespawnCoolDownTick());
         }
     }
 
@@ -766,5 +775,9 @@ public class Room {
 
     public void removePlayLevel(Level loadLevel) {
         playLevels.remove(loadLevel);
+    }
+
+    public String getRoomName() {
+        return roomName.isEmpty()? gameName + "#" + GameAPI.loadedRooms.getOrDefault(gameName, new ArrayList<>()).indexOf(this): roomName;
     }
 }

@@ -4,6 +4,7 @@ import cn.nukkit.Server;
 import cn.nukkit.entity.item.EntityFirework;
 import cn.nukkit.item.ItemFirework;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -19,14 +20,17 @@ import java.util.Random;
  * Adapted from: PetteriM's FireworkShow
  * Glorydark added some changes to make it more convenient to spawn a firework
  */
-public class CreateFireworkApi {
+public class FireworkTools {
 
-    public static void spawnFirework(Position position, DyeColor color, ItemFirework.FireworkExplosion.ExplosionType type) {
-        spawnFirework(position, color, type, false);
+    public static void spawnFirework(Location location, DyeColor color, ItemFirework.FireworkExplosion.ExplosionType type) {
+        spawnFirework(location, color, type, false);
     }
 
-    public static void spawnFirework(Position position, DyeColor color, ItemFirework.FireworkExplosion.ExplosionType type, boolean isImmediateBomb) {
-        Level level = position.getLevel();
+    public static void spawnFirework(Location location, DyeColor color, ItemFirework.FireworkExplosion.ExplosionType type, boolean isImmediateBomb) {
+        if (location.getChunk() == null || location.getChunk().getProvider() == null) {
+            return;
+        }
+        Level level = location.getLevel();
         ItemFirework item = new ItemFirework();
         CompoundTag tag = new CompoundTag();
         Random random = new Random();
@@ -38,9 +42,9 @@ public class CreateFireworkApi {
         item.setNamedTag(tag);
         CompoundTag nbt = new CompoundTag();
         nbt.putList(new ListTag<DoubleTag>("Pos")
-                .add(new DoubleTag("", position.x + 1.0D))
-                .add(new DoubleTag("", position.y + 1.0D))
-                .add(new DoubleTag("", position.z + 1.0D))
+                .add(new DoubleTag("", location.x + 1.0D))
+                .add(new DoubleTag("", location.y + 1.0D))
+                .add(new DoubleTag("", location.z + 1.0D))
         );
         nbt.putList(new ListTag<DoubleTag>("Motion")
                 .add(new DoubleTag("", 0.0D))
@@ -57,14 +61,14 @@ public class CreateFireworkApi {
                 (byte) color.getDyeData()
         });
         compoundTag.putByte("FireworkType", type.ordinal());
-        EntityFirework entity = new EntityFirework(level.getChunk((int) position.x >> 4, (int) position.z >> 4), nbt);
+        EntityFirework entity = new EntityFirework(level.getChunk((int) location.x >> 4, (int) location.z >> 4), nbt);
         entity.spawnToAll();
         if (isImmediateBomb) {
             EntityEventPacket pk = new EntityEventPacket();
             pk.data = 0;
             pk.event = 25;
             pk.eid = entity.getId();
-            entity.level.addLevelSoundEvent(position, 58, -1, 72);
+            entity.level.addLevelSoundEvent(location, 58, -1, 72);
             Server.broadcastPacket(entity.getViewers().values(), pk);
             entity.kill();
         }

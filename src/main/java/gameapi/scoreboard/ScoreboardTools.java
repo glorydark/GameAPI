@@ -6,7 +6,6 @@ import de.theamychan.scoreboard.network.DisplaySlot;
 import de.theamychan.scoreboard.network.Scoreboard;
 import de.theamychan.scoreboard.network.ScoreboardDisplay;
 
-import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

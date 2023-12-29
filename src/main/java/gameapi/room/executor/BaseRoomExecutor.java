@@ -3,7 +3,7 @@ package gameapi.room.executor;
 import cn.nukkit.Player;
 import cn.nukkit.level.Sound;
 import gameapi.GameAPI;
-import gameapi.fireworkapi.CreateFireworkApi;
+import gameapi.fireworkapi.FireworkTools;
 import gameapi.room.Room;
 import gameapi.utils.AdvancedLocation;
 
@@ -122,7 +122,7 @@ public class BaseRoomExecutor implements RoomExecutor {
             ThreadLocalRandom random = ThreadLocalRandom.current();
             int i1 = random.nextInt(14);
             int i2 = random.nextInt(4);
-            CreateFireworkApi.spawnFirework(p.getPosition(), CreateFireworkApi.getColorByInt(i1), CreateFireworkApi.getExplosionTypeByInt(i2));
+            FireworkTools.spawnFirework(p.getLocation(), FireworkTools.getColorByInt(i1), FireworkTools.getExplosionTypeByInt(i2));
             p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.ceremony", room.getCeremonyTime() - room.getTime()));
         }
     }
@@ -242,6 +242,7 @@ public class BaseRoomExecutor implements RoomExecutor {
     public void beginGameEnd() {
         for (Player player : room.getPlayers()) {
             player.getInventory().clearAll();
+            player.setGamemode(2);
         }
     }
 

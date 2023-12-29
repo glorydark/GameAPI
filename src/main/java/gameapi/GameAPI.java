@@ -51,15 +51,31 @@ public class GameAPI extends PluginBase implements Listener {
     public static boolean updateMoveEvent;
     public static boolean tipsEnabled;
     public static HashMap<Player, RoomEdit> editDataHashMap = new HashMap<>();
-    protected static Language language = new Language("GameAPI");
     public static SimpleAxisAlignedBB autoLoadChunkRange;
-    public static boolean autoLoadChunk = false;
+    protected static Language language = new Language("GameAPI");
 
     public static void loadRoom(Room room, RoomStatus baseStatus) {
         List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
         rooms.add(room);
         GameAPI.loadedRooms.put(room.getGameName(), rooms);
         room.setRoomStatus(baseStatus);
+        Server.getInstance().getScheduler().scheduleRepeatingTask(GameAPI.plugin, room.getRoomUpdateTask(), 3);
+    }
+
+    public static void unloadRoom(Room room) {
+        room.getRoomUpdateTask().cancel();
+        for (Player player : room.getPlayers()) {
+            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+        }
+
+        if (room.getPlayers().size() > 0) {
+            for (Player player : room.getPlayers()) {
+                player.kick("Teleport Error...");
+            }
+        }
+        List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
+        rooms.remove(room);
+        GameAPI.loadedRooms.put(room.getGameName(), rooms);
     }
 
     public static void addRoomEdit(Player player, RoomEdit roomEdit) {
@@ -87,7 +103,6 @@ public class GameAPI extends PluginBase implements Listener {
         file.mkdirs();
         file1.mkdir();
         Config config = new Config(path + "/config.yml", Config.YAML);
-        autoLoadChunk = config.getBoolean("auto_load_chunk.enabled", false);
         autoLoadChunkRange = new SimpleAxisAlignedBB(config.getInt("auto_load_chunk.minX", -2), config.getInt("auto_load_chunk.maxX", 2), 0, 0, config.getInt("auto_load_chunk.minZ", -2), config.getInt("auto_load_chunk.maxZ", 2));
         saveBag = config.getBoolean("save_bag", false);
         updateMoveEvent = config.getBoolean("allow_move_event", true);
@@ -190,7 +205,7 @@ public class GameAPI extends PluginBase implements Listener {
             } else {
                 this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk_alreadyLoaded", location.getChunkX(), location.getChunkZ()));
             }
-            Ranking ranking = new SimpleRanking(location, (String) map.get("game_name"), "No Data", new RankingFormat(), RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
+            Ranking ranking = new SimpleRanking(location, (String) map.getOrDefault("value_type", ""), (String) map.getOrDefault("title", "Undefined"), "No Data", new RankingFormat(), (Boolean) map.getOrDefault("sort_consequence_ascend", false)? RankingSortSequence.ASCEND: RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
             ranking.spawnEntity();
         }
     }

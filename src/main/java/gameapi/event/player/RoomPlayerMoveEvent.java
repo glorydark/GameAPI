@@ -12,22 +12,12 @@ public class RoomPlayerMoveEvent extends RoomPlayerEvent implements Cancellable 
 
     protected Location from;
     protected Location to;
-    protected boolean resetBlocksAround;
 
-    public RoomPlayerMoveEvent(Room room, Player player, Location from, Location to, boolean resetBlocksAround) {
+    public RoomPlayerMoveEvent(Room room, Player player, Location from, Location to) {
         this.room = room;
         this.player = player;
         this.from = from;
         this.to = to;
-        this.resetBlocksAround = resetBlocksAround;
-    }
-
-    public boolean isResetBlocksAround() {
-        return resetBlocksAround;
-    }
-
-    public void setResetBlocksAround(boolean resetBlocksAround) {
-        this.resetBlocksAround = resetBlocksAround;
     }
 
     public Location getFrom() {

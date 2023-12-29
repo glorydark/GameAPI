@@ -3,6 +3,7 @@ package gameapi.room;
 import cn.nukkit.Player;
 import cn.nukkit.event.Event;
 import cn.nukkit.item.Item;
+import gameapi.annotation.Future;
 
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import java.util.Map;
  * @author glorydark
  * @date {2023/8/4} {14:32}
  */
+@Future
 public class RoomEdit {
 
     private final int maxStep;

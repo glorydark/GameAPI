@@ -4,6 +4,7 @@ import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockAir;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.data.Skin;
 import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
@@ -12,21 +13,32 @@ import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.utils.Config;
+import cn.nukkit.utils.Utils;
 import gameapi.GameAPI;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SmartTools {
 
-    public static String timeDiffToString(long startMillis, long endMillis) {
-        if (endMillis - startMillis < 0) {
+    public static String timeDiffMillisToString(long m1, long m2) {
+        if (m2 - m1 < 0) {
             GameAPI.plugin.getLogger().error("End millis should not be bigger than start millis");
             return "";
         }
-        long diff = endMillis - startMillis;
+        long diff = Math.abs(m2 - m1);
+        return timeMillisToString(diff);
+    }
+
+    public static String timeMillisToString(long diff) {
         long second = diff / 1000;
         long millis = diff - second * 1000;
         long minute = second / 60;
@@ -251,4 +263,106 @@ public class SmartTools {
         }
     }
 
+    public static Skin loadSkin(String skinPath, String loadName) {
+        File skinDataFile = new File(skinPath + "/skin.png");
+        File skinJsonFile = new File(skinPath + "/skin.json");
+        File skinAnimJsonFile = new File(skinPath + "/skin.animation.json");
+        if (skinDataFile.exists()) {
+            Skin skin = new Skin();
+            skin.setSkinId(loadName);
+            try {
+                skin.setSkinData(ImageIO.read(skinDataFile));
+            } catch (Exception e) {
+                GameAPI.plugin.getLogger().error("皮肤 " + loadName + " 读取错误，请检查图片格式或图片尺寸！", e);
+            }
+
+            //如果是4D皮肤
+            if (skinJsonFile.exists()) {
+                Map<String, Object> skinJson = (new Config(skinJsonFile, Config.JSON)).getAll();
+                String geometryName = null;
+
+                String formatVersion = (String) skinJson.getOrDefault("format_version", "1.10.0");
+                skin.setGeometryDataEngineVersion(formatVersion); //设置皮肤版本，主流格式有1.16.0,1.12.0(Blockbench新模型),1.10.0(Blockbench Legacy模型),1.8.0
+                switch (formatVersion) {
+                    case "1.16.0":
+                    case "1.12.0":
+                        geometryName = getGeometryName(skinJsonFile);
+                        if (geometryName.equals("nullvalue")) {
+                            GameAPI.plugin.getLogger().error("暂不支持该版本格式的皮肤！请等待更新！");
+                        } else {
+                            skin.generateSkinId(loadName);
+                            skin.setSkinResourcePatch("{\"geometry\":{\"default\":\"" + geometryName + "\"}}");
+                            skin.setGeometryName(geometryName);
+                            skin.setGeometryData(readFile(skinJsonFile));
+                            GameAPI.plugin.getLogger().info("皮肤 " + loadName + " 读取中");
+                        }
+                        break;
+                    default:
+                        GameAPI.plugin.getLogger().warning("[" + loadName + "] 的版本格式为：" + formatVersion + "，正在尝试加载！");
+                    case "1.10.0":
+                    case "1.8.0":
+                        for (Map.Entry<String, Object> entry : skinJson.entrySet()) {
+                            if (geometryName == null) {
+                                if (entry.getKey().startsWith("geometry")) {
+                                    geometryName = entry.getKey();
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                        skin.generateSkinId(loadName);
+                        skin.setSkinResourcePatch("{\"geometry\":{\"default\":\"" + geometryName + "\"}}");
+                        skin.setGeometryName(geometryName);
+                        skin.setGeometryData(readFile(skinJsonFile));
+                        if (skinAnimJsonFile.exists()) {
+                            skin.setAnimationData(readFile(skinAnimJsonFile));
+                        }
+                        break;
+                }
+            }
+            skin.setTrusted(true);
+            if (skin.isValid()) {
+                GameAPI.plugin.getLogger().info("皮肤 " + loadName + " 读取完成");
+                return skin;
+            } else {
+                GameAPI.plugin.getLogger().error("皮肤 " + loadName + " 验证失败，请检查皮肤文件完整性！");
+            }
+        } else {
+            GameAPI.plugin.getLogger().error("皮肤 " + loadName + " 错误的名称格式，请将皮肤文件命名为 skin.png 模型文件命名为 skin.json");
+        }
+        return null;
+    }
+
+    protected static String getGeometryName(File file) {
+        Config originGeometry = new Config(file, Config.JSON);
+        if (!originGeometry.getString("format_version").equals("1.12.0") && !originGeometry.getString("format_version").equals("1.16.0")) {
+            return "nullvalue";
+        }
+        //先读取minecraft:geometry下面的项目
+        List<Map<String, Object>> geometryList = (List<Map<String, Object>>) originGeometry.get("minecraft:geometry");
+        //不知道为何这里改成了数组，所以按照示例文件读取第一项
+        Map<String, Object> geometryMain = geometryList.get(0);
+        //获取description内的所有
+        Map<String, Object> descriptions = (Map<String, Object>) geometryMain.get("description");
+        return (String) descriptions.getOrDefault("identifier", "geometry.unknown"); //获取identifier
+    }
+
+    protected static String readFile(File file) {
+        String content = "";
+        try {
+            content = Utils.readFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return content;
+    }
+
+    public static Vector3 parseVectorFromString(String str) {
+        String[] locArray = str.split(":");
+        if (locArray.length == 3) {
+            return new Vector3(Double.parseDouble(locArray[0]), Double.parseDouble(locArray[1]), Double.parseDouble(locArray[2]));
+        } else {
+            return null;
+        }
+    }
 }

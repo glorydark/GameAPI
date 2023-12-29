@@ -61,8 +61,6 @@ public class RoomRule {
 
     private int respawnCoolDownTick = 20;
 
-    private int spectatorGameMode = 3;
-
     private boolean needPreStartPass = false;
 
     private boolean personal = false;
@@ -80,5 +78,4 @@ public class RoomRule {
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
     }
-
 }
