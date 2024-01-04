@@ -92,7 +92,7 @@ public class WorldTools {
         // 移除玩家
         if (level.getPlayers().values().size() > 0) {
             for (Player p : level.getPlayers().values()) {
-                p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation());
+                p.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation());
             }
         }
 

@@ -25,78 +25,53 @@ public class GameRecord {
         rankingFormat = rf;
     }
 
-    public static Map<String, Object> getGameRecordAll(String gameName) {
-        if (GameAPI.gameRecord.containsKey(gameName)) {
-            return GameAPI.gameRecord.get(gameName);
+    public static Map<String, Object> getGameRecordAll(String gameName, String fileName) {
+        if (GameAPI.gameRecord.containsKey(gameName + "/" + fileName)) {
+            return GameAPI.gameRecord.get(gameName + "/" + fileName);
         } else {
             return new LinkedHashMap<>();
         }
     }
 
-    public static void addGameRecord(String gameName, String player, String key, Integer add) {
-        Map<String, Object> allData = getGameRecordAll(gameName); // o1 -> o2
-        Map<String, Object> playerData;
-        if (allData.containsKey(player)) {
-            playerData = (Map<String, Object>) allData.get(player);
-            if (playerData.containsKey(key)) {
-                playerData.put(key, (Integer) playerData.get(key) + add);
-            } else {
-                playerData.put(key, add);
-            }
-        } else {
-            playerData = new LinkedHashMap<>();
-            playerData.put(key, add);
-        }
-        allData.put(player, playerData);
-        GameAPI.gameRecord.put(gameName, allData);
-        Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + ".yml", Config.YAML);
-        config.set(player, playerData);
+    public static void addGameRecord(String gameName, String fileName, String player, Integer add) {
+        Map<String, Object> allData = getGameRecordAll(gameName, fileName); // o1 -> o2
+        int value = (Integer) allData.getOrDefault(player, 0) + add;
+        allData.put(player, value);
+        GameAPI.gameRecord.put(gameName + "/" + fileName, allData);
+        Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + "/" + fileName + ".yml", Config.YAML);
+        config.set(player, value);
         config.save();
     }
 
-    public static void reduceGameRecord(String gameName, String player, String key, Integer reduce) {
-        Map<String, Object> allData = getGameRecordAll(gameName);
-        Map<String, Object> playerData;
-        if (allData.containsKey(player)) {
-            playerData = (Map<String, Object>) allData.get(player);
-            if (playerData.containsKey(key)) {
-                playerData.put(key, (Integer) playerData.get(key) - reduce);
-            } else {
-                playerData.put(key, -reduce);
-            }
-        } else {
-            playerData = new LinkedHashMap<>();
-            playerData.put(key, -reduce);
-        }
-        allData.put(player, playerData);
-        GameAPI.gameRecord.put(gameName, allData);
-        Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + ".yml", Config.YAML);
-        config.set(player, playerData);
+    public static void reduceGameRecord(String gameName, String fileName, String player, Integer reduce) {
+        Map<String, Object> allData = getGameRecordAll(gameName, fileName);
+        int value = (Integer) allData.getOrDefault(player, 0) - reduce;
+        allData.put(player, value);
+        GameAPI.gameRecord.put(gameName + "/" + fileName, allData);
+        Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + "/" + fileName + ".yml", Config.YAML);
+        config.set(player, value);
         config.save();
     }
 
-    public static int getGameRecord(String gameName, String player, String key) {
-        return (int) getGameRecord(gameName, player, key, 0);
+    public static int getGameRecord(String gameName, String fileName, String player) {
+        return (int) getGameRecord(gameName, fileName, player, 0);
     }
 
-    public static Object getGameRecord(String gameName, String player, String key, Object defaultValue) {
-        Map<String, Object> allData = getGameRecordAll(gameName);
+    public static Object getGameRecord(String gameName, String fileName, String player, Object defaultValue) {
+        Map<String, Object> allData = getGameRecordAll(gameName, fileName);
         if (allData.containsKey(player)) {
-            Map<String, Object> data = (Map<String, Object>) allData.get(player);
-            return data.getOrDefault(key, defaultValue);
+            return allData.getOrDefault(player, defaultValue);
         } else {
             return defaultValue;
         }
     }
 
-    public static void setGameRecord(String gameName, String player, String key, Object value) {
-        Map<String, Object> allData = getGameRecordAll(gameName);
-        Map<String, Object> playerData = (Map<String, Object>) allData.getOrDefault(player, new LinkedHashMap<>());
-        playerData.put(key, value);
-        allData.put(player, playerData);
-        GameAPI.gameRecord.put(gameName, allData);
-        Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + ".yml", Config.YAML);
-        config.set(player, playerData);
+    public static void setGameRecord(String gameName, String fileName, String player, Object value) {
+        Map<String, Object> allData = getGameRecordAll(gameName, fileName);
+        allData.put(player, value);
+        GameAPI.gameRecord.put(gameName + "/" + fileName, allData);
+        Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + "/" + fileName + ".yml", Config.YAML);
+        config.set(player, value);
         config.save();
     }
 

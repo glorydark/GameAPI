@@ -30,13 +30,6 @@ public class SimpleRanking extends Ranking {
     }
 
     public Map<String, Object> getLatestRankingData(){
-        Map<String, Object> output = new HashMap<>();
-        for(Map.Entry<String, Object> objectEntry : GameRecord.getGameRecordAll(this.gameName).entrySet()){
-            HashMap<String, Object> objectHashMap = (HashMap<String, Object>) objectEntry.getValue();
-            if (objectHashMap.containsKey(this.comparedKey)) {
-                output.put(objectEntry.getKey(), objectHashMap.get(this.comparedKey));
-            }
-        }
-        return output;
+        return new HashMap<>(GameRecord.getGameRecordAll(this.gameName, this.comparedKey));
     }
 }

@@ -21,22 +21,40 @@ import gameapi.room.RoomStatus;
 import gameapi.sound.SoundTools;
 import gameapi.utils.SmartTools;
 
-import java.io.File;
+import java.io.*;
+import java.net.*;
+import java.nio.charset.Charset;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Glorydark
  * For in-game test
  */
-public class AdminCommands extends Command {
-    public AdminCommands(String name) {
+public class BaseCommand extends Command {
+    public BaseCommand(String name) {
         super(name);
     }
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (!commandSender.isOp() && commandSender.isPlayer()) {
-            return false;
+            if (strings.length == 1) {
+                if (strings[0].equals("quit")) {
+                    Room room = Room.getRoom((Player) commandSender);
+                    if (room != null) {
+                        if (room.getPlayers().contains((Player) commandSender)) {
+                            room.removePlayer((Player) commandSender);
+                        } else {
+                            room.removeSpectator((Player) commandSender);
+                        }
+                    } else {
+                        GameAPI.getLanguage().getTranslation("command.error.notInGame");
+                    }
+                }
+            }
+            return true;
         }
         if (strings.length > 0) {
             switch (strings[0].toLowerCase()) {
@@ -84,7 +102,7 @@ public class AdminCommands extends Command {
                     }
                     break;
                 case "savebattles": // For Tournament Restart Procedures
-                    File saveDic = new File(GameAPI.path + "/saves/" + SmartTools.dateToString(Calendar.getInstance().getTime()) + "/");
+                    File saveDic = new File(GameAPI.path + "/saves/" + SmartTools.dateToString(Calendar.getInstance().getTime(), "yyyyMMdd_HHmmss") + "/");
                     if (saveDic.exists() || saveDic.mkdirs()) {
                         for (String key : GameAPI.loadedRooms.keySet()) {
                             for (Room room : GameAPI.loadedRooms.get(key)) {

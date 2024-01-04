@@ -1,8 +1,10 @@
 package gameapi.room;
 
-import cn.nukkit.AdventureSettings;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.form.element.ElementInput;
+import cn.nukkit.form.element.ElementLabel;
+import cn.nukkit.form.handler.FormResponseHandler;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import gameapi.GameAPI;
@@ -10,7 +12,10 @@ import gameapi.annotation.Future;
 import gameapi.arena.WorldTools;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
-import gameapi.extensions.recordPoint.RecordPoints;
+import gameapi.extensions.checkPoint.CheckPoints;
+import gameapi.form.AdvancedFormMain;
+import gameapi.form.AdvancedFormWindowCustom;
+import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.inventory.InventoryTools;
 import gameapi.language.Language;
 import gameapi.listener.base.GameListenerRegistry;
@@ -82,7 +87,7 @@ public class Room {
     private List<String> loseConsoleCommands = new ArrayList<>();
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
-    private RecordPoints recordPoints = new RecordPoints();
+    private CheckPoints checkPoints = new CheckPoints();
     private long startMillis;
     @Setter(AccessLevel.NONE)
     private RoomUpdateTask roomUpdateTask;
@@ -266,11 +271,34 @@ public class Room {
         teamCache.put(team.getRegistryName(), team);
     }
 
-    public Boolean addPlayer(Player player) {
-        return addPlayer(player, "");
+    /*
+        Here we genuinely add an authentication process,
+        which aims to serve the server hosting some big events
+     */
+    public void addPlayer(Player player) {
+        if (!joinPassword.isEmpty()) {
+            AdvancedFormWindowCustom.Builder builder = new AdvancedFormWindowCustom.Builder();
+            builder.setTitle(GameAPI.getLanguage().getTranslation(player, "room.window.password.title"));
+            builder.addElement(new ElementInput(GameAPI.getLanguage().getTranslation(player, "room.window.password.inputText")));
+            String rightPassword = this.getJoinPassword();
+            builder.onResponse((dealPlayer, responseCustom) -> {
+                if (rightPassword.equals(responseCustom.getInputResponse(0))) {
+                    processPlayerJoin(dealPlayer);
+                } else {
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.password.wrong"));
+                }
+            });
+            AdvancedFormMain.showFormWindow(player, builder.build());
+        } else {
+            processPlayerJoin(player);
+        }
     }
 
-    public Boolean addPlayer(Player player, String joinPassword) {
+    public boolean processPlayerJoin(Player player) {
+        if (Room.getRoom(player) != null) {
+            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.isInOtherRoom"));
+            return false;
+        }
         if (!this.getJoinPassword().equals(joinPassword)) {
             player.sendMessage(GameAPI.getLanguage().getTranslation("command.error.incorrectPassword"));
             return false;
@@ -300,11 +328,7 @@ public class Room {
                 this.processJoinSpectator(player);
             } else {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
-                return false;
             }
-        }
-        if (GameAPI.playerRoomHashMap.get(player) != null) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.isInOtherRoom"));
             return false;
         }
         if (this.players.size() < this.maxPlayer) {
@@ -340,23 +364,28 @@ public class Room {
         return false;
     }
 
+    public void removePlayer(Player player) {
+        removePlayer(player, GameAPI.saveBag);
+    }
+
     public void removePlayer(Player player, Boolean saveBag) {
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
             player.removeAllEffects();
             player.getInventory().clearAll();
+            player.setExperience(0, 0);
             if (saveBag) {
                 InventoryTools.loadBag(player);
             }
-            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
-            player.setGamemode(0);
+            player.setGamemode(Server.getInstance().getDefaultGamemode());
             if (this.getPlayerTeam(player) != null) {
                 this.getPlayerTeam(player).removePlayer(player);
             }
             this.playerProperties.remove(player.getName());
             this.players.remove(player);
             GameAPI.playerRoomHashMap.remove(player);
+            player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
         }
     }
 
@@ -392,9 +421,11 @@ public class Room {
             return;
         }
         this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
-        new ArrayList<>(this.spectators).forEach(this::removeSpectator);
+        for (Player player : new ArrayList<>(spectators)) {
+            this.removeSpectator(player);
+        }
         for (Player player : new ArrayList<>(players)) {
-            this.removePlayer(player, GameAPI.saveBag);
+            this.removePlayer(player);
         }
         //因为某些原因无法正常传送走玩家，就全部踹出服务器！
         this.players = new ArrayList<>();
@@ -403,6 +434,7 @@ public class Room {
         this.playerProperties = new LinkedHashMap<>();
         this.teamCache.forEach((s, team) -> team.resetAll());
         this.chatDataList = new ArrayList<>();
+        this.getCheckPoints().clearAllPlayerCheckPointData();
         if (this.playLevels == null) {
             GameAPI.plugin.getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
             return;
@@ -594,19 +626,24 @@ public class Room {
         }
     }
 
-    public boolean removeSpectator(Player player) {
+    public void removeSpectator(Player player) {
         RoomSpectatorLeaveEvent roomSpectatorLeaveEvent = new RoomSpectatorLeaveEvent(this, player, Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation());
         GameListenerRegistry.callEvent(this, roomSpectatorLeaveEvent);
         if (roomSpectatorLeaveEvent.isCancelled()) {
-            return false;
+            return;
         }
-        player.setGamemode(0);
+        player.setGamemode(Server.getInstance().getDefaultGamemode());
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
         player.sendMessage(GameAPI.getLanguage().getTranslation("room.spectator.quit"));
-        return spectators.remove(player);
+        GameAPI.playerRoomHashMap.remove(player);
+        spectators.remove(player);
     }
 
-    protected void processJoinSpectator(Player player) {
+    public void processJoinSpectator(Player player) {
+        if (Room.getRoom(player) != null) {
+            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.isInOtherRoom"));
+            return;
+        }
         if (this.getRoomStatus().ordinal() > 4) {
             // Player are not allowed to become spectators after the game wrap up(Aka: after RoomGameEnd).
             GameAPI.getLanguage().getTranslation("room.spectator.join.notAllowed");
@@ -614,12 +651,10 @@ public class Room {
         }
         RoomSpectatorJoinEvent roomSpectatorJoinEvent = new RoomSpectatorJoinEvent(this, player);
         GameListenerRegistry.callEvent(this, roomSpectatorJoinEvent);
-        if (!roomSpectatorJoinEvent.isCancelled()) {
-            processJoinSpectator(player);
+        if (roomSpectatorJoinEvent.isCancelled()) {
+            return;
         }
-        player.getInventory().clearAll();
         player.setGamemode(3);
-        player.setHealth(player.getMaxHealth());
         switch (this.getRoomStatus()) {
             case ROOM_STATUS_GameReadyStart:
             case ROOM_STATUS_GameStart:
@@ -645,6 +680,7 @@ public class Room {
                 break;
         }
         spectators.add(player);
+        GameAPI.playerRoomHashMap.put(player, this);
         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
     }
 

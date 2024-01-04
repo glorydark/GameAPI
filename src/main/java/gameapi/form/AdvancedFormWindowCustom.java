@@ -19,8 +19,6 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
 
     protected Consumer<Player> noResponseExecutor;
 
-    protected List<Element> elements;
-
     public AdvancedFormWindowCustom(String title) {
         super(title);
     }
@@ -28,7 +26,6 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
     public AdvancedFormWindowCustom() {
         super("");
     }
-
 
     public void dealResponse(Player player, FormResponse response) {
         if (this.wasClosed() || response == null) {
@@ -72,7 +69,9 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
         public AdvancedFormWindowCustom build() {
             AdvancedFormWindowCustom custom = new AdvancedFormWindowCustom();
             custom.setTitle(title);
-            custom.elements = elements;
+            for (Element element : elements) {
+                custom.addElement(element);
+            }
             custom.responseExecutor = this.responseExecutor;
             custom.noResponseExecutor = this.noResponseExecutor;
             return custom;

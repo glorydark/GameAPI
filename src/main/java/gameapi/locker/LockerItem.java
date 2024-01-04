@@ -10,7 +10,7 @@ import gameapi.annotation.Future;
 @Future
 public interface LockerItem {
 
-    LockerItemType getType();
+    LockerEntryType getType();
 
     void respondEvent(PlayerEvent event);
 }

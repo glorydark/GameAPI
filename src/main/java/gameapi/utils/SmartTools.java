@@ -39,10 +39,10 @@ public class SmartTools {
     }
 
     public static String timeMillisToString(long diff) {
-        long second = diff / 1000;
-        long millis = diff - second * 1000;
-        long minute = second / 60;
-        long hour = minute / 60;
+        long hour = diff / 3600000;
+        long minute = diff / 60000 - hour * 60;
+        long second = (diff - hour * 3600000 - minute * 60000)/1000;
+        long millis = (diff - hour * 3600000 - minute * 60000 - second * 1000);
         StringBuilder sb = new StringBuilder();
         if (hour > 0) {
             if (hour < 10) {
@@ -79,7 +79,7 @@ public class SmartTools {
 
     //https://blog.csdn.net/weixin_39975055/article/details/115082818
     public static String dateToString(Date date) {
-        return dateToString(date, "yyyyMMdd_hhmmss");
+        return dateToString(date, "yyyy-MM-dd-HH-mm-ss");
     }
 
     public static String dateToString(Date date, String formatString) {
@@ -90,7 +90,7 @@ public class SmartTools {
     //https://blog.csdn.net/weixin_39975055/article/details/115082818
     @Deprecated
     public static Date stringToDate(String string) {
-        return stringToDate(string, "yyyy-MM-dd-hh-mm-ss");
+        return stringToDate(string, "yyyy-MM-dd-HH-mm-ss");
     }
 
     public static Date stringToDate(String string, String dateFormat) {

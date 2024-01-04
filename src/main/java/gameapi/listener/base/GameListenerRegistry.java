@@ -14,14 +14,15 @@ import gameapi.room.Room;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Experimental
 public class GameListenerRegistry {
-    private static HashMap<String, List<RoomListener>> listeners = new HashMap<>();
+    private static ConcurrentHashMap<String, List<RoomListener>> listeners = new ConcurrentHashMap<>();
 
     public static void clearAllRegisters() {
-        listeners = new HashMap<>();
+        listeners = new ConcurrentHashMap<>();
     }
 
     public static void registerEvents(String gameName, GameListener listener, Plugin plugin) {
@@ -48,12 +49,10 @@ public class GameListenerRegistry {
                 } else {
                     evl = new RoomListener(gameName, listener, new MethodGameEventExecutor(method), EventPriority.NORMAL, plugin, false);
                 }
-                if (listeners.containsKey(gameName)) {
-                    listeners.get(gameName).add(evl);
-                } else {
+                if (!listeners.containsKey(gameName)) {
                     listeners.put(gameName, new ArrayList<>());
-                    listeners.get(gameName).add(evl);
                 }
+                listeners.get(gameName).add(evl);
             }
         }
     }

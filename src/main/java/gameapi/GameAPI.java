@@ -12,7 +12,7 @@ import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
 import gameapi.arena.WorldTools;
-import gameapi.commands.AdminCommands;
+import gameapi.commands.BaseCommand;
 import gameapi.entity.EntityTools;
 import gameapi.form.AdvancedFormMain;
 import gameapi.language.Language;
@@ -65,7 +65,7 @@ public class GameAPI extends PluginBase implements Listener {
     public static void unloadRoom(Room room) {
         room.getRoomUpdateTask().cancel();
         for (Player player : room.getPlayers()) {
-            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+            player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
         }
 
         if (room.getPlayers().size() > 0) {
@@ -116,10 +116,10 @@ public class GameAPI extends PluginBase implements Listener {
             }
         }
         loadAllRankingListEntities();
-        this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(), 20, true);
+        this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(), 20);
         this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
         this.getServer().getPluginManager().registerEvents(new AdvancedFormMain(), this);
-        this.getServer().getCommandMap().register("", new AdminCommands("gameapi"));
+        this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
         Server.getInstance().getScheduler().scheduleRepeatingTask(this, new NukkitRunnable() {
             @Override
             public void run() {
@@ -155,7 +155,7 @@ public class GameAPI extends PluginBase implements Listener {
                         }
                 );
             }
-        }, 5);
+        }, 5, true);
         tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") == null;
         this.getLogger().info("§aDGameAPI Enabled!");
     }
@@ -170,10 +170,14 @@ public class GameAPI extends PluginBase implements Listener {
         File[] files = new File(path + "/gameRecords/").listFiles();
         if (files != null && files.length > 0) {
             for (File file : files) {
-                String fileName = file.getName().split("\\.")[0];
-                Config config;
-                config = new Config(file.getPath(), Config.YAML);
-                gameRecord.put(fileName, config.getAll());
+                if (file.isDirectory()) {
+                    File[] subFiles = file.listFiles();
+                    if (subFiles != null && subFiles.length > 0) {
+                        for (File subFile : subFiles) {
+                            gameRecord.put(file.getName() + "/" + subFile.getName().split("\\.")[0], new Config(subFile.getPath(), Config.YAML).getAll());
+                        }
+                    }
+                }
             }
         }
     }
@@ -214,6 +218,16 @@ public class GameAPI extends PluginBase implements Listener {
     public void onDisable() {
         loadedRooms.keySet().forEach(WorldTools::delWorldByPrefix);
         EntityTools.closeAll();
+        for (String s : loadedRooms.keySet()) {
+            for (Room room : loadedRooms.getOrDefault(s, new ArrayList<>())) {
+                for (Player player : new ArrayList<>(room.getPlayers())) {
+                    room.removePlayer(player);
+                }
+                for (Player player : new ArrayList<>(room.getSpectators())) {
+                    room.removePlayer(player);
+                }
+            }
+        }
         loadedRooms.clear();
         playerRoomHashMap.clear();
         gameRecord.clear();

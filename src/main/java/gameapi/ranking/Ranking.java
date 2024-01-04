@@ -92,7 +92,7 @@ public class Ranking {
                 i++;
             }
         } else {
-            builder.append(this.getNoDataContent().replace("\\n", "\n"));
+            builder.append("\n").append(this.getNoDataContent().replace("\\n", "\n"));
         }
         return builder.toString();
     }

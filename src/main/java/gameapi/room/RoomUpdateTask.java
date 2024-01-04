@@ -5,13 +5,14 @@ import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.scheduler.Task;
+import gameapi.GameAPI;
 import gameapi.event.block.RoomBlockTreadEvent;
 import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.player.RoomPlayerMoveEvent;
+import gameapi.extensions.checkPoint.CheckPointData;
 import gameapi.listener.base.GameListenerRegistry;
 
 import java.util.ArrayList;
@@ -55,9 +56,13 @@ public class RoomUpdateTask extends Task {
                this.onUpdateRoomBlockTreadEvent(player);
                this.onUpdateRoomPlayerEnterPortalEvent(player);
                this.onUpdateRoomPlayerMovementEvent(player);
+               this.onUpdatePlayerAroundChunk(player);
                // RecordPoint
-               room.getRecordPoints().onUpdate(player);
+               room.getCheckPoints().onUpdate(player);
             }
+        }
+        for (CheckPointData checkPointData : room.getCheckPoints().getCheckPointDataList()) {
+            checkPointData.showParticleMarks(room.getPlayLevels().get(0));
         }
         // Provide methods for other games to use
         for (Consumer<Room> roomConsumer : customConsumerList) {
@@ -76,7 +81,7 @@ public class RoomUpdateTask extends Task {
     protected void onUpdateRoomBlockTreadEvent(Player player) {
         // Tread Block Event
         Vector3 vector3 = player.getPosition().floor().subtract(0, 1, 0);
-        SimpleAxisAlignedBB bb = (SimpleAxisAlignedBB) new SimpleAxisAlignedBB(vector3, vector3).expand(1, 0, 1);
+        SimpleAxisAlignedBB bb = (SimpleAxisAlignedBB) new SimpleAxisAlignedBB(vector3, vector3).expand(1, 1, 1);
         bb.forEach(((i, i1, i2) -> {
             Block block = player.getLevel().getBlock(i, i1, i2).getLevelBlock();
             if (!(block.getId() == 0 || block instanceof BlockLiquid)) {

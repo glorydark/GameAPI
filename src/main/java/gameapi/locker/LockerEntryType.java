@@ -7,7 +7,7 @@ import gameapi.annotation.Future;
  * @date {2023/12/23} {13:21}
  */
 @Future
-public enum LockerItemType {
+public enum LockerEntryType {
 
     WALKING_PARTICLE,
     KILL_EFFECT,

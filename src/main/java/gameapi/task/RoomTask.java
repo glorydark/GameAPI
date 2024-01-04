@@ -240,7 +240,7 @@ public class RoomTask extends AsyncTask {
                             ScoreboardTools.removeScoreboard(p);
                             ScoreboardTools.scoreboardConcurrentHashMap.remove(p);
                             //玩家先走
-                            p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+                            p.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
                         }
                         room.resetAll();
                     }

@@ -138,12 +138,12 @@ public class Arena {
                     e.kill();
                     e.close();
                 }
-                p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+                p.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
             }
         }
         if (level.getPlayers().values().size() > 0) {
             for (Player p : level.getPlayers().values()) {
-                p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+                p.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
             }
         }
         // Experimental: Solving the tick error when unloading the levels in PM1E.
