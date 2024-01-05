@@ -1,19 +1,14 @@
 package gameapi.ranking.simple;
 
 import cn.nukkit.level.Location;
-import gameapi.GameAPI;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
-import gameapi.scoreboard.ScoreboardTools;
 import gameapi.utils.GameRecord;
-import gameapi.utils.SmartTools;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class SimpleRanking extends Ranking {
 
@@ -29,7 +24,7 @@ public class SimpleRanking extends Ranking {
         this.comparedKey = comparedKey;
     }
 
-    public Map<String, Object> getLatestRankingData(){
+    public Map<String, Object> getLatestRankingData() {
         return new HashMap<>(GameRecord.getGameRecordAll(this.gameName, this.comparedKey));
     }
 }

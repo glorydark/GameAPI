@@ -1,6 +1,6 @@
-package gameapi.event.player;
+package gameapi.event.entity;
 
-import cn.nukkit.Player;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.HandlerList;
 import cn.nukkit.event.entity.EntityDamageEvent;
@@ -10,14 +10,14 @@ import gameapi.room.Room;
  * @author glorydark
  * @date {2023/12/24} {20:09}
  */
-public class RoomPlayerDamageEvent extends RoomPlayerEvent implements Cancellable {
+public class RoomEntityDamageEvent extends RoomEntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final EntityDamageEvent.DamageCause cause;
     private final float damage;
 
-    public RoomPlayerDamageEvent(Room room, Player player, EntityDamageEvent.DamageCause cause, final float damage) {
+    public RoomEntityDamageEvent(Room room, Entity entity, EntityDamageEvent.DamageCause cause, final float damage) {
         this.room = room;
-        this.player = player;
+        this.entity = entity;
         this.cause = cause;
         this.damage = damage;
     }

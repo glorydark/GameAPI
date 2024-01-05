@@ -5,35 +5,29 @@ import gameapi.GameAPI;
 import gameapi.entity.EntityTools;
 import gameapi.entity.RankingListEntity;
 import gameapi.ranking.simple.RankingValueType;
-import gameapi.utils.GameRecord;
 import gameapi.utils.SmartTools;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Data
 public class Ranking {
 
+    private final RankingValueType type;
     // This only stores the inner compared values
     protected LinkedHashMap<String, ?> rankingData;
-
     private RankingSortSequence rankingSortSequence;
-
     private String title;
-
     private String noDataContent;
-
     private RankingFormat rankingFormat;
-
     @Setter(AccessLevel.NONE)
     private RankingListEntity entity;
-
     private Location location;
-
-    private final RankingValueType type;
 
     public Ranking(Location location, String type, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence) {
         this.location = location;
@@ -173,7 +167,7 @@ public class Ranking {
         return newMap;
     }
 
-    public Map<String, Object> getLatestRankingData(){
+    public Map<String, Object> getLatestRankingData() {
         return (Map<String, Object>) rankingData;
     }
 }

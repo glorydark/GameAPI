@@ -1,13 +1,12 @@
-package gameapi.event.player;
+package gameapi.event.entity;
 
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import gameapi.event.Cancellable;
-import gameapi.event.entity.RoomEntityEvent;
 import gameapi.room.Room;
 
-public class RoomPlayerDamageByPlayerEvent extends RoomEntityEvent implements Cancellable {
+public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Cancellable {
 
     protected float damage;
 
@@ -19,7 +18,7 @@ public class RoomPlayerDamageByPlayerEvent extends RoomEntityEvent implements Ca
 
     protected EntityDamageEvent.DamageCause cause;
 
-    public RoomPlayerDamageByPlayerEvent(Room room, EntityDamageByEntityEvent event) {
+    public RoomEntityDamageByEntityEvent(Room room, EntityDamageByEntityEvent event) {
         this.room = room;
         this.damage = event.getDamage();
         this.attackCoolDown = event.getAttackCooldown();

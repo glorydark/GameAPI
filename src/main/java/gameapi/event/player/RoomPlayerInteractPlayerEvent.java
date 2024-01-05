@@ -1,9 +1,7 @@
 package gameapi.event.player;
 
 import cn.nukkit.Player;
-import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.HandlerList;
-import cn.nukkit.event.entity.EntityDamageEvent;
 import gameapi.room.Room;
 
 /**

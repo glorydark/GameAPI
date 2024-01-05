@@ -15,6 +15,7 @@ import gameapi.arena.WorldTools;
 import gameapi.commands.BaseCommand;
 import gameapi.entity.EntityTools;
 import gameapi.form.AdvancedFormMain;
+import gameapi.gameLevel.GameLevelSystem;
 import gameapi.language.Language;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -52,6 +53,7 @@ public class GameAPI extends PluginBase implements Listener {
     public static boolean tipsEnabled;
     public static HashMap<Player, RoomEdit> editDataHashMap = new HashMap<>();
     public static SimpleAxisAlignedBB autoLoadChunkRange;
+    public static GameLevelSystem system;
     protected static Language language = new Language("GameAPI");
 
     public static void loadRoom(Room room, RoomStatus baseStatus) {
@@ -209,7 +211,7 @@ public class GameAPI extends PluginBase implements Listener {
             } else {
                 this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk_alreadyLoaded", location.getChunkX(), location.getChunkZ()));
             }
-            Ranking ranking = new SimpleRanking(location, (String) map.getOrDefault("value_type", ""), (String) map.getOrDefault("title", "Undefined"), "No Data", new RankingFormat(), (Boolean) map.getOrDefault("sort_consequence_ascend", false)? RankingSortSequence.ASCEND: RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
+            Ranking ranking = new SimpleRanking(location, (String) map.getOrDefault("value_type", ""), (String) map.getOrDefault("title", "Undefined"), "No Data", new RankingFormat(), (Boolean) map.getOrDefault("sort_consequence_ascend", false) ? RankingSortSequence.ASCEND : RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
             ranking.spawnEntity();
         }
     }

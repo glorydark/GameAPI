@@ -41,7 +41,7 @@ public class SmartTools {
     public static String timeMillisToString(long diff) {
         long hour = diff / 3600000;
         long minute = diff / 60000 - hour * 60;
-        long second = (diff - hour * 3600000 - minute * 60000)/1000;
+        long second = (diff - hour * 3600000 - minute * 60000) / 1000;
         long millis = (diff - hour * 3600000 - minute * 60000 - second * 1000);
         StringBuilder sb = new StringBuilder();
         if (hour > 0) {

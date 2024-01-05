@@ -8,7 +8,6 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
 import cn.nukkit.math.SimpleAxisAlignedBB;
-import cn.nukkit.math.Vector3;
 import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
@@ -19,20 +18,20 @@ import gameapi.ranking.RankingSortSequence;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.sound.SoundTools;
+import gameapi.utils.PosSet;
 import gameapi.utils.SmartTools;
 
-import java.io.*;
-import java.net.*;
-import java.nio.charset.Charset;
+import java.io.File;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Glorydark
  * For in-game test
  */
 public class BaseCommand extends Command {
+
+    public LinkedHashMap<Player, PosSet> posSetLinkedHashMap = new LinkedHashMap<>();
+
     public BaseCommand(String name) {
         super(name);
     }
@@ -237,14 +236,45 @@ public class BaseCommand extends Command {
                         }
                     }
                     break;
-                case "fill": // fill x y z x y z blockId blockMeta
+                case "pos1":
                     if (!commandSender.isPlayer()) {
                         return false;
                     }
                     Player player = (Player) commandSender;
-                    if (strings.length == 9) {
-                        SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(new Vector3(Integer.parseInt(strings[1]), Integer.parseInt(strings[2]), Integer.parseInt(strings[3])), new Vector3(Integer.parseInt(strings[4]), Integer.parseInt(strings[5]), Integer.parseInt(strings[6])));
-                        Block block = Block.get(Integer.parseInt(strings[7]), Integer.parseInt(strings[8]));
+                    if (!posSetLinkedHashMap.containsKey(player)) {
+                        posSetLinkedHashMap.put(player, new PosSet());
+                    }
+                    posSetLinkedHashMap.get(player).setPos1(player.getLocation());
+                    player.sendMessage("Successfully set pos1 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
+                    break;
+                case "pos2":
+                    if (!commandSender.isPlayer()) {
+                        return false;
+                    }
+                    player = (Player) commandSender;
+                    if (!posSetLinkedHashMap.containsKey(player)) {
+                        posSetLinkedHashMap.put(player, new PosSet());
+                    }
+                    posSetLinkedHashMap.get(player).setPos2(player.getLocation());
+                    player.sendMessage("Successfully set pos2 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
+                    break;
+                case "fill": // fill blockId blockMeta
+                    if (!commandSender.isPlayer()) {
+                        return false;
+                    }
+                    player = (Player) commandSender;
+                    PosSet posSet = posSetLinkedHashMap.get(player);
+                    if (posSet == null) {
+                        player.sendMessage("Pos set is null");
+                        return false;
+                    }
+                    if (posSet.getPos1() == null || posSet.getPos2() == null) {
+                        player.sendMessage("You haven't set pos1 or pos2");
+                        return false;
+                    }
+                    if (strings.length == 3) {
+                        SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
+                        Block block = Block.get(Integer.parseInt(strings[1]), Integer.parseInt(strings[2]));
                         Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
                             @Override
                             public void onRun() {
@@ -254,6 +284,14 @@ public class BaseCommand extends Command {
                             }
                         });
                     }
+                    break;
+                case "resetc":
+                    if (!commandSender.isPlayer()) {
+                        return false;
+                    }
+                    player = (Player) commandSender;
+                    player.getLevel().regenerateChunk(player.getChunkX(), player.getChunkZ());
+                    break;
             }
         }
         return true;

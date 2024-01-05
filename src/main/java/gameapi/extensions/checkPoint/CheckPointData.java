@@ -18,7 +18,7 @@ public class CheckPointData {
     private Vector3 vector3;
 
     private double horizontalRadius;
-    
+
     private double verticalRadius;
 
     private Particle particle = new DustParticle(new Vector3(0, 0, 0), BlockColor.YELLOW_BLOCK_COLOR);

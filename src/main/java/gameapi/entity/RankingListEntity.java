@@ -5,7 +5,6 @@ import cn.nukkit.event.entity.EntityDespawnEvent;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import gameapi.GameAPI;
 import gameapi.ranking.Ranking;
 
 public class RankingListEntity extends TextEntity {

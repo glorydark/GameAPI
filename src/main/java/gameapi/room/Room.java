@@ -3,8 +3,6 @@ package gameapi.room;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.form.element.ElementInput;
-import cn.nukkit.form.element.ElementLabel;
-import cn.nukkit.form.handler.FormResponseHandler;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import gameapi.GameAPI;
@@ -15,7 +13,6 @@ import gameapi.event.room.*;
 import gameapi.extensions.checkPoint.CheckPoints;
 import gameapi.form.AdvancedFormMain;
 import gameapi.form.AdvancedFormWindowCustom;
-import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.inventory.InventoryTools;
 import gameapi.language.Language;
 import gameapi.listener.base.GameListenerRegistry;
@@ -117,6 +114,14 @@ public class Room {
             return GameAPI.playerRoomHashMap.values().stream().anyMatch(room -> room != null && room.playLevels.stream().anyMatch(l -> l.equals(level)));
         } else {
             return false;
+        }
+    }
+
+    public static Optional<Room> getRoom(Level level) {
+        if (GameAPI.playerRoomHashMap.size() > 0) {
+            return GameAPI.playerRoomHashMap.values().stream().filter(room -> room != null && room.playLevels.stream().anyMatch(l -> l.equals(level))).findFirst();
+        } else {
+            return Optional.empty();
         }
     }
 
@@ -814,6 +819,6 @@ public class Room {
     }
 
     public String getRoomName() {
-        return roomName.isEmpty()? gameName + "#" + GameAPI.loadedRooms.getOrDefault(gameName, new ArrayList<>()).indexOf(this): roomName;
+        return roomName.isEmpty() ? gameName + "#" + GameAPI.loadedRooms.getOrDefault(gameName, new ArrayList<>()).indexOf(this) : roomName;
     }
 }

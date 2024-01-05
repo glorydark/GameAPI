@@ -1,7 +1,6 @@
 package gameapi.event.room;
 
 import cn.nukkit.Player;
-import gameapi.event.Cancellable;
 import gameapi.event.player.RoomPlayerEvent;
 
 /**
