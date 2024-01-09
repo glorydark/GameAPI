@@ -6,8 +6,10 @@ import cn.nukkit.block.Block;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Sound;
 import cn.nukkit.math.SimpleAxisAlignedBB;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
@@ -30,7 +32,7 @@ import java.util.*;
  */
 public class BaseCommand extends Command {
 
-    public LinkedHashMap<Player, PosSet> posSetLinkedHashMap = new LinkedHashMap<>();
+    public static LinkedHashMap<Player, PosSet> posSetLinkedHashMap = new LinkedHashMap<>();
 
     public BaseCommand(String name) {
         super(name);
@@ -40,17 +42,19 @@ public class BaseCommand extends Command {
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (!commandSender.isOp() && commandSender.isPlayer()) {
             if (strings.length == 1) {
-                if (strings[0].equals("quit")) {
-                    Room room = Room.getRoom((Player) commandSender);
-                    if (room != null) {
-                        if (room.getPlayers().contains((Player) commandSender)) {
-                            room.removePlayer((Player) commandSender);
+                switch (strings[0]) {
+                    case "quit":
+                        Room room = Room.getRoom((Player) commandSender);
+                        if (room != null) {
+                            if (room.getPlayers().contains((Player) commandSender)) {
+                                room.removePlayer((Player) commandSender);
+                            } else {
+                                room.removeSpectator((Player) commandSender);
+                            }
                         } else {
-                            room.removeSpectator((Player) commandSender);
+                            GameAPI.getLanguage().getTranslation("command.error.notInGame");
                         }
-                    } else {
-                        GameAPI.getLanguage().getTranslation("command.error.notInGame");
-                    }
+                        break;
                 }
             }
             return true;
@@ -100,6 +104,24 @@ public class BaseCommand extends Command {
                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.useInGame"));
                     }
                     break;
+                case "worldedit":
+                    if (strings.length != 2) {
+                        return false;
+                    }
+                    if (commandSender.isPlayer()) {
+                        switch (strings[1]) {
+                            case "true":
+                                GameAPI.worldEditPlayers.add((Player) commandSender);
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.world_edit.on"));
+                                break;
+                            case "false":
+                                GameAPI.worldEditPlayers.remove((Player) commandSender);
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.world_edit.off"));
+                        }
+                    } else {
+                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.useInGame"));
+                    }
+                    break;
                 case "savebattles": // For Tournament Restart Procedures
                     File saveDic = new File(GameAPI.path + "/saves/" + SmartTools.dateToString(Calendar.getInstance().getTime(), "yyyyMMdd_HHmmss") + "/");
                     if (saveDic.exists() || saveDic.mkdirs()) {
@@ -139,7 +161,7 @@ public class BaseCommand extends Command {
                         Room room = Room.getRoom(strings[1], strings[2]);
                         if (room != null) {
                             for (Player player : room.getPlayers()) {
-                                player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
+                                player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                                 player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
                                 GameAPI.playerRoomHashMap.remove(player);
                             }
@@ -159,7 +181,7 @@ public class BaseCommand extends Command {
                                 return true;
                             }
                             for (Player player : room.getPlayers()) {
-                                player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
+                                player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                                 player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.halt"));
                             }
                             room.setRoomStatus(RoomStatus.ROOM_HALTED);
@@ -175,7 +197,7 @@ public class BaseCommand extends Command {
                         if (room != null) {
                             for (Player player : room.getPlayers()) {
                                 if (player.isOnline()) {
-                                    player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
+                                    player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                                     player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.restart"));
                                 } else {
                                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.playerOffline", player.getName()));
@@ -291,6 +313,7 @@ public class BaseCommand extends Command {
                     }
                     player = (Player) commandSender;
                     player.getLevel().regenerateChunk(player.getChunkX(), player.getChunkZ());
+                    player.sendMessage("Reset chunk successfully!");
                     break;
             }
         }

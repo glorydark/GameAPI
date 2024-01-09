@@ -51,21 +51,5 @@ public class AdvancedBlockRegistry {
                 throw new RuntimeException(e);
             }
         }
-        /*
-        if(blockHashmap.containsKey(pnxIdString)){
-            Class advancedBlockClass = blockHashmap.get(pnxIdString);
-            try {
-                for(Method method: advancedBlockClass.getMethods()) {
-                    for (Class param : method.getParameterTypes()) {
-                        if (roomEvent.getClass().isAssignableFrom(param)) {
-                            method.invoke(advancedBlockClass.newInstance(), roomEvent);
-                        }
-                    }
-                }
-            } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
-                throw new RuntimeException(e);
-            }
-        }
-         */
     }
 }

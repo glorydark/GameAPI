@@ -25,6 +25,7 @@ import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 import gameapi.room.Room;
 import gameapi.room.RoomEdit;
+import gameapi.room.RoomNameUtils;
 import gameapi.room.RoomStatus;
 import gameapi.task.RoomTask;
 import gameapi.utils.GameRecord;
@@ -40,13 +41,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class GameAPI extends PluginBase implements Listener {
 
-    //此处引用lt-name的CrystalWar内的复原地图部分源码
     public static ConcurrentHashMap<String, List<Room>> loadedRooms = new ConcurrentHashMap<>(); //房间状态
-    public static HashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
+    public static LinkedHashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
     public static String path;
     public static Plugin plugin;
     public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
     public static List<Player> debug = new ArrayList<>();
+    public static List<Player> worldEditPlayers = new ArrayList<>();
     public static int entityRefreshIntervals = 100;
     public static boolean saveBag;
     public static boolean updateMoveEvent;
@@ -57,6 +58,7 @@ public class GameAPI extends PluginBase implements Listener {
     protected static Language language = new Language("GameAPI");
 
     public static void loadRoom(Room room, RoomStatus baseStatus) {
+        RoomNameUtils.initializeRoomName(room);
         List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
         rooms.add(room);
         GameAPI.loadedRooms.put(room.getGameName(), rooms);
@@ -67,7 +69,7 @@ public class GameAPI extends PluginBase implements Listener {
     public static void unloadRoom(Room room) {
         room.getRoomUpdateTask().cancel();
         for (Player player : room.getPlayers()) {
-            player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
+            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
         }
 
         if (room.getPlayers().size() > 0) {
@@ -158,7 +160,7 @@ public class GameAPI extends PluginBase implements Listener {
                 );
             }
         }, 5, true);
-        tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") == null;
+        tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
         this.getLogger().info("§aDGameAPI Enabled!");
     }
 

@@ -22,6 +22,13 @@ public class AdvancedLocation {
     public AdvancedLocation() {
     }
 
+    public AdvancedLocation(Location location) {
+        this.location = location;
+        this.pitch = location.getPitch();
+        this.headYaw = location.getHeadYaw();
+        this.yaw = location.getYaw();
+    }
+
     public AdvancedLocation(String string) {
         this.inputString = string;
         AdvancedLocation loc = SmartTools.parseLocation(string);

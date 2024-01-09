@@ -13,7 +13,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class CheckPointData {
+public class CheckpointData {
 
     private Vector3 vector3;
 
@@ -25,11 +25,18 @@ public class CheckPointData {
 
     private String name;
 
-    public CheckPointData(String name, Vector3 vector3, double horizontalRadius, double verticalRadius) {
+    private boolean particleMarked;
+
+    public CheckpointData(String name, Vector3 vector3, double horizontalRadius, double verticalRadius) {
+        this(name, vector3, horizontalRadius, verticalRadius, false);
+    }
+
+    public CheckpointData(String name, Vector3 vector3, double horizontalRadius, double verticalRadius, boolean particleMarked) {
         this.name = name;
         this.vector3 = vector3;
         this.horizontalRadius = horizontalRadius;
         this.verticalRadius = verticalRadius;
+        this.particleMarked = particleMarked;
     }
 
     /**
@@ -48,15 +55,17 @@ public class CheckPointData {
      * This method is to summon a particle mark.
      */
     public void showParticleMarks(Level level) {
-        for (int angle = 0; angle < 360; angle++) {
-            double x1 = vector3.getX() + horizontalRadius * Math.cos(angle * 3.14 / 180);
-            double z1 = vector3.getZ() + horizontalRadius * Math.sin(angle * 3.14 / 180);
-            Particle particle_temp = (Particle) particle.clone();
-            particle_temp.setX(x1);
-            particle_temp.setY(vector3.getY());
-            particle_temp.setZ(z1);
-            if (angle % 30 == 0) {
-                level.addParticle(particle_temp);
+        if (particleMarked) {
+            for (int angle = 0; angle < 360; angle++) {
+                double x1 = vector3.getX() + horizontalRadius * Math.cos(angle * 3.14 / 180);
+                double z1 = vector3.getZ() + horizontalRadius * Math.sin(angle * 3.14 / 180);
+                Particle particle_temp = (Particle) particle.clone();
+                particle_temp.setX(x1);
+                particle_temp.setY(vector3.getY());
+                particle_temp.setZ(z1);
+                if (angle % 30 == 0) {
+                    level.addParticle(particle_temp);
+                }
             }
         }
     }

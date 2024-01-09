@@ -2,6 +2,7 @@ package gameapi.listener;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.event.EventHandler;
@@ -16,6 +17,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.ParticleEffect;
 import gameapi.GameAPI;
+import gameapi.commands.BaseCommand;
 import gameapi.entity.EntityTools;
 import gameapi.entity.GameProjectileEntity;
 import gameapi.entity.TextEntity;
@@ -30,6 +32,7 @@ import gameapi.room.RoomChatData;
 import gameapi.room.RoomStatus;
 import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
+import gameapi.utils.PosSet;
 import lombok.Data;
 
 import java.util.*;
@@ -145,8 +148,33 @@ public class BaseEventListener implements Listener {
                 }
             }
         } else {
-            if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
-                GameAPI.editDataHashMap.get(player).respondEvent(event);
+            if (GameAPI.worldEditPlayers.contains(player)) {
+                Block block = event.getBlock();
+                if (block == null) {
+                    return;
+                }
+                switch (block.getId()) {
+                    case Block.REDSTONE_BLOCK:
+                        if (!BaseCommand.posSetLinkedHashMap.containsKey(player)) {
+                            BaseCommand.posSetLinkedHashMap.put(player, new PosSet());
+                        }
+                        BaseCommand.posSetLinkedHashMap.get(player).setPos1(block.getLocation());
+                        player.sendMessage("Successfully set pos1 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
+                        event.setCancelled(true);
+                        break;
+                    case Block.EMERALD_BLOCK:
+                        if (!BaseCommand.posSetLinkedHashMap.containsKey(player)) {
+                            BaseCommand.posSetLinkedHashMap.put(player, new PosSet());
+                        }
+                        BaseCommand.posSetLinkedHashMap.get(player).setPos2(block.getLocation());
+                        player.sendMessage("Successfully set pos2 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
+                        event.setCancelled(true);
+                        break;
+                }
+            } else {
+                if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
+                    GameAPI.editDataHashMap.get(player).respondEvent(event);
+                }
             }
         }
     }
@@ -502,20 +530,8 @@ public class BaseEventListener implements Listener {
                 event.setCancelled(true);
             }
         } else {
-            if (GameAPI.debug.contains(player)) {
-                Item item = player.getInventory().getItemInHand();
-                switch (item.getId()) {
-                    case Item.WOODEN_HOE:
-                        Server.getInstance().dispatchCommand(player, "gameapi pos1");
-                        break;
-                    case Item.WOODEN_SHOVEL:
-                        Server.getInstance().dispatchCommand(player, "gameapi pos2");
-                        break;
-                }
-            } else {
-                if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
-                    GameAPI.editDataHashMap.get(player).respondEvent(event);
-                }
+            if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
+                GameAPI.editDataHashMap.get(player).respondEvent(event);
             }
         }
     }

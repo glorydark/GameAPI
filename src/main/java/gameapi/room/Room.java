@@ -10,7 +10,7 @@ import gameapi.annotation.Future;
 import gameapi.arena.WorldTools;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
-import gameapi.extensions.checkPoint.CheckPoints;
+import gameapi.extensions.checkPoint.Checkpoints;
 import gameapi.form.AdvancedFormMain;
 import gameapi.form.AdvancedFormWindowCustom;
 import gameapi.inventory.InventoryTools;
@@ -57,7 +57,7 @@ public class Room {
     private RoomExecutor statusExecutor = new BaseRoomExecutor(this);
     private boolean temporary = false;
     private boolean resetMap = true; // Resetting map is default set to false.
-    private String roomName = "null";
+    private String roomName = "";
     private RoomRule roomRule;
     private RoomStatus roomStatus = RoomStatus.ROOM_STATUS_WAIT;
     private List<Player> players = new ArrayList<>();
@@ -84,7 +84,7 @@ public class Room {
     private List<String> loseConsoleCommands = new ArrayList<>();
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
-    private CheckPoints checkPoints = new CheckPoints();
+    private Checkpoints checkpoints = new Checkpoints();
     private long startMillis;
     @Setter(AccessLevel.NONE)
     private RoomUpdateTask roomUpdateTask;
@@ -106,7 +106,6 @@ public class Room {
 
     public Room(String gameName, RoomRule roomRule, Level playLevel, String roomLevelBackup, int round) {
         this(gameName, roomRule, new ArrayList<>(Collections.singletonList(playLevel)), roomLevelBackup, round);
-        this.roomUpdateTask = new RoomUpdateTask(this);
     }
 
     public static boolean isRoomCurrentPlayLevel(Level level) {
@@ -357,11 +356,6 @@ public class Room {
                         p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
                     }
                     GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
-                    if (GameAPI.tipsEnabled) {
-                        for (Level playLevel : playLevels) {
-                            Tips.closeTipsShow(playLevel.getName(), player);
-                        }
-                    }
                 }
                 return true;
             }
@@ -377,6 +371,9 @@ public class Room {
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
+            for (Level playLevel : this.getPlayLevels()) {
+                Tips.removeTipsConfig(playLevel.getName(), player);
+            }
             player.removeAllEffects();
             player.getInventory().clearAll();
             player.setExperience(0, 0);
@@ -390,7 +387,7 @@ public class Room {
             this.playerProperties.remove(player.getName());
             this.players.remove(player);
             GameAPI.playerRoomHashMap.remove(player);
-            player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation(), null);
+            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
         }
     }
 
@@ -439,7 +436,7 @@ public class Room {
         this.playerProperties = new LinkedHashMap<>();
         this.teamCache.forEach((s, team) -> team.resetAll());
         this.chatDataList = new ArrayList<>();
-        this.getCheckPoints().clearAllPlayerCheckPointData();
+        this.getCheckpoints().clearAllPlayerCheckPointData();
         if (this.playLevels == null) {
             GameAPI.plugin.getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
             return;
@@ -632,10 +629,13 @@ public class Room {
     }
 
     public void removeSpectator(Player player) {
-        RoomSpectatorLeaveEvent roomSpectatorLeaveEvent = new RoomSpectatorLeaveEvent(this, player, Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation());
+        RoomSpectatorLeaveEvent roomSpectatorLeaveEvent = new RoomSpectatorLeaveEvent(this, player, Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation());
         GameListenerRegistry.callEvent(this, roomSpectatorLeaveEvent);
         if (roomSpectatorLeaveEvent.isCancelled()) {
             return;
+        }
+        for (Level playLevel : this.getPlayLevels()) {
+            Tips.removeTipsConfig(playLevel.getName(), player);
         }
         player.setGamemode(Server.getInstance().getDefaultGamemode());
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
@@ -816,9 +816,5 @@ public class Room {
 
     public void removePlayLevel(Level loadLevel) {
         playLevels.remove(loadLevel);
-    }
-
-    public String getRoomName() {
-        return roomName.isEmpty() ? gameName + "#" + GameAPI.loadedRooms.getOrDefault(gameName, new ArrayList<>()).indexOf(this) : roomName;
     }
 }

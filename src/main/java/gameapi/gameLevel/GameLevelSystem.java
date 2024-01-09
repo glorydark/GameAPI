@@ -1,6 +1,7 @@
 package gameapi.gameLevel;
 
 import gameapi.GameAPI;
+import gameapi.gameLevel.provider.GameLevelProvider;
 import gameapi.locker.entry.LockerEntry;
 
 import java.util.ArrayList;

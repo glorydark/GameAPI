@@ -11,7 +11,6 @@ import gameapi.annotation.Future;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-@Future
 public class AdvancedFormMain implements Listener {
 
     public static HashMap<Player, LinkedHashMap<Integer, FormWindow>> playerFormWindows = new HashMap<>();

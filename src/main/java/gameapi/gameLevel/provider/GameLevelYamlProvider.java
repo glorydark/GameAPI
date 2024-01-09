@@ -1,4 +1,4 @@
-package gameapi.gameLevel;
+package gameapi.gameLevel.provider;
 
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;

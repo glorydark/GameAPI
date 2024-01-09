@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@Future
 public class AdvancedFormWindowCustom extends FormWindowCustom implements AdvancedForm {
 
     protected BiConsumer<Player, FormResponseCustom> responseExecutor;
@@ -33,6 +32,14 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
         } else {
             responseExecutor.accept(player, (FormResponseCustom) response);
         }
+    }
+
+    public void setResponseExecutor(BiConsumer<Player, FormResponseCustom> responseExecutor) {
+        this.responseExecutor = responseExecutor;
+    }
+
+    public void setNoResponseExecutor(Consumer<Player> noResponseExecutor) {
+        this.noResponseExecutor = noResponseExecutor;
     }
 
     public static class Builder {

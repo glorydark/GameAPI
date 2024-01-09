@@ -2,6 +2,7 @@ package gameapi.event.room;
 
 import cn.nukkit.Player;
 import gameapi.event.player.RoomPlayerEvent;
+import gameapi.room.Room;
 
 /**
  * @author glorydark
@@ -11,7 +12,8 @@ public class RoomPlayerFinishLapEvent extends RoomPlayerEvent {
 
     private final int lapNumber;
 
-    public RoomPlayerFinishLapEvent(Player player, int lapNumber) {
+    public RoomPlayerFinishLapEvent(Room room, Player player, int lapNumber) {
+        this.room = room;
         this.player = player;
         this.lapNumber = lapNumber;
     }

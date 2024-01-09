@@ -29,7 +29,7 @@ public class BaseRoomExecutor implements RoomExecutor {
             }
         } else {
             for (Player player : room.getPlayers()) {
-                player.sendActionBar(GameAPI.getLanguage().getTranslation("room.actionbar.wait.waitForPlayers", room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
+                player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.waitForPlayers", room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
             }
         }
     }
@@ -39,9 +39,9 @@ public class BaseRoomExecutor implements RoomExecutor {
         for (Player player : room.getPlayers()) {
             int lastSecond = room.getWaitTime() - room.getTime();
             if (lastSecond > 3) {
-                player.sendActionBar(GameAPI.getLanguage().getTranslation("room.actionbar.preStart.countdown", lastSecond));
+                player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.preStart.countdown", lastSecond));
             } else {
-                player.sendActionBar(GameAPI.getLanguage().getTranslation("room.actionbar.preStart.countdown.ready", lastSecond));
+                player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.preStart.countdown.ready", lastSecond));
             }
         }
     }

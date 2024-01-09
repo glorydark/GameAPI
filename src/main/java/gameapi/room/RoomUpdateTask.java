@@ -8,11 +8,13 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.scheduler.Task;
+import gameapi.GameAPI;
 import gameapi.event.block.RoomBlockTreadEvent;
 import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.player.RoomPlayerMoveEvent;
-import gameapi.extensions.checkPoint.CheckPointData;
+import gameapi.extensions.checkPoint.CheckpointData;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.utils.Tips;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +43,17 @@ public class RoomUpdateTask extends Task {
 
     @Override
     public void onRun(int i) {
+        if (GameAPI.tipsEnabled) {
+            for (Level playLevel : room.getPlayLevels()) {
+                for (Player player : room.getPlayers()) {
+                    Tips.closeTipsShow(playLevel.getName(), player);
+                }
+                for (Player player : room.getSpectators()) {
+                    Tips.closeTipsShow(playLevel.getName(), player);
+                }
+            }
+        }
+
         for (Player player : new ArrayList<>(playerLocationHashMap.keySet())) {
             if (!room.hasPlayer(player)) {
                 playerLocationHashMap.remove(player);
@@ -57,10 +70,10 @@ public class RoomUpdateTask extends Task {
                 this.onUpdateRoomPlayerMovementEvent(player);
                 this.onUpdatePlayerAroundChunk(player);
                 // RecordPoint
-                room.getCheckPoints().onUpdate(player);
+                room.getCheckpoints().onUpdate(player);
             }
         }
-        for (CheckPointData checkPointData : room.getCheckPoints().getCheckPointDataList()) {
+        for (CheckpointData checkPointData : room.getCheckpoints().getCheckpointDataList()) {
             checkPointData.showParticleMarks(room.getPlayLevels().get(0));
         }
         // Provide methods for other games to use
@@ -129,13 +142,14 @@ public class RoomUpdateTask extends Task {
         }
     }
 
+    // todo: Solve issues possibly caused by corrupt chunks?
     protected void onUpdatePlayerAroundChunk(Player player) {
         Level level = player.getLevel();
         int chunkX = player.getChunkX();
         int chunkZ = player.getChunkZ();
         for (int i = chunkX - 1; i <= chunkX + 1; i++) {
             for (int i2 = chunkZ - 1; i2 <= chunkZ + 1; i2++) {
-                level.loadChunk(i, i2);
+                level.loadChunk(i, i2, true);
                 level.getChunk(i, i2).populateSkyLight();
             }
         }

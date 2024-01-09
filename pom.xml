@@ -11,8 +11,8 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
-	
-	<repositories>
+
+    <repositories>
         <repository>
             <id>opencollab-repo-release</id>
             <url>https://repo.opencollab.dev/maven-releases/</url>
@@ -57,9 +57,8 @@
         <dependency>
             <groupId>com.smallaswater.tips</groupId>
             <artifactId>Tips</artifactId>
-            <version>2.1.1</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/dependence/Tips_v2.1.1.jar</systemPath>
+            <version>2.1.7</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

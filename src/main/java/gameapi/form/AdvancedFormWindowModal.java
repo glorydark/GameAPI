@@ -8,7 +8,6 @@ import gameapi.annotation.Future;
 
 import java.util.function.Consumer;
 
-@Future
 public class AdvancedFormWindowModal extends FormWindowModal implements AdvancedForm {
 
     protected Consumer<Player> trueButtonResponseExecutor;
@@ -25,6 +24,17 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
         super(title, content, firstButtonText, secondButtonText);
     }
 
+    public void setNoResponseExecutor(Consumer<Player> noResponseExecutor) {
+        this.noResponseExecutor = noResponseExecutor;
+    }
+
+    public void setFalseButtonResponseExecutor(Consumer<Player> falseButtonResponseExecutor) {
+        this.falseButtonResponseExecutor = falseButtonResponseExecutor;
+    }
+
+    public void setTrueButtonResponseExecutor(Consumer<Player> trueButtonResponseExecutor) {
+        this.trueButtonResponseExecutor = trueButtonResponseExecutor;
+    }
 
     public void dealResponse(Player player, FormResponse response) {
         FormResponseModal responseModal = (FormResponseModal) response;

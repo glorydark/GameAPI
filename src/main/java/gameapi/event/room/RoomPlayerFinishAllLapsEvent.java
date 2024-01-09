@@ -3,6 +3,7 @@ package gameapi.event.room;
 import cn.nukkit.Player;
 import gameapi.event.Cancellable;
 import gameapi.event.player.RoomPlayerEvent;
+import gameapi.room.Room;
 
 /**
  * @author glorydark
@@ -10,7 +11,8 @@ import gameapi.event.player.RoomPlayerEvent;
  */
 public class RoomPlayerFinishAllLapsEvent extends RoomPlayerEvent implements Cancellable {
 
-    public RoomPlayerFinishAllLapsEvent(Player player) {
+    public RoomPlayerFinishAllLapsEvent(Room room, Player player) {
+        this.room = room;
         this.player = player;
     }
 }

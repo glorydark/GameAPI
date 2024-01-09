@@ -2,7 +2,8 @@ package gameapi.event.room;
 
 import cn.nukkit.Player;
 import gameapi.event.player.RoomPlayerEvent;
-import gameapi.extensions.checkPoint.CheckPointData;
+import gameapi.extensions.checkPoint.CheckpointData;
+import gameapi.room.Room;
 
 /**
  * @author glorydark
@@ -10,14 +11,15 @@ import gameapi.extensions.checkPoint.CheckPointData;
  */
 public class RoomPlayerCheckRecordPointEvent extends RoomPlayerEvent {
 
-    private final CheckPointData checkPointData;
+    private final CheckpointData checkPointData;
 
-    public RoomPlayerCheckRecordPointEvent(Player player, CheckPointData checkPointData) {
+    public RoomPlayerCheckRecordPointEvent(Room room, Player player, CheckpointData checkPointData) {
+        this.room = room;
         this.player = player;
         this.checkPointData = checkPointData;
     }
 
-    public CheckPointData getCheckPointData() {
+    public CheckpointData getCheckPointData() {
         return checkPointData;
     }
 }
