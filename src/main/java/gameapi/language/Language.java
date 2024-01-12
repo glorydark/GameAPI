@@ -1,6 +1,7 @@
 package gameapi.language;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
@@ -20,6 +21,7 @@ public class Language {
     public Language(String pluginName) {
         lang = new HashMap<>();
         this.pluginName = pluginName;
+        this.defaultLanguage = Server.getInstance().getLanguage().getLang();
     }
 
     public String getPluginName() {

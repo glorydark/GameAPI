@@ -392,28 +392,23 @@ public class Room {
     }
 
     public void setRoomStatus(RoomStatus status) {
-        this.setRoomStatus(status, true);
-    }
-
-    public void setRoomStatus(RoomStatus status, boolean callEvent) {
-        if (callEvent) {
-            switch (status) {
-                case ROOM_STATUS_GameReadyStart:
-                    GameListenerRegistry.callEvent(this, new RoomReadyStartEvent(this));
-                    break;
-                case ROOM_STATUS_PreStart:
-                    GameListenerRegistry.callEvent(this, new RoomPreStartEvent(this));
-                    break;
-                case ROOM_STATUS_GameStart:
-                    GameListenerRegistry.callEvent(this, new RoomGameStartEvent(this));
-                    break;
-                case ROOM_STATUS_GameEnd:
-                    GameListenerRegistry.callEvent(this, new RoomGameEndEvent(this));
-                    break;
-                case ROOM_STATUS_Ceremony:
-                    GameListenerRegistry.callEvent(this, new RoomCeremonyEvent(this));
-                    break;
-            }
+        this.time = 0;
+        switch (status) {
+            case ROOM_STATUS_GameReadyStart:
+                GameListenerRegistry.callEvent(this, new RoomReadyStartEvent(this));
+                break;
+            case ROOM_STATUS_PreStart:
+                GameListenerRegistry.callEvent(this, new RoomPreStartEvent(this));
+                break;
+            case ROOM_STATUS_GameStart:
+                GameListenerRegistry.callEvent(this, new RoomGameStartEvent(this));
+                break;
+            case ROOM_STATUS_GameEnd:
+                GameListenerRegistry.callEvent(this, new RoomGameEndEvent(this));
+                break;
+            case ROOM_STATUS_Ceremony:
+                GameListenerRegistry.callEvent(this, new RoomCeremonyEvent(this));
+                break;
         }
         this.roomStatus = status;
     }
@@ -422,7 +417,7 @@ public class Room {
         if (this.roomStatus == RoomStatus.ROOM_MapInitializing) {
             return;
         }
-        this.setRoomStatus(RoomStatus.ROOM_MapInitializing, false);
+        this.setRoomStatus(RoomStatus.ROOM_MapInitializing);
         for (Player player : new ArrayList<>(spectators)) {
             this.removeSpectator(player);
         }
@@ -458,11 +453,11 @@ public class Room {
             if (this.resetMap) {
                 GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_resetRoomAndMap", this.getRoomName()));
                 if (WorldTools.unloadAndReloadLevels(this)) {
-                    this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
+                    this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                 }
             } else {
                 GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_resetRoom", this.getRoomName()));
-                this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, false);
+                this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
             }
         }
     }
@@ -517,7 +512,7 @@ public class Room {
         if (location != null) {
             this.waitSpawn = location;
         } else {
-            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed, false);
+            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
         }
     }
 
@@ -526,7 +521,7 @@ public class Room {
         if (location != null) {
             this.startSpawn.add(location);
         } else {
-            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed, false);
+            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
         }
     }
 
@@ -535,7 +530,7 @@ public class Room {
         if (location != null) {
             this.spectatorSpawn.add(location);
         } else {
-            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed, false);
+            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
         }
     }
 
@@ -544,7 +539,7 @@ public class Room {
         if (location != null) {
             this.endSpawn = location;
         } else {
-            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed, false);
+            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
         }
     }
 

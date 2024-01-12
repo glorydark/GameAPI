@@ -6,6 +6,8 @@ import cn.nukkit.block.BlockAir;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.entity.item.EntityXPOrb;
+import cn.nukkit.item.Item;
+import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.ParticleEffect;
@@ -15,16 +17,17 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.Utils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import gameapi.GameAPI;
 
 import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SmartTools {
@@ -214,6 +217,14 @@ public class SmartTools {
         }
     }
 
+    public static List<AdvancedLocation> parseLocations(String... locationString) {
+        List<AdvancedLocation> advancedLocations = new ArrayList<>();
+        for (String s : locationString) {
+            advancedLocations.add(parseLocation(s));
+        }
+        return advancedLocations;
+    }
+
     public static AdvancedLocation parseLocation(String locationString) {
         String[] positions = locationString.split(":");
         if (positions.length < 4) {
@@ -357,6 +368,14 @@ public class SmartTools {
         return content;
     }
 
+    public static List<Vector3> parseVectorsFromStrings(String... str) {
+        List<Vector3> vector3List = new ArrayList<>();
+        for (String s : str) {
+            vector3List.add(parseVectorFromString(s));
+        }
+        return vector3List;
+    }
+
     public static Vector3 parseVectorFromString(String str) {
         String[] locArray = str.split(":");
         if (locArray.length == 3) {
@@ -364,5 +383,54 @@ public class SmartTools {
         } else {
             return null;
         }
+    }
+
+    public static Map<String, Object> convertConfigToMap(File file) {
+        if (file.getName().endsWith(".json")) {
+            InputStream stream;
+            try {
+                stream = new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            InputStreamReader streamReader = new InputStreamReader(stream, StandardCharsets.UTF_8); //一定要以utf-8读取
+            JsonReader reader = new JsonReader(streamReader);
+            Gson gson = new GsonBuilder().registerTypeAdapter(new TypeToken<Map<String, Object>>() {
+            }.getType(), new GsonAdapter()).create();
+            Map<String, Object> mainMap = gson.fromJson(reader, new TypeToken<Map<String, Object>>() {
+            }.getType());
+
+            // Remember to close the streamReader after your implementation.
+            try {
+                reader.close();
+                streamReader.close();
+                stream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return mainMap;
+        } else if (file.getName().endsWith(".yml")) {
+            return new Config(file, Config.YAML).getAll();
+        }
+        return new HashMap<>();
+    }
+
+    public static Item parseItemFromMap(Map<String, Object> map) {
+        Item item = Item.fromString((String) map.get("id"));
+        item.setDamage((Integer) map.getOrDefault("damage", 1));
+        item.setCount((Integer) map.getOrDefault("count", 1));
+        if (map.containsKey("enchantments")) {
+            List<Map<String, Object>> enchantmentDataEntries = (List<Map<String, Object>>) map.get("enchantments");
+            for (Map<String, Object> enchantmentDataEntry : enchantmentDataEntries) {
+                Enchantment enchantment = Enchantment.getEnchantment((Integer) enchantmentDataEntry.get("id"));
+                enchantment.setLevel((Integer) enchantmentDataEntry.getOrDefault("level", 1));
+                item.addEnchantment(enchantment);
+            }
+        }
+        if (item.getNamedTag() == null) {
+            item.setNamedTag(new CompoundTag());
+        }
+        item.getNamedTag().putBoolean("Unbreakable", true);
+        return item;
     }
 }
