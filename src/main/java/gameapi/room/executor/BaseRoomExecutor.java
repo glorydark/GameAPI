@@ -187,6 +187,16 @@ public class BaseRoomExecutor implements RoomExecutor {
 
     @Override
     public void beginGameStart() {
+        for (Player p : room.getPlayers()) {
+            p.removeAllEffects();
+            p.getFoodData().reset();
+            p.setGamemode(room.getRoomRule().getGameMode());
+            p.sendTitle(GameAPI.getLanguage().getTranslation(p, "room.title.start"), GameAPI.getLanguage().getTranslation(p, "room.subtitle.start"));
+            p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.zero"));
+        }
+        if (!room.getRoomRule().isAutoTeleport()) {
+            return;
+        }
         List<AdvancedLocation> startSpawns = room.getStartSpawn();
         if (room.getTeams().size() > 0) {
             room.allocatePlayerToTeams();
@@ -224,12 +234,6 @@ public class BaseRoomExecutor implements RoomExecutor {
                     location.teleport(p);
                 }
             }
-        }
-        for (Player p : room.getPlayers()) {
-            p.getFoodData().reset();
-            p.setGamemode(room.getRoomRule().getGameMode());
-            p.sendTitle(GameAPI.getLanguage().getTranslation(p, "room.title.start"), GameAPI.getLanguage().getTranslation(p, "room.subtitle.start"));
-            p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.zero"));
         }
     }
 

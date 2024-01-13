@@ -133,7 +133,6 @@ public class RoomTask extends AsyncTask {
                 if (room.getPlayers().size() >= room.getMinPlayer()) {
                     if (!room.getRoomRule().isNeedPreStartPass() || room.isPreStartPass()) {
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart);
-                        room.setTime(0);
                         room.setRound(0);
                         room.getStatusExecutor().beginPreStart();
                     } else {
@@ -145,9 +144,8 @@ public class RoomTask extends AsyncTask {
                 break;
             case PreStart:
                 if (room.getTime() >= room.getWaitTime()) {
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GameReadyStart);
-                    room.setTime(0);
                     room.getStatusExecutor().beginReadyStart();
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GameReadyStart);
                 } else {
                     room.getStatusExecutor().onPreStart();
                     room.setTime(room.getTime() + 1);
@@ -155,11 +153,10 @@ public class RoomTask extends AsyncTask {
                 break;
             case ReadyStart:
                 if (room.getTime() >= room.getGameWaitTime()) {
-                    room.setTime(0);
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart);
                     room.setRound(room.getRound() + 1);
                     room.getStatusExecutor().beginGameStart();
                     room.setStartMillis(System.currentTimeMillis());
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart);
                 } else {
                     room.getStatusExecutor().onReadyStart();
                     room.setTime(room.getTime() + 1);
@@ -167,9 +164,8 @@ public class RoomTask extends AsyncTask {
                 break;
             case InGame:
                 if (room.getTime() >= room.getGameTime()) {
-                    room.setTime(0);
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd);
                     room.getStatusExecutor().beginGameEnd();
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd);
                 } else {
                     room.getStatusExecutor().onGameStart();
                     if (!room.getRoomRule().isNoTimeLimit()) {
@@ -183,13 +179,11 @@ public class RoomTask extends AsyncTask {
             case GameEnd:
                 if (room.getTime() >= room.getGameEndTime()) {
                     if (room.getRound() == room.getMaxRound()) {
-                        room.setTime(0);
-                        room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony);
                         room.getStatusExecutor().beginCeremony();
+                        room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony);
                     } else {
-                        room.setTime(0);
-                        room.setRoomStatus(RoomStatus.ROOM_STATUS_NextRoundPreStart);
                         room.getStatusExecutor().beginNextRoundPreStart();
+                        room.setRoomStatus(RoomStatus.ROOM_STATUS_NextRoundPreStart);
                     }
                 } else {
                     room.getStatusExecutor().onGameEnd();
@@ -198,8 +192,6 @@ public class RoomTask extends AsyncTask {
                 break;
             case Ceremony:
                 if (room.getTime() >= room.getCeremonyTime()) {
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_End);
-                    room.setTime(0);
                     for (Player p : room.getPlayers()) {
                         p.setGamemode(0);
                         InventoryTools.loadBag(p);
@@ -208,6 +200,7 @@ public class RoomTask extends AsyncTask {
                         //玩家先走
                         p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                     }
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_End);
                     room.resetAll();
                 } else {
                     room.getStatusExecutor().onCeremony();
@@ -216,7 +209,6 @@ public class RoomTask extends AsyncTask {
                 break;
             case NextRoundPreStart:
                 if (room.getTime() >= room.getGameWaitTime()) {
-                    room.setTime(0);
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart);
                     room.setRound(room.getRound() + 1);
                     room.getStatusExecutor().beginGameStart();

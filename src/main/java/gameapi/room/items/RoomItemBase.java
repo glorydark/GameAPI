@@ -19,10 +19,17 @@ public abstract class RoomItemBase {
     protected String identifier;
 
     public RoomItemBase(String identifier, String name, Item item) {
+        this(identifier, name, item, ItemLockType.NONE);
+    }
+
+    public RoomItemBase(String identifier, String name, Item item, ItemLockType lockType) {
         this.item = item;
         this.identifier = identifier;
         this.item.setCustomName(name);
         this.item.getNamedTag().putString("room_item", getIdentifier());
+        if (lockType.ordinal() > 0 && lockType.ordinal() < 3) {
+            this.item.getNamedTag().putByte("minecraft:item_lock", lockType.ordinal());
+        }
     }
 
     public RoomItemBase(String identifier, String name, String itemString) {
@@ -46,7 +53,6 @@ public abstract class RoomItemBase {
 
     public Item toRoomItem() {
         Item item = getItem().clone();
-
         return item;
     }
 
@@ -64,5 +70,11 @@ public abstract class RoomItemBase {
 
     public boolean onHeldItem(RoomPlayerItemHeldEvent event) {
         return true;
+    }
+
+    public enum ItemLockType {
+        NONE,
+        LOCK_IN_INVENTORY,
+        LOCK_IN_SLOT
     }
 }

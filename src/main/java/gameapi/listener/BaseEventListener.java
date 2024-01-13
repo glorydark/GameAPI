@@ -14,7 +14,6 @@ import cn.nukkit.event.entity.*;
 import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.level.Level;
-import cn.nukkit.level.ParticleEffect;
 import gameapi.GameAPI;
 import gameapi.commands.BaseCommand;
 import gameapi.entity.EntityTools;
@@ -28,6 +27,7 @@ import gameapi.inventory.InventoryTools;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomChatData;
+import gameapi.room.RoomHealthManager;
 import gameapi.room.RoomStatus;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
@@ -256,7 +256,7 @@ public class BaseEventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void PlayerDamageEvent(EntityDamageEvent event) {
+    public void EntityDamageEvent(EntityDamageEvent event) {
         Entity entity = event.getEntity();
         Optional<Room> roomOptional = Room.getRoom(entity.getLevel());
         if (!roomOptional.isPresent()) {
@@ -264,6 +264,9 @@ public class BaseEventListener implements Listener {
         }
         Room room = roomOptional.get();
         if (entity instanceof Player) {
+            if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
+                event.setCancelled(true);
+            }
             Player player = (Player) entity;
             switch (event.getCause()) {
                 case FALL:
@@ -285,34 +288,77 @@ public class BaseEventListener implements Listener {
                     }
                     break;
             }
-            if (entity.getHealth() - event.getFinalDamage() <= 0) {
-                event.setCancelled(true);
-                if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
-                    RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(room, (Player) entity, event.getCause());
-                    //Server.getInstance().getPluginManager().callEvent(ev);
-                    GameListenerRegistry.callEvent(room, ev);
-                    if (!ev.isCancelled()) {
-                        entity.setHealth(entity.getMaxHealth());
-                        damageSources.remove(entity.getName());
-                        int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
-                        if (respawnTicks <= 0) {
-                            room.processRespawn(player, player.getGamemode());
-                        } else {
-                            player.setGamemode(3);
-                            Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> room.processRespawn(player, player.getGamemode()), room.getRoomRule().getRespawnCoolDownTick());
+            if (room.getRoomRule().isVirtualHealth()) {
+                event.setDamage(0);
+                RoomHealthManager manager = room.getRoomHealthManager();
+                if (manager.getHealth(player) - event.getFinalDamage() <= 0) {
+                    if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
+                        RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(room, (Player) entity, event.getCause());
+                        GameListenerRegistry.callEvent(room, ev);
+                        if (!ev.isCancelled()) {
+                            manager.setHealth(player, manager.getMaxHealth());
+                            damageSources.remove(entity.getName());
+                            if (room.getRoomRule().isAllowRespawn()) {
+                                int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
+                                if (respawnTicks <= 0) {
+                                    room.processRespawn(player, player.getGamemode());
+                                } else {
+                                    player.setGamemode(3);
+                                    Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> room.processRespawn(player, player.getGamemode()), room.getRoomRule().getRespawnCoolDownTick());
+                                }
+                            } else {
+                                player.setGamemode(3);
+                            }
                         }
+                    } else {
+                        manager.setHealth(player, manager.getMaxHealth());
                     }
-                } else {
-                    entity.setHealth(entity.getMaxHealth());
+                }
+            } else {
+                if (entity.getHealth() - event.getFinalDamage() <= 0) {
+                    if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
+                        RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(room, (Player) entity, event.getCause());
+                        //Server.getInstance().getPluginManager().callEvent(ev);
+                        GameListenerRegistry.callEvent(room, ev);
+                        if (!ev.isCancelled()) {
+                            entity.setHealth(entity.getMaxHealth());
+                            damageSources.remove(entity.getName());
+                            if (room.getRoomRule().isAllowRespawn()) {
+                                int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
+                                if (respawnTicks <= 0) {
+                                    room.processRespawn(player, player.getGamemode());
+                                } else {
+                                    player.setGamemode(3);
+                                    Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> room.processRespawn(player, player.getGamemode()), room.getRoomRule().getRespawnCoolDownTick());
+                                }
+                            } else {
+                                player.setGamemode(3);
+                            }
+                        }
+                    } else {
+                        entity.setHealth(entity.getMaxHealth());
+                    }
                 }
             }
+        }
+        if (event.isCancelled()) {
+            return;
         }
         RoomEntityDamageEvent roomEntityDamageEvent = new RoomEntityDamageEvent(room, entity, event.getCause(), event.getFinalDamage());
         GameListenerRegistry.callEvent(room, roomEntityDamageEvent);
         if (roomEntityDamageEvent.isCancelled()) {
             event.setCancelled(true);
         } else {
-            event.setDamage(roomEntityDamageEvent.getDamage());
+            if (entity instanceof Player) {
+                if (room.getRoomRule().isVirtualHealth()) {
+                    event.setDamage(0f);
+                    room.getRoomHealthManager().deductHealth((Player) entity, Double.parseDouble(String.valueOf(roomEntityDamageEvent.getDamage())));
+                } else {
+                    event.setDamage(roomEntityDamageEvent.getDamage());
+                }
+            } else {
+                event.setDamage(roomEntityDamageEvent.getDamage());
+            }
             // todo: atk cd
         }
     }
@@ -336,40 +382,34 @@ public class BaseEventListener implements Listener {
                     GameListenerRegistry.callEvent(room1, roomPlayerInteractPlayerEvent);
                     if (!room1.getRoomRule().isAllowDamagePlayer() || room1.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                         event.setCancelled(true);
+                        return;
                     }
                     if (room1.getTeams().size() > 0) {
                         if (room1.getPlayerTeam(p1) != null && room1.getPlayerTeam(p1) == room2.getPlayerTeam(p2)) {
                             p1.sendMessage(GameAPI.getLanguage().getTranslation(p1, "baseEvent.teamDamage.notAllowed"));
                             event.setCancelled(true);
-                        } else {
-                            addDamageSource(p1.getName(), p2.getName());
+                            return;
                         }
-                    } else {
-                        addDamageSource(p1.getName(), p2.getName());
                     }
+                    addDamageSource(p1.getName(), p2.getName());
                 }
             }
-        }
-        if (event.isCancelled()) {
-            return;
         }
         RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, event);
         GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
         if (roomEntityDamageByEntityEvent.isCancelled()) {
             event.setCancelled(true);
         } else {
-            if (room1.getRoomRule().isExperimentalFeature()) {
-                if (event.getDamager() instanceof Player) {
-                    Player damagePlayer = (Player) event.getDamager();
-                    if (damagePlayer.fallDistance >= 0.5 && damagePlayer.getInventory().getItemInHand().isAxe()) {
-                        entity.getLevel().addParticleEffect(entity.getPosition(), ParticleEffect.CRITICAL_HIT);
-                        roomEntityDamageByEntityEvent.setDamage(roomEntityDamageByEntityEvent.getDamage() * 1.5f);
-                    }
-                }
+            if (event.getEntity() instanceof Player && room1.getRoomRule().isVirtualHealth()) {
+                event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
+                event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
+                room1.getRoomHealthManager().deductHealth((Player) event.getEntity(), Double.parseDouble(String.valueOf(roomEntityDamageByEntityEvent.getDamage())));
+                event.setDamage(0);
+            } else {
+                event.setDamage(roomEntityDamageByEntityEvent.getDamage());
+                event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
+                event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
             }
-            event.setDamage(roomEntityDamageByEntityEvent.getDamage());
-            event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
-            event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
         }
     }
 

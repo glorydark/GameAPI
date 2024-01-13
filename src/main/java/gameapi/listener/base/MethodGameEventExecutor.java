@@ -23,9 +23,8 @@ public class MethodGameEventExecutor implements GameEventExecutor {
                     this.method.invoke(listener, event);
                 }
             }
-        } catch (InvocationTargetException ite) {
-            throw new GameEventException(ite.getCause());
-        } catch (ClassCastException ignored) {
+        } catch (InvocationTargetException | ClassCastException | IllegalArgumentException ite) {
+            throw new GameEventException(ite.getCause() + "/" + listener.getClass().getName() + "/" + event.getEventName() + "/" + this.method.getParameterTypes()[0].getName());
         } catch (Throwable throwable) {
             throw new GameEventException(throwable);
         }

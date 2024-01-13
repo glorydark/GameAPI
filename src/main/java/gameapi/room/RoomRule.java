@@ -75,6 +75,10 @@ public class RoomRule {
 
     private List<String> allowJoinPlayers = new ArrayList<>();
 
+    private boolean virtualHealth = false;
+
+    private boolean autoTeleport = true;
+
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
     }

@@ -8,6 +8,7 @@ import gameapi.GameAPI;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class Language {
@@ -21,7 +22,7 @@ public class Language {
     public Language(String pluginName) {
         lang = new HashMap<>();
         this.pluginName = pluginName;
-        this.defaultLanguage = Server.getInstance().getLanguage().getLang();
+        this.defaultLanguage = Locale.getDefault().getLanguage() + "_" + Locale.getDefault().getCountry();
     }
 
     public String getPluginName() {

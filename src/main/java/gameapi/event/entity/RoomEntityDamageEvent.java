@@ -13,7 +13,7 @@ import gameapi.room.Room;
 public class RoomEntityDamageEvent extends RoomEntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final EntityDamageEvent.DamageCause cause;
-    private final float damage;
+    private float damage;
 
     public RoomEntityDamageEvent(Room room, Entity entity, EntityDamageEvent.DamageCause cause, final float damage) {
         this.room = room;
@@ -36,6 +36,6 @@ public class RoomEntityDamageEvent extends RoomEntityEvent implements Cancellabl
     }
 
     public void setDamage(float damage) {
-        this.setDamage(damage);
+        this.damage = damage;
     }
 }

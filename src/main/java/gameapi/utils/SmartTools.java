@@ -419,6 +419,11 @@ public class SmartTools {
         Item item = Item.fromString((String) map.get("id"));
         item.setDamage((Integer) map.getOrDefault("damage", 1));
         item.setCount((Integer) map.getOrDefault("count", 1));
+        if (!item.hasCompoundTag()) {
+            item.setNamedTag(new CompoundTag().putBoolean("Unbreakable", true));
+        } else {
+            item.getNamedTag().putBoolean("Unbreakable", true);
+        }
         if (map.containsKey("enchantments")) {
             List<Map<String, Object>> enchantmentDataEntries = (List<Map<String, Object>>) map.get("enchantments");
             for (Map<String, Object> enchantmentDataEntry : enchantmentDataEntries) {
@@ -427,10 +432,6 @@ public class SmartTools {
                 item.addEnchantment(enchantment);
             }
         }
-        if (item.getNamedTag() == null) {
-            item.setNamedTag(new CompoundTag());
-        }
-        item.getNamedTag().putBoolean("Unbreakable", true);
         return item;
     }
 }
