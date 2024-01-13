@@ -18,6 +18,7 @@ import gameapi.language.Language;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
+import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.PlayerTools;
@@ -88,6 +89,8 @@ public class Room {
     private long startMillis;
     @Setter(AccessLevel.NONE)
     private RoomUpdateTask roomUpdateTask;
+    @Setter(AccessLevel.NONE)
+    private LinkedHashMap<String, RoomItemBase> roomItems = new LinkedHashMap<>();
 
     public Room(String gameName, RoomRule roomRule, List<Level> playLevels, String roomLevelBackup, int round) {
         this.maxRound = round;
@@ -106,6 +109,16 @@ public class Room {
 
     public Room(String gameName, RoomRule roomRule, Level playLevel, String roomLevelBackup, int round) {
         this(gameName, roomRule, new ArrayList<>(Collections.singletonList(playLevel)), roomLevelBackup, round);
+    }
+
+    public void registerRoomItem(RoomItemBase... roomItems) {
+        for (RoomItemBase roomItem : roomItems) {
+            this.roomItems.put(roomItem.getIdentifier(), roomItem);
+        }
+    }
+
+    public RoomItemBase getRoomItem(String identifier) {
+        return this.roomItems.get(identifier);
     }
 
     public static boolean isRoomCurrentPlayLevel(Level level) {

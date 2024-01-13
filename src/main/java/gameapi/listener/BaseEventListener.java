@@ -13,7 +13,6 @@ import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.*;
 import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.player.*;
-import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.ParticleEffect;
 import gameapi.GameAPI;
@@ -30,6 +29,7 @@ import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomChatData;
 import gameapi.room.RoomStatus;
+import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.PosSet;
@@ -134,9 +134,14 @@ public class BaseEventListener implements Listener {
                         event.setCancelled(true);
                     } else {
                         RoomBlockPlaceEvent roomBlockPlaceEvent = new RoomBlockPlaceEvent(room, event.getBlock(), player, event.getItem(), event.getBlockAgainst(), event.getBlockReplace());
-                        GameListenerRegistry.callEvent(room, roomBlockPlaceEvent);
-                        if (roomBlockPlaceEvent.isCancelled()) {
-                            event.setCancelled(true);
+                        RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(event.getItem()));
+                        if (roomItemBase != null) {
+                            event.setCancelled(!roomItemBase.onPlaceBlock(roomBlockPlaceEvent));
+                        } else {
+                            GameListenerRegistry.callEvent(room, roomBlockPlaceEvent);
+                            if (roomBlockPlaceEvent.isCancelled()) {
+                                event.setCancelled(true);
+                            }
                         }
                     }
                 } else {
@@ -525,9 +530,14 @@ public class BaseEventListener implements Listener {
         Room room = Room.getRoom(player);
         if (room != null) {
             RoomPlayerInteractEvent roomPlayerInteractEvent = new RoomPlayerInteractEvent(room, player, event.getBlock(), event.getTouchVector(), event.getFace(), event.getItem(), event.getAction());
-            GameListenerRegistry.callEvent(room, roomPlayerInteractEvent);
-            if (roomPlayerInteractEvent.isCancelled()) {
-                event.setCancelled(true);
+            RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(event.getItem()));
+            if (roomItemBase != null) {
+                event.setCancelled(!roomItemBase.onInteract(roomPlayerInteractEvent));
+            } else {
+                GameListenerRegistry.callEvent(room, roomPlayerInteractEvent);
+                if (roomPlayerInteractEvent.isCancelled()) {
+                    event.setCancelled(true);
+                }
             }
         } else {
             if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
@@ -555,9 +565,14 @@ public class BaseEventListener implements Listener {
         Room room = Room.getRoom(player);
         if (room != null) {
             RoomPlayerItemHeldEvent roomPlayerItemHeldEvent = new RoomPlayerItemHeldEvent(room, player, event.getItem());
-            GameListenerRegistry.callEvent(room, roomPlayerItemHeldEvent);
-            if (roomPlayerItemHeldEvent.isCancelled()) {
-                event.setCancelled(true);
+            RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(event.getItem()));
+            if (roomItemBase != null) {
+                event.setCancelled(!roomItemBase.onHeldItem(roomPlayerItemHeldEvent));
+            } else {
+                GameListenerRegistry.callEvent(room, roomPlayerItemHeldEvent);
+                if (roomPlayerItemHeldEvent.isCancelled()) {
+                    event.setCancelled(true);
+                }
             }
         }
     }
