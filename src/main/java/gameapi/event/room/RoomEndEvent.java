@@ -1,6 +1,5 @@
 package gameapi.event.room;
 
-import gameapi.event.Cancellable;
 import gameapi.event.RoomEvent;
 import gameapi.room.Room;
 

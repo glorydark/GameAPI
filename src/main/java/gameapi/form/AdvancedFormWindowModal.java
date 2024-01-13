@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseModal;
 import cn.nukkit.form.window.FormWindowModal;
-import gameapi.annotation.Future;
 
 import java.util.function.Consumer;
 

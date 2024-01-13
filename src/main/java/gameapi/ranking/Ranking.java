@@ -5,7 +5,7 @@ import gameapi.GameAPI;
 import gameapi.entity.EntityTools;
 import gameapi.entity.RankingListEntity;
 import gameapi.ranking.simple.RankingValueType;
-import gameapi.utils.SmartTools;
+import gameapi.toolkit.SmartTools;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;

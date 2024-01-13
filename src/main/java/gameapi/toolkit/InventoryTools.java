@@ -1,13 +1,15 @@
-package gameapi.inventory;
+package gameapi.toolkit;
 
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Adapted from SmallAsWater's method
@@ -108,5 +110,25 @@ public class InventoryTools {
         Config config = new Config(GameAPI.path + "/inventory_caches/" + player.getName() + ".yml", Config.YAML);
         config.remove("bagCache");
         config.save();
+    }
+
+    public static Item parseItemFromMap(Map<String, Object> map) {
+        Item item = Item.fromString((String) map.get("id"));
+        item.setDamage((Integer) map.getOrDefault("damage", 1));
+        item.setCount((Integer) map.getOrDefault("count", 1));
+        if (!item.hasCompoundTag()) {
+            item.setNamedTag(new CompoundTag().putBoolean("Unbreakable", true));
+        } else {
+            item.getNamedTag().putBoolean("Unbreakable", true);
+        }
+        if (map.containsKey("enchantments")) {
+            List<Map<String, Object>> enchantmentDataEntries = (List<Map<String, Object>>) map.get("enchantments");
+            for (Map<String, Object> enchantmentDataEntry : enchantmentDataEntries) {
+                Enchantment enchantment = Enchantment.getEnchantment((Integer) enchantmentDataEntry.get("id"));
+                enchantment.setLevel((Integer) enchantmentDataEntry.getOrDefault("level", 1));
+                item.addEnchantment(enchantment);
+            }
+        }
+        return item;
     }
 }

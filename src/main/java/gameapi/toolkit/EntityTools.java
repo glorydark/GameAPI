@@ -1,7 +1,13 @@
-package gameapi.utils;
+package gameapi.toolkit;
 
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.item.EntityXPOrb;
+import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.tag.CompoundTag;
+
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author glorydark
@@ -50,5 +56,21 @@ public class EntityTools {
         }
 
         victim.setMotion(motion);
+    }
+
+    public static void dropExpOrb(Location source, int exp) {
+        if (source != null && source.getChunk() != null) {
+            Random rand = ThreadLocalRandom.current();
+            for (int split : EntityXPOrb.splitIntoOrbSizes(exp)) {
+                CompoundTag nbt = Entity.getDefaultNBT(source, new Vector3((rand.nextDouble() * 0.2 - 0.1) * 2.0, rand.nextDouble() * 0.4, (rand.nextDouble() * 0.2 - 0.1) * 2.0), rand.nextFloat() * 360.0F, 0.0F);
+                nbt.putShort("Value", split);
+                nbt.putShort("PickupDelay", 10);
+                nbt.putBoolean("AntiClean", true);
+                Entity entity = Entity.createEntity("XpOrb", source.getChunk(), nbt);
+                if (entity != null) {
+                    entity.spawnToAll();
+                }
+            }
+        }
     }
 }

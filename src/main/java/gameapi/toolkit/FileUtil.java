@@ -1,10 +1,18 @@
-package gameapi.utils;
+package gameapi.toolkit;
 
+import cn.nukkit.utils.Config;
 import cn.nukkit.utils.Utils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import gameapi.GameAPI;
+import gameapi.utils.GsonAdapter;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author lt_name (CrystalWar)
@@ -63,5 +71,36 @@ public class FileUtil {
         }
         return false;
     }
+
+    public static Map<String, Object> convertConfigToMap(File file) {
+        if (file.getName().endsWith(".json")) {
+            InputStream stream;
+            try {
+                stream = new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            InputStreamReader streamReader = new InputStreamReader(stream, StandardCharsets.UTF_8); //一定要以utf-8读取
+            JsonReader reader = new JsonReader(streamReader);
+            Gson gson = new GsonBuilder().registerTypeAdapter(new TypeToken<Map<String, Object>>() {
+            }.getType(), new GsonAdapter()).create();
+            Map<String, Object> mainMap = gson.fromJson(reader, new TypeToken<Map<String, Object>>() {
+            }.getType());
+
+            // Remember to close the streamReader after your implementation.
+            try {
+                reader.close();
+                streamReader.close();
+                stream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return mainMap;
+        } else if (file.getName().endsWith(".yml")) {
+            return new Config(file, Config.YAML).getAll();
+        }
+        return new HashMap<>();
+    }
+
 
 }

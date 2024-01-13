@@ -6,7 +6,6 @@ import cn.nukkit.form.element.ElementButtonImageData;
 import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseSimple;
 import cn.nukkit.form.window.FormWindowSimple;
-import gameapi.annotation.Future;
 
 import java.util.List;
 import java.util.function.BiConsumer;

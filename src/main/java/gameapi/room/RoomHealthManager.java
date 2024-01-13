@@ -11,11 +11,9 @@ import java.util.LinkedHashMap;
  */
 public class RoomHealthManager {
 
-    private LinkedHashMap<Player, Double> healthMap = new LinkedHashMap<>();
-
-    private double maxHealth = 20.0d;
-
     protected final Room room;
+    private LinkedHashMap<Player, Double> healthMap = new LinkedHashMap<>();
+    private double maxHealth = 20.0d;
 
     public RoomHealthManager(Room room) {
         this.room = room;

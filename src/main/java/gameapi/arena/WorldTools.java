@@ -10,7 +10,7 @@ import gameapi.GameAPI;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.utils.AdvancedLocation;
-import gameapi.utils.FileUtil;
+import gameapi.toolkit.FileUtil;
 
 import java.io.File;
 import java.util.ArrayList;

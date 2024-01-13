@@ -1,11 +1,10 @@
 package gameapi.room.items;
 
 import cn.nukkit.item.Item;
-import cn.nukkit.nbt.tag.CompoundTag;
 import gameapi.event.block.RoomBlockPlaceEvent;
 import gameapi.event.player.RoomPlayerInteractEvent;
 import gameapi.event.player.RoomPlayerItemHeldEvent;
-import gameapi.utils.SmartTools;
+import gameapi.toolkit.InventoryTools;
 
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public abstract class RoomItemBase {
     }
 
     public RoomItemBase(String identifier, String name, Map<String, Object> itemMap) {
-        this(identifier, name, SmartTools.parseItemFromMap(itemMap));
+        this(identifier, name, InventoryTools.parseItemFromMap(itemMap));
     }
 
     public static String getRoomItemIdentifier(Item item) {

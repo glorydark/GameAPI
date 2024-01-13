@@ -5,7 +5,6 @@ import cn.nukkit.form.element.Element;
 import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseCustom;
 import cn.nukkit.form.window.FormWindowCustom;
-import gameapi.annotation.Future;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,6 @@
 package gameapi.language;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;

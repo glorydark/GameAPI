@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import gameapi.toolkit.LevelTools;
 import lombok.Data;
 
 /**
@@ -31,7 +32,7 @@ public class AdvancedLocation {
 
     public AdvancedLocation(String string) {
         this.inputString = string;
-        AdvancedLocation loc = SmartTools.parseLocation(string);
+        AdvancedLocation loc = LevelTools.parseLocation(string);
         if (loc != null) {
             switch (loc.getVersion()) {
                 case 2:

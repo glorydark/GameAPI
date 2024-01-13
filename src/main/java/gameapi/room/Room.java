@@ -12,15 +12,15 @@ import gameapi.event.room.*;
 import gameapi.extensions.checkPoint.Checkpoints;
 import gameapi.form.AdvancedFormMain;
 import gameapi.form.AdvancedFormWindowCustom;
-import gameapi.inventory.InventoryTools;
 import gameapi.language.Language;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
+import gameapi.toolkit.InventoryTools;
+import gameapi.toolkit.PlayerTools;
 import gameapi.utils.AdvancedLocation;
-import gameapi.utils.PlayerTools;
 import gameapi.utils.Tips;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -110,16 +110,6 @@ public class Room {
         this(gameName, roomRule, new ArrayList<>(Collections.singletonList(playLevel)), roomLevelBackup, round);
     }
 
-    public void registerRoomItem(RoomItemBase... roomItems) {
-        for (RoomItemBase roomItem : roomItems) {
-            this.roomItems.put(roomItem.getIdentifier(), roomItem);
-        }
-    }
-
-    public RoomItemBase getRoomItem(String identifier) {
-        return this.roomItems.get(identifier);
-    }
-
     public static boolean isRoomCurrentPlayLevel(Level level) {
         if (GameAPI.playerRoomHashMap.size() > 0) {
             return GameAPI.playerRoomHashMap.values().stream().anyMatch(room -> room != null && room.playLevels.stream().anyMatch(l -> l.equals(level)));
@@ -154,6 +144,16 @@ public class Room {
             }
         }
         return null;
+    }
+
+    public void registerRoomItem(RoomItemBase... roomItems) {
+        for (RoomItemBase roomItem : roomItems) {
+            this.roomItems.put(roomItem.getIdentifier(), roomItem);
+        }
+    }
+
+    public RoomItemBase getRoomItem(String identifier) {
+        return this.roomItems.get(identifier);
     }
 
     public Object getPlayerProperties(Player player, String key) {
