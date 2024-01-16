@@ -73,7 +73,7 @@ public class RoomTask extends AsyncTask {
                                 hasPlayer.addAndGet(1);
                             }
                         });
-                        if (hasPlayer.get() < 2) {
+                        if (hasPlayer.get() < room.getMinPlayer()) {
                             room.setTime(0);
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd);
                             for (Player player : room.getPlayers()) {

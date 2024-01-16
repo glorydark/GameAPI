@@ -2,6 +2,7 @@ package gameapi.toolkit;
 
 import cn.nukkit.Server;
 import cn.nukkit.level.Location;
+import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
 import gameapi.utils.AdvancedLocation;
@@ -86,5 +87,63 @@ public class LevelTools {
             }
             return advancedLocation;
         }
+    }
+
+    public static SimpleAxisAlignedBB[] splitSimpleAxisAlignedBB(SimpleAxisAlignedBB original, double maxBlockSizeX, double maxBlockSizeY, double maxBlockSizeZ) {
+        double minX = original.getMinX();
+        double minY = original.getMinY();
+        double minZ = original.getMinZ();
+        double maxX = original.getMaxX();
+        double maxY = original.getMaxY();
+        double maxZ = original.getMaxZ();
+
+        double currentMinX = minX;
+        double currentMinY = minY;
+        double currentMinZ = minZ;
+
+        int xBlocks = 0;
+        while (currentMinX < maxX) {
+            currentMinX += maxBlockSizeX;
+            xBlocks++;
+        }
+
+        int yBlocks = 0;
+        while (currentMinY < maxY) {
+            currentMinY += maxBlockSizeY;
+            yBlocks++;
+        }
+
+        int zBlocks = 0;
+        while (currentMinZ < maxZ) {
+            currentMinZ += maxBlockSizeZ;
+            zBlocks++;
+        }
+
+        SimpleAxisAlignedBB[] result = new SimpleAxisAlignedBB[xBlocks * yBlocks * zBlocks];
+
+        currentMinX = minX;
+        for (int x = 0; x < xBlocks; x++) {
+            double currentMaxX = Math.min(maxX, currentMinX + maxBlockSizeX);
+            currentMinY = minY;
+
+            for (int y = 0; y < yBlocks; y++) {
+                double currentMaxY = Math.min(maxY, currentMinY + maxBlockSizeY);
+                currentMinZ = minZ;
+
+                for (int z = 0; z < zBlocks; z++) {
+                    double currentMaxZ = Math.min(maxZ, currentMinZ + maxBlockSizeZ);
+
+                    result[x * (yBlocks * zBlocks) + y * zBlocks + z] = new SimpleAxisAlignedBB(currentMinX, currentMinY, currentMinZ, currentMaxX, currentMaxY, currentMaxZ);
+
+                    currentMinZ += maxBlockSizeZ;
+                }
+
+                currentMinY += maxBlockSizeY;
+            }
+
+            currentMinX += maxBlockSizeX;
+        }
+
+        return result;
     }
 }

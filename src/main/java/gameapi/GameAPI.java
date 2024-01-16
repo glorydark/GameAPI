@@ -33,7 +33,7 @@ import gameapi.utils.GameRecord;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 /**
  * @author Glorydark
@@ -161,6 +161,7 @@ public class GameAPI extends PluginBase implements Listener {
             }
         }, 5, true);
         tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
+        BaseCommand.THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
         this.getLogger().info("§aDGameAPI Enabled!");
     }
 
@@ -236,6 +237,7 @@ public class GameAPI extends PluginBase implements Listener {
         playerRoomHashMap.clear();
         gameRecord.clear();
         GameListenerRegistry.clearAllRegisters();
+        BaseCommand.THREAD_POOL_EXECUTOR.shutdown();
         this.getLogger().info("DGameAPI Disabled!");
     }
 

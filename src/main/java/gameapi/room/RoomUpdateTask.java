@@ -127,6 +127,10 @@ public class RoomUpdateTask extends Task {
         if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameReadyStart && !room.getRoomRule().isAllowReadyStartWalk()) {
             Location from = getPlayerLastLocation(player);
             Location to = player.getLocation();
+            if (from.getLevel() != to.getLevel()) {
+                setPlayerLastLocation(player, to);
+                return;
+            }
             if (from.getFloorX() != to.getFloorX() || from.getFloorZ() != to.getFloorZ()) {
                 player.teleport(from, null);
             }
@@ -139,6 +143,8 @@ public class RoomUpdateTask extends Task {
             if (from != null) {
                 player.teleport(from, null);
             }
+        } else {
+            setPlayerLastLocation(player, roomPlayerMoveEvent.getTo());
         }
     }
 

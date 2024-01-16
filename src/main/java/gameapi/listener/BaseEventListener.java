@@ -228,7 +228,7 @@ public class BaseEventListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void ExplodePrimeEvent(ExplosionPrimeEvent event) {
         List<Room> roomList = new ArrayList<>();
         GameAPI.loadedRooms.forEach((s, rooms) -> roomList.addAll(rooms));
@@ -443,7 +443,7 @@ public class BaseEventListener implements Listener {
             return;
         }
         Room room = Room.getRoom(player);
-        if (room != null) {
+        if (room != null && event.getCause() != null) {
             if (!fromLevel.equals(toLevel)) {
                 List<Level> arenas = new LinkedList<>();
                 arenas.add(room.getWaitSpawn().getLevel());

@@ -3,11 +3,18 @@ package gameapi.commands;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockUnknown;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Level;
+import cn.nukkit.level.Position;
 import cn.nukkit.level.Sound;
 import cn.nukkit.math.SimpleAxisAlignedBB;
+import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.NBTIO;
+import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
@@ -18,11 +25,18 @@ import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.sound.SoundTools;
 import gameapi.toolkit.InventoryTools;
+import gameapi.toolkit.LevelTools;
 import gameapi.toolkit.SmartTools;
 import gameapi.utils.PosSet;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Glorydark
@@ -31,6 +45,10 @@ import java.util.*;
 public class BaseCommand extends Command {
 
     public static LinkedHashMap<Player, PosSet> posSetLinkedHashMap = new LinkedHashMap<>();
+
+    public static ForkJoinPool THREAD_POOL_EXECUTOR;
+
+    public boolean generate;
 
     public BaseCommand(String name) {
         super(name);
@@ -298,9 +316,75 @@ public class BaseCommand extends Command {
                         Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
                             @Override
                             public void onRun() {
+                                bb.forEach(((i, i1, i2) -> player.getLevel().setBlock(i, i1, i2, block, true, true)));
+                                player.sendMessage("Finish fill task");
+                            }
+                        });
+                    }
+                    break;
+                case "replace":
+                    if (!commandSender.isPlayer()) {
+                        return false;
+                    }
+                    player = (Player) commandSender;
+                    posSet = posSetLinkedHashMap.get(player);
+                    if (posSet == null) {
+                        player.sendMessage("Pos set is null");
+                        return false;
+                    }
+                    if (posSet.getPos1() == null || posSet.getPos2() == null) {
+                        player.sendMessage("You haven't set pos1 or pos2");
+                        return false;
+                    }
+                    if (strings.length == 3) {
+                        SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
+                        Level level = player.getLevel();
+                        Block block = SmartTools.getBlockfromString(strings[1]);
+                        Block blockReplaced = SmartTools.getBlockfromString(strings[2]);
+                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
+                            @Override
+                            public void onRun() {
+                                AtomicInteger count = new AtomicInteger();
                                 bb.forEach(((i, i1, i2) -> {
-                                    player.getLevel().setBlock(i, i1, i2, block, true, true);
+                                    if (level.getBlock(i, i1, i2).getId() == block.getId() && level.getBlock(i, i1, i2).getDamage() == block.getDamage()) {
+                                        level.setBlock(i, i1, i2, blockReplaced, true, true);
+                                        count.getAndIncrement();
+                                    }
                                 }));
+                                player.sendMessage("Finish fill task for " + count + " " + block.getName() + " replaced with " + blockReplaced.getName());
+                            }
+                        });
+                    }
+                    break;
+                case "replaceunknown":
+                    if (!commandSender.isPlayer()) {
+                        return false;
+                    }
+                    player = (Player) commandSender;
+                    posSet = posSetLinkedHashMap.get(player);
+                    if (posSet == null) {
+                        player.sendMessage("Pos set is null");
+                        return false;
+                    }
+                    if (posSet.getPos1() == null || posSet.getPos2() == null) {
+                        player.sendMessage("You haven't set pos1 or pos2");
+                        return false;
+                    }
+                    if (strings.length == 2) {
+                        SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
+                        Level level = player.getLevel();
+                        Block blockReplaced = SmartTools.getBlockfromString(strings[1]);
+                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
+                            @Override
+                            public void onRun() {
+                                AtomicInteger count = new AtomicInteger();
+                                bb.forEach(((i, i1, i2) -> {
+                                    if (level.getBlock(i, i1, i2) instanceof BlockUnknown) {
+                                        level.setBlock(i, i1, i2, blockReplaced, true, true);
+                                        count.getAndIncrement();
+                                    }
+                                }));
+                                player.sendMessage("Finish fill task for " + count + " unknown blocks replaced with" + blockReplaced.getName());
                             }
                         });
                     }
@@ -313,9 +397,148 @@ public class BaseCommand extends Command {
                     player.getLevel().regenerateChunk(player.getChunkX(), player.getChunkZ());
                     player.sendMessage("Reset chunk successfully!");
                     break;
+                case "savebuild":
+                    // /gameapi savebuild 631 71 -256
+                    if (generate) {
+                        GameAPI.plugin.getLogger().info("目前正在生成建筑，请稍后...");
+                    }
+                    if (!commandSender.isPlayer()) {
+                        return false;
+                    }
+                    generate = true;
+                    player = (Player) commandSender;
+                    Vector3 p1 = new Vector3(Integer.parseInt(strings[1]), Integer.parseInt(strings[2]), Integer.parseInt(strings[3]));
+                    Vector3 p2 = new Vector3(player.getFloorX(), player.getFloorY(), player.getFloorZ());
+                    SimpleAxisAlignedBB simpleAxisAlignedBB = new SimpleAxisAlignedBB(p1, p2);
+                    GameAPI.plugin.getLogger().info("Start building save task in {" + simpleAxisAlignedBB + "}");
+                    player.sendMessage("Start building save task in {" + simpleAxisAlignedBB + "}");
+                    String name = String.valueOf(System.currentTimeMillis());
+                    long startMillis = System.currentTimeMillis();
+                    SimpleAxisAlignedBB[] bbs = LevelTools.splitSimpleAxisAlignedBB(simpleAxisAlignedBB, 64, 32, 64);
+                    player.sendMessage("For better performance, the range are cut into various sections: ");
+                    GameAPI.plugin.getLogger().info("For better performance, the range are cut into various sections: ");
+                    for (int i = 0; i < bbs.length; i++) {
+                        player.sendMessage("- [" + i + "] " + bbs[i].toString());
+                        GameAPI.plugin.getLogger().info("- [" + i + "] " + bbs[i].toString());
+                    }
+                    CompletableFuture.runAsync(() -> {
+                        for (int bbsIndex = 0; bbsIndex < bbs.length; bbsIndex++) {
+                            int finalI = bbsIndex;
+                            SimpleAxisAlignedBB newBB = bbs[bbsIndex];
+                            player.sendMessage("Starting task " + finalI + "...");
+                            long startMillis1 = System.currentTimeMillis();
+                            AtomicLong count = new AtomicLong();
+                            long maxCount = BigDecimal.valueOf(newBB.getMaxX() - newBB.getMinX())
+                                    .multiply(BigDecimal.valueOf(newBB.getMaxY() - newBB.getMinY()))
+                                    .multiply(BigDecimal.valueOf(newBB.getMaxZ() - newBB.getMinZ()))
+                                    .longValue();
+                            AtomicLong lastTipPercentage = new AtomicLong(0);
+                            AtomicLong readBlockCount = new AtomicLong(0);
+                            CompoundTag tag = new CompoundTag().putList(new ListTag<>("blocks"));
+                            AtomicInteger sectionCount = new AtomicInteger(0);
+                            newBB.forEach(((i, i1, i2) -> {
+                                Block block = player.getLevel().getBlock(i, i1, i2);
+                                if (block.getId() != Block.AIR) {
+                                    int x = BigDecimal.valueOf(i).subtract(BigDecimal.valueOf(simpleAxisAlignedBB.getMinX())).intValue();
+                                    int y = BigDecimal.valueOf(i1).subtract(BigDecimal.valueOf(simpleAxisAlignedBB.getMinY())).intValue();
+                                    int z = BigDecimal.valueOf(i2).subtract(BigDecimal.valueOf(simpleAxisAlignedBB.getMinZ())).intValue();
+                                    tag.getList("blocks", CompoundTag.class).add(new CompoundTag()
+                                            .putInt("x", x)
+                                            .putInt("y", y)
+                                            .putInt("z", z)
+                                            .putInt("blockId", block.getId())
+                                            .putInt("damage", block.getDamage())
+                                    );
+                                    // GameAPI.plugin.getLogger().info("Outputing block info from {" + x + ", " + y + ", " + z + "} with {" + block.getName() + ":" + block.getDamage() + "}");
+                                    count.getAndIncrement();
+                                }
+                                readBlockCount.getAndIncrement();
+                                if (readBlockCount.get() > (maxCount / 100) * (lastTipPercentage.get() + 5)) {
+                                    GameAPI.plugin.getLogger().info("[" + finalI + "] Generating block... §e" + lastTipPercentage + "%");
+                                    lastTipPercentage.getAndAdd(5);
+                                }
+                            }));
+                            new File(GameAPI.path + "/buildings/" + name + "/").mkdirs();
+                            File file = new File(GameAPI.path + "/buildings/" + name + "/" + System.currentTimeMillis() + "_" + UUID.randomUUID() + ".nbt");
+                            if (file.exists()) {
+                                try {
+                                    file.createNewFile();
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                                fileOutputStream.write(NBTIO.write(tag));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            sectionCount.getAndIncrement();
+                            player.sendMessage("[" + finalI + "] Finish building save tasks in " + name + ". Time cost: " + SmartTools.timeDiffMillisToString(startMillis1, System.currentTimeMillis()));
+                            GameAPI.plugin.getLogger().info("[" + finalI + "] Finish building save tasks in " + name + ". Time cost: " + SmartTools.timeDiffMillisToString(startMillis1, System.currentTimeMillis()));
+                        }}, THREAD_POOL_EXECUTOR).thenRun(() -> {
+                        commandSender.sendMessage("Finish generating building task! Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillis));
+                        GameAPI.plugin.getLogger().info("Finish generating building task! Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillis));
+                        generate = false;
+                    });
+                    break;
+                case "createbuild":
+                    if (generate) {
+                        GameAPI.plugin.getLogger().info("目前正在生成建筑，请稍后...");
+                    }
+                    if (!commandSender.isPlayer()) {
+                        return false;
+                    }
+                    commandSender.sendMessage("Start generating building task...");
+                    GameAPI.plugin.getLogger().info("Start generating building task...");
+                    player = (Player) commandSender;
+                    Position startPos = new Position(player.getFloorX(), player.getFloorY(), player.getFloorZ(), player.getLevel());
+                    generate = true;
+                    startMillis = System.currentTimeMillis();
+                    AtomicInteger i = new AtomicInteger();
+                    for (File file : Objects.requireNonNull(new File(GameAPI.path + "/buildings/" + strings[1] + "/").listFiles())) {
+                        CompletableFuture.runAsync(() -> {{
+                            CompoundTag compoundTag;
+                            try {
+                                compoundTag = NBTIO.read(file);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            List<CompoundTag> tags = compoundTag.getList("blocks", CompoundTag.class).getAll();
+                            long maxCount = tags.size();
+                            AtomicLong lastTipPercentage = new AtomicLong(0);
+                            AtomicLong generated = new AtomicLong(0);
+                            for (CompoundTag blocks : tags) {
+                                int x = startPos.getFloorX() + blocks.getInt("x");
+                                int y = startPos.getFloorY() + blocks.getInt("y");
+                                int z = startPos.getFloorZ() + blocks.getInt("z");
+                                if (y > 256 || y < 0) {
+                                    System.out.println("Out of world's bound!");
+                                    continue;
+                                }
+                                Block block = Block.get(blocks.getInt("blockId"), blocks.getInt("damage"));
+                                if (block == null) {
+                                    block = new BlockUnknown(blocks.getInt("blockId"), blocks.getInt("damage"));
+                                }
+                                player.getLevel().setBlock(new Vector3(x, y, z), block, true, false);
+
+                                if (generated.get() >= (maxCount / 100) * (lastTipPercentage.get() + 5)) {
+                                    GameAPI.plugin.getLogger().info("[" + i + "] Generating block... §e" + lastTipPercentage.get() + "%");
+                                    lastTipPercentage.getAndAdd(5);
+                                }
+                                // GameAPI.plugin.getLogger().info("Generating block info at {" + x + ", " + y + ", " + z + "} with {" + block.getId() + ":" + block.getDamage() + "}");
+                                generated.getAndIncrement();
+                                i.getAndIncrement();
+                            }
+                        }}, THREAD_POOL_EXECUTOR).thenRun(() -> {
+                            generate = false;
+                            commandSender.sendMessage("Finish all saving building tasks! Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillis));
+                            GameAPI.plugin.getLogger().info("Finish all saving build tasks! Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillis));
+                        });
+                    }
+                    break;
             }
         }
-        return true;
+        return false;
     }
 
     public LinkedHashMap<String, Object> getPlayerData(Player player) {

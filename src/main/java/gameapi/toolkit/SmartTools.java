@@ -1,17 +1,15 @@
 package gameapi.toolkit;
 
-import gameapi.GameAPI;
+import cn.nukkit.block.Block;
+import cn.nukkit.item.Item;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 public class SmartTools {
 
     public static String timeDiffMillisToString(long m1, long m2) {
-        if (m2 - m1 < 0) {
-            GameAPI.plugin.getLogger().error("End millis should not be bigger than start millis");
-            return "";
-        }
         long diff = Math.abs(m2 - m1);
         return timeMillisToString(diff);
     }
@@ -123,5 +121,15 @@ public class SmartTools {
                     return number + "th";
                 }
         }
+    }
+
+    public static Block getBlockfromString(String string) {
+        String[] b = string.trim().split(":");
+        int id = Integer.parseInt(b[0]);
+        int meta = 0;
+        if (b.length == 2) {
+            meta = Integer.parseInt(b[1]);
+        }
+        return Block.get(id, meta);
     }
 }

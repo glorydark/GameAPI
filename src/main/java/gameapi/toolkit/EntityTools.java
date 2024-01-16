@@ -35,7 +35,7 @@ public class EntityTools {
             return;
         }
 
-        f = 1 / f;
+        f = 1.0 / f;
 
         Vector3 motion = new Vector3(victim.motionX, victim.motionY, victim.motionZ);
 
@@ -44,12 +44,39 @@ public class EntityTools {
             z = -z;
         }
 
-        motion.x /= 2d;
-        motion.y /= 2d;
-        motion.z /= 2d;
+        motion.x /= 2.0d;
+        motion.y /= 2.0d;
+        motion.z /= 2.0d;
         motion.x += x * f * base;
         motion.y += base;
         motion.z += z * f * base;
+
+        if (motion.y > base) {
+            motion.y = base;
+        }
+
+        victim.setMotion(motion);
+    }
+
+    public static void knockBackV2(Entity attacker, Entity victim, double XzKB, double yKB) {
+        double base = 0.4;
+        double x = victim.getX() - attacker.getX();
+        double z = victim.getZ() - attacker.getZ();
+        double f = Math.sqrt(x * x + z * z);
+        if (f <= 0) {
+            return;
+        }
+
+        f = 1.0 / f;
+
+        Vector3 motion = new Vector3(victim.motionX, victim.motionY, victim.motionZ);
+
+        motion.x /= 2.0d;
+        motion.y /= 2.0d;
+        motion.z /= 2.0d;
+        motion.x += x * f * base * XzKB;
+        motion.y += yKB;
+        motion.z += z * f * base * XzKB;
 
         if (motion.y > base) {
             motion.y = base;
