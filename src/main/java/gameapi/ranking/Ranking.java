@@ -2,7 +2,7 @@ package gameapi.ranking;
 
 import cn.nukkit.level.Location;
 import gameapi.GameAPI;
-import gameapi.entity.EntityTools;
+import gameapi.entity.GameEntityCreator;
 import gameapi.entity.RankingListEntity;
 import gameapi.ranking.simple.RankingValueType;
 import gameapi.toolkit.SmartTools;
@@ -148,7 +148,7 @@ public class Ranking {
     }
 
     public void spawnEntity() {
-        EntityTools.spawnTextEntity(this.location, this);
+        GameEntityCreator.spawnTextEntity(this.location, this);
     }
 
     public <T> Map<String, T> getMapByType(Map<String, Object> map, Class<T> clazz) {

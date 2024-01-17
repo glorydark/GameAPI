@@ -81,7 +81,7 @@ public class TextEntity extends Entity {
             pk.speedZ = 0;
             pk.metadata = this.dataProperties;
             player.dataPacket(pk);
-            EntityTools.entityList.add(this);
+            GameEntityCreator.entityList.add(this);
         }
     }
 
@@ -93,6 +93,6 @@ public class TextEntity extends Entity {
             player.dataPacket(pk);
             this.hasSpawned.remove(player);
         }
-        EntityTools.entityList.remove(this);
+        GameEntityCreator.entityList.remove(this);
     }
 }

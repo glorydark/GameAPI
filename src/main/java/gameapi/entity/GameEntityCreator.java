@@ -13,7 +13,7 @@ import gameapi.ranking.RankingSortSequence;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class EntityTools {
+public class GameEntityCreator {
 
     public static Set<TextEntity> entityList = Collections.newSetFromMap(new ConcurrentHashMap<>());
 

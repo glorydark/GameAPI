@@ -13,7 +13,7 @@ import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
 import gameapi.arena.WorldTools;
 import gameapi.commands.BaseCommand;
-import gameapi.entity.EntityTools;
+import gameapi.entity.GameEntityCreator;
 import gameapi.form.AdvancedFormMain;
 import gameapi.gameLevel.GameLevelSystem;
 import gameapi.language.Language;
@@ -222,7 +222,7 @@ public class GameAPI extends PluginBase implements Listener {
     @Override
     public void onDisable() {
         loadedRooms.keySet().forEach(WorldTools::delWorldByPrefix);
-        EntityTools.closeAll();
+        GameEntityCreator.closeAll();
         for (String s : loadedRooms.keySet()) {
             for (Room room : loadedRooms.getOrDefault(s, new ArrayList<>())) {
                 for (Player player : new ArrayList<>(room.getPlayers())) {

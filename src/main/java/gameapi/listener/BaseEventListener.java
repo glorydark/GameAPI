@@ -16,7 +16,7 @@ import cn.nukkit.event.player.*;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
 import gameapi.commands.BaseCommand;
-import gameapi.entity.EntityTools;
+import gameapi.entity.GameEntityCreator;
 import gameapi.entity.GameProjectileEntity;
 import gameapi.entity.TextEntity;
 import gameapi.event.block.RoomBlockBreakEvent;
@@ -58,7 +58,7 @@ public class BaseEventListener implements Listener {
                 }
             }
             //event.getPlayer().setLocale(Locale.US);
-            for (TextEntity entity : EntityTools.entityList) {
+            for (TextEntity entity : GameEntityCreator.entityList) {
                 entity.spawnTo(player);
             }
         }
@@ -473,7 +473,7 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void EntityLevelChangeEvent(EntityLevelChangeEvent event) {
         if (event.getEntity() instanceof Player) {
-            for (TextEntity entity : EntityTools.entityList) {
+            for (TextEntity entity : GameEntityCreator.entityList) {
                 if (entity.getLevel() == event.getEntity().getLevel()) {
                     entity.spawnTo((Player) event.getEntity());
                 } else {

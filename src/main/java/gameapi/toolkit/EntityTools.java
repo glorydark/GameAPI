@@ -58,8 +58,7 @@ public class EntityTools {
         victim.setMotion(motion);
     }
 
-    public static void knockBackV2(Entity attacker, Entity victim, double XzKB, double yKB) {
-        double base = 0.4;
+    public static void knockBackV2(Entity attacker, Entity victim, double base, double XzKB, double yKB) {
         double x = victim.getX() - attacker.getX();
         double z = victim.getZ() - attacker.getZ();
         double f = Math.sqrt(x * x + z * z);
@@ -75,7 +74,7 @@ public class EntityTools {
         motion.y /= 2.0d;
         motion.z /= 2.0d;
         motion.x += x * f * base * XzKB;
-        motion.y += yKB;
+        motion.y += base * yKB;
         motion.z += z * f * base * XzKB;
 
         if (motion.y > base) {
