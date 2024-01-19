@@ -13,9 +13,9 @@ import java.util.function.Consumer;
 
 public class AdvancedFormWindowSimple extends FormWindowSimple implements AdvancedForm {
 
-    protected BiConsumer<Player, FormResponseSimple> responseExecutor;
+    protected BiConsumer<Player, FormResponseSimple> responseExecutor = (player, responseSimple) -> {};
 
-    protected Consumer<Player> noResponseExecutor;
+    protected Consumer<Player> noResponseExecutor = player -> {};
 
     public AdvancedFormWindowSimple(String title, String content) {
         super(title, content);

@@ -113,8 +113,7 @@ public class InventoryTools {
     }
 
     public static Item parseItemFromMap(Map<String, Object> map) {
-        Item item = Item.fromString((String) map.get("id"));
-        item.setDamage((Integer) map.getOrDefault("damage", 1));
+        Item item = Item.fromString(map.get("id") + ":" + map.getOrDefault("damage", 0));
         item.setCount((Integer) map.getOrDefault("count", 1));
         if (!item.hasCompoundTag()) {
             item.setNamedTag(new CompoundTag().putBoolean("Unbreakable", true));

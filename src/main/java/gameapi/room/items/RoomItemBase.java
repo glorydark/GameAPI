@@ -1,7 +1,8 @@
 package gameapi.room.items;
 
 import cn.nukkit.item.Item;
-import gameapi.event.block.RoomBlockPlaceEvent;
+import cn.nukkit.nbt.tag.CompoundTag;
+import gameapi.GameAPI;
 import gameapi.event.player.RoomPlayerInteractEvent;
 import gameapi.event.player.RoomPlayerItemHeldEvent;
 import gameapi.toolkit.InventoryTools;
@@ -25,10 +26,12 @@ public abstract class RoomItemBase {
         this.item = item;
         this.identifier = identifier;
         this.item.setCustomName(name);
-        this.item.getNamedTag().putString("room_item", getIdentifier());
+        CompoundTag tag = this.item.getNamedTag();
+        tag.putString("room_item", identifier);
         if (lockType.ordinal() > 0 && lockType.ordinal() < 3) {
-            this.item.getNamedTag().putByte("minecraft:item_lock", lockType.ordinal());
+            tag.putByte("minecraft:item_lock", lockType.ordinal());
         }
+        this.item.setCompoundTag(tag);
     }
 
     public RoomItemBase(String identifier, String name, String itemString) {
@@ -47,28 +50,17 @@ public abstract class RoomItemBase {
     }
 
     public Item getItem() {
-        return item;
-    }
-
-    public Item toRoomItem() {
-        Item item = getItem().clone();
-        return item;
+        return item.clone();
     }
 
     public String getIdentifier() {
         return identifier;
     }
 
-    public boolean onInteract(RoomPlayerInteractEvent event) {
-        return true;
+    public void onInteract(RoomPlayerInteractEvent event) {
     }
 
-    public boolean onPlaceBlock(RoomBlockPlaceEvent event) {
-        return true;
-    }
-
-    public boolean onHeldItem(RoomPlayerItemHeldEvent event) {
-        return true;
+    public void onHeldItem(RoomPlayerItemHeldEvent event) {
     }
 
     public enum ItemLockType {

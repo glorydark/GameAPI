@@ -109,7 +109,7 @@ public class LevelTools {
                 for (int currentMinZ = minZ; currentMinZ < maxZ; currentMinZ += maxBlockSizeZ) {
                     int currentMaxZ = Math.min(maxZ, currentMinZ + maxBlockSizeZ);
 
-                    result.add(new IntegerAxisAlignBB(new Vector3(currentMinX, currentMinY, currentMinZ), new Vector3(Math.min(maxX, currentMaxX - 1), Math.min(maxY, currentMaxY - 1), Math.min(maxZ, currentMaxZ - 1))));
+                    result.add(new IntegerAxisAlignBB(new Vector3(currentMinX, currentMinY, currentMinZ), new Vector3(Math.min(maxX, currentMaxX), Math.min(maxY, currentMaxY), Math.min(maxZ, currentMaxZ))));
                 }
             }
         }

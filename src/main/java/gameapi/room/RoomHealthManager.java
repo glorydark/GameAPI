@@ -28,7 +28,7 @@ public class RoomHealthManager {
     }
 
     public void addHealth(Player player, Double value) {
-        double newHealth = getHealth(player) + value;
+        double newHealth = BigDecimal.valueOf(getHealth(player) + value).setScale(1, RoundingMode.HALF_UP).doubleValue();
         if (newHealth >= maxHealth) {
             newHealth = maxHealth;
         }
@@ -36,15 +36,19 @@ public class RoomHealthManager {
         resetHealthBar(player, newHealth);
     }
 
-    public void deductHealth(Player player, Double value) {
-        double newHealth = getHealth(player) - value;
+    public void reduceHealth(Player player, Double value) {
+        double newHealth = BigDecimal.valueOf(getHealth(player) - value).setScale(1, RoundingMode.HALF_UP).doubleValue();
+        if (newHealth >= maxHealth) {
+            newHealth = maxHealth;
+        }
         healthMap.put(player, newHealth);
         resetHealthBar(player, newHealth);
     }
 
     public void setHealth(Player player, Double value) {
-        healthMap.put(player, value);
-        resetHealthBar(player, value);
+        double newHealth = BigDecimal.valueOf(value).setScale(1, RoundingMode.HALF_UP).doubleValue();
+        healthMap.put(player, newHealth);
+        resetHealthBar(player, newHealth);
     }
 
     public double getHealth(Player player) {
@@ -61,7 +65,7 @@ public class RoomHealthManager {
 
     protected void resetHealthBar(Player player, double health) {
         BigDecimal decimal = new BigDecimal(health);
-        decimal = decimal.divide(new BigDecimal(maxHealth), RoundingMode.HALF_UP).multiply(new BigDecimal(player.getMaxHealth()));
+        decimal = decimal.divide(new BigDecimal(maxHealth), 1, RoundingMode.HALF_UP).multiply(new BigDecimal(player.getMaxHealth()));
         int finalHealthDisplay = decimal.intValueExact();
         if (finalHealthDisplay < 1) {
             finalHealthDisplay = 1;

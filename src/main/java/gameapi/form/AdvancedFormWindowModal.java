@@ -9,11 +9,11 @@ import java.util.function.Consumer;
 
 public class AdvancedFormWindowModal extends FormWindowModal implements AdvancedForm {
 
-    protected Consumer<Player> trueButtonResponseExecutor;
+    protected Consumer<Player> trueButtonResponseExecutor = player -> {};
 
-    protected Consumer<Player> falseButtonResponseExecutor;
+    protected Consumer<Player> falseButtonResponseExecutor = player -> {};
 
-    protected Consumer<Player> noResponseExecutor;
+    protected Consumer<Player> noResponseExecutor = player -> {};
 
     public AdvancedFormWindowModal() {
         super("", "", "", "");
