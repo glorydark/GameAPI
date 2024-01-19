@@ -4,19 +4,19 @@ package gameapi.entity;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.network.protocol.AddEntityPacket;
 import cn.nukkit.network.protocol.RemoveEntityPacket;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TextEntity extends Entity {
 
-    private final Set<Player> hasSpawned = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final HashMap<Integer, Player> hasSpawned = new HashMap<>();
 
     public TextEntity(FullChunk chunk, Position position, String text, CompoundTag nbt) {
         super(chunk, nbt);
@@ -42,6 +42,11 @@ public class TextEntity extends Entity {
     }
 
     public boolean onUpdate(int currentTick) {
+        for (Map.Entry<Integer, Player> integerPlayerEntry : new ArrayList<>(hasSpawned.entrySet())) {
+            if (integerPlayerEntry.getValue() == null || !integerPlayerEntry.getValue().isOnline()) {
+                hasSpawned.remove(integerPlayerEntry.getKey());
+            }
+        }
         return super.onUpdate(currentTick);
     }
 
@@ -61,38 +66,34 @@ public class TextEntity extends Entity {
 
     @Override
     public void spawnTo(Player player) {
+        if (this.getNetworkId() == -1) {
+            super.spawnTo(player);
+            this.sendData(player);
+        }
         if (this.getLevel().equals(player.getLevel())) {
-            if (this.hasSpawned.contains(player)) {
-                this.despawnFrom(player);
+            if (!this.hasSpawned.containsKey(player.getLoaderId()) && this.chunk != null && player.usedChunks.containsKey(Level.chunkHash(this.chunk.getX(), this.chunk.getZ()))) {
+                this.hasSpawned.put(player.getLoaderId(), player);
+                player.dataPacket(this.createAddEntityPacket());
+                this.sendData(player);
             }
-            this.hasSpawned.add(player);
-            AddEntityPacket pk = new AddEntityPacket();
-            pk.entityRuntimeId = this.getId();
-            pk.entityUniqueId = this.getId();
-            pk.type = 64;
-            pk.yaw = 0;
-            pk.headYaw = 0;
-            pk.pitch = 0;
-            pk.x = (float) this.getX();
-            pk.y = (float) this.getY();
-            pk.z = (float) this.getZ();
-            pk.speedX = 0;
-            pk.speedY = 0;
-            pk.speedZ = 0;
-            pk.metadata = this.dataProperties;
-            player.dataPacket(pk);
+            this.hasSpawned.put(player.getLoaderId(), player);
             GameEntityCreator.entityList.add(this);
         }
     }
 
     @Override
     public void despawnFrom(Player player) {
-        if (this.hasSpawned.contains(player)) {
+        if (this.hasSpawned.containsKey(player.getLoaderId())) {
             RemoveEntityPacket pk = new RemoveEntityPacket();
             pk.eid = this.getId();
             player.dataPacket(pk);
-            this.hasSpawned.remove(player);
+            this.hasSpawned.remove(player.getLoaderId());
         }
         GameEntityCreator.entityList.remove(this);
+    }
+
+    @Override
+    public void kill() {
+
     }
 }

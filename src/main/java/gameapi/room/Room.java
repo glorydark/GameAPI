@@ -2,6 +2,7 @@ package gameapi.room;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.form.element.ElementInput;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
@@ -670,25 +671,46 @@ public class Room {
         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
     }
 
-    public void processRespawn(Player player, int originalGamemode) {
+    public void setDeath(Player player) {
         player.getInventory().clearAll();
-        player.setGamemode(originalGamemode);
+        player.setGamemode(3);
         player.setHealth(player.getMaxHealth());
         player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);
+        RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(this, player, EntityDamageEvent.DamageCause.VOID);
+        GameListenerRegistry.callEvent(this, ev);
+        this.roomHealthManager.setHealth(player, this.roomHealthManager.getMaxHealth());
+    }
+
+    public void addRespawnTask(Player player) {
+        addRespawnTask(player, roomRule.getRespawnCoolDownTick());
+    }
+
+    public void addRespawnTask(Player player, int tick) {
         if (spectatorSpawn.size() != 0) {
             Random random = new Random();
             spectatorSpawn.get(random.nextInt(spectatorSpawn.size())).teleport(player);
             teleportToSpawn(player);
         }
         RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player);
-        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> {
-            GameListenerRegistry.callEvent(this, ev);
-            if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
-                player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
-                player.setGamemode(0);
-                teleportToSpawn(player);
+        if (!ev.isCancelled()) {
+            if (tick > 0) {
+                Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> {
+                    GameListenerRegistry.callEvent(this, ev);
+                    if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
+                        player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
+                        player.setGamemode(0);
+                        teleportToSpawn(player);
+                    }
+                }, tick);
+            } else {
+                GameListenerRegistry.callEvent(this, ev);
+                if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
+                    player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
+                    player.setGamemode(0);
+                    teleportToSpawn(player);
+                }
             }
-        }, roomRule.getRespawnCoolDownTick());
+        }
     }
 
     public boolean isSpectator(Player player) {
