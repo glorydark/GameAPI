@@ -1,9 +1,6 @@
 package gameapi.utils;
 
-import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.Vector3;
-
-import java.util.HashSet;
 
 /**
  * @author glorydark
@@ -39,48 +36,48 @@ public class IntegerAxisAlignBB {
         return maxX;
     }
 
-    public int getMaxY() {
-        return maxY;
-    }
-
-    public int getMaxZ() {
-        return maxZ;
-    }
-
-    public int getMinX() {
-        return minX;
-    }
-
-    public int getMinY() {
-        return minY;
-    }
-
-    public int getMinZ() {
-        return minZ;
-    }
-
-    public void setMinX(int minX) {
-        this.minX = minX;
-    }
-
-    public void setMinY(int minY) {
-        this.minY = minY;
-    }
-
-    public void setMinZ(int minZ) {
-        this.minZ = minZ;
-    }
-
     public void setMaxX(int maxX) {
         this.maxX = maxX;
+    }
+
+    public int getMaxY() {
+        return maxY;
     }
 
     public void setMaxY(int maxY) {
         this.maxY = maxY;
     }
 
+    public int getMaxZ() {
+        return maxZ;
+    }
+
     public void setMaxZ(int maxZ) {
         this.maxZ = maxZ;
+    }
+
+    public int getMinX() {
+        return minX;
+    }
+
+    public void setMinX(int minX) {
+        this.minX = minX;
+    }
+
+    public int getMinY() {
+        return minY;
+    }
+
+    public void setMinY(int minY) {
+        this.minY = minY;
+    }
+
+    public int getMinZ() {
+        return minZ;
+    }
+
+    public void setMinZ(int minZ) {
+        this.minZ = minZ;
     }
 
     public void forEach(IntegerAxisAlignBB.BBConsumer action) {
@@ -91,9 +88,9 @@ public class IntegerAxisAlignBB {
         int maxY = this.getMaxY();
         int maxZ = this.getMaxZ();
 
-        for(int x = minX; x <= maxX; x++) {
-            for(int y = minY; y <= maxY; y++) {
-                for(int z = minZ; z <= maxZ; z++) {
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
                     action.accept(x, y, z);
                 }
             }
@@ -102,14 +99,6 @@ public class IntegerAxisAlignBB {
 
     public long getSize() {
         return ((long) (this.getMaxX() - this.getMinX() + 1)) * (this.getMaxY() - this.getMinY() + 1) * (this.getMaxZ() - this.getMinZ() + 1);
-    }
-
-    public interface BBConsumer<T> {
-        void accept(int var1, int var2, int var3);
-
-        default T get() {
-            return null;
-        }
     }
 
     @Override
@@ -122,5 +111,13 @@ public class IntegerAxisAlignBB {
                 ", maxY=" + maxY +
                 ", maxZ=" + maxZ +
                 '}';
+    }
+
+    public interface BBConsumer<T> {
+        void accept(int var1, int var2, int var3);
+
+        default T get() {
+            return null;
+        }
     }
 }

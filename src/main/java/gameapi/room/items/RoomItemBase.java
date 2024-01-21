@@ -2,7 +2,6 @@ package gameapi.room.items;
 
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
-import gameapi.GameAPI;
 import gameapi.event.player.RoomPlayerInteractEvent;
 import gameapi.event.player.RoomPlayerItemHeldEvent;
 import gameapi.toolkit.InventoryTools;

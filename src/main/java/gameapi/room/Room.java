@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.form.element.ElementInput;
+import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import gameapi.GameAPI;
@@ -369,6 +370,9 @@ public class Room {
                     waitSpawn.teleport(player);
                     player.setGamemode(2);
                     player.getFoodData().reset();
+                    player.setFoodEnabled(this.getRoomRule().isAllowFoodLevelChange());
+                    player.setNameTagVisible(true);
+                    player.setNameTagAlwaysVisible(true);
                     player.setHealth(player.getMaxHealth());
                     for (Player p : this.players) {
                         p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
@@ -390,10 +394,13 @@ public class Room {
             for (Level playLevel : this.getPlayLevels()) {
                 Tips.removeTipsConfig(playLevel.getName(), player);
             }
+            player.getFoodData().reset();
+            player.setFoodEnabled(true);
             player.removeAllEffects();
             player.getInventory().clearAll();
             player.setExperience(0, 0);
             player.setHealth(player.getMaxHealth());
+            player.setNameTag("");
             if (saveBag) {
                 InventoryTools.loadBag(player);
             }
@@ -812,6 +819,7 @@ public class Room {
 
     public void addPlayLevel(Level loadLevel) {
         playLevels.add(loadLevel);
+        loadLevel.getGameRules().setGameRule(GameRule.SHOW_TAGS, true);
     }
 
     public void removePlayLevel(Level loadLevel) {

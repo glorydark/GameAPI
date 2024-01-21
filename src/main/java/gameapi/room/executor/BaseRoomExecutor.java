@@ -116,14 +116,15 @@ public class BaseRoomExecutor implements RoomExecutor {
     @Override
     public void onCeremony() {
         for (Player p : room.getPlayers()) {
-            if (p.getGamemode() == 3) {
-                return;
-            }
             ThreadLocalRandom random = ThreadLocalRandom.current();
             int i1 = random.nextInt(14);
             int i2 = random.nextInt(4);
-            FireworkTools.spawnFirework(p.getLocation(), FireworkTools.getColorByInt(i1), FireworkTools.getExplosionTypeByInt(i2));
             p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.ceremony", room.getCeremonyTime() - room.getTime()));
+            if (p.getGamemode() == 3) {
+                continue;
+            }
+            FireworkTools.spawnFirework(p.getLocation(), FireworkTools.getColorByInt(i1), FireworkTools.getExplosionTypeByInt(i2));
+
         }
     }
 

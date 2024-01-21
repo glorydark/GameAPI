@@ -59,7 +59,7 @@ public class Tips {
             );
             Api.setPlayerShowMessage(
                     playerName,
-                    new NameTagMessage(level, true, "")
+                    new NameTagMessage(level, false, "")
             );
             Api.setPlayerShowMessage(
                     playerName,

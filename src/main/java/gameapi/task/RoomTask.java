@@ -170,9 +170,6 @@ public class RoomTask extends AsyncTask {
                     if (!room.getRoomRule().isNoTimeLimit()) {
                         room.setTime(room.getTime() + 1);
                     }
-                    if (!room.getRoomRule().isAllowFoodLevelChange()) {
-                        room.getPlayers().forEach(player -> player.getFoodData().reset());
-                    }
                 }
                 break;
             case GameEnd:

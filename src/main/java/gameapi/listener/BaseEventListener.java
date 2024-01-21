@@ -255,7 +255,7 @@ public class BaseEventListener implements Listener {
     public void EntityDamageEvent(EntityDamageEvent event) {
         Entity entity = event.getEntity();
         Room room = null;
-        if (entity instanceof Player){
+        if (entity instanceof Player) {
             room = Room.getRoom((Player) entity);
         } else {
             Optional<Room> roomOptional = Room.getRoom(entity.getLevel());
@@ -303,9 +303,9 @@ public class BaseEventListener implements Listener {
                 break;
         }
         if (room.getRoomRule().isVirtualHealth()) {
-            event.setDamage(0);
             RoomHealthManager manager = room.getRoomHealthManager();
             if (manager.getHealth(player) - event.getFinalDamage() <= 0) {
+                event.setDamage(0);
                 if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                     RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(room, (Player) entity, event.getCause());
                     GameListenerRegistry.callEvent(room, ev);
@@ -425,7 +425,7 @@ public class BaseEventListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        if (player != null) {
+        if (player != null && !player.isOp()) {
             Room room = Room.getRoom(player);
             if (room != null) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.commandExecute.notAllowed"));

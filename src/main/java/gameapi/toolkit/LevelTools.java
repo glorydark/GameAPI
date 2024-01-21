@@ -2,7 +2,6 @@ package gameapi.toolkit;
 
 import cn.nukkit.Server;
 import cn.nukkit.level.Location;
-import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
 import gameapi.utils.AdvancedLocation;

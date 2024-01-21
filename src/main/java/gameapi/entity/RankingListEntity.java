@@ -20,7 +20,7 @@ public class RankingListEntity extends TextEntity {
 
     public boolean onUpdate(int currentTick) {
         if (this.health <= 0) {
-            this.health += this.getMaxHealth();
+            this.setHealth(this.getMaxHealth());
         }
         if (System.currentTimeMillis() - lastUpdateMillis >= 500) {
             ranking.refreshRankingData();

@@ -1,7 +1,6 @@
 package gameapi.commands;
 
 import cn.nukkit.IPlayer;
-import cn.nukkit.OfflinePlayer;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
