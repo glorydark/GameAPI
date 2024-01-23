@@ -61,6 +61,7 @@ public class BaseEventListener implements Listener {
             //event.getPlayer().setLocale(Locale.US);
             for (TextEntity entity : GameEntityCreator.entityList) {
                 entity.spawnTo(player);
+                entity.scheduleUpdate();
             }
         }
     }
@@ -77,6 +78,9 @@ public class BaseEventListener implements Listener {
                 room.removePlayer(player);
             } else {
                 room.removeSpectator(player);
+            }
+            for (TextEntity entity : GameEntityCreator.entityList) {
+                entity.despawnFrom(player);
             }
         }
         GameAPI.editDataHashMap.remove(player);

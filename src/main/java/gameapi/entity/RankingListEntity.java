@@ -1,7 +1,6 @@
 package gameapi.entity;
 
 
-import cn.nukkit.event.entity.EntityDespawnEvent;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -24,26 +23,8 @@ public class RankingListEntity extends TextEntity {
         }
         if (System.currentTimeMillis() - lastUpdateMillis >= 500) {
             ranking.refreshRankingData();
-            this.setNameTag(ranking.getDisplayContent());
             lastUpdateMillis = System.currentTimeMillis();
         }
         return super.onUpdate(currentTick);
-    }
-
-
-    @Override
-    public void close() {
-        if (!this.closed) {
-            this.closed = true;
-            this.server.getPluginManager().callEvent(new EntityDespawnEvent(this));
-            this.despawnFromAll();
-            if (this.chunk != null) {
-                this.chunk.removeEntity(this);
-            }
-
-            if (this.level != null) {
-                this.level.removeEntity(this);
-            }
-        }
     }
 }
