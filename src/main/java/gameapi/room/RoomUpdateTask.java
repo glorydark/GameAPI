@@ -124,17 +124,6 @@ public class RoomUpdateTask extends Task {
         if (player.getLocation().equals(getPlayerLastLocation(player))) {
             return;
         }
-        if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameReadyStart && !room.getRoomRule().isAllowReadyStartWalk()) {
-            Location from = getPlayerLastLocation(player);
-            Location to = player.getLocation();
-            if (from.getLevel() != to.getLevel()) {
-                setPlayerLastLocation(player, to);
-                return;
-            }
-            if (from.getFloorX() != to.getFloorX() || from.getFloorZ() != to.getFloorZ()) {
-                player.teleport(from, null);
-            }
-        }
         // MoveEvent
         RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(room, player, getPlayerLastLocation(player), player.getLocation());
         GameListenerRegistry.callEvent(room, roomPlayerMoveEvent);

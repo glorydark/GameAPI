@@ -1,10 +1,12 @@
 package gameapi.room.executor;
 
 import cn.nukkit.Player;
+import cn.nukkit.level.Location;
 import cn.nukkit.level.Sound;
 import gameapi.GameAPI;
 import gameapi.fireworkapi.FireworkTools;
 import gameapi.room.Room;
+import gameapi.room.RoomStatus;
 import gameapi.utils.AdvancedLocation;
 
 import java.util.List;
@@ -184,14 +186,19 @@ public class BaseRoomExecutor implements RoomExecutor {
 
     @Override
     public void beginReadyStart() {
+        boolean movable = room.getRoomRule().isAllowReadyStartWalk();
         for (Player p : room.getPlayers()) {
             p.getInventory().clearAll();
+            if (!movable) {
+                p.setImmobile(true);
+            }
         }
     }
 
     @Override
     public void beginGameStart() {
         for (Player p : room.getPlayers()) {
+            p.setImmobile(false);
             p.removeAllEffects();
             p.getFoodData().reset();
             p.setGamemode(room.getRoomRule().getGameMode());

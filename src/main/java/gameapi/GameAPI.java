@@ -52,7 +52,6 @@ public class GameAPI extends PluginBase implements Listener {
     public static List<Player> worldEditPlayers = new ArrayList<>();
     public static int entityRefreshIntervals = 100;
     public static boolean saveBag;
-    public static boolean updateMoveEvent;
     public static boolean tipsEnabled;
     public static HashMap<Player, RoomEdit> editDataHashMap = new HashMap<>();
     public static SimpleAxisAlignedBB autoLoadChunkRange;
@@ -111,7 +110,6 @@ public class GameAPI extends PluginBase implements Listener {
         Config config = new Config(path + "/config.yml", Config.YAML);
         autoLoadChunkRange = new SimpleAxisAlignedBB(config.getInt("auto_load_chunk.minX", -2), config.getInt("auto_load_chunk.maxX", 2), 0, 0, config.getInt("auto_load_chunk.minZ", -2), config.getInt("auto_load_chunk.maxZ", 2));
         saveBag = config.getBoolean("save_bag", false);
-        updateMoveEvent = config.getBoolean("allow_move_event", true);
         language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
         loadAllGameRecord();
         if (new File(path + "/rankings.yml").exists()) {
