@@ -187,16 +187,12 @@ public class BaseRoomExecutor implements RoomExecutor {
         boolean movable = room.getRoomRule().isAllowReadyStartWalk();
         for (Player p : room.getPlayers()) {
             p.getInventory().clearAll();
-            if (!movable) {
-                p.setImmobile(true);
-            }
         }
     }
 
     @Override
     public void beginGameStart() {
         for (Player p : room.getPlayers()) {
-            p.setImmobile(false);
             p.removeAllEffects();
             p.getFoodData().reset();
             p.setGamemode(room.getRoomRule().getGameMode());

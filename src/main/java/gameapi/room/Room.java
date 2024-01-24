@@ -394,7 +394,6 @@ public class Room {
             for (Level playLevel : this.getPlayLevels()) {
                 Tips.removeTipsConfig(playLevel.getName(), player);
             }
-            player.setImmobile(false);
             player.getFoodData().reset();
             player.setFoodEnabled(true);
             player.removeAllEffects();

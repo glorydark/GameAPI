@@ -63,7 +63,6 @@ public class BaseEventListener implements Listener {
                 entity.spawnTo(player);
                 entity.scheduleUpdate();
             }
-            player.setImmobile(false);
         }
     }
 
