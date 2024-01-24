@@ -1,8 +1,6 @@
 package gameapi.entity;
 
 
-import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
