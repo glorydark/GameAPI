@@ -1,7 +1,8 @@
-package gameapi.locker;
+package gameapi.extensions.locker;
 
 import gameapi.GameAPI;
-import gameapi.locker.entry.LockerEntry;
+import gameapi.annotation.Future;
+import gameapi.extensions.locker.entry.LockerEntry;
 
 import java.util.LinkedHashMap;
 
@@ -9,6 +10,7 @@ import java.util.LinkedHashMap;
  * @author glorydark
  * @date {2024/1/2} {11:00}
  */
+@Future
 public class LockerMain {
 
     protected final LinkedHashMap<String, LockerEntry> loadedEntries = new LinkedHashMap<>();

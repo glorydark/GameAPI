@@ -1,8 +1,9 @@
-package gameapi.gameLevel;
+package gameapi.extensions.gameLevel;
 
 import gameapi.GameAPI;
-import gameapi.gameLevel.provider.GameLevelProvider;
-import gameapi.locker.entry.LockerEntry;
+import gameapi.annotation.Future;
+import gameapi.extensions.gameLevel.provider.GameLevelProvider;
+import gameapi.extensions.locker.entry.LockerEntry;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import java.util.List;
  * @author glorydark
  * @date {2024/1/4} {22:22}
  */
+@Future
 public class GameLevelSystem {
 
     private final LinkedHashMap<Integer, List<LockerEntry>> levelLockerRewards = new LinkedHashMap<>();

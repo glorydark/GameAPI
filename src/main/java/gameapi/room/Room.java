@@ -214,13 +214,13 @@ public class Room {
 
     public void executeLoseCommands(Player player) {
         for (String string : loseConsoleCommands) {
-            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", player.getName()).replace("%level%", player.getLevel().getName()).replace("%game_name%", gameName).replace("%room_name%", roomName));
+            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", "\"" + player.getName() + "\"").replace("%level%", player.getLevel().getName()).replace("%game_name%", gameName).replace("%room_name%", roomName));
         }
     }
 
     public void executeWinCommands(Player player) {
         for (String string : winConsoleCommands) {
-            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", player.getName()).replace("%level%", player.getLevel().getName()).replace("%game_name%", gameName).replace("%room_name%", roomName));
+            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", "\"" + player.getName() + "\"").replace("%level%", player.getLevel().getName()).replace("%game_name%", gameName).replace("%room_name%", roomName));
         }
     }
 

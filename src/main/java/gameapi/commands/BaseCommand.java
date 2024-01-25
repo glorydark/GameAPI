@@ -424,7 +424,7 @@ public class BaseCommand extends Command {
                     String name = String.valueOf(System.currentTimeMillis());
                     long startMillisForAll = System.currentTimeMillis();
 
-                    IntegerAxisAlignBB[] bbs = LevelTools.splitSimpleAxisAlignedBB(integerAxisAlignBB, 64, 100, 64);
+                    IntegerAxisAlignBB[] bbs = integerAxisAlignBB.splitAABB(64, 100, 64);
                     GameAPI.plugin.getLogger().info("Start building save task in {" + integerAxisAlignBB + "}");
                     player.sendMessage("Start building save task in {" + integerAxisAlignBB + "}");
 

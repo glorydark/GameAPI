@@ -2,6 +2,9 @@ package gameapi.utils;
 
 import cn.nukkit.math.Vector3;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author glorydark
  */
@@ -119,5 +122,28 @@ public class IntegerAxisAlignBB {
         default T get() {
             return null;
         }
+    }
+
+    public IntegerAxisAlignBB[] splitAABB(int xLength, int yLength, int zLength) {
+        List<IntegerAxisAlignBB> bbs = new ArrayList<>();
+        int minX = this.getMinX();
+        int minY = this.getMinY();
+        int minZ = this.getMinZ();
+        int maxX = this.getMaxX();
+        int maxY = this.getMaxY();
+        int maxZ = this.getMaxZ();
+
+        for (int x = minX; x < maxX + xLength; x += xLength) {
+            for (int y = minY; y < maxY + yLength; y += yLength) {
+                for (int z = minZ; z < maxZ + zLength; z += zLength) {
+                    int subMaxX = Math.min(x + xLength - 1, maxX);
+                    int subMaxY = Math.min(y + yLength - 1, maxY);
+                    int subMaxZ = Math.min(z + zLength - 1, maxZ);
+                    IntegerAxisAlignBB subAABB = new IntegerAxisAlignBB(x, y, z, Math.min(subMaxX, maxX), Math.min(subMaxY, maxY), Math.min(subMaxZ, maxZ));
+                    bbs.add(subAABB);
+                }
+            }
+        }
+        return bbs.toArray(new IntegerAxisAlignBB[0]);
     }
 }

@@ -99,13 +99,13 @@ public class LevelTools {
 
         List<IntegerAxisAlignBB> result = new ArrayList<>();
 
-        for (int currentMinX = minX; currentMinX < maxX; currentMinX += maxBlockSizeX) {
+        for (int currentMinX = minX; currentMinX <= maxX; currentMinX += maxBlockSizeX) {
             int currentMaxX = Math.min(maxX, currentMinX + maxBlockSizeX);
 
-            for (int currentMinY = minY; currentMinY < maxY; currentMinY += maxBlockSizeY) {
+            for (int currentMinY = minY; currentMinY <= maxY; currentMinY += maxBlockSizeY) {
                 int currentMaxY = Math.min(maxY, currentMinY + maxBlockSizeY);
 
-                for (int currentMinZ = minZ; currentMinZ < maxZ; currentMinZ += maxBlockSizeZ) {
+                for (int currentMinZ = minZ; currentMinZ <= maxZ; currentMinZ += maxBlockSizeZ) {
                     int currentMaxZ = Math.min(maxZ, currentMinZ + maxBlockSizeZ);
 
                     result.add(new IntegerAxisAlignBB(new Vector3(currentMinX, currentMinY, currentMinZ), new Vector3(Math.min(maxX, currentMaxX), Math.min(maxY, currentMaxY), Math.min(maxZ, currentMaxZ))));

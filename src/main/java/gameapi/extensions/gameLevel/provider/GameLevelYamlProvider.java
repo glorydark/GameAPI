@@ -1,7 +1,8 @@
-package gameapi.gameLevel.provider;
+package gameapi.extensions.gameLevel.provider;
 
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
+import gameapi.annotation.Future;
 
 import java.io.File;
 
@@ -9,6 +10,7 @@ import java.io.File;
  * @author glorydark
  * @date {2024/1/4} {22:29}
  */
+@Future
 public class GameLevelYamlProvider implements GameLevelProvider {
 
     String path;

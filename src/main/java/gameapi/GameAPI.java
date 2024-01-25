@@ -15,7 +15,7 @@ import gameapi.arena.WorldTools;
 import gameapi.commands.BaseCommand;
 import gameapi.entity.GameEntityCreator;
 import gameapi.form.AdvancedFormMain;
-import gameapi.gameLevel.GameLevelSystem;
+import gameapi.extensions.gameLevel.GameLevelSystem;
 import gameapi.language.Language;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;

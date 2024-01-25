@@ -1,14 +1,16 @@
-package gameapi.locker.entry;
+package gameapi.extensions.locker.entry;
 
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.particle.GenericParticle;
 import cn.nukkit.level.particle.Particle;
+import gameapi.annotation.Future;
 import lombok.Getter;
 
 /**
  * @author glorydark
  * @date {2024/1/4} {22:14}
  */
+@Future
 @Getter
 public class LockerParticleEntry extends LockerEntry {
 
@@ -22,6 +24,7 @@ public class LockerParticleEntry extends LockerEntry {
         this.extraData = extraData;
     }
 
+    @Override
     public void use(Entity entity) {
         entity.getLevel().addParticle(new GenericParticle(entity.getLocation(), Particle.getParticleIdByName(identifier), extraData));
     }

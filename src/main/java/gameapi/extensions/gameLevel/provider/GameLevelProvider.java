@@ -1,9 +1,12 @@
-package gameapi.gameLevel.provider;
+package gameapi.extensions.gameLevel.provider;
+
+import gameapi.annotation.Future;
 
 /**
  * @author glorydark
  * @date {2024/1/4} {22:27}
  */
+@Future
 public interface GameLevelProvider {
 
     void setPlayerLevel(String player, int level);
