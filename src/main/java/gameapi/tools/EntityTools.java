@@ -1,4 +1,4 @@
-package gameapi.toolkit;
+package gameapi.tools;
 
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityXPOrb;

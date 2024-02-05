@@ -20,14 +20,13 @@ import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
-import gameapi.entity.GameEntityCreator;
+import gameapi.manager.GameEntityManager;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
-import gameapi.sound.SoundTools;
-import gameapi.toolkit.InventoryTools;
-import gameapi.toolkit.LevelTools;
-import gameapi.toolkit.SmartTools;
+import gameapi.tools.SoundTools;
+import gameapi.tools.InventoryTools;
+import gameapi.tools.SmartTools;
 import gameapi.utils.IntegerAxisAlignBB;
 import gameapi.utils.PosSet;
 
@@ -170,7 +169,7 @@ public class BaseCommand extends Command {
                     if (commandSender.isPlayer()) {
                         if (strings.length == 3) {
                             Player player = (Player) commandSender;
-                            GameEntityCreator.addRankingList(player, strings[1], strings[2], RankingSortSequence.DESCEND);
+                            GameEntityManager.addRankingList(player, strings[1], strings[2], RankingSortSequence.DESCEND);
                         }
                     } else {
                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.useInGame"));

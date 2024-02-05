@@ -1,4 +1,4 @@
-package gameapi.utils;
+package gameapi.tools;
 
 import cn.nukkit.Player;
 import tip.messages.defaults.*;
@@ -11,15 +11,15 @@ import java.util.LinkedList;
  */
 
 @SuppressWarnings("unused")
-public class Tips {
+public class TipsTools {
 
     /**
      * 静态方法似乎会加载所有使用到的依赖
      * 我们需要兼容多个Tips版本
      */
-    private static final Tips TIPS = new Tips();
+    private static final TipsTools TIPS_TOOLS = new TipsTools();
 
-    private Tips() {
+    private TipsTools() {
 
     }
 
@@ -30,7 +30,7 @@ public class Tips {
      * @param player 玩家
      */
     public static void closeTipsShow(String level, Player player) {
-        TIPS.closeTipsShowInternal(level, player.getName());
+        TIPS_TOOLS.closeTipsShowInternal(level, player.getName());
     }
 
     /**
@@ -40,7 +40,7 @@ public class Tips {
      * @param player 玩家
      */
     public static void removeTipsConfig(String level, Player player) {
-        TIPS.removeTipsConfigInternal(level, player.getName());
+        TIPS_TOOLS.removeTipsConfigInternal(level, player.getName());
     }
 
     private void closeTipsShowInternal(String level, String playerName) {

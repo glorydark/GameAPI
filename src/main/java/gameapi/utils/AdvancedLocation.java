@@ -4,7 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import gameapi.toolkit.LevelTools;
+import gameapi.tools.LevelTools;
 import lombok.Data;
 
 /**

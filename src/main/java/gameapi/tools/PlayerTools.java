@@ -1,4 +1,4 @@
-package gameapi.toolkit;
+package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -7,7 +7,7 @@ import cn.nukkit.lang.TranslationContainer;
 import cn.nukkit.network.protocol.OnScreenTextureAnimationPacket;
 import cn.nukkit.network.protocol.SetTitlePacket;
 import cn.nukkit.network.protocol.TextPacket;
-import gameapi.language.Language;
+import gameapi.utils.Language;
 
 import java.util.Collection;
 

@@ -1,4 +1,4 @@
-package gameapi.scoreboard;
+package gameapi.manager;
 
 import cn.nukkit.Player;
 import de.theamychan.scoreboard.api.ScoreboardAPI;
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Glorydark
  * Dependence: ScoreBoardPlugin
  */
-public class ScoreboardTools {
+public class ScoreboardManager {
     public static ConcurrentHashMap<Player, Scoreboard> scoreboardConcurrentHashMap = new ConcurrentHashMap<>();
 
     public static void drawScoreBoardEntry(String objectiveName, String title, Player player, String... strings) {

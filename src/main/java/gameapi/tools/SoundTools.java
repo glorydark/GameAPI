@@ -1,4 +1,4 @@
-package gameapi.sound;
+package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.level.Level;

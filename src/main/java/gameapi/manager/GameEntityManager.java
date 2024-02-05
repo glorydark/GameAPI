@@ -1,4 +1,4 @@
-package gameapi.entity;
+package gameapi.manager;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
@@ -6,6 +6,7 @@ import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
+import gameapi.entity.TextEntity;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
@@ -13,7 +14,7 @@ import gameapi.ranking.RankingSortSequence;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GameEntityCreator {
+public class GameEntityManager {
 
     public static Set<TextEntity> entityList = Collections.newSetFromMap(new ConcurrentHashMap<>());
 

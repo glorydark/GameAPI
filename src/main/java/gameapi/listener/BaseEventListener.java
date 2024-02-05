@@ -16,7 +16,7 @@ import cn.nukkit.event.player.*;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
 import gameapi.commands.BaseCommand;
-import gameapi.entity.GameEntityCreator;
+import gameapi.manager.GameEntityManager;
 import gameapi.entity.GameProjectileEntity;
 import gameapi.entity.TextEntity;
 import gameapi.event.block.RoomBlockBreakEvent;
@@ -30,7 +30,7 @@ import gameapi.room.RoomHealthManager;
 import gameapi.room.RoomStatus;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
-import gameapi.toolkit.InventoryTools;
+import gameapi.tools.InventoryTools;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.PosSet;
 import lombok.Data;
@@ -59,7 +59,7 @@ public class BaseEventListener implements Listener {
                 }
             }
             //event.getPlayer().setLocale(Locale.US);
-            for (TextEntity entity : GameEntityCreator.entityList) {
+            for (TextEntity entity : GameEntityManager.entityList) {
                 entity.spawnTo(player);
                 entity.scheduleUpdate();
             }
@@ -79,7 +79,7 @@ public class BaseEventListener implements Listener {
             } else {
                 room.removeSpectator(player);
             }
-            for (TextEntity entity : GameEntityCreator.entityList) {
+            for (TextEntity entity : GameEntityManager.entityList) {
                 entity.despawnFrom(player);
             }
         }
@@ -477,7 +477,7 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void EntityLevelChangeEvent(EntityLevelChangeEvent event) {
         if (event.getEntity() instanceof Player) {
-            for (TextEntity entity : GameEntityCreator.entityList) {
+            for (TextEntity entity : GameEntityManager.entityList) {
                 if (entity.getLevel() == event.getEntity().getLevel()) {
                     entity.spawnTo((Player) event.getEntity());
                 } else {

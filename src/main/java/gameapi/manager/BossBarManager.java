@@ -1,4 +1,4 @@
-package gameapi.bossbar;
+package gameapi.manager;
 
 import cn.nukkit.Player;
 import cn.nukkit.utils.BossBarColor;
@@ -9,7 +9,7 @@ import java.util.HashMap;
 /**
  * @author Glorydark
  */
-public class BossBarAPI {
+public class BossBarManager {
     public static HashMap<Player, Long> bossBars;
 
     public static void createBossBar(Player player, String text, float length, BossBarColor bossBarColor) {

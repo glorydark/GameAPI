@@ -1,4 +1,4 @@
-package gameapi.fireworkapi;
+package gameapi.utils;
 
 import cn.nukkit.item.ItemFirework;
 import cn.nukkit.level.Position;

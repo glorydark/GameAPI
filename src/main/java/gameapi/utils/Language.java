@@ -1,4 +1,4 @@
-package gameapi.language;
+package gameapi.utils;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;

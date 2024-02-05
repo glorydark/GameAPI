@@ -1,4 +1,4 @@
-package gameapi.toolkit;
+package gameapi.tools;
 
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.utils.Config;

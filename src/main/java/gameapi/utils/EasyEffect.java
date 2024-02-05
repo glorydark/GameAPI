@@ -1,8 +1,8 @@
-package gameapi.effect;
+package gameapi.utils;
 
 import cn.nukkit.entity.Entity;
 import cn.nukkit.potion.Effect;
-import gameapi.toolkit.SmartTools;
+import gameapi.tools.SmartTools;
 import lombok.Getter;
 import lombok.Setter;
 

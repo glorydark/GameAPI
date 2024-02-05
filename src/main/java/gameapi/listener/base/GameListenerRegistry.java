@@ -4,7 +4,7 @@ import cn.nukkit.event.EventPriority;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.PluginException;
 import gameapi.annotation.Experimental;
-import gameapi.block.AdvancedBlockRegistry;
+import gameapi.manager.AdvancedBlockManager;
 import gameapi.event.RoomEvent;
 import gameapi.event.block.RoomBlockEvent;
 import gameapi.event.player.RoomPlayerInteractEvent;
@@ -65,9 +65,9 @@ public class GameListenerRegistry {
             listener.callEvent(gameName, event);
         }
         if (event instanceof RoomBlockEvent) {
-            AdvancedBlockRegistry.triggerBlock((RoomBlockEvent) event);
+            AdvancedBlockManager.triggerBlock((RoomBlockEvent) event);
         } else if (event instanceof RoomPlayerInteractEvent) {
-            AdvancedBlockRegistry.triggerBlock(((RoomPlayerInteractEvent) event));
+            AdvancedBlockManager.triggerBlock(((RoomPlayerInteractEvent) event));
         }
     }
 

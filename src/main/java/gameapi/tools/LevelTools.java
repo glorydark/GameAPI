@@ -1,4 +1,4 @@
-package gameapi.toolkit;
+package gameapi.tools;
 
 import cn.nukkit.Server;
 import cn.nukkit.level.Location;

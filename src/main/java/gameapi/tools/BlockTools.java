@@ -1,4 +1,4 @@
-package gameapi.toolkit;
+package gameapi.tools;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockAir;

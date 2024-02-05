@@ -8,8 +8,8 @@ import gameapi.listener.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
-import gameapi.scoreboard.ScoreboardTools;
-import gameapi.toolkit.InventoryTools;
+import gameapi.manager.ScoreboardManager;
+import gameapi.tools.InventoryTools;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -191,8 +191,8 @@ public class RoomTask extends AsyncTask {
                     for (Player p : room.getPlayers()) {
                         p.setGamemode(0);
                         InventoryTools.loadBag(p);
-                        ScoreboardTools.removeScoreboard(p);
-                        ScoreboardTools.scoreboardConcurrentHashMap.remove(p);
+                        ScoreboardManager.removeScoreboard(p);
+                        ScoreboardManager.scoreboardConcurrentHashMap.remove(p);
                         //玩家先走
                         p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                     }

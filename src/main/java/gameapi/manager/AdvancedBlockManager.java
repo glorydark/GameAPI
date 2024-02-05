@@ -1,4 +1,4 @@
-package gameapi.block;
+package gameapi.manager;
 
 import cn.nukkit.block.Block;
 import gameapi.annotation.Experimental;
@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 
 @Experimental
-public class AdvancedBlockRegistry {
+public class AdvancedBlockManager {
 
     protected static HashMap<String, Class<?>> blockHashmap = new HashMap<>();
 

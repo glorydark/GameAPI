@@ -1,4 +1,4 @@
-package gameapi.toolkit;
+package gameapi.tools;
 
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.Utils;

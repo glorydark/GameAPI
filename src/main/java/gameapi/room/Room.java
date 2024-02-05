@@ -14,16 +14,16 @@ import gameapi.event.room.*;
 import gameapi.extensions.checkPoint.Checkpoints;
 import gameapi.form.AdvancedFormMain;
 import gameapi.form.AdvancedFormWindowCustom;
-import gameapi.language.Language;
+import gameapi.utils.Language;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
-import gameapi.toolkit.InventoryTools;
-import gameapi.toolkit.PlayerTools;
+import gameapi.tools.InventoryTools;
+import gameapi.tools.PlayerTools;
 import gameapi.utils.AdvancedLocation;
-import gameapi.utils.Tips;
+import gameapi.tools.TipsTools;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -392,7 +392,7 @@ public class Room {
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
             for (Level playLevel : this.getPlayLevels()) {
-                Tips.removeTipsConfig(playLevel.getName(), player);
+                TipsTools.removeTipsConfig(playLevel.getName(), player);
             }
             player.getFoodData().reset();
             player.setFoodEnabled(true);
@@ -624,7 +624,7 @@ public class Room {
             return;
         }
         for (Level playLevel : this.getPlayLevels()) {
-            Tips.removeTipsConfig(playLevel.getName(), player);
+            TipsTools.removeTipsConfig(playLevel.getName(), player);
         }
         player.setGamemode(Server.getInstance().getDefaultGamemode());
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
