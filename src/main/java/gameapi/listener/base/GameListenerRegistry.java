@@ -4,7 +4,7 @@ import cn.nukkit.event.EventPriority;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.PluginException;
 import gameapi.annotation.Experimental;
-import gameapi.manager.AdvancedBlockManager;
+import gameapi.manager.extensions.AdvancedBlockManager;
 import gameapi.event.RoomEvent;
 import gameapi.event.block.RoomBlockEvent;
 import gameapi.event.player.RoomPlayerInteractEvent;

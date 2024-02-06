@@ -70,10 +70,10 @@ public class RoomUpdateTask extends Task {
                 this.onUpdateRoomPlayerMovementEvent(player);
                 this.onUpdatePlayerAroundChunk(player);
                 // RecordPoint
-                room.getCheckpoints().onUpdate(player);
+                room.getCheckpointManager().onUpdate(player);
             }
         }
-        for (CheckpointData checkPointData : room.getCheckpoints().getCheckpointDataList()) {
+        for (CheckpointData checkPointData : room.getCheckpointManager().getCheckpointDataList()) {
             checkPointData.showParticleMarks(room.getPlayLevels().get(0));
         }
         // Provide methods for other games to use

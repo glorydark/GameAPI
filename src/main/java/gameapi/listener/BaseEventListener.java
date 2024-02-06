@@ -16,7 +16,7 @@ import cn.nukkit.event.player.*;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
 import gameapi.commands.BaseCommand;
-import gameapi.manager.GameEntityManager;
+import gameapi.manager.tools.GameEntityManager;
 import gameapi.entity.GameProjectileEntity;
 import gameapi.entity.TextEntity;
 import gameapi.event.block.RoomBlockBreakEvent;
@@ -24,13 +24,14 @@ import gameapi.event.block.RoomBlockPlaceEvent;
 import gameapi.event.entity.*;
 import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.tools.PlayerTempStateManager;
+import gameapi.manager.RoomManager;
 import gameapi.room.Room;
 import gameapi.room.RoomChatData;
-import gameapi.room.RoomHealthManager;
+import gameapi.manager.room.RoomHealthManager;
 import gameapi.room.RoomStatus;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
-import gameapi.tools.InventoryTools;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.PosSet;
 import lombok.Data;
@@ -49,11 +50,11 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerLocallyInitializedEvent(PlayerLocallyInitializedEvent event) {
         Player player = event.getPlayer();
-        GameAPI.playerRoomHashMap.put(player, null);
+        RoomManager.playerRoomHashMap.put(player, null);
         if (player != null) {
             if (GameAPI.saveBag) {
-                if (InventoryTools.getPlayerBagConfig(player) != null) {
-                    InventoryTools.loadBag(player);
+                if (PlayerTempStateManager.getPlayerBagConfig(player) != null) {
+                    PlayerTempStateManager.loadBag(player);
                     player.getFoodData().setLevel(20, 20.0F);
                     Server.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("baseEvent.join.bagCacheExisted", player.getName()));
                 }
@@ -69,7 +70,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerQuitEvent(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             for (Player p : room.getPlayers()) {
                 p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.roomQuit", player.getName()));
@@ -89,7 +90,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void BlockBreakEvent(BlockBreakEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                 event.setCancelled(true);
@@ -129,7 +130,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void BlockPlaceEvent(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                 event.setCancelled(true);
@@ -187,7 +188,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerDropItemEvent(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                 if (room.getRoomRule().isAllowDropItem()) {
@@ -208,7 +209,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void ExplodeEvent(EntityExplodeEvent event) {
         List<Room> roomList = new ArrayList<>();
-        GameAPI.loadedRooms.forEach((s, rooms) -> roomList.addAll(rooms));
+        RoomManager.loadedRooms.forEach((s, rooms) -> roomList.addAll(rooms));
         for (Room room : roomList) {
             if (room != null) {
                 for (AdvancedLocation location : room.getStartSpawn()) {
@@ -231,7 +232,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void ExplodePrimeEvent(ExplosionPrimeEvent event) {
         List<Room> roomList = new ArrayList<>();
-        GameAPI.loadedRooms.forEach((s, rooms) -> roomList.addAll(rooms));
+        RoomManager.loadedRooms.forEach((s, rooms) -> roomList.addAll(rooms));
         for (Room room : roomList) {
             if (room != null) {
                 for (AdvancedLocation location : room.getStartSpawn()) {
@@ -260,9 +261,9 @@ public class BaseEventListener implements Listener {
         Entity entity = event.getEntity();
         Room room = null;
         if (entity instanceof Player) {
-            room = Room.getRoom((Player) entity);
+            room = RoomManager.getRoom((Player) entity);
         } else {
-            Optional<Room> roomOptional = Room.getRoom(entity.getLevel());
+            Optional<Room> roomOptional = RoomManager.getRoom(entity.getLevel());
             if (roomOptional.isPresent()) {
                 room = roomOptional.get();
                 RoomEntityDamageEvent roomEntityDamageEvent = new RoomEntityDamageEvent(room, entity, event.getCause(), event.getFinalDamage());
@@ -371,13 +372,13 @@ public class BaseEventListener implements Listener {
     public void EntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
         Entity entity = event.getEntity();
         Entity damager = event.getDamager();
-        Optional<Room> roomOptional = Room.getRoom(entity.getLevel());
+        Optional<Room> roomOptional = RoomManager.getRoom(entity.getLevel());
         if (!roomOptional.isPresent()) {
             return;
         }
         Room room1 = roomOptional.get();
         if (entity instanceof Player && damager instanceof Player) {
-            Room room2 = Room.getRoom((Player) damager);
+            Room room2 = RoomManager.getRoom((Player) damager);
             if (room1 == room2) {
                 if (room1.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                     Player p1 = (Player) event.getEntity();
@@ -430,7 +431,7 @@ public class BaseEventListener implements Listener {
         }
         Player player = event.getPlayer();
         if (player != null && !player.isOp()) {
-            Room room = Room.getRoom(player);
+            Room room = RoomManager.getRoom(player);
             if (room != null) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.commandExecute.notAllowed"));
                 event.setCancelled(true);
@@ -446,7 +447,7 @@ public class BaseEventListener implements Listener {
         if (player == null || fromLevel == null || toLevel == null) {
             return;
         }
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null && event.getCause() != null) {
             if (!fromLevel.equals(toLevel)) {
                 List<Level> arenas = new LinkedList<>();
@@ -466,7 +467,7 @@ public class BaseEventListener implements Listener {
         if (player == null) {
             return;
         }
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             if (!room.getRoomRule().isAllowCraft()) {
                 event.setCancelled(true);
@@ -490,11 +491,11 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void PlayerChatEvent(PlayerChatEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room == null) {
             // Player is not in game, so the server will send the message to the players who are not in game.
             event.setRecipients(Server.getInstance().getOnlinePlayers().values().stream()
-                    .filter(p -> GameAPI.playerRoomHashMap.get(p) == null).collect(Collectors.toSet()));
+                    .filter(p -> RoomManager.playerRoomHashMap.get(p) == null).collect(Collectors.toSet()));
             return;
         }
         // Player is in game, so we trigger RoomPlayerChatEvent.
@@ -522,7 +523,7 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void PlayerJumpEvent(PlayerJumpEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             RoomPlayerJumpEvent roomPlayerJumpEvent = new RoomPlayerJumpEvent(room, player);
             GameListenerRegistry.callEvent(room, roomPlayerJumpEvent);
@@ -532,7 +533,7 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void PlayerToggleGlideEvent(PlayerToggleGlideEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             RoomPlayerToggleGlideEvent roomPlayerToggleGlideEvent = new RoomPlayerToggleGlideEvent(room, player, event.isGliding());
             GameListenerRegistry.callEvent(room, roomPlayerToggleGlideEvent);
@@ -545,7 +546,7 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void PlayerToggleSneakEvent(PlayerToggleSneakEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             RoomPlayerToggleSneakEvent roomPlayerToggleSneakEvent = new RoomPlayerToggleSneakEvent(room, player, event.isSneaking());
             GameListenerRegistry.callEvent(room, roomPlayerToggleSneakEvent);
@@ -558,7 +559,7 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void PlayerToggleSprintEvent(PlayerToggleSprintEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             RoomPlayerToggleSprintEvent roomPlayerToggleSprintEvent = new RoomPlayerToggleSprintEvent(room, player, event.isSprinting());
             GameListenerRegistry.callEvent(room, roomPlayerToggleSprintEvent);
@@ -571,7 +572,7 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void PlayerInteractEvent(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             RoomPlayerInteractEvent roomPlayerInteractEvent = new RoomPlayerInteractEvent(room, player, event.getBlock(), event.getTouchVector(), event.getFace(), event.getItem(), event.getAction());
             RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(player.getInventory().getItemInHand()));
@@ -593,7 +594,7 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void PlayerItemConsumeEvent(PlayerItemConsumeEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             RoomPlayerItemConsumeEvent roomPlayerItemConsumeEvent = new RoomPlayerItemConsumeEvent(room, player, event.getItem());
             GameListenerRegistry.callEvent(room, roomPlayerItemConsumeEvent);
@@ -606,7 +607,7 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void PlayerItemHeldEvent(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
-        Room room = Room.getRoom(player);
+        Room room = RoomManager.getRoom(player);
         if (room != null) {
             RoomPlayerItemHeldEvent roomPlayerItemHeldEvent = new RoomPlayerItemHeldEvent(room, player, event.getItem());
             RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(player.getInventory().getItemInHand()));
@@ -634,7 +635,7 @@ public class BaseEventListener implements Listener {
                 event.setCancelled(true);
             }
         } else if (((EntityProjectile) event.getEntity()).shootingEntity instanceof Player) {
-            Room room = Room.getRoom((Player) ((EntityProjectile) event.getEntity()).shootingEntity);
+            Room room = RoomManager.getRoom((Player) ((EntityProjectile) event.getEntity()).shootingEntity);
             if (room == null) {
                 return;
             }
@@ -659,7 +660,7 @@ public class BaseEventListener implements Listener {
                 event.setCancelled(true);
             }
         } else if (event.getEntity().shootingEntity instanceof Player) {
-            Room room = Room.getRoom((Player) event.getEntity().shootingEntity);
+            Room room = RoomManager.getRoom((Player) event.getEntity().shootingEntity);
             if (room == null) {
                 return;
             }
@@ -674,7 +675,7 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void EntitySpawnEvent(EntitySpawnEvent event) {
         Entity entity = event.getEntity();
-        Optional<Room> roomOptional = Room.getRoom(entity.getLevel());
+        Optional<Room> roomOptional = RoomManager.getRoom(entity.getLevel());
         if (!roomOptional.isPresent()) {
             return;
         }
@@ -688,12 +689,12 @@ public class BaseEventListener implements Listener {
         Room room;
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
-            room = Room.getRoom((Player) entity);
+            room = RoomManager.getRoom((Player) entity);
             if (room == null) {
                 return;
             }
         } else {
-            Optional<Room> roomOptional = Room.getRoom(entity.getLevel());
+            Optional<Room> roomOptional = RoomManager.getRoom(entity.getLevel());
             if (!roomOptional.isPresent()) {
                 return;
             }

@@ -8,10 +8,13 @@ import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import gameapi.GameAPI;
-import gameapi.arena.WorldTools;
+import gameapi.manager.room.RoomHealthManager;
+import gameapi.manager.tools.PlayerTempStateManager;
+import gameapi.manager.RoomManager;
+import gameapi.world.WorldTools;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
-import gameapi.extensions.checkPoint.Checkpoints;
+import gameapi.manager.room.CheckpointManager;
 import gameapi.form.AdvancedFormMain;
 import gameapi.form.AdvancedFormWindowCustom;
 import gameapi.utils.Language;
@@ -20,7 +23,6 @@ import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
-import gameapi.tools.InventoryTools;
 import gameapi.tools.PlayerTools;
 import gameapi.utils.AdvancedLocation;
 import gameapi.tools.TipsTools;
@@ -83,13 +85,13 @@ public class Room {
     private List<String> loseConsoleCommands = new ArrayList<>();
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
-    private Checkpoints checkpoints = new Checkpoints();
     private long startMillis;
     @Setter(AccessLevel.NONE)
     private RoomUpdateTask roomUpdateTask;
     @Setter(AccessLevel.NONE)
     private LinkedHashMap<String, RoomItemBase> roomItems = new LinkedHashMap<>();
 
+    private CheckpointManager checkpointManager = new CheckpointManager();
     @Setter(AccessLevel.NONE)
     private RoomHealthManager roomHealthManager = new RoomHealthManager(this);
 
@@ -113,39 +115,11 @@ public class Room {
     }
 
     public static boolean isRoomCurrentPlayLevel(Level level) {
-        if (GameAPI.playerRoomHashMap.size() > 0) {
-            return GameAPI.playerRoomHashMap.values().stream().anyMatch(room -> room != null && room.playLevels.stream().anyMatch(l -> l.equals(level)));
+        if (RoomManager.playerRoomHashMap.size() > 0) {
+            return RoomManager.playerRoomHashMap.values().stream().anyMatch(room -> room != null && room.playLevels.stream().anyMatch(l -> l.equals(level)));
         } else {
             return false;
         }
-    }
-
-    public static Optional<Room> getRoom(Level level) {
-        if (GameAPI.playerRoomHashMap.size() > 0) {
-            return GameAPI.playerRoomHashMap.values().stream().filter(room -> room != null && room.playLevels.stream().anyMatch(l -> l.equals(level))).findFirst();
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public static Room getRoom(String gameName, Player p) {
-        if (getRoom(p) == null) {
-            return null;
-        }
-        return getRoom(p).getGameName().equals(gameName) ? getRoom(p) : null;
-    }
-
-    public static Room getRoom(Player p) {
-        return GameAPI.playerRoomHashMap.getOrDefault(p, null);
-    }
-
-    public static Room getRoom(String gameName, String roomName) {
-        for (Room room : GameAPI.loadedRooms.getOrDefault(gameName, new ArrayList<>())) {
-            if (room.roomName.equals(roomName) && room.gameName.equals(gameName)) {
-                return room;
-            }
-        }
-        return null;
     }
 
     public void registerRoomItem(RoomItemBase... roomItems) {
@@ -319,7 +293,7 @@ public class Room {
     }
 
     public void processPlayerJoin(Player player) {
-        if (Room.getRoom(player) != null) {
+        if (RoomManager.getRoom(player) != null) {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.isInOtherRoom"));
             return;
         }
@@ -363,8 +337,8 @@ public class Room {
                 GameListenerRegistry.callEvent(this, ev);
                 if (!ev.isCancelled()) {
                     roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
-                    GameAPI.playerRoomHashMap.put(player, this);
-                    InventoryTools.saveBag(player);
+                    RoomManager.playerRoomHashMap.put(player, this);
+                    PlayerTempStateManager.saveBagData(player);
                     playerProperties.put(player.getName(), new LinkedHashMap<>());
                     this.players.add(player);
                     waitSpawn.teleport(player);
@@ -402,7 +376,7 @@ public class Room {
             player.setHealth(player.getMaxHealth());
             player.setNameTag("");
             if (saveBag) {
-                InventoryTools.loadBag(player);
+                PlayerTempStateManager.loadBag(player);
             }
             player.setGamemode(Server.getInstance().getDefaultGamemode());
             if (this.getPlayerTeam(player) != null) {
@@ -411,7 +385,7 @@ public class Room {
             this.playerProperties.remove(player.getName());
             this.players.remove(player);
             this.roomHealthManager.removePlayer(player);
-            GameAPI.playerRoomHashMap.remove(player);
+            RoomManager.playerRoomHashMap.remove(player);
             player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
         }
     }
@@ -456,7 +430,7 @@ public class Room {
         this.playerProperties = new LinkedHashMap<>();
         this.teamCache.forEach((s, team) -> team.resetAll());
         this.chatDataList = new ArrayList<>();
-        this.getCheckpoints().clearAllPlayerCheckPointData();
+        this.getCheckpointManager().clearAllPlayerCheckPointData();
         this.roomHealthManager.clearAll();
         if (this.playLevels == null) {
             GameAPI.plugin.getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
@@ -474,7 +448,7 @@ public class Room {
                     WorldTools.unloadLevel(playLevel, true);
                 }
             }
-            GameAPI.unloadRoom(this);
+            RoomManager.unloadRoom(this);
         } else {
             if (this.resetMap) {
                 GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_resetRoomAndMap", this.getRoomName()));
@@ -629,12 +603,12 @@ public class Room {
         player.setGamemode(Server.getInstance().getDefaultGamemode());
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
         player.sendMessage(GameAPI.getLanguage().getTranslation("room.spectator.quit"));
-        GameAPI.playerRoomHashMap.remove(player);
+        RoomManager.playerRoomHashMap.remove(player);
         spectators.remove(player);
     }
 
     public void processJoinSpectator(Player player) {
-        if (Room.getRoom(player) != null) {
+        if (RoomManager.getRoom(player) != null) {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.isInOtherRoom"));
             return;
         }
@@ -674,7 +648,7 @@ public class Room {
                 break;
         }
         spectators.add(player);
-        GameAPI.playerRoomHashMap.put(player, this);
+        RoomManager.playerRoomHashMap.put(player, this);
         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
     }
 

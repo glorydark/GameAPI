@@ -6,6 +6,7 @@ import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
+import gameapi.utils.NukkitTypeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +20,8 @@ import java.util.Map;
 public class InventoryTools {
 
     public static byte[] hexStringToBytes(String hexString) {
-        if (hexString == null || hexString.equals("")) {
-            return null;
+        if (hexString == null || hexString.equals("null")) {
+            return new byte[0];
         }
         hexString = hexString.toUpperCase();
         int length = hexString.length() / 2;
@@ -39,8 +40,8 @@ public class InventoryTools {
 
     public static String bytesToHexString(byte[] src) {
         StringBuilder stringBuilder = new StringBuilder();
-        if (src == null || src.length == 0) {
-            return null;
+        if (src == null || src.length <= 0) {
+            return "null";
         }
         for (byte aSrc : src) {
             int v = aSrc & 0xFF;
@@ -53,63 +54,52 @@ public class InventoryTools {
         return stringBuilder.toString();
     }
 
-    public static void saveBag(Player gamePlayer) {
-        if (GameAPI.saveBag) {
-            List<String> bag = new ArrayList<>();
-            for (int i = 0; i < gamePlayer.getInventory().getSize() + 4; i++) {
-                Item item = gamePlayer.getInventory().getItem(i);
-                bag.add(getItemString(item));
-            }
-            savePlayerBagConfig(gamePlayer, bag);
-        }
-        gamePlayer.getInventory().clearAll();
-    }
-
-    public static String getItemString(Item item) {
-        String nbt = "null";
-        if (item.hasCompoundTag()) {
-            nbt = bytesToHexString(item.getCompoundTag());
-        }
-        return item.getId() + ":" + item.getDamage() + ":" + item.getCount() + ":" + nbt;
-    }
-
-    public static void loadBag(Player gamePlayer) {
-        if (GameAPI.saveBag) {
-            List<String> bag = getPlayerBagConfig(gamePlayer);
-            if (bag != null && bag.size() > 0) {
-                gamePlayer.getInventory().clearAll();
-                for (int i = 0; i < gamePlayer.getInventory().getSize() + 4; i++) {
-                    String[] a = bag.get(i).split(":");
-                    Item item = new Item(Integer.parseInt(a[0]), Integer.parseInt(a[1]), Integer.parseInt(a[2]));
-                    if (a.length > 3 && !a[3].equals("null")) {
-                        CompoundTag tag = Item.parseCompoundTag(hexStringToBytes(a[3]));
-                        item.setNamedTag(tag);
-                    }
-                    gamePlayer.getInventory().setItem(i, item);
+    public static String toBase64String(Item item) {
+        switch (NukkitTypeUtils.getNukkitType()) {
+            case POWER_NUKKIT_X:
+            case POWER_NUKKIT_X_2:
+            case MOT:
+                if (item.hasCompoundTag()) {
+                    return item.getNamespaceId() + ":" + item.getDamage() + ":" + item.getCount() + ":" + bytesToHexString(item.getCompoundTag());
+                } else {
+                    return item.getNamespaceId() + ":" + item.getDamage() + ":" + item.getCount() + ":null";
                 }
-                removePlayerBagConfig(gamePlayer);
+            default:
+                if (item.hasCompoundTag()) {
+                    return item.getId() + ":" + item.getDamage() + ":" + item.getCount() + ":" + bytesToHexString(item.getCompoundTag());
+                } else {
+                    return item.getId() + ":" + item.getDamage() + ":" + item.getCount() + ":null";
+                }
+        }
+    }
+
+    public static Item fromBase64String(String itemString) {
+        String[] strings = itemString.split(":");
+        boolean isNumericId = false;
+        try {
+            int test = Integer.parseInt(strings[0]);
+            isNumericId = true;
+        } catch (Exception ignored) {
+
+        }
+        if (isNumericId) {
+            Item item = Item.get(Integer.parseInt(strings[0]), Integer.parseInt(strings[1]), Integer.parseInt(strings[2]));
+            item.setCompoundTag(hexStringToBytes(strings[3]));
+            return item;
+        } else {
+            int countIndex = strings.length - 2;
+            StringBuilder identifierAndMeta = new StringBuilder();
+            for (int i = 0; i < strings.length - 2; i++) {
+                identifierAndMeta.append(strings[i]);
+                if (i != strings.length - 3) {
+                    identifierAndMeta.append(":");
+                }
             }
+            Item item = Item.fromString(identifierAndMeta.toString());
+            item.setCount(Integer.parseInt(strings[countIndex]));
+            item.setCompoundTag(hexStringToBytes(strings[countIndex + 1]));
+            return item;
         }
-    }
-
-    public static List<String> getPlayerBagConfig(Player player) {
-        Config config = new Config(GameAPI.path + "/inventory_caches/" + player.getName() + ".yml", Config.YAML);
-        if (!config.exists("bagCache")) {
-            return null;
-        }
-        return new ArrayList<>(config.getStringList("bagCache"));
-    }
-
-    public static void savePlayerBagConfig(Player player, List<String> content) {
-        Config config = new Config(GameAPI.path + "/inventory_caches/" + player.getName() + ".yml", Config.YAML);
-        config.set("bagCache", content);
-        config.save();
-    }
-
-    public static void removePlayerBagConfig(Player player) {
-        Config config = new Config(GameAPI.path + "/inventory_caches/" + player.getName() + ".yml", Config.YAML);
-        config.remove("bagCache");
-        config.save();
     }
 
     public static Item parseItemFromMap(Map<String, Object> map) {

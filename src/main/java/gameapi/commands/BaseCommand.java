@@ -20,7 +20,8 @@ import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
-import gameapi.manager.GameEntityManager;
+import gameapi.manager.tools.GameEntityManager;
+import gameapi.manager.RoomManager;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
@@ -63,7 +64,7 @@ public class BaseCommand extends Command {
             if (strings.length == 1) {
                 switch (strings[0]) {
                     case "quit":
-                        Room room = Room.getRoom((Player) commandSender);
+                        Room room = RoomManager.getRoom((Player) commandSender);
                         if (room != null) {
                             if (room.getPlayers().contains((Player) commandSender)) {
                                 room.removePlayer((Player) commandSender);
@@ -144,8 +145,8 @@ public class BaseCommand extends Command {
                 case "savebattles": // For Tournament Restart Procedures
                     File saveDic = new File(GameAPI.path + "/saves/" + SmartTools.dateToString(Calendar.getInstance().getTime(), "yyyyMMdd_HHmmss") + "/");
                     if (saveDic.exists() || saveDic.mkdirs()) {
-                        for (String key : GameAPI.loadedRooms.keySet()) {
-                            for (Room room : GameAPI.loadedRooms.get(key)) {
+                        for (String key : RoomManager.loadedRooms.keySet()) {
+                            for (Room room : RoomManager.loadedRooms.get(key)) {
                                 if (room.getRoomStatus().equals(RoomStatus.ROOM_STATUS_GameStart)) {
                                     File file = new File(saveDic.getPath() + "/" + key + "_" + room.getRoomName() + ".json");
                                     Config config = new Config(file, Config.JSON);
@@ -177,12 +178,12 @@ public class BaseCommand extends Command {
                     break;
                 case "stoproom":
                     if (strings.length == 3) {
-                        Room room = Room.getRoom(strings[1], strings[2]);
+                        Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
                             for (Player player : room.getPlayers()) {
                                 player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                                 player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
-                                GameAPI.playerRoomHashMap.remove(player);
+                                RoomManager.playerRoomHashMap.remove(player);
                             }
                             room.setRoomStatus(RoomStatus.ROOM_STOPPED);
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
@@ -193,7 +194,7 @@ public class BaseCommand extends Command {
                     break;
                 case "halt":
                     if (strings.length == 3) {
-                        Room room = Room.getRoom(strings[1], strings[2]);
+                        Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
                             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room.notProcessing"));
@@ -212,7 +213,7 @@ public class BaseCommand extends Command {
                     break;
                 case "restart":
                     if (strings.length == 3) {
-                        Room room = Room.getRoom(strings[1], strings[2]);
+                        Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
                             for (Player player : room.getPlayers()) {
                                 if (player.isOnline()) {
@@ -231,8 +232,8 @@ public class BaseCommand extends Command {
                     break;
                 case "status":
                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.getting"));
-                    if (GameAPI.loadedRooms.size() > 0) {
-                        for (Map.Entry<String, List<Room>> game : GameAPI.loadedRooms.entrySet()) {
+                    if (RoomManager.loadedRooms.size() > 0) {
+                        for (Map.Entry<String, List<Room>> game : RoomManager.loadedRooms.entrySet()) {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.title", game));
                             List<Room> rooms = game.getValue();
                             if (rooms.size() > 0) {
@@ -253,7 +254,7 @@ public class BaseCommand extends Command {
                     break;
                 case "roomstart":
                     if (strings.length == 3) {
-                        Room room = Room.getRoom(strings[1], strings[2]);
+                        Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
                             if (room.isPreStartPass()) {
                                 room.setPreStartPass(true);
@@ -266,7 +267,7 @@ public class BaseCommand extends Command {
                     break;
                 case "setpwd":
                     if (strings.length == 4) {
-                        Room room = Room.getRoom(strings[1], strings[2]);
+                        Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
                             if (room.isPreStartPass()) {
                                 room.setJoinPassword(strings[3]);
@@ -619,11 +620,11 @@ public class BaseCommand extends Command {
         maps.put("Location", player.getX() + ":" + player.getY() + ":" + player.getZ() + ":" + player.getLevel().getName());
         maps.put("Health", player.getHealth());
         List<String> invs = new ArrayList<>();
-        player.getInventory().getContents().values().forEach(item -> invs.add(InventoryTools.getItemString(item)));
+        player.getInventory().getContents().values().forEach(item -> invs.add(InventoryTools.toBase64String(item)));
         maps.put("Inventory", invs);
         List<String> armors = new ArrayList<>();
         for (Item item : player.getInventory().getArmorContents()) {
-            armors.add(InventoryTools.getItemString(item));
+            armors.add(InventoryTools.toBase64String(item));
         }
         maps.put("ArmorContents", armors);
         return maps;

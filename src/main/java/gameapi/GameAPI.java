@@ -11,11 +11,11 @@ import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
-import gameapi.arena.WorldTools;
+import gameapi.manager.extensions.GameTaskManager;
+import gameapi.manager.RoomManager;
 import gameapi.commands.BaseCommand;
-import gameapi.manager.GameEntityManager;
 import gameapi.form.AdvancedFormMain;
-import gameapi.extensions.gameLevel.GameLevelSystem;
+import gameapi.manager.extensions.GameLevelSystemManager;
 import gameapi.utils.Language;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -23,17 +23,13 @@ import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
-import gameapi.room.Room;
 import gameapi.room.RoomEdit;
-import gameapi.room.RoomNameUtils;
-import gameapi.room.RoomStatus;
 import gameapi.task.RoomTask;
-import gameapi.utils.GameRecord;
+import gameapi.manager.data.PlayerGameDataManager;
 
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 
@@ -43,11 +39,8 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class GameAPI extends PluginBase implements Listener {
 
-    public static ConcurrentHashMap<String, List<Room>> loadedRooms = new ConcurrentHashMap<>(); //房间状态
-    public static LinkedHashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
     public static String path;
     public static Plugin plugin;
-    public static HashMap<String, Map<String, Object>> gameRecord = new HashMap<>();
     public static List<Player> debug = new ArrayList<>();
     public static List<Player> worldEditPlayers = new ArrayList<>();
     public static int entityRefreshIntervals = 100;
@@ -55,41 +48,13 @@ public class GameAPI extends PluginBase implements Listener {
     public static boolean tipsEnabled;
     public static HashMap<Player, RoomEdit> editDataHashMap = new HashMap<>();
     public static SimpleAxisAlignedBB autoLoadChunkRange;
-    public static GameLevelSystem system;
+    public static GameLevelSystemManager system;
     protected static Language language = new Language("GameAPI");
 
-    public static void loadRoom(Room room, RoomStatus baseStatus) {
-        RoomNameUtils.initializeRoomName(room);
-        List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
-        rooms.add(room);
-        GameAPI.loadedRooms.put(room.getGameName(), rooms);
-        room.setRoomStatus(baseStatus);
-        Server.getInstance().getScheduler().scheduleRepeatingTask(GameAPI.plugin, room.getRoomUpdateTask(), 3);
-    }
-
-    public static void unloadRoom(Room room) {
-        room.getRoomUpdateTask().cancel();
-        for (Player player : room.getPlayers()) {
-            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
-        }
-
-        if (room.getPlayers().size() > 0) {
-            for (Player player : room.getPlayers()) {
-                player.kick("Teleport Error...");
-            }
-        }
-        List<Room> rooms = new ArrayList<>(GameAPI.loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
-        rooms.remove(room);
-        GameAPI.loadedRooms.put(room.getGameName(), rooms);
-    }
-
-    public static void addRoomEdit(Player player, RoomEdit roomEdit) {
-        roomEdit.init();
-        editDataHashMap.put(player, roomEdit);
-    }
-
-    public static Language getLanguage() {
-        return language;
+    @Override
+    public void onLoad() {
+        this.getLogger().info("§aDGameAPI OnLoad!");
+        this.getLogger().info("§aAuthor:glorydark");
     }
 
     @Override
@@ -99,31 +64,26 @@ public class GameAPI extends PluginBase implements Listener {
         this.getDataFolder().mkdir();
         this.saveDefaultConfig();
         this.saveResource("rankings.yml", false);
-        this.saveResource("languages/zh_CN.properties", false);
-        this.saveResource("languages/en_US.properties", false);
-        language.addLanguage(new File(path + "/languages/zh_CN.properties"));
-        language.addLanguage(new File(path + "/languages/en_US.properties"));
-        File file = new File(path + "/worlds/");
-        File file1 = new File(path + "/gameRecords/");
-        file.mkdirs();
-        file1.mkdir();
+        new File(path + "/worlds/").mkdirs();
+        new File(path + "/gameRecords/").mkdirs();
+        new File(path + "/task_caches/").mkdirs();
         Config config = new Config(path + "/config.yml", Config.YAML);
+        // load lang data
+        this.loadLanguage();
+        language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
         autoLoadChunkRange = new SimpleAxisAlignedBB(config.getInt("auto_load_chunk.minX", -2), config.getInt("auto_load_chunk.maxX", 2), 0, 0, config.getInt("auto_load_chunk.minZ", -2), config.getInt("auto_load_chunk.maxZ", 2));
         saveBag = config.getBoolean("save_bag", false);
-        language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
-        loadAllGameRecord();
-        if (new File(path + "/rankings.yml").exists()) {
-            Config rankingConfig = new Config(path + "/rankings.yml", Config.YAML);
-            if (rankingConfig.exists("format")) {
-                RankingFormat rankingFormat = new RankingFormat(rankingConfig.getString("score_show_format"), rankingConfig.getString("champion_prefix"), rankingConfig.getString("runnerUp_prefix"), rankingConfig.getString("secondRunnerUp_prefix"));
-                GameRecord.setRankingFormat(rankingFormat);
-            }
-        }
-        loadAllRankingListEntities();
+        tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
+
+        this.loadAllPlayerGameData();
+        this.loadRanking();
+
         this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(), 20);
         this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
         this.getServer().getPluginManager().registerEvents(new AdvancedFormMain(), this);
         this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
+
+        // others ...
         Server.getInstance().getScheduler().scheduleRepeatingTask(this, new NukkitRunnable() {
             @Override
             public void run() {
@@ -160,31 +120,56 @@ public class GameAPI extends PluginBase implements Listener {
                 );
             }
         }, 5, true);
-        tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
         BaseCommand.THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
         this.getLogger().info("§aDGameAPI Enabled!");
     }
 
     @Override
-    public void onLoad() {
-        this.getLogger().info("§aDGameAPI OnLoad!");
-        this.getLogger().info("§aAuthor:glorydark");
+    public void onDisable() {
+        RoomManager.close();
+        PlayerGameDataManager.close();
+        GameTaskManager.saveAllData();
+        GameTaskManager.close();
+
+        GameListenerRegistry.clearAllRegisters();
+        BaseCommand.THREAD_POOL_EXECUTOR.shutdown();
+        this.getLogger().info("DGameAPI Disabled!");
     }
 
-    public void loadAllGameRecord() {
+    public void loadLanguage() {
+        this.saveResource("languages/zh_CN.properties", false);
+        this.saveResource("languages/en_US.properties", false);
+        language.addLanguage(new File(path + "/languages/zh_CN.properties"));
+        language.addLanguage(new File(path + "/languages/en_US.properties"));
+    }
+
+    public void loadRanking() {
+        if (new File(path + "/rankings.yml").exists()) {
+            Config rankingConfig = new Config(path + "/rankings.yml", Config.YAML);
+            if (rankingConfig.exists("format")) {
+                RankingFormat rankingFormat = new RankingFormat(rankingConfig.getString("score_show_format"), rankingConfig.getString("champion_prefix"), rankingConfig.getString("runnerUp_prefix"), rankingConfig.getString("secondRunnerUp_prefix"));
+                PlayerGameDataManager.setRankingFormat(rankingFormat);
+            }
+        }
+        loadAllRankingListEntities();
+    }
+
+    public void loadAllPlayerGameData() {
         File[] files = new File(path + "/gameRecords/").listFiles();
+        LinkedHashMap<String, Map<String, Object>> playerGameData = new LinkedHashMap<>();
         if (files != null && files.length > 0) {
             for (File file : files) {
                 if (file.isDirectory()) {
                     File[] subFiles = file.listFiles();
                     if (subFiles != null && subFiles.length > 0) {
                         for (File subFile : subFiles) {
-                            gameRecord.put(file.getName() + "/" + subFile.getName().split("\\.")[0], new Config(subFile.getPath(), Config.YAML).getAll());
+                            playerGameData.put(file.getName() + "/" + subFile.getName().split("\\.")[0], new Config(subFile.getPath(), Config.YAML).getAll());
                         }
                     }
                 }
             }
         }
+        PlayerGameDataManager.setPlayerData(playerGameData);
     }
 
     public void loadAllRankingListEntities() {
@@ -219,26 +204,13 @@ public class GameAPI extends PluginBase implements Listener {
         }
     }
 
-    @Override
-    public void onDisable() {
-        loadedRooms.keySet().forEach(WorldTools::delWorldByPrefix);
-        GameEntityManager.closeAll();
-        for (String s : loadedRooms.keySet()) {
-            for (Room room : loadedRooms.getOrDefault(s, new ArrayList<>())) {
-                for (Player player : new ArrayList<>(room.getPlayers())) {
-                    room.removePlayer(player);
-                }
-                for (Player player : new ArrayList<>(room.getSpectators())) {
-                    room.removePlayer(player);
-                }
-            }
-        }
-        loadedRooms.clear();
-        playerRoomHashMap.clear();
-        gameRecord.clear();
-        GameListenerRegistry.clearAllRegisters();
-        BaseCommand.THREAD_POOL_EXECUTOR.shutdown();
-        this.getLogger().info("DGameAPI Disabled!");
+    public static void addRoomEdit(Player player, RoomEdit roomEdit) {
+        roomEdit.init();
+        editDataHashMap.put(player, roomEdit);
+    }
+
+    public static Language getLanguage() {
+        return language;
     }
 
 }

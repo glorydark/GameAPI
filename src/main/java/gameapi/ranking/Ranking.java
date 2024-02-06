@@ -2,7 +2,7 @@ package gameapi.ranking;
 
 import cn.nukkit.level.Location;
 import gameapi.GameAPI;
-import gameapi.manager.GameEntityManager;
+import gameapi.manager.tools.GameEntityManager;
 import gameapi.entity.RankingListEntity;
 import gameapi.ranking.simple.RankingValueType;
 import gameapi.tools.SmartTools;
