@@ -1,15 +1,16 @@
-package gameapi.world.settings;
+package gameapi.settings;
 
 import cn.nukkit.Player;
 import cn.nukkit.event.Event;
 import gameapi.annotation.Experimental;
+import gameapi.annotation.Future;
 
 import java.util.HashMap;
 
 /*
    This class is deprecated. Try RoomSetData.class!
  */
-@Experimental
+@Future
 public class EditData {
 
     Player player;

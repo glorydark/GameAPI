@@ -2,7 +2,7 @@ package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import gameapi.utils.AnimateEntityPacketV2;
+import gameapi.utils.protocol.AnimateEntityPacketV2;
 
 import java.util.Collections;
 

@@ -1,14 +1,11 @@
-package gameapi.utils;
+package gameapi.utils.protocol;
 
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
+import gameapi.utils.Animation;
 
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * @author IWareQ
- */
 
 public class AnimateEntityPacketV2 extends DataPacket {
 
@@ -45,6 +42,17 @@ public class AnimateEntityPacketV2 extends DataPacket {
         for (long entityRuntimeId : this.animatedEntityRuntimeIds){
             this.putEntityRuntimeId(entityRuntimeId);
         }
+    }
+
+    public static AnimateEntityPacketV2 fromAnimation(Animation animation) {
+        AnimateEntityPacketV2 animateEntityPacketV2 = new AnimateEntityPacketV2();
+        animateEntityPacketV2.setAnimation(animation.getAnimation());
+        animateEntityPacketV2.setController(animation.getController());
+        animateEntityPacketV2.setStopExpression(animation.getStopExpression());
+        animateEntityPacketV2.setNextState(animation.getNextState());
+        animateEntityPacketV2.setBlendOutTime(animation.getBlendOutTime());
+        animateEntityPacketV2.setStopExpressionVersion(animation.getStopExpressionVersion());
+        return animateEntityPacketV2;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package gameapi.world;
+package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;

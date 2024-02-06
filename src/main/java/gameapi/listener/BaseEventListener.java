@@ -52,13 +52,7 @@ public class BaseEventListener implements Listener {
         Player player = event.getPlayer();
         RoomManager.playerRoomHashMap.put(player, null);
         if (player != null) {
-            if (GameAPI.saveBag) {
-                if (PlayerTempStateManager.getPlayerBagConfig(player) != null) {
-                    PlayerTempStateManager.loadBag(player);
-                    player.getFoodData().setLevel(20, 20.0F);
-                    Server.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("baseEvent.join.bagCacheExisted", player.getName()));
-                }
-            }
+            PlayerTempStateManager.loadAllData(player);
             //event.getPlayer().setLocale(Locale.US);
             for (TextEntity entity : GameEntityManager.entityList) {
                 entity.spawnTo(player);

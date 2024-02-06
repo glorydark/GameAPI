@@ -1,10 +1,14 @@
 package gameapi.tools;
 
+import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
+import gameapi.utils.protocol.AnimateEntityPacketV2;
+import gameapi.utils.Animation;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -98,5 +102,19 @@ public class EntityTools {
                 }
             }
         }
+    }
+
+    public static void playAnimation(Entity entity, Animation animation) {
+        playAnimation(entity, animation, entity.getViewers().values().toArray(new Player[0]));
+    }
+
+    public static void playAnimation(Entity entity, Animation animation, Player viewer) {
+        playAnimation(entity, animation, new Player[]{viewer});
+    }
+
+    public static void playAnimation(Entity entity, Animation animation, Player[] viewers) {
+        AnimateEntityPacketV2 pk = AnimateEntityPacketV2.fromAnimation(animation);
+        pk.addAnimatedEntityRuntimeIds(entity.getId());
+        Server.broadcastPacket(viewers, pk);
     }
 }

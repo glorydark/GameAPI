@@ -8,7 +8,7 @@ import gameapi.manager.tools.GameEntityManager;
 import gameapi.room.Room;
 import gameapi.utils.RoomNameUtils;
 import gameapi.room.RoomStatus;
-import gameapi.world.WorldTools;
+import gameapi.tools.WorldTools;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

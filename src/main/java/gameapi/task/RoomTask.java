@@ -190,7 +190,7 @@ public class RoomTask extends AsyncTask {
                 if (room.getTime() >= room.getCeremonyTime()) {
                     for (Player p : room.getPlayers()) {
                         p.setGamemode(0);
-                        PlayerTempStateManager.loadBag(p);
+                        PlayerTempStateManager.loadAllData(p);
                         ScoreboardManager.removeScoreboard(p);
                         ScoreboardManager.scoreboardConcurrentHashMap.remove(p);
                         //玩家先走

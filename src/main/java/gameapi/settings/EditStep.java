@@ -1,4 +1,4 @@
-package gameapi.world.settings;
+package gameapi.settings;
 
 import cn.nukkit.Player;
 import cn.nukkit.event.Event;

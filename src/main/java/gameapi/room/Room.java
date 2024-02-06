@@ -11,7 +11,7 @@ import gameapi.GameAPI;
 import gameapi.manager.room.RoomHealthManager;
 import gameapi.manager.tools.PlayerTempStateManager;
 import gameapi.manager.RoomManager;
-import gameapi.world.WorldTools;
+import gameapi.tools.WorldTools;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.manager.room.CheckpointManager;
@@ -338,7 +338,7 @@ public class Room {
                 if (!ev.isCancelled()) {
                     roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
                     RoomManager.playerRoomHashMap.put(player, this);
-                    PlayerTempStateManager.saveBagData(player);
+                    PlayerTempStateManager.saveAllData(player);
                     playerProperties.put(player.getName(), new LinkedHashMap<>());
                     this.players.add(player);
                     waitSpawn.teleport(player);
@@ -358,10 +358,6 @@ public class Room {
     }
 
     public void removePlayer(Player player) {
-        removePlayer(player, GameAPI.saveBag);
-    }
-
-    public void removePlayer(Player player, Boolean saveBag) {
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
@@ -375,9 +371,7 @@ public class Room {
             player.setExperience(0, 0);
             player.setHealth(player.getMaxHealth());
             player.setNameTag("");
-            if (saveBag) {
-                PlayerTempStateManager.loadBag(player);
-            }
+            PlayerTempStateManager.loadAllData(player);
             player.setGamemode(Server.getInstance().getDefaultGamemode());
             if (this.getPlayerTeam(player) != null) {
                 this.getPlayerTeam(player).removePlayer(player);
