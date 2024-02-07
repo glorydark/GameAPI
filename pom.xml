@@ -88,8 +88,8 @@
         <dependency>
             <groupId>net.easecation</groupId>
             <artifactId>Ghosty</artifactId>
-            <version>B20240115-MOT-C1-JAVA8</version>
-            <scope>provided</scope>
+            <version>B20240115-MOT-C1</version>
+            <type>pom</type>
         </dependency>
     </dependencies>
 
