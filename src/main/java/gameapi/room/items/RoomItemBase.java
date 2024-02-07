@@ -4,7 +4,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
 import gameapi.event.player.RoomPlayerInteractEvent;
 import gameapi.event.player.RoomPlayerItemHeldEvent;
-import gameapi.toolkit.InventoryTools;
+import gameapi.tools.InventoryTools;
 
 import java.util.Map;
 

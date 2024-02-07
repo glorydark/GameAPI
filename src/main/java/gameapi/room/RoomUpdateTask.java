@@ -14,7 +14,7 @@ import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.player.RoomPlayerMoveEvent;
 import gameapi.extensions.checkPoint.CheckpointData;
 import gameapi.listener.base.GameListenerRegistry;
-import gameapi.utils.Tips;
+import gameapi.tools.TipsTools;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,10 +46,10 @@ public class RoomUpdateTask extends Task {
         if (GameAPI.tipsEnabled) {
             for (Level playLevel : room.getPlayLevels()) {
                 for (Player player : room.getPlayers()) {
-                    Tips.closeTipsShow(playLevel.getName(), player);
+                    TipsTools.closeTipsShow(playLevel.getName(), player);
                 }
                 for (Player player : room.getSpectators()) {
-                    Tips.closeTipsShow(playLevel.getName(), player);
+                    TipsTools.closeTipsShow(playLevel.getName(), player);
                 }
             }
         }
@@ -70,10 +70,10 @@ public class RoomUpdateTask extends Task {
                 this.onUpdateRoomPlayerMovementEvent(player);
                 this.onUpdatePlayerAroundChunk(player);
                 // RecordPoint
-                room.getCheckpoints().onUpdate(player);
+                room.getCheckpointManager().onUpdate(player);
             }
         }
-        for (CheckpointData checkPointData : room.getCheckpoints().getCheckpointDataList()) {
+        for (CheckpointData checkPointData : room.getCheckpointManager().getCheckpointDataList()) {
             checkPointData.showParticleMarks(room.getPlayLevels().get(0));
         }
         // Provide methods for other games to use

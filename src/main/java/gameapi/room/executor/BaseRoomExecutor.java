@@ -3,7 +3,7 @@ package gameapi.room.executor;
 import cn.nukkit.Player;
 import cn.nukkit.level.Sound;
 import gameapi.GameAPI;
-import gameapi.fireworkapi.FireworkTools;
+import gameapi.tools.FireworkTools;
 import gameapi.room.Room;
 import gameapi.utils.AdvancedLocation;
 
