@@ -25,6 +25,6 @@ public class SimpleRanking extends Ranking {
     }
 
     public Map<String, Object> getLatestRankingData() {
-        return new HashMap<>(PlayerGameDataManager.getGameRecordAll(this.gameName, this.comparedKey));
+        return new HashMap<>(PlayerGameDataManager.getPlayerAllGameData(this.gameName, this.comparedKey));
     }
 }

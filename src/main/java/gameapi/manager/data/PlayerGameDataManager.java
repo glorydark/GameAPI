@@ -28,7 +28,7 @@ public class PlayerGameDataManager {
         rankingFormat = rf;
     }
 
-    public static Map<String, Object> getGameRecordAll(String gameName, String fileName) {
+    public static Map<String, Object> getPlayerAllGameData(String gameName, String fileName) {
         if (playerData.containsKey(gameName + "/" + fileName)) {
             return playerData.get(gameName + "/" + fileName);
         } else {
@@ -36,8 +36,8 @@ public class PlayerGameDataManager {
         }
     }
 
-    public static void addGameRecord(String gameName, String fileName, String player, Integer add) {
-        Map<String, Object> allData = getGameRecordAll(gameName, fileName); // o1 -> o2
+    public static void addPlayerGameData(String gameName, String fileName, String player, Integer add) {
+        Map<String, Object> allData = getPlayerAllGameData(gameName, fileName); // o1 -> o2
         int value = (Integer) allData.getOrDefault(player, 0) + add;
         allData.put(player, value);
         playerData.put(gameName + "/" + fileName, allData);
@@ -46,8 +46,8 @@ public class PlayerGameDataManager {
         config.save();
     }
 
-    public static void reduceGameRecord(String gameName, String fileName, String player, Integer reduce) {
-        Map<String, Object> allData = getGameRecordAll(gameName, fileName);
+    public static void reducePlayerGameData(String gameName, String fileName, String player, Integer reduce) {
+        Map<String, Object> allData = getPlayerAllGameData(gameName, fileName);
         int value = (Integer) allData.getOrDefault(player, 0) - reduce;
         allData.put(player, value);
         playerData.put(gameName + "/" + fileName, allData);
@@ -56,12 +56,12 @@ public class PlayerGameDataManager {
         config.save();
     }
 
-    public static int getGameRecord(String gameName, String fileName, String player) {
-        return (int) getGameRecord(gameName, fileName, player, 0);
+    public static int getPlayerGameData(String gameName, String fileName, String player) {
+        return (int) getPlayerGameData(gameName, fileName, player, 0);
     }
 
-    public static Object getGameRecord(String gameName, String fileName, String player, Object defaultValue) {
-        Map<String, Object> allData = getGameRecordAll(gameName, fileName);
+    public static Object getPlayerGameData(String gameName, String fileName, String player, Object defaultValue) {
+        Map<String, Object> allData = getPlayerAllGameData(gameName, fileName);
         if (allData.containsKey(player)) {
             return allData.getOrDefault(player, defaultValue);
         } else {
@@ -69,8 +69,8 @@ public class PlayerGameDataManager {
         }
     }
 
-    public static void setPlayerData(String gameName, String fileName, String player, Object value) {
-        Map<String, Object> allData = getGameRecordAll(gameName, fileName);
+    public static void setPlayerGameData(String gameName, String fileName, String player, Object value) {
+        Map<String, Object> allData = getPlayerAllGameData(gameName, fileName);
         allData.put(player, value);
         playerData.put(gameName + "/" + fileName, allData);
         Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + "/" + fileName + ".yml", Config.YAML);
@@ -78,7 +78,7 @@ public class PlayerGameDataManager {
         config.save();
     }
 
-    public static void setPlayerData(HashMap<String, Map<String, Object>> playerData) {
+    public static void setPlayerGameData(HashMap<String, Map<String, Object>> playerData) {
         PlayerGameDataManager.playerData = playerData;
     }
 

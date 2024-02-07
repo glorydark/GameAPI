@@ -169,7 +169,7 @@ public class GameAPI extends PluginBase implements Listener {
                 }
             }
         }
-        PlayerGameDataManager.setPlayerData(playerGameData);
+        PlayerGameDataManager.setPlayerGameData(playerGameData);
     }
 
     public void loadAllRankingListEntities() {
