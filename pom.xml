@@ -89,7 +89,7 @@
             <groupId>net.easecation</groupId>
             <artifactId>Ghosty</artifactId>
             <version>B20240115-MOT-C1</version>
-            <scope>provided</scope>
+            <type>pom</type>
         </dependency>
     </dependencies>
 
