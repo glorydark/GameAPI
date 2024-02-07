@@ -9,3 +9,4 @@ depend:
   - ScoreboardPlugin
 softdepend:
   - Tips
+  - Ghosty

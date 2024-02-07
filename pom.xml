@@ -88,8 +88,8 @@
         <dependency>
             <groupId>net.easecation</groupId>
             <artifactId>Ghosty</artifactId>
-            <version>lib-1.2.1</version>
-            <scope>compile</scope>
+            <version>B20240115-MOT-C1</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
