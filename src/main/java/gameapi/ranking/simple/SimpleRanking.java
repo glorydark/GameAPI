@@ -4,7 +4,7 @@ import cn.nukkit.level.Location;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
-import gameapi.utils.GameRecord;
+import gameapi.manager.data.PlayerGameDataManager;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -25,6 +25,6 @@ public class SimpleRanking extends Ranking {
     }
 
     public Map<String, Object> getLatestRankingData() {
-        return new HashMap<>(GameRecord.getGameRecordAll(this.gameName, this.comparedKey));
+        return new HashMap<>(PlayerGameDataManager.getGameRecordAll(this.gameName, this.comparedKey));
     }
 }

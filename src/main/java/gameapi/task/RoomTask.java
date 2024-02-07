@@ -3,13 +3,13 @@ package gameapi.task;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.scheduler.AsyncTask;
-import gameapi.GameAPI;
 import gameapi.listener.*;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.tools.PlayerTempStateManager;
+import gameapi.manager.RoomManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
-import gameapi.scoreboard.ScoreboardTools;
-import gameapi.toolkit.InventoryTools;
+import gameapi.manager.tools.ScoreboardManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,12 +113,12 @@ public class RoomTask extends AsyncTask {
 
     @Override
     public void onRun() {
-        if (GameAPI.loadedRooms.size() > 0) {
-            for (Map.Entry<String, List<Room>> entry : GameAPI.loadedRooms.entrySet()) {
+        if (RoomManager.loadedRooms.size() > 0) {
+            for (Map.Entry<String, List<Room>> entry : RoomManager.loadedRooms.entrySet()) {
                 List<Room> rooms = new ArrayList<>(entry.getValue());
                 for (Room room : rooms) {
                     if (!onUpdate(room)) {
-                        GameAPI.loadedRooms.get(entry.getKey()).remove(room);
+                        RoomManager.loadedRooms.get(entry.getKey()).remove(room);
                     }
                 }
             }
@@ -190,9 +190,9 @@ public class RoomTask extends AsyncTask {
                 if (room.getTime() >= room.getCeremonyTime()) {
                     for (Player p : room.getPlayers()) {
                         p.setGamemode(0);
-                        InventoryTools.loadBag(p);
-                        ScoreboardTools.removeScoreboard(p);
-                        ScoreboardTools.scoreboardConcurrentHashMap.remove(p);
+                        PlayerTempStateManager.loadAllData(p);
+                        ScoreboardManager.removeScoreboard(p);
+                        ScoreboardManager.scoreboardConcurrentHashMap.remove(p);
                         //玩家先走
                         p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                     }
