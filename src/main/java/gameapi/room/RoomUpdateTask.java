@@ -8,13 +8,11 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.scheduler.Task;
-import gameapi.GameAPI;
 import gameapi.event.block.RoomBlockTreadEvent;
 import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.player.RoomPlayerMoveEvent;
 import gameapi.extensions.checkPoint.CheckpointData;
 import gameapi.listener.base.GameListenerRegistry;
-import gameapi.tools.TipsTools;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,17 +41,6 @@ public class RoomUpdateTask extends Task {
 
     @Override
     public void onRun(int i) {
-        if (GameAPI.tipsEnabled) {
-            for (Level playLevel : room.getPlayLevels()) {
-                for (Player player : room.getPlayers()) {
-                    TipsTools.closeTipsShow(playLevel.getName(), player);
-                }
-                for (Player player : room.getSpectators()) {
-                    TipsTools.closeTipsShow(playLevel.getName(), player);
-                }
-            }
-        }
-
         for (Player player : new ArrayList<>(playerLocationHashMap.keySet())) {
             if (!room.hasPlayer(player)) {
                 playerLocationHashMap.remove(player);

@@ -1,10 +1,10 @@
 package gameapi.ranking.simple;
 
 import cn.nukkit.level.Location;
+import gameapi.manager.data.PlayerGameDataManager;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
-import gameapi.manager.data.PlayerGameDataManager;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

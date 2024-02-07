@@ -47,9 +47,6 @@ public class EasyEffect {
         this.ambient = ambient;
         if (SmartTools.isInRange(0, 255, r) && SmartTools.isInRange(0, 255, g) && SmartTools.isInRange(0, 255, b)) {
             this.rgb = new int[]{r, g, b};
-        } else {
-            Effect effect = Effect.getEffect(id);
-            this.rgb = effect.getColor();
         }
     }
 
@@ -58,7 +55,7 @@ public class EasyEffect {
     }
 
     public static EasyEffect fromMap(Map<String, Object> map) {
-        EasyEffect effect = new EasyEffect(0, 0, 0);
+        EasyEffect effect = new EasyEffect(1, 0, 0);
         effect.id = (Integer) map.get("id");
         effect.amplifier = (Integer) map.get("amplifier");
         effect.duration = (Integer) map.get("duration");

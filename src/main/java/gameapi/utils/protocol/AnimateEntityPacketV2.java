@@ -20,8 +20,19 @@ public class AnimateEntityPacketV2 extends DataPacket {
     private float blendOutTime = 5.0f;
     private List<Long> animatedEntityRuntimeIds = new ArrayList<>();
 
-    public AnimateEntityPacketV2(){
+    public AnimateEntityPacketV2() {
 
+    }
+
+    public static AnimateEntityPacketV2 fromAnimation(Animation animation) {
+        AnimateEntityPacketV2 animateEntityPacketV2 = new AnimateEntityPacketV2();
+        animateEntityPacketV2.setAnimation(animation.getAnimation());
+        animateEntityPacketV2.setController(animation.getController());
+        animateEntityPacketV2.setStopExpression(animation.getStopExpression());
+        animateEntityPacketV2.setNextState(animation.getNextState());
+        animateEntityPacketV2.setBlendOutTime(animation.getBlendOutTime());
+        animateEntityPacketV2.setStopExpressionVersion(animation.getStopExpressionVersion());
+        return animateEntityPacketV2;
     }
 
     @Override
@@ -39,20 +50,9 @@ public class AnimateEntityPacketV2 extends DataPacket {
         this.putString(this.controller);
         this.putLFloat(this.blendOutTime);
         this.putUnsignedVarInt(this.animatedEntityRuntimeIds.size());
-        for (long entityRuntimeId : this.animatedEntityRuntimeIds){
+        for (long entityRuntimeId : this.animatedEntityRuntimeIds) {
             this.putEntityRuntimeId(entityRuntimeId);
         }
-    }
-
-    public static AnimateEntityPacketV2 fromAnimation(Animation animation) {
-        AnimateEntityPacketV2 animateEntityPacketV2 = new AnimateEntityPacketV2();
-        animateEntityPacketV2.setAnimation(animation.getAnimation());
-        animateEntityPacketV2.setController(animation.getController());
-        animateEntityPacketV2.setStopExpression(animation.getStopExpression());
-        animateEntityPacketV2.setNextState(animation.getNextState());
-        animateEntityPacketV2.setBlendOutTime(animation.getBlendOutTime());
-        animateEntityPacketV2.setStopExpressionVersion(animation.getStopExpressionVersion());
-        return animateEntityPacketV2;
     }
 
     @Override

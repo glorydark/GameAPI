@@ -1,17 +1,19 @@
 package gameapi.room.executor;
 
 import cn.nukkit.Player;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Sound;
 import gameapi.GameAPI;
-import gameapi.tools.FireworkTools;
 import gameapi.room.Room;
+import gameapi.tools.FireworkTools;
+import gameapi.tools.TipsTools;
 import gameapi.utils.AdvancedLocation;
 
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class BaseRoomExecutor implements RoomExecutor {
+public class BaseRoomExecutor extends RoomExecutor {
 
     protected Room room;
 
@@ -96,11 +98,6 @@ public class BaseRoomExecutor implements RoomExecutor {
     }
 
     @Override
-    public void onGameStart() {
-
-    }
-
-    @Override
     public void onGameEnd() {
         if (room.getRound() == room.getMaxRound()) {
             for (Player player : room.getPlayers()) {
@@ -178,13 +175,7 @@ public class BaseRoomExecutor implements RoomExecutor {
     }
 
     @Override
-    public void beginPreStart() {
-
-    }
-
-    @Override
     public void beginReadyStart() {
-        boolean movable = room.getRoomRule().isAllowReadyStartWalk();
         for (Player p : room.getPlayers()) {
             p.getInventory().clearAll();
         }
@@ -192,6 +183,16 @@ public class BaseRoomExecutor implements RoomExecutor {
 
     @Override
     public void beginGameStart() {
+        if (GameAPI.tipsEnabled) {
+            for (Level playLevel : room.getPlayLevels()) {
+                for (Player player : room.getPlayers()) {
+                    TipsTools.closeTipsShow(playLevel.getName(), player);
+                }
+                for (Player player : room.getSpectators()) {
+                    TipsTools.closeTipsShow(playLevel.getName(), player);
+                }
+            }
+        }
         for (Player p : room.getPlayers()) {
             p.removeAllEffects();
             p.getFoodData().reset();
@@ -248,16 +249,6 @@ public class BaseRoomExecutor implements RoomExecutor {
             player.getInventory().clearAll();
             player.setGamemode(2);
         }
-    }
-
-    @Override
-    public void beginCeremony() {
-
-    }
-
-    @Override
-    public void beginNextRoundPreStart() {
-
     }
 
     public Room getRoom() {

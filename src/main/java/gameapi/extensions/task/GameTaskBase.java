@@ -93,55 +93,55 @@ public abstract class GameTaskBase {
         return gameName;
     }
 
-    public String getTaskIdentifier() {
-        return taskIdentifier;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getTaskDisplayName() {
-        return taskDisplayName;
-    }
-
-    public List<String> getMessages() {
-        return messages;
-    }
-
-    public List<String> getCommands() {
-        return commands;
-    }
-
     public void setGameName(String gameName) {
         this.gameName = gameName;
+    }
+
+    public String getTaskIdentifier() {
+        return taskIdentifier;
     }
 
     public void setTaskIdentifier(String taskIdentifier) {
         this.taskIdentifier = taskIdentifier;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getTaskDisplayName() {
+        return taskDisplayName;
     }
 
     public void setTaskDisplayName(String taskDisplayName) {
         this.taskDisplayName = taskDisplayName;
     }
 
-    public void setCommands(List<String> commands) {
-        this.commands = commands;
+    public List<String> getMessages() {
+        return messages;
     }
 
     public void setMessages(List<String> messages) {
         this.messages = messages;
     }
 
-    public void setTaskCache(LinkedHashMap<String, Map<String, Object>> taskCache) {
-        this.taskCache = taskCache;
+    public List<String> getCommands() {
+        return commands;
+    }
+
+    public void setCommands(List<String> commands) {
+        this.commands = commands;
     }
 
     public LinkedHashMap<String, Map<String, Object>> getTaskCache() {
         return taskCache;
+    }
+
+    public void setTaskCache(LinkedHashMap<String, Map<String, Object>> taskCache) {
+        this.taskCache = taskCache;
     }
 }

@@ -11,21 +11,21 @@ import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
-import gameapi.manager.extensions.GameTaskManager;
-import gameapi.manager.RoomManager;
 import gameapi.commands.BaseCommand;
 import gameapi.form.AdvancedFormMain;
-import gameapi.manager.extensions.GameLevelSystemManager;
-import gameapi.utils.Language;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.RoomManager;
+import gameapi.manager.data.PlayerGameDataManager;
+import gameapi.manager.extensions.GameLevelSystemManager;
+import gameapi.manager.extensions.GameTaskManager;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 import gameapi.room.RoomEdit;
 import gameapi.task.RoomTask;
-import gameapi.manager.data.PlayerGameDataManager;
+import gameapi.utils.Language;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -50,6 +50,15 @@ public class GameAPI extends PluginBase implements Listener {
     public static SimpleAxisAlignedBB autoLoadChunkRange;
     public static GameLevelSystemManager system;
     protected static Language language = new Language("GameAPI");
+
+    public static void addRoomEdit(Player player, RoomEdit roomEdit) {
+        roomEdit.init();
+        editDataHashMap.put(player, roomEdit);
+    }
+
+    public static Language getLanguage() {
+        return language;
+    }
 
     @Override
     public void onLoad() {
@@ -202,15 +211,6 @@ public class GameAPI extends PluginBase implements Listener {
             Ranking ranking = new SimpleRanking(location, (String) map.getOrDefault("value_type", ""), (String) map.getOrDefault("title", "Undefined"), "No Data", new RankingFormat(), (Boolean) map.getOrDefault("sort_consequence_ascend", false) ? RankingSortSequence.ASCEND : RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
             ranking.spawnEntity();
         }
-    }
-
-    public static void addRoomEdit(Player player, RoomEdit roomEdit) {
-        roomEdit.init();
-        editDataHashMap.put(player, roomEdit);
-    }
-
-    public static Language getLanguage() {
-        return language;
     }
 
 }

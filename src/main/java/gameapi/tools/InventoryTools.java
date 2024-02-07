@@ -1,14 +1,10 @@
 package gameapi.tools;
 
-import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.utils.Config;
-import gameapi.GameAPI;
 import gameapi.utils.NukkitTypeUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 

@@ -14,6 +14,7 @@ public class AnimationTools {
 
     /**
      * 全服广播动画包
+     *
      * @param packet 动画包
      */
     public static void senPacket(AnimateEntityPacketV2 packet) {
@@ -22,6 +23,7 @@ public class AnimationTools {
 
     /**
      * 向单个个体发放动画包
+     *
      * @param packet 动画包
      * @param target 个体
      */
@@ -45,6 +47,7 @@ public class AnimationTools {
 
         /**
          * 必要的
+         *
          * @param animation 动画identifier 储存在cc.igxnon.squarelottery.animations.Info中
          * @return Builder
          */
@@ -70,6 +73,7 @@ public class AnimationTools {
 
         /**
          * 消除时间
+         *
          * @param blendOutTime [填0为直接停止]
          * @return Builder
          */
@@ -80,6 +84,7 @@ public class AnimationTools {
 
         /**
          * 必要的
+         *
          * @param entityRuntimeId 目标实体runtimeId
          * @return Builder
          */
@@ -104,6 +109,7 @@ public class AnimationTools {
 
         /**
          * 必须在必要参数全补全了再发包
+         *
          * @param player 个体
          */
         public void deliverTo(Player player) {

@@ -7,8 +7,8 @@ import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
-import gameapi.utils.protocol.AnimateEntityPacketV2;
 import gameapi.utils.Animation;
+import gameapi.utils.protocol.AnimateEntityPacketV2;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;

@@ -2,42 +2,68 @@ package gameapi.room.executor;
 
 import gameapi.room.Room;
 
-public interface RoomExecutor {
+public abstract class RoomExecutor {
 
     Room room = null;
 
-    default Room createRoom() {
+    public Room createRoom() {
         return null; // Here developers need to override it.
     }
 
-    default Room restartRoom() {
+    public Room restartRoom() {
         return null;
     }
 
-    void onWait();
+    public void onWait() {
 
-    void onPreStart();
+    }
 
-    void onReadyStart();
+    public void onPreStart() {
 
-    void onGameStart();
+    }
 
-    void onGameEnd();
+    public void onReadyStart() {
 
-    void onCeremony();
+    }
 
-    void onNextRoundPreStart();
+    public void onGameStart() {
 
-    void beginPreStart();
+    }
 
-    void beginReadyStart();
+    public void onGameEnd() {
 
-    void beginGameStart();
+    }
 
-    void beginGameEnd();
+    public void onCeremony() {
 
-    void beginCeremony();
+    }
 
-    void beginNextRoundPreStart();
+    public void onNextRoundPreStart() {
+
+    }
+
+    public void beginPreStart() {
+
+    }
+
+    public void beginReadyStart() {
+
+    }
+
+    public void beginGameStart() {
+
+    }
+
+    public void beginGameEnd() {
+
+    }
+
+    public void beginCeremony() {
+
+    }
+
+    public void beginNextRoundPreStart() {
+
+    }
 
 }

@@ -8,24 +8,24 @@ import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import gameapi.GameAPI;
-import gameapi.manager.room.RoomHealthManager;
-import gameapi.manager.tools.PlayerTempStateManager;
-import gameapi.manager.RoomManager;
-import gameapi.tools.WorldTools;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
-import gameapi.manager.room.CheckpointManager;
 import gameapi.form.AdvancedFormMain;
 import gameapi.form.AdvancedFormWindowCustom;
-import gameapi.utils.Language;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.RoomManager;
+import gameapi.manager.room.CheckpointManager;
+import gameapi.manager.room.RoomHealthManager;
+import gameapi.manager.tools.PlayerTempStateManager;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
 import gameapi.tools.PlayerTools;
-import gameapi.utils.AdvancedLocation;
 import gameapi.tools.TipsTools;
+import gameapi.tools.WorldTools;
+import gameapi.utils.AdvancedLocation;
+import gameapi.utils.Language;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -361,8 +361,10 @@ public class Room {
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
-            for (Level playLevel : this.getPlayLevels()) {
-                TipsTools.removeTipsConfig(playLevel.getName(), player);
+            if (GameAPI.tipsEnabled) {
+                for (Level playLevel : this.getPlayLevels()) {
+                    TipsTools.removeTipsConfig(playLevel.getName(), player);
+                }
             }
             player.getFoodData().reset();
             player.setFoodEnabled(true);
@@ -591,8 +593,10 @@ public class Room {
         if (roomSpectatorLeaveEvent.isCancelled()) {
             return;
         }
-        for (Level playLevel : this.getPlayLevels()) {
-            TipsTools.removeTipsConfig(playLevel.getName(), player);
+        if (GameAPI.tipsEnabled) {
+            for (Level playLevel : this.getPlayLevels()) {
+                TipsTools.removeTipsConfig(playLevel.getName(), player);
+            }
         }
         player.setGamemode(Server.getInstance().getDefaultGamemode());
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());

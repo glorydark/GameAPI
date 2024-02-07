@@ -116,14 +116,6 @@ public class IntegerAxisAlignBB {
                 '}';
     }
 
-    public interface BBConsumer<T> {
-        void accept(int var1, int var2, int var3);
-
-        default T get() {
-            return null;
-        }
-    }
-
     public IntegerAxisAlignBB[] splitAABB(int xLength, int yLength, int zLength) {
         List<IntegerAxisAlignBB> bbs = new ArrayList<>();
         int minX = this.getMinX();
@@ -145,5 +137,13 @@ public class IntegerAxisAlignBB {
             }
         }
         return bbs.toArray(new IntegerAxisAlignBB[0]);
+    }
+
+    public interface BBConsumer<T> {
+        void accept(int var1, int var2, int var3);
+
+        default T get() {
+            return null;
+        }
     }
 }

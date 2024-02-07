@@ -2,7 +2,6 @@ package gameapi.settings;
 
 import cn.nukkit.Player;
 import cn.nukkit.event.Event;
-import gameapi.annotation.Experimental;
 import gameapi.annotation.Future;
 
 import java.util.HashMap;
