@@ -45,19 +45,16 @@ public class Room {
     protected ConcurrentHashMap<String, BaseTeam> teamCache = new ConcurrentHashMap<>();
     @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
-    // Save data for the room' extra configuration.
     @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>();
-    // Save data for some inherited properties, used by the author to restore some inner info.
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, Object> inheritProperties = new LinkedHashMap<>();
-    // Provide this variable in order to realise some functions
     protected String joinPassword = "";
     // Used as a temporary room and will be deleted after the game.
     private RoomExecutor statusExecutor = new BaseRoomExecutor(this);
     private boolean temporary = false;
-    private boolean resetMap = true; // Resetting map is default set to false.
+    private boolean resetMap = false;
     private String roomName = "";
     private RoomRule roomRule;
     private RoomStatus roomStatus = RoomStatus.ROOM_STATUS_WAIT;
@@ -146,11 +143,11 @@ public class Room {
     }
 
     public Object getPlayerProperties(String player, String key) {
-        return playerProperties.containsKey(player) ? playerProperties.get(player).getOrDefault(key, null) : null;
+        return this.getPlayerProperties(player, key, null);
     }
 
-    public Object getPlayerProperties(String player, String key, Object defaultValue) {
-        return playerProperties.containsKey(player) ? playerProperties.get(player).getOrDefault(key, defaultValue) : defaultValue;
+    public <T> T getPlayerProperties(String player, String key, T defaultValue) {
+        return playerProperties.containsKey(player) ? (T) playerProperties.get(player).getOrDefault(key, defaultValue) : defaultValue;
     }
 
     public void setPlayerProperties(String player, String key, Object value) {
@@ -171,11 +168,11 @@ public class Room {
     }
 
     public Object getRoomProperties(String key) {
-        return roomProperties.getOrDefault(key, null);
+        return this.getRoomProperties(key, null);
     }
 
-    public Object getRoomProperties(String key, Object defaultValue) {
-        return roomProperties.getOrDefault(key, defaultValue);
+    public <T> T getRoomProperties(String key, T defaultValue) {
+        return (T) roomProperties.getOrDefault(key, defaultValue);
     }
 
     public void setRoomProperties(String key, Object value) {
