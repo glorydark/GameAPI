@@ -57,13 +57,13 @@ public class PlayerGameDataManager {
     }
 
     public static int getPlayerGameData(String gameName, String fileName, String player) {
-        return (int) getPlayerGameData(gameName, fileName, player, 0);
+        return getPlayerGameData(gameName, fileName, player, 0);
     }
 
-    public static Object getPlayerGameData(String gameName, String fileName, String player, Object defaultValue) {
+    public static <T> T getPlayerGameData(String gameName, String fileName, String player, T defaultValue) {
         Map<String, Object> allData = getPlayerAllGameData(gameName, fileName);
         if (allData.containsKey(player)) {
-            return allData.getOrDefault(player, defaultValue);
+            return (T) allData.getOrDefault(player, defaultValue);
         } else {
             return defaultValue;
         }
