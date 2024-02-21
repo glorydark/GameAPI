@@ -12,6 +12,7 @@ import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.*;
 import cn.nukkit.event.inventory.CraftItemEvent;
+import cn.nukkit.event.level.ChunkUnloadEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
@@ -420,13 +421,19 @@ public class BaseEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
-        if (event.getMessage().startsWith("/gameapi")) {
+        String command = event.getMessage();
+        if (command.startsWith("/gameapi")) {
             return;
         }
         Player player = event.getPlayer();
         if (player != null && !player.isOp()) {
             Room room = RoomManager.getRoom(player);
             if (room != null) {
+                for (String allowCommand : room.getRoomRule().getAllowCommands()) {
+                    if (command.startsWith(allowCommand) || command.startsWith("/" + allowCommand)) {
+                        return;
+                    }
+                }
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.commandExecute.notAllowed"));
                 event.setCancelled(true);
             }
@@ -707,6 +714,15 @@ public class BaseEventListener implements Listener {
                 }
             }
             event.setAmount(roomEntityRegainHealthEvent.getAmount());
+        }
+    }
+
+    @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent event) {
+        for (Entity entity : event.getChunk().getEntities().values()) {
+            if (entity instanceof TextEntity) {
+                event.setCancelled(true);
+            }
         }
     }
 

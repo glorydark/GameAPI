@@ -36,7 +36,7 @@ public class InventoryTools {
 
     public static String bytesToHexString(byte[] src) {
         StringBuilder stringBuilder = new StringBuilder();
-        if (src == null || src.length <= 0) {
+        if (src == null || src.length == 0) {
             return "null";
         }
         for (byte aSrc : src) {

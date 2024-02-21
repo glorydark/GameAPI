@@ -79,6 +79,8 @@ public class RoomRule {
 
     private boolean autoTeleport = true;
 
+    private List<String> allowCommands = new ArrayList<>();
+
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
     }
