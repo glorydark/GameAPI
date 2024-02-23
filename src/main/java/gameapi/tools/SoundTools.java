@@ -25,14 +25,14 @@ public class SoundTools {
      * @param filename: 材质包中sound_definition的项的名称
      * @description: 播放材质包音乐
      */
-    public static void playResourcePackOggMusic(Player player, String filename) {
+    public static void playResourcePackOggMusic(Player player, String filename, float volume, float pitch) {
         PlaySoundPacket pk = new PlaySoundPacket();
         pk.name = filename;
         pk.x = player.getFloorX();
         pk.y = player.getFloorY();
         pk.z = player.getFloorZ();
-        pk.volume = 1;
-        pk.pitch = 1;
+        pk.volume = volume;
+        pk.pitch = pitch;
         player.dataPacket(pk);
     }
 

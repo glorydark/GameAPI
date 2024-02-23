@@ -16,7 +16,7 @@ import cn.nukkit.event.level.ChunkUnloadEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
-import gameapi.commands.BaseCommand;
+import gameapi.commands.WorldEditCommand;
 import gameapi.entity.GameProjectileEntity;
 import gameapi.entity.TextEntity;
 import gameapi.event.block.RoomBlockBreakEvent;
@@ -156,18 +156,18 @@ public class BaseEventListener implements Listener {
                 }
                 switch (block.getId()) {
                     case Block.REDSTONE_BLOCK:
-                        if (!BaseCommand.posSetLinkedHashMap.containsKey(player)) {
-                            BaseCommand.posSetLinkedHashMap.put(player, new PosSet());
+                        if (!WorldEditCommand.posSetLinkedHashMap.containsKey(player)) {
+                            WorldEditCommand.posSetLinkedHashMap.put(player, new PosSet());
                         }
-                        BaseCommand.posSetLinkedHashMap.get(player).setPos1(block.getLocation());
+                        WorldEditCommand.posSetLinkedHashMap.get(player).setPos1(block.getLocation());
                         player.sendMessage("Successfully set pos1 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
                         event.setCancelled(true);
                         break;
                     case Block.EMERALD_BLOCK:
-                        if (!BaseCommand.posSetLinkedHashMap.containsKey(player)) {
-                            BaseCommand.posSetLinkedHashMap.put(player, new PosSet());
+                        if (!WorldEditCommand.posSetLinkedHashMap.containsKey(player)) {
+                            WorldEditCommand.posSetLinkedHashMap.put(player, new PosSet());
                         }
-                        BaseCommand.posSetLinkedHashMap.get(player).setPos2(block.getLocation());
+                        WorldEditCommand.posSetLinkedHashMap.get(player).setPos2(block.getLocation());
                         player.sendMessage("Successfully set pos2 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
                         event.setCancelled(true);
                         break;

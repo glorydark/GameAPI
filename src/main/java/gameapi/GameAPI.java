@@ -12,6 +12,7 @@ import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
 import gameapi.commands.BaseCommand;
+import gameapi.commands.WorldEditCommand;
 import gameapi.form.AdvancedFormMain;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -91,7 +92,7 @@ public class GameAPI extends PluginBase implements Listener {
         this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
         this.getServer().getPluginManager().registerEvents(new AdvancedFormMain(), this);
         this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
-
+        this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
         // others ...
         Server.getInstance().getScheduler().scheduleRepeatingTask(this, new NukkitRunnable() {
             @Override
@@ -129,7 +130,7 @@ public class GameAPI extends PluginBase implements Listener {
                 );
             }
         }, 5, true);
-        BaseCommand.THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
+        WorldEditCommand.THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
         this.getLogger().info("§aDGameAPI Enabled!");
     }
 
@@ -141,7 +142,7 @@ public class GameAPI extends PluginBase implements Listener {
         GameTaskManager.close();
 
         GameListenerRegistry.clearAllRegisters();
-        BaseCommand.THREAD_POOL_EXECUTOR.shutdown();
+        WorldEditCommand.THREAD_POOL_EXECUTOR.shutdown();
         this.getLogger().info("DGameAPI Disabled!");
     }
 
