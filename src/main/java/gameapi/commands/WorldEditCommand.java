@@ -18,6 +18,7 @@ import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
+import gameapi.annotation.Experimental;
 import gameapi.commands.data.WorldEditOperation;
 import gameapi.commands.data.entry.OperationEntry;
 import gameapi.commands.data.entry.SimpleOperationEntry;
@@ -42,6 +43,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author glorydark
  */
+@Experimental
 public class WorldEditCommand extends Command {
 
     public static ForkJoinPool THREAD_POOL_EXECUTOR;

@@ -7,7 +7,12 @@ import cn.nukkit.form.element.ElementInput;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.math.SimpleAxisAlignedBB;
+import cn.nukkit.utils.Config;
+import cn.nukkit.utils.ConfigSection;
 import gameapi.GameAPI;
+import gameapi.annotation.Experimental;
+import gameapi.annotation.Future;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.form.AdvancedFormMain;
@@ -21,6 +26,7 @@ import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
+import gameapi.tools.LevelTools;
 import gameapi.tools.PlayerTools;
 import gameapi.tools.TipsTools;
 import gameapi.tools.WorldTools;
@@ -793,5 +799,39 @@ public class Room {
 
     public void removePlayLevel(Level loadLevel) {
         playLevels.remove(loadLevel);
+    }
+
+    @Experimental
+    public static Room parseRoomFromConfig(String gameName, int gameMode, String playLevel, String roomLevelBackup, ConfigSection section) {
+        Room room = new Room(gameName, new RoomRule(gameMode), new ArrayList<>(), roomLevelBackup, 1);
+        Level level = Server.getInstance().getLevelByName(playLevel);
+        if (level != null) {
+            room.getPlayLevels().add(level);
+        }
+        if (section.exists("wait_spawn")) {
+            room.setWaitSpawn(section.getString("wait_spawn") + ":" + playLevel);
+        }
+        if (section.exists("start_spawn")) {
+            room.addStartSpawn(section.getString("start_spawn") + playLevel);
+        }
+        if (section.exists("wait_time")) {
+            room.setWaitTime(section.getInt("wait_time"));
+        }
+        if (section.exists("game_wait_time")) {
+            room.setGameWaitTime(section.getInt("game_wait_time"));
+        }
+        if (section.exists("game_time")) {
+            room.setGameTime(section.getInt("game_time"));
+        }
+        if (section.exists("game_end_time")) {
+            room.setGameEndTime(section.getInt("game_end_time"));
+        }
+        if (section.exists("ceremony_time")) {
+            room.setGameEndTime(section.getInt("ceremony_time"));
+        }
+        if (section.exists("password")) {
+            room.setJoinPassword(section.getString("password"));
+        }
+        return room;
     }
 }
