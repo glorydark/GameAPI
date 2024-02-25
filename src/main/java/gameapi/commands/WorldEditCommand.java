@@ -91,7 +91,9 @@ public class WorldEditCommand extends Command {
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (!commandSender.isPlayer()) {
-            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.useInGame"));
+            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.use_in_game"));
+            return false;
+        } else if (!commandSender.isOp()) {
             return false;
         }
         final Player player = (Player) commandSender;

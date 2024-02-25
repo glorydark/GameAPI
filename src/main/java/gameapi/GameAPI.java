@@ -190,24 +190,24 @@ public class GameAPI extends PluginBase implements Listener {
             String level = (String) map.get("level");
             if (Server.getInstance().getLevelByName(level) == null) {
                 if (!Server.getInstance().loadLevel(level)) {
-                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.unknown_world", level));
+                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.world.not_found", level));
                     continue;
                 } else {
-                    this.getLogger().info(language.getTranslation("loading.ranking_loader.world_onLoad", level));
+                    this.getLogger().info(language.getTranslation("loading.ranking_loader.world.load.start", level));
                 }
             } else {
-                this.getLogger().info(language.getTranslation("loading.ranking_loader.world_alreadyLoaded", level));
+                this.getLogger().info(language.getTranslation("loading.ranking_loader.world.already_loaded", level));
             }
             Location location = new Location((Double) map.get("x"), (Double) map.get("y"), (Double) map.get("z"), this.getServer().getLevelByName((String) map.get("level")));
             if (location.getChunk() == null) {
                 if (!location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ())) {
-                    this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk_onLoad", location.getChunkX(), location.getChunkZ()));
+                    this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.load_start", location.getChunkX(), location.getChunkZ()));
                     return;
                 } else {
-                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.chunk_loadedFailed", location.getChunkX(), location.getChunkZ()));
+                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.chunk.load.failed", location.getChunkX(), location.getChunkZ()));
                 }
             } else {
-                this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk_alreadyLoaded", location.getChunkX(), location.getChunkZ()));
+                this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
             }
             Ranking ranking = new SimpleRanking(location, (String) map.getOrDefault("value_type", ""), (String) map.getOrDefault("title", "Undefined"), "No Data", new RankingFormat(), (Boolean) map.getOrDefault("sort_consequence_ascend", false) ? RankingSortSequence.ASCEND : RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
             ranking.spawnEntity();

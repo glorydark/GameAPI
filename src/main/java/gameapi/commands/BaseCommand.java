@@ -22,6 +22,7 @@ import gameapi.tools.SoundTools;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Glorydark
@@ -70,10 +71,10 @@ public class BaseCommand extends Command {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
-        if (!commandSender.isOp() && commandSender.isPlayer()) {
-            if (strings.length == 1) {
-                switch (strings[0]) {
-                    case "quit":
+        if (strings.length > 0) {
+            switch (strings[0].toLowerCase()) {
+                case "quit":
+                    if (commandSender.isPlayer()) {
                         Room room = RoomManager.getRoom((Player) commandSender);
                         if (room != null) {
                             if (room.getPlayers().contains((Player) commandSender)) {
@@ -82,15 +83,10 @@ public class BaseCommand extends Command {
                                 room.removeSpectator((Player) commandSender);
                             }
                         } else {
-                            GameAPI.getLanguage().getTranslation("command.error.notInGame");
+                            GameAPI.getLanguage().getTranslation("command.error.not_in_game");
                         }
-                        break;
-                }
-            }
-            return true;
-        }
-        if (strings.length > 0) {
-            switch (strings[0].toLowerCase()) {
+                    }
+                    break;
                 case "playsound":
                     if (strings.length > 2) {
                         Player player = Server.getInstance().getPlayer(strings[1]);
@@ -105,7 +101,7 @@ public class BaseCommand extends Command {
                             }
                             SoundTools.playResourcePackOggMusic(player, strings[2], volume, pitch);
                         } else {
-                            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation(commandSender, "command.error.playerNotFound", strings[1]));
+                            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_not_found", strings[1]));
                         }
                     }
                     break;
@@ -124,7 +120,7 @@ public class BaseCommand extends Command {
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.debug.off"));
                         }
                     } else {
-                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.useInGame"));
+                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.use_in_game"));
                     }
                     break;
                 case "savebattles":
@@ -149,7 +145,7 @@ public class BaseCommand extends Command {
                             }
                         }
                     } else {
-                        GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation(commandSender, "command.saveBattle.folderCreatedFailed", saveDic.getPath()));
+                        GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation(commandSender, "command.save_battle.folder_created_failed", saveDic.getPath()));
                     }
                     break;
                 case "addrank":
@@ -159,7 +155,7 @@ public class BaseCommand extends Command {
                             GameEntityManager.addRankingList(player, strings[1], strings[2], RankingSortSequence.DESCEND);
                         }
                     } else {
-                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.useInGame"));
+                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.use_in_game"));
                     }
                     break;
                 case "stoproom": // todo
@@ -174,7 +170,7 @@ public class BaseCommand extends Command {
                             room.setRoomStatus(RoomStatus.ROOM_STOPPED);
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
                         } else {
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));
                         }
                     }
                     break;
@@ -183,7 +179,7 @@ public class BaseCommand extends Command {
                         Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
                             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_GameStart) {
-                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room.notProcessing"));
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room.not_start_yet"));
                                 return true;
                             }
                             for (Player player : room.getPlayers()) {
@@ -193,7 +189,7 @@ public class BaseCommand extends Command {
                             room.setRoomStatus(RoomStatus.ROOM_HALTED);
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.halt"));
                         } else {
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));
                         }
                     }
                     break;
@@ -206,13 +202,13 @@ public class BaseCommand extends Command {
                                     player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                                     player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.restart"));
                                 } else {
-                                    commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.playerOffline", player.getName()));
+                                    commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_offline", player.getName()));
                                 }
                             }
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart);
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.restart"));
                         } else {
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));
                         }
                     }
                     break;
@@ -225,17 +221,17 @@ public class BaseCommand extends Command {
                             if (rooms.size() > 0) {
                                 for (Room room : rooms) {
                                     if (room.getRoomRule().isNeedPreStartPass()) {
-                                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.needStartPass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
+                                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.need_start_pass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
                                     } else {
                                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
                                     }
                                 }
                             } else {
-                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.noRoomLoaded"));
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.no_room_loaded"));
                             }
                         }
                     } else {
-                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.noGameLoaded"));
+                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.no_game_loaded"));
                     }
                     break;
                 case "roomstart":
@@ -244,10 +240,10 @@ public class BaseCommand extends Command {
                         if (room != null) {
                             if (room.isPreStartPass()) {
                                 room.setPreStartPass(true);
-                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.startPass.endowed", room.getRoomName()));
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.start_pass.endowed", room.getRoomName()));
                             }
                         } else {
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));
                         }
                     }
                     break;
@@ -257,10 +253,10 @@ public class BaseCommand extends Command {
                         if (room != null) {
                             if (room.isPreStartPass()) {
                                 room.setJoinPassword(strings[3]);
-                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.setPassword", strings[3]));
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.set_password", strings[3]));
                             }
                         } else {
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.roomNotFound"));
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));
                         }
                     }
                     break;
@@ -269,17 +265,51 @@ public class BaseCommand extends Command {
                         String playerName = strings[1];
                         Player seePlayer = Server.getInstance().getPlayer(playerName);
                         if (seePlayer != null) {
-                            GameAPI.plugin.getLogger().info("玩家" + playerName + "的uuid是：" + seePlayer.getUniqueId().toString());
+                            GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("command.see_uuid.success", playerName, seePlayer.getUniqueId().toString()));
                         } else {
                             Optional<UUID> offlineUUID = Server.getInstance().lookupName(playerName);
                             if (offlineUUID.isPresent()) {
                                 IPlayer seePlayerOffline = Server.getInstance().getOfflinePlayer(offlineUUID.get());
-                                GameAPI.plugin.getLogger().info("玩家" + playerName + "的uuid是：" + seePlayerOffline.getUniqueId().toString());
+                                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("command.see_uuid.success", playerName, seePlayerOffline.getUniqueId().toString()));
                             } else {
-                                GameAPI.plugin.getLogger().info("玩家" + playerName + "不存在");
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.see_uuid.player_not_found", playerName));
                             }
                         }
                     }
+                    break;
+                case "seename":
+                    if (strings.length == 2) {
+                        UUID uuid = UUID.fromString(strings[1]);
+                        Optional<Player> seePlayer = Server.getInstance().getPlayer(uuid);
+                        if (seePlayer.isPresent()) {
+                            GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("command.see_name.success", uuid, seePlayer.get().getName()));
+                        } else {
+                            IPlayer offlinePlayer = Server.getInstance().getOfflinePlayer(uuid);
+                            if (offlinePlayer != null) {
+                                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("command.see_name.success", uuid, offlinePlayer.getName()));
+                            } else {
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.see_name.player_not_found", uuid));
+                            }
+                        }
+                    }
+                case "playerever":
+                    CompletableFuture.runAsync(() -> {
+                        int count = 0;
+                        try {
+                            File[] files = new File(Server.getInstance().getDataPath() + "players/").listFiles();
+                            if (files != null) {
+                                for (File file : files) {
+                                    String name = file.getName();
+                                    if (name.endsWith(".dat") && !name.endsWith(".bak.dat")) {
+                                        count++;
+                                    }
+                                }
+                            }
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.player_ever.success", count));
+                        } catch (Exception ignore) {
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.player_ever.no_access"));
+                        }
+                    });
                     break;
             }
         }

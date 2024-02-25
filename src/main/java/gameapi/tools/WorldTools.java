@@ -71,7 +71,7 @@ public class WorldTools {
                     return false;
                 }
             } else {
-                GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.notFound", room.getRoomName()));
+                GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.load.not_found", room.getRoomName()));
                 room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
                 return false;
             }
@@ -82,7 +82,7 @@ public class WorldTools {
     public static boolean unloadLevel(Level level, boolean delete) {
 
         if (level == null) {
-            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("room.world.notFound"));
+            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.load.not_found"));
             return false;
         }
 
@@ -127,7 +127,7 @@ public class WorldTools {
         File backup = new File(GameAPI.path + "/worlds/" + room.getRoomLevelBackup());
 
         if (!backup.exists()) {
-            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.notFound", loadName));
+            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.load.not_found", loadName));
         }
 
         final boolean[] b = {true};
@@ -154,18 +154,18 @@ public class WorldTools {
                                     advancedLocation.setLevel(loadLevel);
                                 }
                                 room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
-                                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("world.loadSuccessfully", loadName));
+                                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("world.load.success", loadName));
                             }
                         } else {
-                            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", loadName));
+                            GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
                             room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                         }
                     } else {
-                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", loadName));
+                        GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
                         room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                     }
                 } else {
-                    GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.loadFailed", loadName));
+                    GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
                     room.setRoomStatus(RoomStatus.ROOM_MapProcessFailed);
                 }
                 b[0] = false;

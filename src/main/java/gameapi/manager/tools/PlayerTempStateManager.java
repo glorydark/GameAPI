@@ -34,7 +34,7 @@ public class PlayerTempStateManager {
         if (PlayerTempStateManager.getPlayerConfig(player, KEY_BAG_CACHES) != null) {
             PlayerTempStateManager.loadBagCaches(player);
             player.getFoodData().setLevel(20, 20.0F);
-            Server.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("baseEvent.join.bagCacheExisted", player.getName()));
+            Server.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("baseEvent.join.bag_cache_existed", player.getName()));
         }
     }
 

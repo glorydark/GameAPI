@@ -68,7 +68,7 @@ public class BaseEventListener implements Listener {
         Room room = RoomManager.getRoom(player);
         if (room != null) {
             for (Player p : room.getPlayers()) {
-                p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.roomQuit", player.getName()));
+                p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.success", player.getName()));
             }
             if (room.getPlayers().contains(player)) {
                 room.removePlayer(player);
@@ -386,7 +386,7 @@ public class BaseEventListener implements Listener {
                     }
                     if (room1.getTeams().size() > 0) {
                         if (room1.getPlayerTeam(p1) != null && room1.getPlayerTeam(p1) == room2.getPlayerTeam(p2)) {
-                            p1.sendMessage(GameAPI.getLanguage().getTranslation(p1, "baseEvent.teamDamage.notAllowed"));
+                            p1.sendMessage(GameAPI.getLanguage().getTranslation(p1, "baseEvent.team_damage.not_allowed"));
                             event.setCancelled(true);
                             return;
                         }
@@ -434,7 +434,7 @@ public class BaseEventListener implements Listener {
                         return;
                     }
                 }
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.commandExecute.notAllowed"));
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.command_execute.not_allowed"));
                 event.setCancelled(true);
             }
         }
@@ -456,7 +456,7 @@ public class BaseEventListener implements Listener {
                 room.getStartSpawn().forEach(spawn -> arenas.add(spawn.getLevel()));
                 if (!arenas.contains(fromLevel) && !arenas.contains(toLevel)) {
                     event.setCancelled(true);
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.levelChange.notAllowed"));
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.level_change.not_allowed"));
                 }
             }
         }

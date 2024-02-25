@@ -7,12 +7,9 @@ import cn.nukkit.form.element.ElementInput;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.math.SimpleAxisAlignedBB;
-import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 import gameapi.GameAPI;
 import gameapi.annotation.Experimental;
-import gameapi.annotation.Future;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.form.AdvancedFormMain;
@@ -26,7 +23,6 @@ import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
-import gameapi.tools.LevelTools;
 import gameapi.tools.PlayerTools;
 import gameapi.tools.TipsTools;
 import gameapi.tools.WorldTools;
@@ -280,7 +276,7 @@ public class Room {
         if (!joinPassword.isEmpty()) {
             AdvancedFormWindowCustom.Builder builder = new AdvancedFormWindowCustom.Builder();
             builder.setTitle(GameAPI.getLanguage().getTranslation(player, "room.window.password.title"));
-            builder.addElement(new ElementInput(GameAPI.getLanguage().getTranslation(player, "room.window.password.inputText")));
+            builder.addElement(new ElementInput(GameAPI.getLanguage().getTranslation(player, "room.window.password.input_text")));
             String rightPassword = this.getJoinPassword();
             builder.onResponse((dealPlayer, responseCustom) -> {
                 if (rightPassword.equals(responseCustom.getInputResponse(0))) {
@@ -297,23 +293,23 @@ public class Room {
 
     public void processPlayerJoin(Player player) {
         if (RoomManager.getRoom(player) != null) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.isInOtherRoom"));
+            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_other_room"));
             return;
         }
         if (!this.getJoinPassword().equals(joinPassword)) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation("command.error.incorrectPassword"));
+            player.sendMessage(GameAPI.getLanguage().getTranslation("command.error.incorrect_password"));
             return;
         }
         List<String> whitelists = this.getRoomRule().getAllowJoinPlayers();
         if (whitelists.size() > 0) {
             if (!whitelists.contains(player.getName())) {
-                player.sendMessage(GameAPI.getLanguage().getTranslation("room.game.noAccess"));
+                player.sendMessage(GameAPI.getLanguage().getTranslation("room.game.no_access"));
                 return;
             }
         }
         RoomStatus roomStatus = this.getRoomStatus();
         if (roomStatus == RoomStatus.ROOM_MapLoadFailed || roomStatus == RoomStatus.ROOM_MapProcessFailed) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.loadFailed"));
+            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
             return;
         }
         if (roomStatus == RoomStatus.ROOM_MapInitializing) {
@@ -334,7 +330,7 @@ public class Room {
         }
         if (this.players.size() < this.maxPlayer) {
             if (this.hasPlayer(player)) {
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.isInThisRoom"));
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_this_room"));
             } else {
                 RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
                 GameListenerRegistry.callEvent(this, ev);
@@ -450,12 +446,12 @@ public class Room {
             RoomManager.unloadRoom(this);
         } else {
             if (this.resetMap) {
-                GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_resetRoomAndMap", this.getRoomName()));
+                GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.room_and_map", this.getRoomName()));
                 if (WorldTools.unloadAndReloadLevels(this)) {
                     this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                 }
             } else {
-                GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_resetRoom", this.getRoomName()));
+                GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.only_room", this.getRoomName()));
                 this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
             }
         }
@@ -464,11 +460,11 @@ public class Room {
     public AdvancedLocation getLocationByString(String string) {
         String[] positions = string.split(":");
         if (positions.length < 4) {
-            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation("advancedLocation.error.formatWrong"));
+            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation("advancedLocation.error.wrong_format"));
             return null;
         }
         if (!Server.getInstance().isLevelLoaded(positions[3])) {
-            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation("advancedLocation.error.worldTryingToLoad"));
+            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation("advancedLocation.error.trying_to_load_world"));
             if (Server.getInstance().loadLevel(positions[3])) {
                 Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
                 AdvancedLocation advancedLocation = new AdvancedLocation();
@@ -485,7 +481,7 @@ public class Room {
                 }
                 return advancedLocation;
             } else {
-                GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation("advancedLocation.error.worldLoadedFailed", positions[3]));
+                GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation("advancedLocation.error.world_load_failed", positions[3]));
                 return null;
             }
         } else {
@@ -610,12 +606,12 @@ public class Room {
 
     public void processJoinSpectator(Player player) {
         if (RoomManager.getRoom(player) != null) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.isInOtherRoom"));
+            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_other_room"));
             return;
         }
         if (this.getRoomStatus().ordinal() > 4) {
             // Player are not allowed to become spectators after the game wrap up(Aka: after RoomGameEnd).
-            GameAPI.getLanguage().getTranslation("room.spectator.join.notAllowed");
+            GameAPI.getLanguage().getTranslation("room.spectator.join.not_allowed");
             return;
         }
         RoomSpectatorJoinEvent roomSpectatorJoinEvent = new RoomSpectatorJoinEvent(this, player);
@@ -680,7 +676,7 @@ public class Room {
                     GameListenerRegistry.callEvent(this, ev);
                     if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                         player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
-                        player.setGamemode(0);
+                        player.setGamemode(roomRule.getGameMode());
                         teleportToSpawn(player);
                     }
                 }, tick);
@@ -688,7 +684,7 @@ public class Room {
                 GameListenerRegistry.callEvent(this, ev);
                 if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                     player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
-                    player.setGamemode(0);
+                    player.setGamemode(roomRule.getGameMode());
                     teleportToSpawn(player);
                 }
             }

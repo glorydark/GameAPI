@@ -26,12 +26,12 @@ public class BaseRoomExecutor extends RoomExecutor {
         if (room.getPlayers().size() >= room.getMinPlayer()) {
             if (room.getRoomRule().isNeedPreStartPass() && !room.isPreStartPass()) {
                 for (Player player : room.getPlayers()) {
-                    player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.needStartPass"));
+                    player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.need_start_pass"));
                 }
             }
         } else {
             for (Player player : room.getPlayers()) {
-                player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.waitForPlayers", room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
+                player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.wait_for_players", room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
             }
         }
     }
