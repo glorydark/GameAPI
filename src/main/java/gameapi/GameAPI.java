@@ -24,7 +24,7 @@ import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
-import gameapi.room.RoomEdit;
+import gameapi.room.edit.EditData;
 import gameapi.task.RoomTask;
 import gameapi.utils.Language;
 
@@ -47,14 +47,17 @@ public class GameAPI extends PluginBase implements Listener {
     public static int entityRefreshIntervals = 100;
     public static boolean saveBag;
     public static boolean tipsEnabled;
-    public static HashMap<Player, RoomEdit> editDataHashMap = new HashMap<>();
+    public static List<EditData> editDataList = new ArrayList<>();
     public static SimpleAxisAlignedBB autoLoadChunkRange;
     public static GameLevelSystemManager system;
     protected static Language language = new Language("GameAPI");
 
-    public static void addRoomEdit(Player player, RoomEdit roomEdit) {
-        roomEdit.init();
-        editDataHashMap.put(player, roomEdit);
+    public static void addRoomEdit(EditData editData) {
+        editDataList.add(editData);
+    }
+
+    public static void joinRoomEdit(Player player, EditData editData) {
+        editData.onStart(player);
     }
 
     public static Language getLanguage() {

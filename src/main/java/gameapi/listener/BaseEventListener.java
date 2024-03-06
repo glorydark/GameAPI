@@ -31,6 +31,7 @@ import gameapi.manager.tools.PlayerTempStateManager;
 import gameapi.room.Room;
 import gameapi.room.RoomChatData;
 import gameapi.room.RoomStatus;
+import gameapi.room.edit.EditData;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
@@ -78,8 +79,15 @@ public class BaseEventListener implements Listener {
             for (TextEntity entity : GameEntityManager.entityList) {
                 entity.despawnFrom(player);
             }
+        } else {
+            for (EditData editData : GameAPI.editDataList) {
+                Player editor = editData.getPlayer();
+                if (editor == player) {
+                    editData.onQuit();
+                }
+                break;
+            }
         }
-        GameAPI.editDataHashMap.remove(player);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -116,8 +124,12 @@ public class BaseEventListener implements Listener {
                 }
             }
         } else {
-            if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
-                GameAPI.editDataHashMap.get(player).respondEvent(event);
+            for (EditData editData : GameAPI.editDataList) {
+                Player editor = editData.getPlayer();
+                if (editor == player) {
+                    editData.getCurrentStep().onBreak(editData);
+                }
+                break;
             }
         }
     }
@@ -173,8 +185,12 @@ public class BaseEventListener implements Listener {
                         break;
                 }
             } else {
-                if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
-                    GameAPI.editDataHashMap.get(player).respondEvent(event);
+                for (EditData editData : GameAPI.editDataList) {
+                    Player editor = editData.getPlayer();
+                    if (editor == player) {
+                        editData.getCurrentStep().onPlace(editData);
+                    }
+                    break;
                 }
             }
         }
@@ -586,8 +602,12 @@ public class BaseEventListener implements Listener {
                 }
             }
         } else {
-            if (GameAPI.editDataHashMap.containsKey(player) && GameAPI.editDataHashMap.get(player) != null) {
-                GameAPI.editDataHashMap.get(player).respondEvent(event);
+            for (EditData editData : GameAPI.editDataList) {
+                Player editor = editData.getPlayer();
+                if (editor == player) {
+                    editData.getCurrentStep().onInteract(editData);
+                }
+                break;
             }
         }
     }
