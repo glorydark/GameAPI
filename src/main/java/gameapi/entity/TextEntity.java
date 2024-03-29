@@ -1,10 +1,15 @@
 package gameapi.entity;
 
 
+import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 public class TextEntity extends Entity {
 
@@ -33,11 +38,16 @@ public class TextEntity extends Entity {
     }
 
     public boolean onUpdate(int currentTick) {
+        if (this.isClosed()) {
+            return false;
+        }
+        for (Map.Entry<Integer, Player> entry : new ArrayList<>(this.hasSpawned.entrySet())) {
+            Player player = entry.getValue();
+            if (!player.isOnline() ||
+                    player.getLevel() != this.getLevel()) {
+                this.despawnFrom(player);
+            }
+        }
         return super.onUpdate(currentTick);
-    }
-
-    @Override
-    public void kill() {
-
     }
 }

@@ -3,6 +3,7 @@ package gameapi;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.entity.custom.EntityManager;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
@@ -20,6 +21,7 @@ import gameapi.manager.RoomManager;
 import gameapi.manager.data.PlayerGameDataManager;
 import gameapi.manager.extensions.GameLevelSystemManager;
 import gameapi.manager.extensions.GameTaskManager;
+import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
@@ -131,6 +133,7 @@ public class GameAPI extends PluginBase implements Listener {
                             player.sendActionBar(out);
                         }
                 );
+                GameEntityManager.onUpdate();
             }
         }, 5, true);
         WorldEditCommand.THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
@@ -143,6 +146,7 @@ public class GameAPI extends PluginBase implements Listener {
         PlayerGameDataManager.close();
         GameTaskManager.saveAllData();
         GameTaskManager.close();
+        GameEntityManager.closeAll();
 
         GameListenerRegistry.clearAllRegisters();
         WorldEditCommand.THREAD_POOL_EXECUTOR.shutdown();
@@ -176,7 +180,9 @@ public class GameAPI extends PluginBase implements Listener {
                     File[] subFiles = file.listFiles();
                     if (subFiles != null && subFiles.length > 0) {
                         for (File subFile : subFiles) {
-                            playerGameData.put(file.getName() + "/" + subFile.getName().split("\\.")[0], new Config(subFile.getPath(), Config.YAML).getAll());
+                            String name = file.getName() + "/" + subFile.getName().split("\\.")[0];
+                            playerGameData.put(name, new Config(subFile.getPath(), Config.YAML).getAll());
+                            this.getLogger().info("Loaded player data: " + subFile);
                         }
                     }
                 }

@@ -12,13 +12,11 @@ import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.*;
 import cn.nukkit.event.inventory.CraftItemEvent;
-import cn.nukkit.event.level.ChunkUnloadEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
 import gameapi.commands.WorldEditCommand;
 import gameapi.entity.GameProjectileEntity;
-import gameapi.entity.TextEntity;
 import gameapi.event.block.RoomBlockBreakEvent;
 import gameapi.event.block.RoomBlockPlaceEvent;
 import gameapi.event.entity.*;
@@ -26,8 +24,6 @@ import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.RoomHealthManager;
-import gameapi.manager.tools.GameEntityManager;
-import gameapi.manager.tools.PlayerTempStateManager;
 import gameapi.room.Room;
 import gameapi.room.RoomChatData;
 import gameapi.room.RoomStatus;
@@ -50,20 +46,6 @@ public class BaseEventListener implements Listener {
     public static HashMap<String, List<DamageSource>> damageSources = new HashMap<>();
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void PlayerLocallyInitializedEvent(PlayerLocallyInitializedEvent event) {
-        Player player = event.getPlayer();
-        RoomManager.playerRoomHashMap.put(player, null);
-        if (player != null) {
-            PlayerTempStateManager.loadAllData(player);
-            //event.getPlayer().setLocale(Locale.US);
-            for (TextEntity entity : GameEntityManager.entityList) {
-                entity.spawnTo(player);
-                entity.scheduleUpdate();
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
     public void PlayerQuitEvent(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         Room room = RoomManager.getRoom(player);
@@ -75,9 +57,6 @@ public class BaseEventListener implements Listener {
                 room.removePlayer(player);
             } else {
                 room.removeSpectator(player);
-            }
-            for (TextEntity entity : GameEntityManager.entityList) {
-                entity.despawnFrom(player);
             }
         } else {
             for (EditData editData : GameAPI.editDataList) {
@@ -493,19 +472,6 @@ public class BaseEventListener implements Listener {
     }
 
     @EventHandler
-    public void EntityLevelChangeEvent(EntityLevelChangeEvent event) {
-        if (event.getEntity() instanceof Player) {
-            for (TextEntity entity : GameEntityManager.entityList) {
-                if (entity.getLevel() == event.getEntity().getLevel()) {
-                    entity.spawnTo((Player) event.getEntity());
-                } else {
-                    entity.despawnFrom((Player) event.getEntity());
-                }
-            }
-        }
-    }
-
-    @EventHandler
     public void PlayerChatEvent(PlayerChatEvent event) {
         Player player = event.getPlayer();
         Room room = RoomManager.getRoom(player);
@@ -734,15 +700,6 @@ public class BaseEventListener implements Listener {
                 }
             }
             event.setAmount(roomEntityRegainHealthEvent.getAmount());
-        }
-    }
-
-    @EventHandler
-    public void onChunkUnload(ChunkUnloadEvent event) {
-        for (Entity entity : event.getChunk().getEntities().values()) {
-            if (entity instanceof TextEntity) {
-                event.setCancelled(true);
-            }
         }
     }
 
