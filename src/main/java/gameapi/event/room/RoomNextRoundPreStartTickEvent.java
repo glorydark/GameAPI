@@ -1,4 +1,4 @@
-package gameapi.listener;
+package gameapi.event.room;
 
 
 import cn.nukkit.Player;
@@ -9,10 +9,10 @@ import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 
-public class RoomNextRoundPreStartListener extends RoomEvent implements Cancellable {
+public class RoomNextRoundPreStartTickEvent extends RoomEvent implements Cancellable {
     private final Room room;
 
-    public RoomNextRoundPreStartListener(Room room) {
+    public RoomNextRoundPreStartTickEvent(Room room) {
         this.room = room;
         if (room.getTime() >= room.getWaitTime()) {
             room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony);

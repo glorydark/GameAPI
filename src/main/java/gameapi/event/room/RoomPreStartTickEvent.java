@@ -1,4 +1,4 @@
-package gameapi.listener;
+package gameapi.event.room;
 
 
 import cn.nukkit.event.HandlerList;
@@ -9,11 +9,11 @@ import gameapi.room.Room;
 /**
  * @author Glorydark
  */
-public class RoomPreStartListener extends RoomEvent implements Cancellable {
+public class RoomPreStartTickEvent extends RoomEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final Room room;
 
-    public RoomPreStartListener(Room room) {
+    public RoomPreStartTickEvent(Room room) {
         this.room = room;
     }
 

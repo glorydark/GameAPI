@@ -1,4 +1,4 @@
-package gameapi.listener;
+package gameapi.event.room;
 
 
 import gameapi.event.Cancellable;
@@ -8,10 +8,10 @@ import gameapi.room.Room;
 /**
  * @author Glorydark
  */
-public class RoomReadyStartListener extends RoomEvent implements Cancellable {
+public class RoomReadyStartTickEvent extends RoomEvent implements Cancellable {
     private final Room room;
 
-    public RoomReadyStartListener(Room room) {
+    public RoomReadyStartTickEvent(Room room) {
         this.room = room;
     }
 

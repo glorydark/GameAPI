@@ -11,7 +11,7 @@ import cn.nukkit.scheduler.Task;
 import gameapi.event.block.RoomBlockTreadEvent;
 import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.player.RoomPlayerMoveEvent;
-import gameapi.extensions.checkPoint.CheckpointData;
+import gameapi.extensions.checkpoint.CheckpointData;
 import gameapi.listener.base.GameListenerRegistry;
 
 import java.util.ArrayList;

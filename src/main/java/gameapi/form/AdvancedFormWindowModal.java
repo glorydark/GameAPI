@@ -5,6 +5,7 @@ import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseModal;
 import cn.nukkit.form.window.FormWindowModal;
 
+import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
 public class AdvancedFormWindowModal extends FormWindowModal implements AdvancedForm {
@@ -121,5 +122,9 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
             return modal;
         }
 
+    }
+
+    public void showFormWindow(Player player) {
+        AdvancedFormMain.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
     }
 }

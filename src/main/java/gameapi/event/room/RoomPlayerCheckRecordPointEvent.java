@@ -2,7 +2,7 @@ package gameapi.event.room;
 
 import cn.nukkit.Player;
 import gameapi.event.player.RoomPlayerEvent;
-import gameapi.extensions.checkPoint.CheckpointData;
+import gameapi.extensions.checkpoint.CheckpointData;
 import gameapi.room.Room;
 
 /**

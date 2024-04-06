@@ -4,7 +4,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
 import gameapi.event.player.RoomPlayerInteractEvent;
 import gameapi.event.player.RoomPlayerItemHeldEvent;
-import gameapi.tools.InventoryTools;
+import gameapi.tools.ItemTools;
 
 import java.util.Map;
 
@@ -38,7 +38,7 @@ public abstract class RoomItemBase {
     }
 
     public RoomItemBase(String identifier, String name, Map<String, Object> itemMap) {
-        this(identifier, name, InventoryTools.parseItemFromMap(itemMap));
+        this(identifier, name, ItemTools.parseItemFromMap(itemMap));
     }
 
     public static String getRoomItemIdentifier(Item item) {

@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author glorydark
  */
-public class LevelTools {
+public class SpatialTools {
 
     public static List<Vector3> parseVectorsFromStrings(String... str) {
         List<Vector3> vector3List = new ArrayList<>();

@@ -1,4 +1,4 @@
-package gameapi.extensions.checkPoint;
+package gameapi.extensions.checkpoint;
 
 import lombok.Data;
 

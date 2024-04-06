@@ -7,6 +7,7 @@ import cn.nukkit.form.response.FormResponseCustom;
 import cn.nukkit.form.window.FormWindowCustom;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -54,7 +55,7 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
 
         }
 
-        public Builder setTitle(String title) {
+        public Builder title(String title) {
             this.title = title;
             return this;
         }
@@ -85,5 +86,9 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
             return custom;
         }
 
+    }
+
+    public void showFormWindow(Player player) {
+        AdvancedFormMain.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
     }
 }

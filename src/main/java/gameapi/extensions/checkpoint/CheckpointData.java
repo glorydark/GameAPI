@@ -1,4 +1,4 @@
-package gameapi.extensions.checkPoint;
+package gameapi.extensions.checkpoint;
 
 import cn.nukkit.Player;
 import cn.nukkit.level.Level;

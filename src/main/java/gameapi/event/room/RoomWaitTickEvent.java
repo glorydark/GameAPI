@@ -1,13 +1,17 @@
-package gameapi.listener;
+package gameapi.event.room;
+
 
 import gameapi.event.Cancellable;
 import gameapi.event.RoomEvent;
 import gameapi.room.Room;
 
-public class RoomGameEndListener extends RoomEvent implements Cancellable {
+/**
+ * @author Glorydark
+ */
+public class RoomWaitTickEvent extends RoomEvent implements Cancellable {
     private final Room room;
 
-    public RoomGameEndListener(Room room) {
+    public RoomWaitTickEvent(Room room) {
         this.room = room;
     }
 

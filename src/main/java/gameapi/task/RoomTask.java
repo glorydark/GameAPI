@@ -3,7 +3,7 @@ package gameapi.task;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.scheduler.AsyncTask;
-import gameapi.listener.*;
+import gameapi.event.room.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.PlayerTempStateManager;
@@ -35,7 +35,7 @@ public class RoomTask extends AsyncTask {
                     room.resetAll();
                     return true;
                 }
-                GameListenerRegistry.callEvent(room, new RoomWaitListener(room));
+                GameListenerRegistry.callEvent(room, new RoomWaitTickEvent(room));
                 this.execute(room, ListenerStatusType.Wait);
                 break;
             case ROOM_STATUS_GameEnd:
@@ -43,14 +43,14 @@ public class RoomTask extends AsyncTask {
                     room.resetAll();
                     return true;
                 }
-                GameListenerRegistry.callEvent(room, new RoomGameEndListener(room));
+                GameListenerRegistry.callEvent(room, new RoomGameEndTickEvent(room));
                 this.execute(room, ListenerStatusType.GameEnd);
                 break;
             case ROOM_STATUS_Ceremony:
                 if (room.getPlayers().size() < 1) {
                     room.setTime(room.getCeremonyTime());
                 }
-                GameListenerRegistry.callEvent(room, new RoomCeremonyListener(room));
+                GameListenerRegistry.callEvent(room, new RoomCeremonyTickEvent(room));
                 this.execute(room, ListenerStatusType.Ceremony);
                 break;
             case ROOM_STATUS_PreStart:
@@ -58,7 +58,7 @@ public class RoomTask extends AsyncTask {
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                     return true;
                 }
-                GameListenerRegistry.callEvent(room, new RoomPreStartListener(room));
+                GameListenerRegistry.callEvent(room, new RoomPreStartTickEvent(room));
                 this.execute(room, ListenerStatusType.PreStart);
                 break;
             case ROOM_STATUS_GameStart:
@@ -92,7 +92,7 @@ public class RoomTask extends AsyncTask {
                         }
                     }
                 }
-                GameListenerRegistry.callEvent(room, new RoomGameProcessingListener(room));
+                GameListenerRegistry.callEvent(room, new RoomGameStartTickEvent(room));
                 this.execute(room, ListenerStatusType.InGame);
                 break;
             case ROOM_STATUS_GameReadyStart:
@@ -100,11 +100,11 @@ public class RoomTask extends AsyncTask {
                     room.resetAll();
                     return true;
                 }
-                GameListenerRegistry.callEvent(room, new RoomReadyStartListener(room));
+                GameListenerRegistry.callEvent(room, new RoomReadyStartTickEvent(room));
                 this.execute(room, ListenerStatusType.ReadyStart);
                 break;
             case ROOM_STATUS_NextRoundPreStart:
-                GameListenerRegistry.callEvent(room, new RoomNextRoundPreStartListener(room));
+                GameListenerRegistry.callEvent(room, new RoomNextRoundPreStartTickEvent(room));
                 this.execute(room, ListenerStatusType.NextRoundPreStart);
                 break;
         }

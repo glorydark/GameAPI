@@ -13,7 +13,7 @@ import java.util.Map;
  * Glorydark added some changes
  */
 
-public class InventoryTools {
+public class ItemTools {
 
     public static byte[] hexStringToBytes(String hexString) {
         if (hexString == null || hexString.equals("null")) {

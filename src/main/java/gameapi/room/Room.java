@@ -12,12 +12,11 @@ import gameapi.GameAPI;
 import gameapi.annotation.Experimental;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
-import gameapi.form.AdvancedFormMain;
 import gameapi.form.AdvancedFormWindowCustom;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.CheckpointManager;
-import gameapi.manager.room.RoomHealthManager;
+import gameapi.manager.room.RoomVirtualHealthManager;
 import gameapi.manager.tools.PlayerTempStateManager;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
@@ -92,7 +91,7 @@ public class Room {
 
     private CheckpointManager checkpointManager = new CheckpointManager();
     @Setter(AccessLevel.NONE)
-    private RoomHealthManager roomHealthManager = new RoomHealthManager(this);
+    private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
 
     public Room(String gameName, RoomRule roomRule, List<Level> playLevels, String roomLevelBackup, int round) {
         this.maxRound = round;
@@ -275,7 +274,7 @@ public class Room {
     public void addPlayer(Player player) {
         if (!joinPassword.isEmpty()) {
             AdvancedFormWindowCustom.Builder builder = new AdvancedFormWindowCustom.Builder();
-            builder.setTitle(GameAPI.getLanguage().getTranslation(player, "room.window.password.title"));
+            builder.title(GameAPI.getLanguage().getTranslation(player, "room.window.password.title"));
             builder.addElement(new ElementInput(GameAPI.getLanguage().getTranslation(player, "room.window.password.input_text")));
             String rightPassword = this.getJoinPassword();
             builder.onResponse((dealPlayer, responseCustom) -> {
@@ -285,7 +284,7 @@ public class Room {
                     player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.password.wrong"));
                 }
             });
-            AdvancedFormMain.showFormWindow(player, builder.build());
+            builder.build().showFormWindow(player);
         } else {
             processPlayerJoin(player);
         }
@@ -379,7 +378,7 @@ public class Room {
             }
             this.playerProperties.remove(player.getName());
             this.players.remove(player);
-            this.roomHealthManager.removePlayer(player);
+            this.roomVirtualHealthManager.removePlayer(player);
             RoomManager.playerRoomHashMap.remove(player);
             player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
         }
@@ -426,7 +425,7 @@ public class Room {
         this.teamCache.forEach((s, team) -> team.resetAll());
         this.chatDataList = new ArrayList<>();
         this.getCheckpointManager().clearAllPlayerCheckPointData();
-        this.roomHealthManager.clearAll();
+        this.roomVirtualHealthManager.clearAll();
         if (this.playLevels == null) {
             GameAPI.plugin.getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
             return;
@@ -656,7 +655,7 @@ public class Room {
         player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);
         RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(this, player, EntityDamageEvent.DamageCause.VOID);
         GameListenerRegistry.callEvent(this, ev);
-        this.roomHealthManager.setHealth(player, this.roomHealthManager.getMaxHealth());
+        this.roomVirtualHealthManager.setHealth(player, this.roomVirtualHealthManager.getMaxHealth());
     }
 
     public void addRespawnTask(Player player) {

@@ -10,13 +10,13 @@ import java.util.LinkedHashMap;
 /**
  * @author glorydark
  */
-public class RoomHealthManager {
+public class RoomVirtualHealthManager {
 
     protected final Room room;
     private LinkedHashMap<Player, Double> healthMap = new LinkedHashMap<>();
     private double maxHealth = 20.0d;
 
-    public RoomHealthManager(Room room) {
+    public RoomVirtualHealthManager(Room room) {
         this.room = room;
     }
 

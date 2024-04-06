@@ -23,7 +23,7 @@ import gameapi.event.entity.*;
 import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
-import gameapi.manager.room.RoomHealthManager;
+import gameapi.manager.room.RoomVirtualHealthManager;
 import gameapi.room.Room;
 import gameapi.room.RoomChatData;
 import gameapi.room.RoomStatus;
@@ -298,7 +298,7 @@ public class BaseEventListener implements Listener {
                 break;
         }
         if (room.getRoomRule().isVirtualHealth()) {
-            RoomHealthManager manager = room.getRoomHealthManager();
+            RoomVirtualHealthManager manager = room.getRoomVirtualHealthManager();
             if (manager.getHealth(player) - event.getFinalDamage() <= 0) {
                 event.setDamage(0);
                 if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
@@ -351,7 +351,7 @@ public class BaseEventListener implements Listener {
         } else {
             if (room.getRoomRule().isVirtualHealth()) {
                 event.setDamage(0f);
-                room.getRoomHealthManager().reduceHealth((Player) entity, BigDecimal.valueOf(roomEntityDamageEvent.getDamage()).doubleValue());
+                room.getRoomVirtualHealthManager().reduceHealth((Player) entity, BigDecimal.valueOf(roomEntityDamageEvent.getDamage()).doubleValue());
             } else {
                 event.setDamage(roomEntityDamageEvent.getDamage());
             }
@@ -398,7 +398,7 @@ public class BaseEventListener implements Listener {
             if (event.getEntity() instanceof Player && room1.getRoomRule().isVirtualHealth()) {
                 event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
                 event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
-                room1.getRoomHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getDamage()).doubleValue());
+                room1.getRoomVirtualHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getDamage()).doubleValue());
                 event.setDamage(0);
             } else {
                 event.setDamage(roomEntityDamageByEntityEvent.getDamage());
@@ -694,7 +694,7 @@ public class BaseEventListener implements Listener {
         } else {
             if (room.getRoomRule().isVirtualHealth()) {
                 if (entity instanceof Player) {
-                    room.getRoomHealthManager().addHealth((Player) entity, BigDecimal.valueOf(roomEntityRegainHealthEvent.getAmount()).doubleValue());
+                    room.getRoomVirtualHealthManager().addHealth((Player) entity, BigDecimal.valueOf(roomEntityRegainHealthEvent.getAmount()).doubleValue());
                     event.setAmount(0);
                     return;
                 }
