@@ -7,9 +7,7 @@ import cn.nukkit.form.element.ElementInput;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.utils.ConfigSection;
 import gameapi.GameAPI;
-import gameapi.annotation.Experimental;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.form.AdvancedFormWindowCustom;
@@ -91,23 +89,45 @@ public class Room {
     @Setter(AccessLevel.NONE)
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
 
-    public Room(String gameName, RoomRule roomRule, List<Level> playLevels, String roomLevelBackup, int round) {
+    public Room(String gameName, RoomRule roomRule, int round) {
         this.maxRound = round;
         this.roomRule = roomRule;
-        for (Level playLevel : playLevels) {
-            if (playLevel == null) {
-                GameAPI.plugin.getLogger().warning("playLevel cannot be null!");
-                return;
-            }
-            this.addPlayLevel(playLevel);
-        }
-        this.roomLevelBackup = roomLevelBackup;
         this.gameName = gameName;
         this.roomUpdateTask = new RoomUpdateTask(this);
     }
 
+    public Room(String gameName, RoomRule roomRule, Level playLevel, int round) {
+        this.maxRound = round;
+        this.roomRule = roomRule;
+        this.gameName = gameName;
+        this.roomUpdateTask = new RoomUpdateTask(this);
+        this.addPlayLevel(playLevel);
+    }
+
     public Room(String gameName, RoomRule roomRule, Level playLevel, String roomLevelBackup, int round) {
-        this(gameName, roomRule, new ArrayList<>(Collections.singletonList(playLevel)), roomLevelBackup, round);
+        this.maxRound = round;
+        this.roomRule = roomRule;
+        this.gameName = gameName;
+        this.roomUpdateTask = new RoomUpdateTask(this);
+        this.addPlayLevel(playLevel);
+        this.roomLevelBackup = roomLevelBackup;
+    }
+
+    public Room(String gameName, RoomRule roomRule, List<Level> playLevels, int round) {
+        this.maxRound = round;
+        this.roomRule = roomRule;
+        this.gameName = gameName;
+        this.roomUpdateTask = new RoomUpdateTask(this);
+        this.getPlayLevels().addAll(playLevels);
+    }
+
+    public Room(String gameName, RoomRule roomRule, List<Level> playLevels, String roomLevelBackup, int round) {
+        this.maxRound = round;
+        this.roomRule = roomRule;
+        this.gameName = gameName;
+        this.roomUpdateTask = new RoomUpdateTask(this);
+        this.getPlayLevels().addAll(playLevels);
+        this.roomLevelBackup = roomLevelBackup;
     }
 
     public static boolean isRoomCurrentPlayLevel(Level level) {
@@ -745,6 +765,12 @@ public class Room {
         this.preStartPass = true;
     }
 
+    public void addPlayLevel(Level loadLevel) {
+        playLevels.add(loadLevel);
+        loadLevel.getGameRules().setGameRule(GameRule.SHOW_TAGS, true);
+    }
+
+
     public void sendMessageToAll(String string) {
         PlayerTools.sendMessage(players, string);
         PlayerTools.sendMessage(spectators, string);
@@ -785,46 +811,7 @@ public class Room {
         PlayerTools.sendTip(spectators, language, string, params);
     }
 
-    public void addPlayLevel(Level loadLevel) {
-        playLevels.add(loadLevel);
-        loadLevel.getGameRules().setGameRule(GameRule.SHOW_TAGS, true);
-    }
-
     public void removePlayLevel(Level loadLevel) {
         playLevels.remove(loadLevel);
-    }
-
-    @Experimental
-    public static Room parseRoomFromConfig(String gameName, int gameMode, String playLevel, String roomLevelBackup, ConfigSection section) {
-        Room room = new Room(gameName, new RoomRule(gameMode), new ArrayList<>(), roomLevelBackup, 1);
-        Level level = Server.getInstance().getLevelByName(playLevel);
-        if (level != null) {
-            room.getPlayLevels().add(level);
-        }
-        if (section.exists("wait_spawn")) {
-            room.setWaitSpawn(section.getString("wait_spawn") + ":" + playLevel);
-        }
-        if (section.exists("start_spawn")) {
-            room.addStartSpawn(section.getString("start_spawn") + playLevel);
-        }
-        if (section.exists("wait_time")) {
-            room.setWaitTime(section.getInt("wait_time"));
-        }
-        if (section.exists("game_wait_time")) {
-            room.setGameWaitTime(section.getInt("game_wait_time"));
-        }
-        if (section.exists("game_time")) {
-            room.setGameTime(section.getInt("game_time"));
-        }
-        if (section.exists("game_end_time")) {
-            room.setGameEndTime(section.getInt("game_end_time"));
-        }
-        if (section.exists("ceremony_time")) {
-            room.setGameEndTime(section.getInt("ceremony_time"));
-        }
-        if (section.exists("password")) {
-            room.setJoinPassword(section.getString("password"));
-        }
-        return room;
     }
 }
