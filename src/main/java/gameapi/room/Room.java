@@ -130,24 +130,24 @@ public class Room {
         return this.roomItems.get(identifier);
     }
 
-    public Object getPlayerProperties(Player player, String key) {
-        return this.getPlayerProperties(player.getName(), key);
+    public Object getPlayerProperty(Player player, String key) {
+        return this.getPlayerProperty(player.getName(), key);
     }
 
-    public Object getPlayerProperties(Player player, String key, Object defaultValue) {
-        return this.getPlayerProperties(player.getName(), key, defaultValue);
+    public Object getPlayerProperty(Player player, String key, Object defaultValue) {
+        return this.getPlayerProperty(player.getName(), key, defaultValue);
     }
 
 
-    public void setPlayerProperties(Player player, String key, Object value) {
+    public void setPlayerProperty(Player player, String key, Object value) {
         this.setPlayerProperties(player.getName(), key, value);
     }
 
-    public Object getPlayerProperties(String player, String key) {
-        return this.getPlayerProperties(player, key, null);
+    public Object getPlayerProperty(String player, String key) {
+        return this.getPlayerProperty(player, key, null);
     }
 
-    public <T> T getPlayerProperties(String player, String key, T defaultValue) {
+    public <T> T getPlayerProperty(String player, String key, T defaultValue) {
         return playerProperties.containsKey(player) ? (T) playerProperties.get(player).getOrDefault(key, defaultValue) : defaultValue;
     }
 
@@ -168,19 +168,19 @@ public class Room {
         }
     }
 
-    public Object getRoomProperties(String key) {
-        return this.getRoomProperties(key, null);
+    public Object getRoomProperty(String key) {
+        return this.getRoomProperty(key, null);
     }
 
-    public <T> T getRoomProperties(String key, T defaultValue) {
+    public <T> T getRoomProperty(String key, T defaultValue) {
         return (T) roomProperties.getOrDefault(key, defaultValue);
     }
 
-    public void setRoomProperties(String key, Object value) {
+    public void setRoomProperty(String key, Object value) {
         this.roomProperties.put(key, value);
     }
 
-    public boolean hasRoomProperties(String key) {
+    public boolean hasRoomProperty(String key) {
         return roomProperties.containsKey(key);
     }
 
@@ -700,12 +700,12 @@ public class Room {
             return;
         }
         if (this.startSpawn.size() > 1) {
-            if (this.getPlayerProperties(p.getName(), "spawnIndex") == null) {
+            if (this.getPlayerProperty(p.getName(), "spawnIndex") == null) {
                 Random random = new Random(System.currentTimeMillis());
                 AdvancedLocation location = this.startSpawn.get(random.nextInt(this.startSpawn.size()));
                 location.teleport(p);
             } else {
-                AdvancedLocation location = this.startSpawn.get((Integer) this.getPlayerProperties(p.getName(), "spawnIndex"));
+                AdvancedLocation location = this.startSpawn.get((Integer) this.getPlayerProperty(p.getName(), "spawnIndex"));
                 location.teleport(p);
             }
         } else if (this.getStartSpawn().size() == 1) {
