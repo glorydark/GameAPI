@@ -225,12 +225,12 @@ public class BaseRoomExecutor extends RoomExecutor {
         } else {
             if (startSpawns.size() > 1) {
                 for (Player p : room.getPlayers()) {
-                    if (room.getPlayerProperties(p.getName(), "spawnIndex") == null) {
+                    if (room.getRoomProperty(p.getName(), "spawnIndex") == null) {
                         Random random = new Random(System.currentTimeMillis());
                         AdvancedLocation location = startSpawns.get(random.nextInt(startSpawns.size()));
                         location.teleport(p);
                     } else {
-                        AdvancedLocation location = startSpawns.get((Integer) room.getPlayerProperties(p.getName(), "spawnIndex"));
+                        AdvancedLocation location = startSpawns.get(room.getPlayerProperty(p.getName(), "spawnIndex", 0));
                         location.teleport(p);
                     }
                 }
