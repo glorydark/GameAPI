@@ -48,7 +48,6 @@ public class Room {
     protected LinkedHashMap<String, LinkedHashMap<String, Object>> playerProperties = new LinkedHashMap<>();
     @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>();
-    @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, Object> inheritProperties = new LinkedHashMap<>();
     protected String joinPassword = "";
