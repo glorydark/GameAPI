@@ -25,12 +25,7 @@ public enum RoomStatus {
 
     ROOM_MapLoadFailed,
 
-    ROOM_MapProcessFailed,
-
     ROOM_HALTED,
 
-    ROOM_STOPPED,
-
-    ROOM_REMOVE
-
+    ROOM_STOPPED
 }

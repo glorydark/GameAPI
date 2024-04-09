@@ -325,7 +325,7 @@ public class Room {
             }
         }
         RoomStatus roomStatus = this.getRoomStatus();
-        if (roomStatus == RoomStatus.ROOM_MapLoadFailed || roomStatus == RoomStatus.ROOM_MapProcessFailed) {
+        if (roomStatus == RoomStatus.ROOM_MapLoadFailed) {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
             return;
         }

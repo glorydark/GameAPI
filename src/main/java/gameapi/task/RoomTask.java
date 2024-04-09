@@ -2,7 +2,7 @@ package gameapi.task;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.scheduler.AsyncTask;
+import cn.nukkit.scheduler.Task;
 import gameapi.event.room.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
@@ -19,13 +19,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Glorydark
  */
-public class RoomTask extends AsyncTask {
+public class RoomTask extends Task {
+
+    @Override
+    public void onRun(int i) {
+        if (RoomManager.loadedRooms.size() > 0) {
+            for (Map.Entry<String, List<Room>> entry : RoomManager.loadedRooms.entrySet()) {
+                List<Room> rooms = new ArrayList<>(entry.getValue());
+                for (Room room : rooms) {
+                    if (!onUpdate(room)) {
+                        RoomManager.loadedRooms.get(entry.getKey()).remove(room);
+                    }
+                }
+            }
+            //Server.getInstance().getLogger().alert("目前房间数量:"+counts);
+        }
+    }
 
     public boolean onUpdate(Room room) {
         if (room == null) {
             return false;
         }
-        if (room.getRoomStatus() == RoomStatus.ROOM_MapLoadFailed || room.getRoomStatus() == RoomStatus.ROOM_REMOVE) {
+        if (room.getRoomStatus() == RoomStatus.ROOM_MapLoadFailed) {
             return false;
         }
         room.getPlayers().removeIf(player -> player == null || !player.isOnline());
@@ -36,7 +51,7 @@ public class RoomTask extends AsyncTask {
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomWaitTickEvent(room));
-                this.execute(room, ListenerStatusType.Wait);
+                this.onStateUpdate(room, ListenerStatusType.Wait);
                 break;
             case ROOM_STATUS_GameEnd:
                 if (room.getPlayers().size() < 1) {
@@ -44,14 +59,14 @@ public class RoomTask extends AsyncTask {
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomGameEndTickEvent(room));
-                this.execute(room, ListenerStatusType.GameEnd);
+                this.onStateUpdate(room, ListenerStatusType.GameEnd);
                 break;
             case ROOM_STATUS_Ceremony:
                 if (room.getPlayers().size() < 1) {
                     room.setTime(room.getCeremonyTime());
                 }
                 GameListenerRegistry.callEvent(room, new RoomCeremonyTickEvent(room));
-                this.execute(room, ListenerStatusType.Ceremony);
+                this.onStateUpdate(room, ListenerStatusType.Ceremony);
                 break;
             case ROOM_STATUS_PreStart:
                 if (room.getPlayers().size() < room.getMinPlayer()) {
@@ -59,7 +74,7 @@ public class RoomTask extends AsyncTask {
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomPreStartTickEvent(room));
-                this.execute(room, ListenerStatusType.PreStart);
+                this.onStateUpdate(room, ListenerStatusType.PreStart);
                 break;
             case ROOM_STATUS_GameStart:
                 if (room.getPlayers().size() < 1) {
@@ -93,7 +108,7 @@ public class RoomTask extends AsyncTask {
                     }
                 }
                 GameListenerRegistry.callEvent(room, new RoomGameStartTickEvent(room));
-                this.execute(room, ListenerStatusType.InGame);
+                this.onStateUpdate(room, ListenerStatusType.InGame);
                 break;
             case ROOM_STATUS_GameReadyStart:
                 if (room.getPlayers().size() < 1) {
@@ -101,32 +116,17 @@ public class RoomTask extends AsyncTask {
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomReadyStartTickEvent(room));
-                this.execute(room, ListenerStatusType.ReadyStart);
+                this.onStateUpdate(room, ListenerStatusType.ReadyStart);
                 break;
             case ROOM_STATUS_NextRoundPreStart:
                 GameListenerRegistry.callEvent(room, new RoomNextRoundPreStartTickEvent(room));
-                this.execute(room, ListenerStatusType.NextRoundPreStart);
+                this.onStateUpdate(room, ListenerStatusType.NextRoundPreStart);
                 break;
         }
         return true;
     }
 
-    @Override
-    public void onRun() {
-        if (RoomManager.loadedRooms.size() > 0) {
-            for (Map.Entry<String, List<Room>> entry : RoomManager.loadedRooms.entrySet()) {
-                List<Room> rooms = new ArrayList<>(entry.getValue());
-                for (Room room : rooms) {
-                    if (!onUpdate(room)) {
-                        RoomManager.loadedRooms.get(entry.getKey()).remove(room);
-                    }
-                }
-            }
-            //Server.getInstance().getLogger().alert("目前房间数量:"+counts);
-        }
-    }
-
-    public void execute(Room room, ListenerStatusType type) {
+    public void onStateUpdate(Room room, ListenerStatusType type) {
         switch (type) {
             case Wait:
                 if (room.getPlayers().size() >= room.getMinPlayer()) {
