@@ -8,6 +8,7 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.SimpleAxisAlignedBB;
@@ -140,9 +141,13 @@ public class WorldEditCommand extends Command {
                         return false;
                     }
                     PosSet posSet = posSetLinkedHashMap.get(player);
-                    if (strings.length == 3) {
+                    if (strings.length == 2) {
                         SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
-                        Block block = Block.get(Integer.parseInt(strings[1]), Integer.parseInt(strings[2]));
+                        Block block =  SmartTools.getBlockfromString(strings[1]);
+                        if (block == null) {
+                            commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
+                            return false;
+                        }
                         Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
                             @Override
                             public void onRun() {
@@ -150,11 +155,11 @@ public class WorldEditCommand extends Command {
                                 bb.forEach(((i, i1, i2) -> {
                                     Block before = player.getLevel().getBlock(i, i1, i2);
                                     simpleOperationEntries.add(SimpleOperationEntry.builder()
-                                                .beforeBlockId(before.getId())
-                                                .beforeBlockMeta(before.getDamage())
-                                                .floorX(i)
-                                                .floorY(i1)
-                                                .floorZ(i2)
+                                            .beforeBlockId(before.getId())
+                                            .beforeBlockMeta(before.getDamage())
+                                            .floorX(i)
+                                            .floorY(i1)
+                                            .floorZ(i2)
                                             .build());
                                     player.getLevel().setBlock(i, i1, i2, block, true, true);
                                 }));
@@ -165,7 +170,6 @@ public class WorldEditCommand extends Command {
                                 lastOperation.put(player, worldEditOperation);
                             }
                         });
-
                     }
                     break;
                 case "replace":
@@ -177,8 +181,16 @@ public class WorldEditCommand extends Command {
                         SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
                         Level level = player.getLevel();
                         Block block = SmartTools.getBlockfromString(strings[1]);
+                        if (block == null) {
+                            commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
+                            return false;
+                        }
                         boolean checkBlockDamage = (strings[1].split(":").length == 2);
                         Block blockReplaced = SmartTools.getBlockfromString(strings[2]);
+                        if (blockReplaced == null) {
+                            commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
+                            return false;
+                        }
                         Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
                             @Override
                             public void onRun() {
@@ -221,6 +233,10 @@ public class WorldEditCommand extends Command {
                         SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
                         Level level = player.getLevel();
                         Block blockReplaced = SmartTools.getBlockfromString(strings[1]);
+                        if (blockReplaced == null) {
+                            commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
+                            return false;
+                        }
                         Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
                             @Override
                             public void onRun() {

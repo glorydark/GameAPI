@@ -1,6 +1,7 @@
 package gameapi.tools;
 
 import cn.nukkit.block.Block;
+import cn.nukkit.item.Item;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -122,12 +123,6 @@ public class SmartTools {
     }
 
     public static Block getBlockfromString(String string) {
-        String[] b = string.trim().split(":");
-        int id = Integer.parseInt(b[0]);
-        int meta = 0;
-        if (b.length == 2) {
-            meta = Integer.parseInt(b[1]);
-        }
-        return Block.get(id, meta);
+        return Item.fromString(string).getBlockUnsafe();
     }
 }
