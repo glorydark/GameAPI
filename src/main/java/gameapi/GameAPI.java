@@ -6,6 +6,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.entity.custom.EntityManager;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemTool;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.plugin.Plugin;
@@ -28,6 +29,7 @@ import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 import gameapi.room.edit.EditData;
 import gameapi.task.RoomTask;
+import gameapi.tools.ItemTools;
 import gameapi.utils.Language;
 
 import java.io.File;
@@ -113,11 +115,11 @@ public class GameAPI extends PluginBase implements Listener {
                             out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
                             out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
                             Item item = player.getInventory().getItemInHand();
-                            out += "手持物品id: [" + item.getId() + ":" + item.getDamage() + "] 数量:" + item.getCount() + "\n";
+                            out += "手持物品id: [" + ItemTools.getIdentifierWithMeta(item) + "] 数量:" + item.getCount() + "\n";
                             Block block = player.getTargetBlock(32);
                             if (block != null) {
                                 //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
-                                out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 方块名称:" + block.getName() + "\n";
+                                out += "所指方块id: [" + ItemTools.getIdentifierWithMeta(block) + "] 方块名称:" + block.getName() + "\n";
                                 out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
                             } else {
                                 out += "所指方块id: [无] 方块名称:无" + "\n";
@@ -126,7 +128,7 @@ public class GameAPI extends PluginBase implements Listener {
                             Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
                             if (under != null) {
                                 //out += "所踩方块: " + under.toItem().getNamespaceId();
-                                out += "所踩方块: " + under.getId() + ":" + under.getDamage();
+                                out += "所踩方块: " + ItemTools.getIdentifierWithMeta(under);
                             } else {
                                 out += "所踩方块: [无]";
                             }
