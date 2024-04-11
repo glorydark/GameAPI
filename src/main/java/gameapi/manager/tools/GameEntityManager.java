@@ -10,10 +10,8 @@ import gameapi.entity.TextEntity;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
-import gameapi.tools.EntityTools;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class GameEntityManager {
 

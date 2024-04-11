@@ -45,6 +45,10 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
         this.noResponseExecutor = noResponseExecutor;
     }
 
+    public void showFormWindow(Player player) {
+        AdvancedFormMain.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
+    }
+
     public static class Builder {
 
         private String title;
@@ -101,9 +105,5 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
             return simple;
         }
 
-    }
-
-    public void showFormWindow(Player player) {
-        AdvancedFormMain.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
     }
 }

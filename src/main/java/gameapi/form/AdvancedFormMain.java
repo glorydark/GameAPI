@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerFormRespondedEvent;
-import cn.nukkit.form.handler.FormResponseHandler;
 import cn.nukkit.form.window.FormWindow;
 
 import java.util.HashMap;

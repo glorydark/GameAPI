@@ -3,10 +3,8 @@ package gameapi;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
-import cn.nukkit.entity.custom.EntityManager;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
-import cn.nukkit.item.ItemTool;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.plugin.Plugin;
@@ -29,12 +27,16 @@ import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 import gameapi.room.edit.EditData;
 import gameapi.task.RoomTask;
+import gameapi.tools.BlockTools;
 import gameapi.tools.ItemTools;
 import gameapi.utils.Language;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 
@@ -119,7 +121,7 @@ public class GameAPI extends PluginBase implements Listener {
                             Block block = player.getTargetBlock(32);
                             if (block != null) {
                                 //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
-                                out += "所指方块id: [" + ItemTools.getIdentifierWithMeta(block) + "] 方块名称:" + block.getName() + "\n";
+                                out += "所指方块id: [" + BlockTools.getIdentifierWithMeta(block) + "] 方块名称:" + block.getName() + "\n";
                                 out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
                             } else {
                                 out += "所指方块id: [无] 方块名称:无" + "\n";
@@ -128,7 +130,7 @@ public class GameAPI extends PluginBase implements Listener {
                             Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
                             if (under != null) {
                                 //out += "所踩方块: " + under.toItem().getNamespaceId();
-                                out += "所踩方块: " + ItemTools.getIdentifierWithMeta(under);
+                                out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);
                             } else {
                                 out += "所踩方块: [无]";
                             }

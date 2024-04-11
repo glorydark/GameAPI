@@ -1,6 +1,5 @@
 package gameapi.room.edit;
 
-import cn.nukkit.Player;
 import cn.nukkit.utils.ConfigSection;
 import gameapi.annotation.Future;
 

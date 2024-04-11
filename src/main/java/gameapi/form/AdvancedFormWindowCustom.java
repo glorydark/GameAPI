@@ -44,6 +44,10 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
         this.noResponseExecutor = noResponseExecutor;
     }
 
+    public void showFormWindow(Player player) {
+        AdvancedFormMain.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
+    }
+
     public static class Builder {
 
         protected List<Element> elements = new ArrayList<>();
@@ -86,9 +90,5 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
             return custom;
         }
 
-    }
-
-    public void showFormWindow(Player player) {
-        AdvancedFormMain.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
     }
 }

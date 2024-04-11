@@ -4,7 +4,6 @@ package gameapi.event.room;
 import cn.nukkit.Player;
 import gameapi.event.Cancellable;
 import gameapi.event.RoomEvent;
-import gameapi.event.room.RoomPreStartEvent;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;

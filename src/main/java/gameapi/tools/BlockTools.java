@@ -2,10 +2,12 @@ package gameapi.tools;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockAir;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.math.AxisAlignedBB;
+import gameapi.utils.NukkitTypeUtils;
 
 /**
  * @author glorydark
@@ -50,6 +52,18 @@ public class BlockTools {
             });
         } else {
             bb.forEach((i, i1, i2) -> level.setBlock(i, i1, i2, block, false, false));
+        }
+    }
+
+    public static String getIdentifierWithMeta(Block block) {
+        Item item = block.toItem();
+        switch (NukkitTypeUtils.getNukkitType()) {
+            case POWER_NUKKIT_X:
+            case POWER_NUKKIT_X_2:
+            case MOT:
+                return item.getNamespaceId() + ":" + item.getDamage();
+            default:
+                return item.getId() + ":" + item.getDamage();
         }
     }
 }

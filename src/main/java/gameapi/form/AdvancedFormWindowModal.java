@@ -55,6 +55,10 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
         }
     }
 
+    public void showFormWindow(Player player) {
+        AdvancedFormMain.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
+    }
+
     public static class Builder {
 
         private String title;
@@ -122,9 +126,5 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
             return modal;
         }
 
-    }
-
-    public void showFormWindow(Player player) {
-        AdvancedFormMain.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
     }
 }

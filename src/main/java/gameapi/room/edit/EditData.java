@@ -14,13 +14,10 @@ import java.util.List;
 @Future
 public class EditData {
 
-    protected ConfigSection configCache;
-
-    protected Player player = null;
-
-    protected int index = 0;
-
     private final List<EditStep> steps = new ArrayList<>();
+    protected ConfigSection configCache;
+    protected Player player = null;
+    protected int index = 0;
 
     public EditData() {
         configCache = new ConfigSection();

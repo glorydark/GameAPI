@@ -1,6 +1,5 @@
 package gameapi.tools;
 
-import cn.nukkit.block.Block;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -119,18 +118,6 @@ public class ItemTools {
     }
 
     public static String getIdentifierWithMeta(Item item) {
-        switch (NukkitTypeUtils.getNukkitType()) {
-            case POWER_NUKKIT_X:
-            case POWER_NUKKIT_X_2:
-            case MOT:
-                return item.getNamespaceId() + ":" + item.getDamage();
-            default:
-                return item.getId() + ":" + item.getDamage();
-        }
-    }
-
-    public static String getIdentifierWithMeta(Block block) {
-        Item item = block.toItem();
         switch (NukkitTypeUtils.getNukkitType()) {
             case POWER_NUKKIT_X:
             case POWER_NUKKIT_X_2:

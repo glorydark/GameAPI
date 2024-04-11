@@ -8,7 +8,6 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
-import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.SimpleAxisAlignedBB;
@@ -143,7 +142,7 @@ public class WorldEditCommand extends Command {
                     PosSet posSet = posSetLinkedHashMap.get(player);
                     if (strings.length == 2) {
                         SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
-                        Block block =  SmartTools.getBlockfromString(strings[1]);
+                        Block block = SmartTools.getBlockfromString(strings[1]);
                         if (block == null) {
                             commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
                             return false;
