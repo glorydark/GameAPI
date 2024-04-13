@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
@@ -700,6 +701,27 @@ public class BaseEventListener implements Listener {
                 }
             }
             event.setAmount(roomEntityRegainHealthEvent.getAmount());
+        }
+    }
+
+    @EventHandler
+    public void EntityDeathEvent(EntityDeathEvent event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof EntityLiving) {
+            EntityLiving entityLiving = (EntityLiving) entity;
+            Room room;
+            Optional<Room> roomOptional = RoomManager.getRoom(entity.getLevel());
+            if (!roomOptional.isPresent()) {
+                return;
+            }
+            room = roomOptional.get();
+            RoomEntityDeathEvent entityDeathEvent = new RoomEntityDeathEvent(room, entityLiving, event.getDrops());
+            GameListenerRegistry.callEvent(room, entityDeathEvent);
+            if (entityDeathEvent.isCancelled()) {
+                event.setCancelled(true);
+            } else {
+                event.setDrops(entityDeathEvent.getDrops());
+            }
         }
     }
 
