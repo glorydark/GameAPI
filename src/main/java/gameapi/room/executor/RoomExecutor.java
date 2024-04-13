@@ -6,14 +6,6 @@ public abstract class RoomExecutor {
 
     Room room = null;
 
-    public Room createRoom() {
-        return null; // Here developers need to override it.
-    }
-
-    public Room restartRoom() {
-        return null;
-    }
-
     public void onWait() {
 
     }

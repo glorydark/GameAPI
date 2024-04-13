@@ -448,16 +448,21 @@ public class Room {
             GameAPI.plugin.getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
             return;
         }
+        // 增加默认地图判断
         for (Level playLevel : this.playLevels) {
-            for (Player player : playLevel.getPlayers().values()) {
-                player.kick("Teleport error!");
+            if (playLevel != Server.getInstance().getDefaultLevel()) {
+                for (Player player : playLevel.getPlayers().values()) {
+                    player.kick("Teleport error!");
+                }
             }
         }
         if (this.temporary) {
-            GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_delete", this.getRoomName()));
-            for (Level playLevel : this.playLevels) {
-                if (playLevel != null) {
-                    WorldTools.unloadLevel(playLevel, true);
+            if (this.resetMap) {
+                GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_delete", this.getRoomName()));
+                for (Level playLevel : this.playLevels) {
+                    if (playLevel != null) {
+                        WorldTools.unloadLevel(playLevel, true);
+                    }
                 }
             }
             RoomManager.unloadRoom(this);
