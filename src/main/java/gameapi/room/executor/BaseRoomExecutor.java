@@ -176,11 +176,6 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void beginReadyStart() {
-        if (room.getRoomRule().isCleanBagOnPreStart()) {
-            for (Player p : room.getPlayers()) {
-                p.getInventory().clearAll();
-            }
-        }
     }
 
     @Override
@@ -247,11 +242,6 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void beginGameEnd() {
-        if (room.getRoomRule().isCleanBagOnGameEnd()) {
-            for (Player player : room.getPlayers()) {
-                player.getInventory().clearAll();
-            }
-        }
     }
 
     public Room getRoom() {

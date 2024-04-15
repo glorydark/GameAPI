@@ -3,6 +3,7 @@ package gameapi.tools;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
+import gameapi.GameAPI;
 import gameapi.utils.NukkitTypeUtils;
 
 import java.util.List;
@@ -50,7 +51,7 @@ public class ItemTools {
         return stringBuilder.toString();
     }
 
-    public static String toBase64String(Item item) {
+    public static String toString(Item item) {
         switch (NukkitTypeUtils.getNukkitType()) {
             case POWER_NUKKIT_X:
             case POWER_NUKKIT_X_2:
@@ -117,7 +118,7 @@ public class ItemTools {
         return item;
     }
 
-    public static String getIdentifierWithMeta(Item item) {
+    public static String getIdentifierAndMetaString(Item item) {
         switch (NukkitTypeUtils.getNukkitType()) {
             case POWER_NUKKIT_X:
             case POWER_NUKKIT_X_2:
@@ -125,6 +126,38 @@ public class ItemTools {
                 return item.getNamespaceId() + ":" + item.getDamage();
             default:
                 return item.getId() + ":" + item.getDamage();
+        }
+    }
+
+    public static Item toItem(String itemString) {
+        String[] strings = itemString.split(":");
+        if (strings.length < 4) {
+            return Item.get(0);
+        }
+        boolean isNumericId = false;
+        try {
+            int test = Integer.parseInt(strings[0]);
+            isNumericId = true;
+        } catch (Exception ignored) {
+
+        }
+        if (isNumericId) {
+            Item item = Item.get(Integer.parseInt(strings[0]), Integer.parseInt(strings[1]), Integer.parseInt(strings[2]));
+            item.setCompoundTag(hexStringToBytes(strings[3]));
+            return item;
+        } else {
+            int countIndex = strings.length - 2;
+            StringBuilder identifierAndMeta = new StringBuilder();
+            for (int i = 0; i < strings.length - 2; i++) {
+                identifierAndMeta.append(strings[i]);
+                if (i != strings.length - 3) {
+                    identifierAndMeta.append(":");
+                }
+            }
+            Item item = Item.fromString(identifierAndMeta.toString());
+            item.setCount(Integer.parseInt(strings[countIndex]));
+            item.setCompoundTag(hexStringToBytes(strings[countIndex + 1]));
+            return item;
         }
     }
 }

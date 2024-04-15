@@ -321,11 +321,11 @@ public class BaseCommand extends Command {
         maps.put("Location", player.getX() + ":" + player.getY() + ":" + player.getZ() + ":" + player.getLevel().getName());
         maps.put("Health", player.getHealth());
         List<String> invs = new ArrayList<>();
-        player.getInventory().getContents().values().forEach(item -> invs.add(ItemTools.toBase64String(item)));
+        player.getInventory().getContents().values().forEach(item -> invs.add(ItemTools.toString(item)));
         maps.put("Inventory", invs);
         List<String> armors = new ArrayList<>();
         for (Item item : player.getInventory().getArmorContents()) {
-            armors.add(ItemTools.toBase64String(item));
+            armors.add(ItemTools.toString(item));
         }
         maps.put("ArmorContents", armors);
         return maps;

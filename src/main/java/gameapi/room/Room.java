@@ -354,7 +354,6 @@ public class Room {
                 if (!ev.isCancelled()) {
                     roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
                     RoomManager.playerRoomHashMap.put(player, this);
-                    PlayerTempStateManager.saveAllData(player);
                     playerProperties.put(player.getName(), new LinkedHashMap<>());
                     this.players.add(player);
                     waitSpawn.teleport(player);
@@ -385,11 +384,9 @@ public class Room {
             player.getFoodData().reset();
             player.setFoodEnabled(true);
             player.removeAllEffects();
-            player.getInventory().clearAll();
             player.setExperience(0, 0);
             player.setHealth(player.getMaxHealth());
             player.setNameTag("");
-            PlayerTempStateManager.loadAllData(player);
             player.setGamemode(Server.getInstance().getDefaultGamemode());
             if (this.getPlayerTeam(player) != null) {
                 this.getPlayerTeam(player).removePlayer(player);
@@ -429,6 +426,7 @@ public class Room {
             return;
         }
         this.setRoomStatus(RoomStatus.ROOM_MapInitializing);
+        GameListenerRegistry.callEvent(this, new RoomResetEvent(this));
         for (Player player : new ArrayList<>(spectators)) {
             this.removeSpectator(player);
         }
@@ -672,7 +670,7 @@ public class Room {
     }
 
     public void setDeath(Player player) {
-        player.getInventory().clearAll();
+        player.removeAllEffects();
         player.setGamemode(3);
         player.setHealth(player.getMaxHealth());
         player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);

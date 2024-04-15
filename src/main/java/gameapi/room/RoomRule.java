@@ -81,10 +81,6 @@ public class RoomRule {
 
     private List<String> allowCommands = new ArrayList<>();
 
-    private boolean cleanBagOnPreStart = true;
-
-    private boolean cleanBagOnGameEnd = true;
-
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
     }

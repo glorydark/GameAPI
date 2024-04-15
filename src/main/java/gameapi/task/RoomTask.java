@@ -91,18 +91,12 @@ public class RoomTask extends Task {
                         if (hasPlayer.get() < room.getMinPlayer()) {
                             room.setTime(0);
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd);
-                            for (Player player : room.getPlayers()) {
-                                player.getInventory().clearAll();
-                            }
                             return true;
                         }
                     } else {
                         if (room.getPlayers().size() < room.getMinPlayer()) {
                             room.setTime(0);
                             room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd);
-                            for (Player player : room.getPlayers()) {
-                                player.getInventory().clearAll();
-                            }
                             return true;
                         }
                     }
@@ -190,7 +184,6 @@ public class RoomTask extends Task {
                 if (room.getTime() >= room.getCeremonyTime()) {
                     for (Player p : room.getPlayers()) {
                         p.setGamemode(2);
-                        PlayerTempStateManager.loadAllData(p);
                         ScoreboardManager.removeScoreboard(p);
                         ScoreboardManager.scoreboardConcurrentHashMap.remove(p);
                         //玩家先走
