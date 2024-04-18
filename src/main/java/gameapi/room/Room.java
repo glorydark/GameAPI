@@ -15,7 +15,6 @@ import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.CheckpointManager;
 import gameapi.manager.room.RoomVirtualHealthManager;
-import gameapi.manager.tools.PlayerTempStateManager;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;

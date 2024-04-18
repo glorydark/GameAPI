@@ -121,7 +121,7 @@ public class GameAPI extends PluginBase implements Listener {
                             Block block = player.getTargetBlock(32);
                             if (block != null) {
                                 //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
-                                out += "所指方块id: [" + BlockTools.getIdentifierWithMeta(block) + "] 方块名称:" + block.getName() + "\n";
+                                out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 物品id：" + block.getItemId() + " 方块名称:" + block.getName() + "\n";
                                 out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
                             } else {
                                 out += "所指方块id: [无] 方块名称:无" + "\n";
