@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RoomManager {
 
-    public static ConcurrentHashMap<String, List<Room>> loadedRooms = new ConcurrentHashMap<>(); //房间状态
+    public static LinkedHashMap<String, List<Room>> loadedRooms = new LinkedHashMap<>(); //房间状态
 
     public static LinkedHashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
 

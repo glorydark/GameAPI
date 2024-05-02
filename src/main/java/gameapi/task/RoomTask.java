@@ -46,10 +46,6 @@ public class RoomTask extends Task {
         room.getPlayers().removeIf(player -> player == null || !player.isOnline());
         switch (room.getRoomStatus()) {
             case ROOM_STATUS_WAIT:
-                if (room.isTemporary() && room.getPlayers().size() < 1) {
-                    room.resetAll();
-                    return true;
-                }
                 GameListenerRegistry.callEvent(room, new RoomWaitTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.Wait);
                 break;
