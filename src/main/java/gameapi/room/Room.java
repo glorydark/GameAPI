@@ -155,7 +155,6 @@ public class Room {
         return this.getPlayerProperty(player.getName(), key, defaultValue);
     }
 
-
     public void setPlayerProperty(Player player, String key, Object value) {
         this.setPlayerProperty(player.getName(), key, value);
     }
@@ -815,5 +814,27 @@ public class Room {
 
     public void removePlayLevel(Level loadLevel) {
         playLevels.remove(loadLevel);
+    }
+
+    public void hidePlayer(Player player) {
+        for (Player value : Server.getInstance().getOnlinePlayers().values()) {
+            Room room = RoomManager.getRoom(player);
+            Room targetRoom = RoomManager.getRoom(value);
+            if (room != targetRoom) {
+                value.hidePlayer(player);
+                player.hidePlayer(value);
+            }
+        }
+    }
+
+    public void showPlayer(Player player) {
+        for (Player value : Server.getInstance().getOnlinePlayers().values()) {
+            Room room = RoomManager.getRoom(player);
+            Room targetRoom = RoomManager.getRoom(value);
+            if (room == targetRoom) {
+                value.showPlayer(player);
+                player.showPlayer(value);
+            }
+        }
     }
 }
