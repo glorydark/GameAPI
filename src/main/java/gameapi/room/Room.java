@@ -157,7 +157,7 @@ public class Room {
 
 
     public void setPlayerProperty(Player player, String key, Object value) {
-        this.setPlayerProperties(player.getName(), key, value);
+        this.setPlayerProperty(player.getName(), key, value);
     }
 
     public Object getPlayerProperty(String player, String key) {
@@ -168,7 +168,7 @@ public class Room {
         return playerProperties.containsKey(player) ? (T) playerProperties.get(player).getOrDefault(key, defaultValue) : defaultValue;
     }
 
-    public void setPlayerProperties(String player, String key, Object value) {
+    public void setPlayerProperty(String player, String key, Object value) {
         if (playerProperties.containsKey(player)) {
             playerProperties.get(player).put(key, value);
         } else {
