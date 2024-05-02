@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
+import gameapi.annotation.Experimental;
 import gameapi.tools.ItemTools;
 
 import java.util.ArrayList;
@@ -17,16 +18,14 @@ public class PlayerTempStateManager {
 
     public static final String KEY_BAG_CACHES = "bag_caches";
 
-    public static void recoverBag(Player player) {
-        if (GameAPI.saveBag) {
-            loadBag(player);
-        }
+    @Experimental
+    public static void recoverData(Player player) {
+        loadBag(player);
     }
 
+    @Experimental
     public static void saveAllData(Player player) {
-        if (GameAPI.saveBag) {
-            saveBagData(player);
-        }
+        saveBagData(player);
     }
 
     protected static void loadBag(Player player) {
@@ -38,25 +37,21 @@ public class PlayerTempStateManager {
     }
 
     public static void saveBagData(Player player) {
-        if (GameAPI.saveBag) {
-            List<String> bag = new ArrayList<>();
-            for (int i = 0; i < player.getInventory().getSize() + 4; i++) {
-                Item item = player.getInventory().getItem(i);
-                bag.add(ItemTools.toString(item));
-            }
-            savePlayerBagConfig(player, KEY_BAG_CACHES, bag);
+        List<String> bag = new ArrayList<>();
+        for (int i = 0; i < player.getInventory().getSize() + 4; i++) {
+            Item item = player.getInventory().getItem(i);
+            bag.add(ItemTools.toString(item));
         }
+        savePlayerBagConfig(player, KEY_BAG_CACHES, bag);
     }
 
     protected static void loadBagCaches(Player player) {
-        if (GameAPI.saveBag) {
-            List<String> bag = (List<String>) getPlayerConfig(player, KEY_BAG_CACHES, new ArrayList<>());
-            if (bag != null && bag.size() > 0) {
-                for (int i = 0; i < player.getInventory().getSize() + 4; i++) {
-                    player.getInventory().setItem(i, ItemTools.toItem(bag.get(i)));
-                }
-                removePlayerBagConfig(player, KEY_BAG_CACHES);
+        List<String> bag = (List<String>) getPlayerConfig(player, KEY_BAG_CACHES, new ArrayList<>());
+        if (bag != null && bag.size() > 0) {
+            for (int i = 0; i < player.getInventory().getSize() + 4; i++) {
+                player.getInventory().setItem(i, ItemTools.toItem(bag.get(i)));
             }
+            removePlayerBagConfig(player, KEY_BAG_CACHES);
         }
     }
 
