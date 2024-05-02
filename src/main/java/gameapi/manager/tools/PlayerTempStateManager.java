@@ -36,7 +36,7 @@ public class PlayerTempStateManager {
         }
     }
 
-    public static void saveBagData(Player player) {
+    protected static void saveBagData(Player player) {
         List<String> bag = new ArrayList<>();
         for (int i = 0; i < player.getInventory().getSize() + 4; i++) {
             Item item = player.getInventory().getItem(i);
