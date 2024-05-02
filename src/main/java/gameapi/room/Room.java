@@ -151,7 +151,7 @@ public class Room {
         return this.getPlayerProperty(player.getName(), key);
     }
 
-    public Object getPlayerProperty(Player player, String key, Object defaultValue) {
+    public <T> T getPlayerProperty(Player player, String key, T defaultValue) {
         return this.getPlayerProperty(player.getName(), key, defaultValue);
     }
 
@@ -177,7 +177,7 @@ public class Room {
         }
     }
 
-    public boolean hasPlayerProperties(String player, String key) {
+    public boolean hasPlayerProperty(String player, String key) {
         if (playerProperties.containsKey(player)) {
             return playerProperties.get(player).containsKey(key);
         } else {
