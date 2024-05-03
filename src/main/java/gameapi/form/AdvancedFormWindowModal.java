@@ -10,14 +10,11 @@ import java.util.function.Consumer;
 
 public class AdvancedFormWindowModal extends FormWindowModal implements AdvancedForm {
 
-    protected Consumer<Player> trueButtonResponseExecutor = player -> {
-    };
+    protected Consumer<Player> trueButtonResponseExecutor = null;
 
-    protected Consumer<Player> falseButtonResponseExecutor = player -> {
-    };
+    protected Consumer<Player> falseButtonResponseExecutor = null;
 
-    protected Consumer<Player> noResponseExecutor = player -> {
-    };
+    protected Consumer<Player> noResponseExecutor = null;
 
     public AdvancedFormWindowModal() {
         super("", "", "", "");
@@ -42,14 +39,20 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
     public void dealResponse(Player player, FormResponse response) {
         FormResponseModal responseModal = (FormResponseModal) response;
         if (this.wasClosed() || responseModal == null) {
-            noResponseExecutor.accept(player);
+            if (noResponseExecutor != null) {
+                noResponseExecutor.accept(player);
+            }
         } else {
             switch (responseModal.getClickedButtonId()) {
                 case 0:
-                    trueButtonResponseExecutor.accept(player);
+                    if (trueButtonResponseExecutor != null) {
+                        trueButtonResponseExecutor.accept(player);
+                    }
                     break;
                 case 1:
-                    falseButtonResponseExecutor.accept(player);
+                    if (falseButtonResponseExecutor != null) {
+                        falseButtonResponseExecutor.accept(player);
+                    }
                     break;
             }
         }

@@ -63,7 +63,11 @@ public class PlayerGameDataManager {
     public static <T> T getPlayerGameData(String gameName, String fileName, String player, T defaultValue) {
         Map<String, Object> allData = getPlayerAllGameData(gameName, fileName);
         if (allData.containsKey(player)) {
-            return (T) allData.getOrDefault(player, defaultValue);
+            if (defaultValue instanceof String) {
+                return (T) allData.getOrDefault(player, defaultValue).toString();
+            } else {
+                return (T) allData.getOrDefault(player, defaultValue);
+            }
         } else {
             return defaultValue;
         }

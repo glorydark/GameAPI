@@ -25,6 +25,7 @@ import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
+import gameapi.room.Room;
 import gameapi.room.edit.EditData;
 import gameapi.task.RoomTask;
 import gameapi.tools.BlockTools;
@@ -144,6 +145,27 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onDisable() {
+        for (Player player : Server.getInstance().getOnlinePlayers().values()) {
+            Room room = RoomManager.getRoom(player);
+            if (room != null) {
+                for (Player p : room.getPlayers()) {
+                    p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.success", player.getName()));
+                }
+                if (room.getPlayers().contains(player)) {
+                    room.removePlayer(player);
+                } else {
+                    room.removeSpectator(player);
+                }
+            } else {
+                for (EditData editData : GameAPI.editDataList) {
+                    Player editor = editData.getPlayer();
+                    if (editor == player) {
+                        editData.onQuit();
+                    }
+                    break;
+                }
+            }
+        }
         RoomManager.close();
         PlayerGameDataManager.close();
         GameTaskManager.saveAllData();

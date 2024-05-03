@@ -42,7 +42,7 @@ public class WorldTools {
     }
 
     protected static boolean deleteWorld(String saveWorld) {
-        String worldPath = Server.getInstance().getDataPath() + "/worlds/" + saveWorld;
+        String worldPath = Server.getInstance().getDataPath() + "/worlds/" + saveWorld + "/";
         File file = new File(worldPath);
         return FileTools.delete(file);
     }

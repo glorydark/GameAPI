@@ -7,6 +7,7 @@ import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseSimple;
 import cn.nukkit.form.window.FormWindowSimple;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -14,11 +15,9 @@ import java.util.function.Consumer;
 
 public class AdvancedFormWindowSimple extends FormWindowSimple implements AdvancedForm {
 
-    protected BiConsumer<Player, FormResponseSimple> responseExecutor = (player, responseSimple) -> {
-    };
+    protected BiConsumer<Player, FormResponseSimple> responseExecutor;
 
-    protected Consumer<Player> noResponseExecutor = player -> {
-    };
+    protected Consumer<Player> noResponseExecutor;
 
     public AdvancedFormWindowSimple(String title, String content) {
         super(title, content);
@@ -31,9 +30,13 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
     public void dealResponse(Player player, FormResponse response) {
         FormResponseSimple responseSimple = (FormResponseSimple) response;
         if (this.wasClosed() || response == null) {
-            noResponseExecutor.accept(player);
+            if (noResponseExecutor != null) {
+                noResponseExecutor.accept(player);
+            }
         } else {
-            responseExecutor.accept(player, responseSimple);
+            if (responseExecutor != null) {
+                responseExecutor.accept(player, responseSimple);
+            }
         }
     }
 
@@ -55,7 +58,7 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
 
         private String content;
 
-        private List<ElementButton> buttonList;
+        private List<ElementButton> buttonList = new ArrayList<>();
 
         private BiConsumer<Player, FormResponseSimple> responseExecutor;
 

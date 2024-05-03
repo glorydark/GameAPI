@@ -14,11 +14,9 @@ import java.util.function.Consumer;
 
 public class AdvancedFormWindowCustom extends FormWindowCustom implements AdvancedForm {
 
-    protected BiConsumer<Player, FormResponseCustom> responseExecutor = (player, responseCustom) -> {
-    };
+    protected BiConsumer<Player, FormResponseCustom> responseExecutor = null;
 
-    protected Consumer<Player> noResponseExecutor = player -> {
-    };
+    protected Consumer<Player> noResponseExecutor = null;
 
     public AdvancedFormWindowCustom(String title) {
         super(title);
@@ -30,9 +28,13 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
 
     public void dealResponse(Player player, FormResponse response) {
         if (this.wasClosed() || response == null) {
-            noResponseExecutor.accept(player);
+            if (noResponseExecutor != null) {
+                noResponseExecutor.accept(player);
+            }
         } else {
-            responseExecutor.accept(player, (FormResponseCustom) response);
+            if (responseExecutor != null) {
+                responseExecutor.accept(player, (FormResponseCustom) response);
+            }
         }
     }
 

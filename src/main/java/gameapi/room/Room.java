@@ -382,7 +382,6 @@ public class Room {
             player.getFoodData().reset();
             player.setFoodEnabled(true);
             player.removeAllEffects();
-            player.setExperience(0, 0);
             player.setHealth(player.getMaxHealth());
             player.setNameTag("");
             player.setGamemode(Server.getInstance().getDefaultGamemode());
