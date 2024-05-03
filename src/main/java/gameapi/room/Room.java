@@ -640,6 +640,9 @@ public class Room {
         switch (this.getRoomStatus()) {
             case ROOM_STATUS_GameReadyStart:
             case ROOM_STATUS_GameStart:
+                for (Level playLevel : this.getPlayLevels()) {
+                    TipsTools.closeTipsShow(playLevel.getName(), player);
+                }
                 if (this.getSpectatorSpawn().size() != 0) {
                     Random random = new Random(this.getSpectatorSpawn().size());
                     AdvancedLocation location = this.getSpectatorSpawn().get(random.nextInt(this.getSpectatorSpawn().size()));
