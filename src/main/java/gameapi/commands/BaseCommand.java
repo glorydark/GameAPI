@@ -241,12 +241,10 @@ public class BaseCommand extends Command {
                     if (strings.length == 3) {
                         Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
-                            if (room.isAllowedToStart()) {
-                                room.setAllowedToStart(true);
-                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.start_pass.endowed", room.getRoomName()));
-                            }
+                            room.setAllowedToStart(true);
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.start_pass.endowed", room.getRoomName()));
                         } else {
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found", room.getRoomName()));
                         }
                     }
                     break;

@@ -71,7 +71,7 @@ public class RoomManager {
 
     public static Room getRoom(String gameName, String roomName) {
         for (Room room : RoomManager.loadedRooms.getOrDefault(gameName, new ArrayList<>())) {
-            if (room.getRoomName().equals(roomName) && room.getRoomName().equals(gameName)) {
+            if (room.getGameName().equals(gameName) && room.getRoomName().equals(roomName)) {
                 return room;
             }
         }

@@ -45,7 +45,11 @@ public class SmartTools {
             sb.append("00:");
         }
         if (millis > 0) {
-            sb.append(millis);
+            if (millis > 100) {
+                sb.append(millis);
+            } else {
+                sb.append("0").append(millis);
+            }
         } else {
             sb.append("000");
         }
