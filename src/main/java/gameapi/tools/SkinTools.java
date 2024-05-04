@@ -1,13 +1,20 @@
 package gameapi.tools;
 
+import cn.nukkit.Player;
 import cn.nukkit.entity.data.Skin;
+import cn.nukkit.network.protocol.ProtocolInfo;
+import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.Config;
+import cn.nukkit.utils.SerializedImage;
 import cn.nukkit.utils.Utils;
 import gameapi.GameAPI;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -108,5 +115,44 @@ public class SkinTools {
             e.printStackTrace();
         }
         return content;
+    }
+
+    public static void savePlayerJson(String jsonString, File file) {
+        try {
+            Utils.writeFile(file, jsonString);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void parseSerializedImage(SerializedImage image, File file) {
+        byte[] data = image.data;
+        if (data == null) {
+            GameAPI.plugin.getLogger().warning("data为null");
+            return;
+        }
+        if (data.length == 0) {
+            GameAPI.plugin.getLogger().warning("data长度为0");
+            return;
+        }
+
+        int width = image.width;
+        int height = image.height;
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        for(int y = 0; y < height; ++y) {
+            for(int x = 0; x < width; ++x) {
+                int xOffsetHere = x<<2;
+                int previousOffsets = (y<<2)*width;
+                // 等同于 int rIndex = x*4+y*4*width;
+                int rIndex = xOffsetHere+previousOffsets;
+                bufferedImage.setRGB(x, y, new Color(data[rIndex]&255, data[rIndex+1]&255, data[rIndex+2]&255, data[rIndex+3]&255).getRGB()); // 记得对byte进行转换，转换为int
+            }
+        }
+
+        try {
+            ImageIO.write(bufferedImage, "png", file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

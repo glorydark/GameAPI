@@ -6,7 +6,6 @@ import cn.nukkit.scheduler.Task;
 import gameapi.event.room.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
-import gameapi.manager.tools.PlayerTempStateManager;
 import gameapi.manager.tools.ScoreboardManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
@@ -120,7 +119,7 @@ public class RoomTask extends Task {
         switch (type) {
             case Wait:
                 if (room.getPlayers().size() >= room.getMinPlayer()) {
-                    if (!room.getRoomRule().isNeedPreStartPass() || room.isPreStartPass()) {
+                    if (room.isAllowedToStart()) {
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart);
                         room.setRound(0);
                         room.getStatusExecutor().beginPreStart();

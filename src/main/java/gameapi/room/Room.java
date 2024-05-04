@@ -65,7 +65,7 @@ public class Room {
     private int maxRound;
     private int round = 0;
     private int time = 0; // Spent Seconds
-    private boolean preStartPass = true;
+    private boolean isAllowedToStart = true;
     private List<Player> spectators = new ArrayList<>();
     private List<Level> playLevels = new ArrayList<>();
     private AdvancedLocation waitSpawn = new AdvancedLocation();
@@ -765,7 +765,7 @@ public class Room {
     public void setPersonal(Boolean personal, Player player) {
         this.roomRule.setPersonal(personal);
         this.inheritProperties.put("personal_owner", player);
-        this.preStartPass = true;
+        this.isAllowedToStart = true;
     }
 
     public void addPlayLevel(Level loadLevel) {

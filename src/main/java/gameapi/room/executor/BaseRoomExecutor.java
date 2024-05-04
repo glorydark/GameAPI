@@ -9,6 +9,7 @@ import gameapi.tools.FireworkTools;
 import gameapi.tools.TipsTools;
 import gameapi.utils.AdvancedLocation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -23,14 +24,16 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void onWait() {
+        List<Player> senders = new ArrayList<>(room.getPlayers());
+        senders.addAll(room.getSpectators());
         if (room.getPlayers().size() >= room.getMinPlayer()) {
-            if (room.getRoomRule().isNeedPreStartPass() && !room.isPreStartPass()) {
-                for (Player player : room.getPlayers()) {
+            if (!room.isAllowedToStart()) {
+                for (Player player : senders) {
                     player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.need_start_pass"));
                 }
             }
         } else {
-            for (Player player : room.getPlayers()) {
+            for (Player player : senders) {
                 player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.wait_for_players", room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
             }
         }
@@ -38,7 +41,9 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void onPreStart() {
-        for (Player player : room.getPlayers()) {
+        List<Player> senders = new ArrayList<>(room.getPlayers());
+        senders.addAll(room.getSpectators());
+        for (Player player : senders) {
             int lastSecond = room.getWaitTime() - room.getTime();
             if (lastSecond > 3) {
                 player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.preStart.countdown", lastSecond));
@@ -50,7 +55,9 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void onReadyStart() {
-        for (Player p : room.getPlayers()) {
+        List<Player> senders = new ArrayList<>(room.getPlayers());
+        senders.addAll(room.getSpectators());
+        for (Player p : senders) {
             int lastSec = room.getGameWaitTime() - room.getTime();
             if (lastSec > 10) {
                 p.getLevel().addSound(p.getPosition(), Sound.NOTE_HARP);
@@ -99,12 +106,14 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void onGameEnd() {
+        List<Player> senders = new ArrayList<>(room.getPlayers());
+        senders.addAll(room.getSpectators());
         if (room.getRound() == room.getMaxRound()) {
-            for (Player player : room.getPlayers()) {
+            for (Player player : senders) {
                 player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.gameEnd", room.getGameEndTime() - room.getTime()));
             }
         } else {
-            for (Player player : room.getPlayers()) {
+            for (Player player : senders) {
                 player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.nextRound", room.getGameEndTime() - room.getTime()));
             }
         }
@@ -112,7 +121,9 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void onCeremony() {
-        for (Player p : room.getPlayers()) {
+        List<Player> senders = new ArrayList<>(room.getPlayers());
+        senders.addAll(room.getSpectators());
+        for (Player p : senders) {
             ThreadLocalRandom random = ThreadLocalRandom.current();
             int i1 = random.nextInt(14);
             int i2 = random.nextInt(4);
@@ -127,7 +138,9 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void onNextRoundPreStart() {
-        for (Player p : room.getPlayers()) {
+        List<Player> senders = new ArrayList<>(room.getPlayers());
+        senders.addAll(room.getSpectators());
+        for (Player p : senders) {
             int lastSec = room.getGameWaitTime() - room.getTime();
             if (lastSec > 10) {
                 p.getLevel().addSound(p.getPosition(), Sound.NOTE_HARP);
@@ -194,9 +207,14 @@ public class BaseRoomExecutor extends RoomExecutor {
             p.removeAllEffects();
             p.getFoodData().reset();
             p.setGamemode(room.getRoomRule().getGameMode());
-            p.sendTitle(GameAPI.getLanguage().getTranslation(p, "room.title.start"), GameAPI.getLanguage().getTranslation(p, "room.subtitle.start"));
-            p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.zero"));
         }
+        List<Player> senders = new ArrayList<>(room.getPlayers());
+        senders.addAll(room.getSpectators());
+        for (Player sender : senders) {
+            sender.sendTitle(GameAPI.getLanguage().getTranslation(sender, "room.title.start"), GameAPI.getLanguage().getTranslation(sender, "room.subtitle.start"));
+            sender.sendActionBar(GameAPI.getLanguage().getTranslation(sender, "room.actionbar.readyStart.countdown.zero"));
+        }
+
         if (!room.getRoomRule().isAutoTeleport()) {
             return;
         }

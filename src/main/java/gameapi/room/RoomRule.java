@@ -61,8 +61,6 @@ public class RoomRule {
 
     private int respawnCoolDownTick = 20;
 
-    private boolean needPreStartPass = false;
-
     private boolean personal = false;
 
     private boolean noTimeLimit = false;

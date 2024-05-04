@@ -7,8 +7,10 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
+import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.utils.Config;
+import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
 import gameapi.manager.RoomManager;
@@ -17,6 +19,7 @@ import gameapi.ranking.RankingSortSequence;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.tools.ItemTools;
+import gameapi.tools.SkinTools;
 import gameapi.tools.SmartTools;
 import gameapi.tools.SoundTools;
 
@@ -220,7 +223,7 @@ public class BaseCommand extends Command {
                             List<Room> rooms = game.getValue();
                             if (rooms.size() > 0) {
                                 for (Room room : rooms) {
-                                    if (room.getRoomRule().isNeedPreStartPass()) {
+                                    if (!room.isAllowedToStart()) {
                                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.need_start_pass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
                                     } else {
                                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
@@ -238,8 +241,8 @@ public class BaseCommand extends Command {
                     if (strings.length == 3) {
                         Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
-                            if (room.isPreStartPass()) {
-                                room.setPreStartPass(true);
+                            if (room.isAllowedToStart()) {
+                                room.setAllowedToStart(true);
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.start_pass.endowed", room.getRoomName()));
                             }
                         } else {
@@ -251,7 +254,7 @@ public class BaseCommand extends Command {
                     if (strings.length == 4) {
                         Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
-                            if (room.isPreStartPass()) {
+                            if (room.isAllowedToStart()) {
                                 room.setJoinPassword(strings[3]);
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.set_password", strings[3]));
                             }
@@ -310,6 +313,23 @@ public class BaseCommand extends Command {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.player_ever.no_access"));
                         }
                     });
+                    break;
+                case "saveskin":
+                    if (strings.length == 2) {
+                        String pn = strings[1];
+                        Player player = Server.getInstance().getPlayerExact(pn);
+                        if (player != null) {
+                            Skin skin = player.getSkin();
+                            String fileName = System.currentTimeMillis() + "";
+                            new File(GameAPI.path + "/skin_exports/" + pn + "/").mkdirs();
+                            SkinTools.savePlayerJson(skin.getGeometryData(), new File(GameAPI.path + "/skin_exports/" + pn + "/" + fileName + ".json"));
+                            SkinTools.parseSerializedImage(skin.getSkinData(), new File(GameAPI.path + "/skin_exports/" + pn + "/" + fileName + "_skin.png"));
+                            SkinTools.parseSerializedImage(skin.getCapeData(), new File(GameAPI.path + "/skin_exports/" + pn + "/" + fileName + "_cape.png"));
+                            commandSender.sendMessage(TextFormat.GREEN + "Saved in /skin_exports/" + fileName);
+                        } else {
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_offline", player.getName()));
+                        }
+                    }
                     break;
             }
         }

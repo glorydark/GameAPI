@@ -86,6 +86,7 @@ public class GameAPI extends PluginBase implements Listener {
         new File(path + "/worlds/").mkdirs();
         new File(path + "/gameRecords/").mkdirs();
         new File(path + "/task_caches/").mkdirs();
+        new File(path + "/skin_exports/").mkdirs();
         Config config = new Config(path + "/config.yml", Config.YAML);
         // load lang data
         this.loadLanguage();
