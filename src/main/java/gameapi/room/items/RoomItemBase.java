@@ -73,7 +73,7 @@ public class RoomItemBase {
         }
     }
 
-    public RoomItemBase executeInteract(Consumer<RoomPlayerInteractEvent> interactConsumer) {
+    public RoomItemBase onInteract(Consumer<RoomPlayerInteractEvent> interactConsumer) {
         this.interactConsumer = interactConsumer;
         return this;
     }
