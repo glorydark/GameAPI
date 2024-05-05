@@ -7,15 +7,20 @@ import gameapi.event.player.RoomPlayerItemHeldEvent;
 import gameapi.tools.ItemTools;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author glorydark
  */
-public abstract class RoomItemBase {
+public class RoomItemBase {
 
     protected Item item;
 
     protected String identifier;
+
+    protected Consumer<RoomPlayerInteractEvent> interactConsumer = null;
+
+    protected Consumer<RoomPlayerItemHeldEvent> itemHeldConsumer = null;
 
     public RoomItemBase(String identifier, String name, Item item) {
         this(identifier, name, item, ItemLockType.NONE);
@@ -56,10 +61,26 @@ public abstract class RoomItemBase {
         return identifier;
     }
 
-    public void onInteract(RoomPlayerInteractEvent event) {
+    public void executeInteract(RoomPlayerInteractEvent event) {
+        if (interactConsumer != null) {
+            interactConsumer.accept(event);
+        }
     }
 
-    public void onHeldItem(RoomPlayerItemHeldEvent event) {
+    public void executeHeldItem(RoomPlayerItemHeldEvent event) {
+        if (itemHeldConsumer != null) {
+            itemHeldConsumer.accept(event);
+        }
+    }
+
+    public RoomItemBase executeInteract(Consumer<RoomPlayerInteractEvent> interactConsumer) {
+        this.interactConsumer = interactConsumer;
+        return this;
+    }
+
+    public RoomItemBase onItemHeld(Consumer<RoomPlayerItemHeldEvent> itemHeldConsumer) {
+        this.itemHeldConsumer = itemHeldConsumer;
+        return this;
     }
 
     public enum ItemLockType {

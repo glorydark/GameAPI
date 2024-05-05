@@ -487,14 +487,16 @@ public class BaseEventListener implements Listener {
         GameListenerRegistry.callEvent(room, chatEvent);
         if (!chatEvent.isCancelled()) {
             String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatEvent.getRoomChatData().getDefaultChatMsg());
-            if (msg.startsWith("@")) {
+            if (msg.startsWith("@") && !msg.equals("@")) {
                 if (room.getTeams().size() > 0) {
                     BaseTeam team = room.getPlayerTeam(player);
                     if (team != null) {
                         team.sendMessageToAll(msg.replaceFirst("@", ""));
                     }
-                } else {
-                    room.sendMessageToAll(msg);
+                }
+            } else if (msg.startsWith("!") && !msg.equals("!")) {
+                for (Player value : Server.getInstance().getOnlinePlayers().values()) {
+                    value.sendMessage(msg.replaceFirst("!", ""));
                 }
             } else {
                 room.sendMessageToAll(msg);
@@ -561,7 +563,7 @@ public class BaseEventListener implements Listener {
             RoomPlayerInteractEvent roomPlayerInteractEvent = new RoomPlayerInteractEvent(room, player, event.getBlock(), event.getTouchVector(), event.getFace(), event.getItem(), event.getAction());
             RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(player.getInventory().getItemInHand()));
             if (roomItemBase != null) {
-                roomItemBase.onInteract(roomPlayerInteractEvent);
+                roomItemBase.executeInteract(roomPlayerInteractEvent);
             } else {
                 GameListenerRegistry.callEvent(room, roomPlayerInteractEvent);
                 if (roomPlayerInteractEvent.isCancelled()) {
@@ -600,7 +602,7 @@ public class BaseEventListener implements Listener {
             RoomPlayerItemHeldEvent roomPlayerItemHeldEvent = new RoomPlayerItemHeldEvent(room, player, event.getItem());
             RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(player.getInventory().getItemInHand()));
             if (roomItemBase != null) {
-                roomItemBase.onHeldItem(roomPlayerItemHeldEvent);
+                roomItemBase.executeHeldItem(roomPlayerItemHeldEvent);
             } else {
                 GameListenerRegistry.callEvent(room, roomPlayerItemHeldEvent);
                 if (roomPlayerItemHeldEvent.isCancelled()) {

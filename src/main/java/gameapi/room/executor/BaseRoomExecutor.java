@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * This class is meant to design the basic operations,
+ * including teleporting players to spawns, sending tips.
+ */
 public class BaseRoomExecutor extends RoomExecutor {
 
     protected Room room;
