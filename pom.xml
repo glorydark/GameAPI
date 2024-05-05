@@ -15,11 +15,11 @@
     <distributionManagement>
         <snapshotRepository>
             <id>repo-lanink-cn</id>
-            <url>https://repo.lanink.cn/repository/maven-snapshots/</url>
+            <url>https://repo.lanink.com/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>repo-lanink-cn</id>
-            <url>https://repo.lanink.cn/repository/maven-releases/</url>
+            <url>https://repo.lanink.com/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
