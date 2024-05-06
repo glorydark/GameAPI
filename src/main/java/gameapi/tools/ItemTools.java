@@ -3,7 +3,6 @@ package gameapi.tools;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
-import gameapi.GameAPI;
 import gameapi.utils.NukkitTypeUtils;
 
 import java.util.List;

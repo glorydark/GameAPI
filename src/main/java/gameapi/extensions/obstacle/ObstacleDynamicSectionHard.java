@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author glorydark
  */
-public class ObstacleDynamicSection extends DynamicObstacle {
+public class ObstacleDynamicSectionHard extends DynamicObstacle {
 
     public int intervalTicks;
 
@@ -22,7 +22,7 @@ public class ObstacleDynamicSection extends DynamicObstacle {
 
     public int sectionCount;
 
-    public ObstacleDynamicSection(int intervalTicks, int startCoolDownTick, int sectionCount, Level level, List<Vector3> vectorList) {
+    public ObstacleDynamicSectionHard(int intervalTicks, int startCoolDownTick, int sectionCount, Level level, List<Vector3> vectorList) {
         super(startCoolDownTick, level, vectorList, 0, 0);
         this.intervalTicks = intervalTicks;
         this.sectionCount = sectionCount;
@@ -52,7 +52,7 @@ public class ObstacleDynamicSection extends DynamicObstacle {
                     this.level.setBlock(block, new BlockAir(), true, true);
                 }
             }
-            this.nodeIndex += 1;
+            this.nodeIndex += this.sectionCount;
             if (this.nodeIndex > blocks.size()) {
                 this.nodeIndex -= blocks.size();
             }

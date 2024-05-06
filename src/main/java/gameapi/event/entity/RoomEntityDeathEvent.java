@@ -3,7 +3,6 @@ package gameapi.event.entity;
 import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.event.HandlerList;
 import cn.nukkit.item.Item;
-import gameapi.event.RoomEvent;
 import gameapi.room.Room;
 
 /**
@@ -15,10 +14,6 @@ public class RoomEntityDeathEvent extends RoomEntityEvent {
 
     private Item[] drops;
 
-    public static HandlerList getHandlers() {
-        return handlers;
-    }
-
     public RoomEntityDeathEvent(Room room, EntityLiving entity) {
         this(room, entity, new Item[0]);
     }
@@ -27,6 +22,10 @@ public class RoomEntityDeathEvent extends RoomEntityEvent {
         this.room = room;
         this.entity = entity;
         this.drops = drops;
+    }
+
+    public static HandlerList getHandlers() {
+        return handlers;
     }
 
     public Item[] getDrops() {

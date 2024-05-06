@@ -1,9 +1,6 @@
 package gameapi.tools;
 
-import cn.nukkit.Player;
 import cn.nukkit.entity.data.Skin;
-import cn.nukkit.network.protocol.ProtocolInfo;
-import cn.nukkit.utils.BinaryStream;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.SerializedImage;
 import cn.nukkit.utils.Utils;
@@ -14,7 +11,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -139,13 +135,13 @@ public class SkinTools {
         int width = image.width;
         int height = image.height;
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        for(int y = 0; y < height; ++y) {
-            for(int x = 0; x < width; ++x) {
-                int xOffsetHere = x<<2;
-                int previousOffsets = (y<<2)*width;
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                int xOffsetHere = x << 2;
+                int previousOffsets = (y << 2) * width;
                 // 等同于 int rIndex = x*4+y*4*width;
-                int rIndex = xOffsetHere+previousOffsets;
-                bufferedImage.setRGB(x, y, new Color(data[rIndex]&255, data[rIndex+1]&255, data[rIndex+2]&255, data[rIndex+3]&255).getRGB()); // 记得对byte进行转换，转换为int
+                int rIndex = xOffsetHere + previousOffsets;
+                bufferedImage.setRGB(x, y, new Color(data[rIndex] & 255, data[rIndex + 1] & 255, data[rIndex + 2] & 255, data[rIndex + 3] & 255).getRGB()); // 记得对byte进行转换，转换为int
             }
         }
 

@@ -693,7 +693,7 @@ public class Room {
             spectatorSpawn.get(random.nextInt(spectatorSpawn.size())).teleport(player);
             teleportToSpawn(player);
         }
-        RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player);
+        RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player, null);
         if (!ev.isCancelled()) {
             if (tick > 0) {
                 Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> {
@@ -701,7 +701,11 @@ public class Room {
                     if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                         player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
                         player.setGamemode(roomRule.getGameMode());
-                        teleportToSpawn(player);
+                        if (ev.getRespawnLocation() == null) {
+                            teleportToSpawn(player);
+                        } else {
+                            player.teleport(ev.getRespawnLocation(), null);
+                        }
                     }
                 }, tick);
             } else {
@@ -709,7 +713,11 @@ public class Room {
                 if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                     player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
                     player.setGamemode(roomRule.getGameMode());
-                    teleportToSpawn(player);
+                    if (ev.getRespawnLocation() == null) {
+                        teleportToSpawn(player);
+                    } else {
+                        player.teleport(ev.getRespawnLocation(), null);
+                    }
                 }
             }
         }
@@ -727,14 +735,14 @@ public class Room {
         if (this.startSpawn.size() > 1) {
             if (this.getPlayerProperty(p.getName(), "spawnIndex") == null) {
                 Random random = new Random(System.currentTimeMillis());
-                AdvancedLocation location = this.startSpawn.get(random.nextInt(this.startSpawn.size()));
+                AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
                 location.teleport(p);
             } else {
-                AdvancedLocation location = this.startSpawn.get((Integer) this.getPlayerProperty(p.getName(), "spawnIndex"));
+                AdvancedLocation location = this.getStartSpawn().get((Integer) this.getPlayerProperty(p.getName(), "spawnIndex"));
                 location.teleport(p);
             }
         } else if (this.getStartSpawn().size() == 1) {
-            AdvancedLocation location = this.startSpawn.get(0);
+            AdvancedLocation location = this.getStartSpawn().get(0);
             location.teleport(p);
         }
     }

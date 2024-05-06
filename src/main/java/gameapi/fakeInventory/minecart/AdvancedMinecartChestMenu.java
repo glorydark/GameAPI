@@ -23,9 +23,11 @@ public class AdvancedMinecartChestMenu {
 
     private Map<Integer, Item> inventory = new LinkedHashMap<>();
 
-    private BiConsumer<Player, Item> moveItemBiConsumer = (player, item) -> {};
+    private BiConsumer<Player, Item> moveItemBiConsumer = (player, item) -> {
+    };
 
-    private Consumer<Player> closeConsumer = player -> {};
+    private Consumer<Player> closeConsumer = player -> {
+    };
 
     private boolean movable = false;
 
@@ -34,14 +36,6 @@ public class AdvancedMinecartChestMenu {
 
     public AdvancedMinecartChestMenu(String title) {
         this.title = title;
-    }
-
-    public void setInventory(Map<Integer, Item> inventory) {
-        this.inventory = inventory;
-    }
-
-    public void setMovable(boolean movable) {
-        this.movable = movable;
     }
 
     public void onMoveItemRespond(BiConsumer<Player, Item> consumer) {
@@ -72,8 +66,16 @@ public class AdvancedMinecartChestMenu {
         return inventory;
     }
 
+    public void setInventory(Map<Integer, Item> inventory) {
+        this.inventory = inventory;
+    }
+
     public boolean isMovable() {
         return movable;
+    }
+
+    public void setMovable(boolean movable) {
+        this.movable = movable;
     }
 
     public void showToPlayer(Player player) {

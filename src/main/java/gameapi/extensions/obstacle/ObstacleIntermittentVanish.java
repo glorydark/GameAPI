@@ -27,7 +27,7 @@ public class ObstacleIntermittentVanish extends DynamicObstacle {
             startCoolDownTick -= GameAPI.GAME_TASK_INTERVAL;
             return;
         }
-        currentTicks+=GameAPI.GAME_TASK_INTERVAL;
+        currentTicks += GameAPI.GAME_TASK_INTERVAL;
         if (currentTicks >= intervalTicks) {
             for (Block block : this.getBlocks()) {
                 Block current = this.getLevel().getBlock(block);

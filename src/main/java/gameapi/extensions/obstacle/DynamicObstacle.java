@@ -25,7 +25,9 @@ public abstract class DynamicObstacle {
 
     public DynamicObstacle(int startCoolDownTick, Level level, List<Vector3> vectorList, int replaceBlockId, int replaceBlockMeta) {
         for (Vector3 vector3 : vectorList) {
-            Block block = level.getBlock(vector3).clone();
+            Block block = level.getBlock(vector3);
+            Block clone = Block.get(block.getId(), block.getDamage());
+            clone.position(block.getLocation());
             if (!block.getChunk().isLoaded()) {
                 try {
                     block.getChunk().load();
@@ -33,7 +35,7 @@ public abstract class DynamicObstacle {
                     throw new RuntimeException(e);
                 }
             }
-            this.blocks.add(block);
+            this.blocks.add(clone);
         }
         this.startCoolDownTick = startCoolDownTick;
         this.isUsing = false;
@@ -49,16 +51,16 @@ public abstract class DynamicObstacle {
         return switchBlock;
     }
 
+    public void setSwitchBlock(Block switchBlock) {
+        this.switchBlock = switchBlock;
+    }
+
     public List<Block> getBlocks() {
         return blocks;
     }
 
     public void setBlocks(List<Block> blocks) {
         this.blocks = blocks;
-    }
-
-    public void setSwitchBlock(Block switchBlock) {
-        this.switchBlock = switchBlock;
     }
 
     public boolean isUsing() {
@@ -69,12 +71,12 @@ public abstract class DynamicObstacle {
         isUsing = using;
     }
 
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-
     public Level getLevel() {
         return level;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
     }
 
     public int getStartCoolDownTick() {

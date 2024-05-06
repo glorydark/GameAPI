@@ -59,16 +59,18 @@ public class RoomUpdateTask extends Task {
                 this.onUpdatePlayerAroundChunk(player);
                 // RecordPoint
                 room.getCheckpointManager().onUpdate(player);
-                this.onTickDynamicObstacles();
             }
         }
-        for (CheckpointData checkPointData : room.getCheckpointManager().getCheckpointDataList()) {
-            checkPointData.showParticleMarks(room.getPlayLevels().get(0));
+        if (room.getCheckpointManager().getCheckpointDataList().size() > 0) {
+            for (CheckpointData checkPointData : room.getCheckpointManager().getCheckpointDataList()) {
+                checkPointData.showParticleMarks(room.getPlayLevels().get(0));
+            }
         }
         // Provide methods for other games to use
         for (Consumer<Room> roomConsumer : customConsumerList) {
             roomConsumer.accept(this.room);
         }
+        this.onTickDynamicObstacles();
     }
 
     protected Location getPlayerLastLocation(Player player) {
