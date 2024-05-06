@@ -4,6 +4,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,13 +19,23 @@ public abstract class DynamicObstacle {
 
     boolean isUsing;
 
+    Level level;
+
     public DynamicObstacle(Level level, List<Vector3> vectorList, int replaceBlockId, int replaceBlockMeta) {
         for (Vector3 vector3 : vectorList) {
             Block block = level.getBlock(vector3).clone();
+            if (!block.getChunk().isLoaded()) {
+                try {
+                    block.getChunk().load();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             this.blocks.add(block);
         }
         this.isUsing = false;
         this.switchBlock = Block.get(replaceBlockId, replaceBlockMeta);
+        this.level = level;
     }
 
     public abstract void onTick();
@@ -53,5 +64,13 @@ public abstract class DynamicObstacle {
 
     public void setUsing(boolean using) {
         isUsing = using;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+
+    public Level getLevel() {
+        return level;
     }
 }

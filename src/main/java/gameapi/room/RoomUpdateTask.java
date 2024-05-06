@@ -56,7 +56,7 @@ public class RoomUpdateTask extends Task {
                 this.onUpdateRoomBlockTreadEvent(player);
                 this.onUpdateRoomPlayerEnterPortalEvent(player);
                 this.onUpdateRoomPlayerMovementEvent(player);
-                // this.onUpdatePlayerAroundChunk(player);
+                this.onUpdatePlayerAroundChunk(player);
                 // RecordPoint
                 room.getCheckpointManager().onUpdate(player);
                 this.onTickDynamicObstacles();
@@ -156,7 +156,7 @@ public class RoomUpdateTask extends Task {
         int chunkZ = player.getChunkZ();
         for (int i = chunkX - 1; i <= chunkX + 1; i++) {
             for (int i2 = chunkZ - 1; i2 <= chunkZ + 1; i2++) {
-                level.loadChunk(i, i2, true);
+                level.loadChunk(i, i2);
                 level.getChunk(i, i2).populateSkyLight();
             }
         }
