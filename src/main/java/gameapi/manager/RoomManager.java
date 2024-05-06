@@ -31,7 +31,7 @@ public class RoomManager {
         rooms.add(room);
         loadedRooms.put(room.getGameName(), rooms);
         room.setRoomStatus(baseStatus);
-        Server.getInstance().getScheduler().scheduleRepeatingTask(GameAPI.plugin, room.getRoomUpdateTask(), 3);
+        Server.getInstance().getScheduler().scheduleRepeatingTask(GameAPI.plugin, room.getRoomUpdateTask(), GameAPI.GAME_TASK_INTERVAL);
     }
 
     public static void unloadRoom(Room room) {

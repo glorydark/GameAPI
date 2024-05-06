@@ -56,6 +56,7 @@ public class GameAPI extends PluginBase implements Listener {
     public static List<EditData> editDataList = new ArrayList<>();
     public static SimpleAxisAlignedBB autoLoadChunkRange;
     public static GameLevelSystemManager system;
+    public static final int GAME_TASK_INTERVAL = 1;
     protected static Language language = new Language("GameAPI");
 
     public static void addRoomEdit(EditData editData) {
