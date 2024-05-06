@@ -10,6 +10,7 @@ import cn.nukkit.level.Location;
 import gameapi.GameAPI;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
+import gameapi.extensions.obstacle.DynamicObstacle;
 import gameapi.form.AdvancedFormWindowCustom;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
@@ -85,6 +86,9 @@ public class Room {
     private LinkedHashMap<String, RoomItemBase> roomItems = new LinkedHashMap<>();
 
     private CheckpointManager checkpointManager = new CheckpointManager();
+
+    @Setter(AccessLevel.NONE)
+    private List<DynamicObstacle> dynamicObstacles = new ArrayList<>();
     @Setter(AccessLevel.NONE)
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
 

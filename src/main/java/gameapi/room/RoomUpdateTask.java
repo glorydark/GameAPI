@@ -12,6 +12,7 @@ import gameapi.event.block.RoomBlockTreadEvent;
 import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.player.RoomPlayerMoveEvent;
 import gameapi.extensions.checkpoint.CheckpointData;
+import gameapi.extensions.obstacle.DynamicObstacle;
 import gameapi.listener.base.GameListenerRegistry;
 
 import java.util.ArrayList;
@@ -55,9 +56,10 @@ public class RoomUpdateTask extends Task {
                 this.onUpdateRoomBlockTreadEvent(player);
                 this.onUpdateRoomPlayerEnterPortalEvent(player);
                 this.onUpdateRoomPlayerMovementEvent(player);
-                this.onUpdatePlayerAroundChunk(player);
+                // this.onUpdatePlayerAroundChunk(player);
                 // RecordPoint
                 room.getCheckpointManager().onUpdate(player);
+                this.onTickDynamicObstacles();
             }
         }
         for (CheckpointData checkPointData : room.getCheckpointManager().getCheckpointDataList()) {
@@ -86,6 +88,15 @@ public class RoomUpdateTask extends Task {
             if (!(block.getId() == 0 || block instanceof BlockLiquid)) {
                 RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(room, block, player);
                 GameListenerRegistry.callEvent(room, roomBlockTreadEvent);
+                if (!roomBlockTreadEvent.isCancelled()) {
+                    for (DynamicObstacle dynamicObstacle : new ArrayList<>(room.getDynamicObstacles())) {
+                        for (Block dynamicObstacleBlock : dynamicObstacle.getBlocks()) {
+                            if (dynamicObstacleBlock.distanceSquared(block) < 1d) {
+                                dynamicObstacle.onTread(dynamicObstacleBlock);
+                            }
+                        }
+                    }
+                }
             }
         }));
     }
@@ -148,6 +159,12 @@ public class RoomUpdateTask extends Task {
                 level.loadChunk(i, i2, true);
                 level.getChunk(i, i2).populateSkyLight();
             }
+        }
+    }
+
+    protected void onTickDynamicObstacles() {
+        for (DynamicObstacle dynamicObstacle : new ArrayList<>(room.getDynamicObstacles())) {
+            dynamicObstacle.onTick();
         }
     }
 }
