@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author glorydark
  */
-public class DynamicObstacle {
+public abstract class DynamicObstacle {
 
     List<Block> blocks = new ArrayList<>();
 
@@ -27,13 +27,9 @@ public class DynamicObstacle {
         this.switchBlock = Block.get(replaceBlockId, replaceBlockMeta);
     }
 
-    public void onTick() {
+    public abstract void onTick();
 
-    }
-
-    public void onTread(Block block) {
-
-    }
+    public abstract void onTread(Block block);
 
     public Block getSwitchBlock() {
         return switchBlock;
