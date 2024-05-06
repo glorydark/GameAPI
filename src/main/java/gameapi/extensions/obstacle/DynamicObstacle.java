@@ -3,7 +3,6 @@ package gameapi.extensions.obstacle;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
-import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,12 +10,11 @@ import java.util.List;
 /**
  * @author glorydark
  */
-@Data
 public class DynamicObstacle {
 
     List<Block> blocks = new ArrayList<>();
 
-    Block switchBlocks;
+    Block switchBlock;
 
     boolean isUsing;
 
@@ -26,7 +24,7 @@ public class DynamicObstacle {
             this.blocks.add(block);
         }
         this.isUsing = false;
-        this.switchBlocks = Block.get(replaceBlockId, replaceBlockMeta);
+        this.switchBlock = Block.get(replaceBlockId, replaceBlockMeta);
     }
 
     public void onTick() {
@@ -35,5 +33,29 @@ public class DynamicObstacle {
 
     public void onTread(Block block) {
 
+    }
+
+    public Block getSwitchBlock() {
+        return switchBlock;
+    }
+
+    public List<Block> getBlocks() {
+        return blocks;
+    }
+
+    public void setBlocks(List<Block> blocks) {
+        this.blocks = blocks;
+    }
+
+    public void setSwitchBlock(Block switchBlock) {
+        this.switchBlock = switchBlock;
+    }
+
+    public boolean isUsing() {
+        return isUsing;
+    }
+
+    public void setUsing(boolean using) {
+        isUsing = using;
     }
 }
