@@ -53,7 +53,7 @@ public class ObstacleDynamicSectionHard extends DynamicObstacle {
                 }
             }
             this.nodeIndex += this.sectionCount;
-            if (this.nodeIndex > blocks.size()) {
+            if (this.nodeIndex >= blocks.size()) {
                 this.nodeIndex -= blocks.size();
             }
             currentTicks = 0;

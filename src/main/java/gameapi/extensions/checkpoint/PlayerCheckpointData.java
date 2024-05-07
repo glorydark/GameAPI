@@ -2,7 +2,8 @@ package gameapi.extensions.checkpoint;
 
 import lombok.Data;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author glorydark
@@ -11,12 +12,12 @@ import java.util.HashSet;
 @Data
 public class PlayerCheckpointData {
 
-    HashSet<CheckpointData> checkpointDataList;
+    List<CheckpointData> checkpointDataList;
 
     int lap;
 
     public PlayerCheckpointData() {
-        this.checkpointDataList = new HashSet<>();
+        this.checkpointDataList = new ArrayList<>();
         this.lap = 0;
     }
 

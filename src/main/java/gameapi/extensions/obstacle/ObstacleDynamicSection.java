@@ -53,7 +53,7 @@ public class ObstacleDynamicSection extends DynamicObstacle {
                 }
             }
             this.nodeIndex += 1;
-            if (this.nodeIndex > blocks.size()) {
+            if (this.nodeIndex >= blocks.size()) {
                 this.nodeIndex -= blocks.size();
             }
             currentTicks = 0;

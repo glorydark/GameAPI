@@ -2,7 +2,7 @@ package gameapi.manager.room;
 
 import cn.nukkit.Player;
 import gameapi.GameAPI;
-import gameapi.event.room.RoomPlayerCheckRecordPointEvent;
+import gameapi.event.room.RoomPlayerReachCheckpointEvent;
 import gameapi.event.room.RoomPlayerFinishAllLapsEvent;
 import gameapi.event.room.RoomPlayerFinishLapEvent;
 import gameapi.extensions.checkpoint.CheckpointData;
@@ -14,7 +14,6 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +56,7 @@ public class CheckpointManager {
         if (currentLap < maxLap) {
             if (getPlayerCheckpointData(player).addCheckPointData(data)) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.checkpoint.pass", data.getName()));
-                GameListenerRegistry.callEvent(room, new RoomPlayerCheckRecordPointEvent(room, player, data));
+                GameListenerRegistry.callEvent(room, new RoomPlayerReachCheckpointEvent(room, player, data));
             }
         }
     }
@@ -67,25 +66,25 @@ public class CheckpointManager {
         if (room == null) {
             return;
         }
-        int currentLap = getPlayerCheckpointData(player).getLap();
+        int currentLap =  this.getPlayerCheckpointData(player).getLap();
         if (currentLap < maxLap) {
             int minCount = Math.max(minFinishCheckpoint, 0);
-            if (getPlayerCheckpointData(player).getCheckpointDataList().size() < minCount) {
+            if ( this.getPlayerCheckpointData(player).getCheckpointDataList().size() < minCount) {
                 return;
             }
             if (currentLap + 1 == maxLap) {
                 RoomPlayerFinishAllLapsEvent roomPlayerFinishAllLapsEvent = new RoomPlayerFinishAllLapsEvent(room, player);
                 GameListenerRegistry.callEvent(room, roomPlayerFinishAllLapsEvent);
                 if (!roomPlayerFinishAllLapsEvent.isCancelled()) {
-                    getPlayerCheckpointData(player).setCheckpointDataList(new HashSet<>());
-                    getPlayerCheckpointData(player).setLap(currentLap + 1);
+                    this.getPlayerCheckpointData(player).setCheckpointDataList(new ArrayList<>());
+                    this.getPlayerCheckpointData(player).setLap(currentLap + 1);
                     // player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.checkpoint.laps.finished"));
                 }
             } else {
                 RoomPlayerFinishLapEvent roomPlayerFinishLapEvent = new RoomPlayerFinishLapEvent(room, player, currentLap + 1);
                 GameListenerRegistry.callEvent(room, roomPlayerFinishLapEvent);
-                getPlayerCheckpointData(player).setCheckpointDataList(new HashSet<>());
-                getPlayerCheckpointData(player).setLap(currentLap + 1);
+                this.getPlayerCheckpointData(player).setCheckpointDataList(new ArrayList<>());
+                this.getPlayerCheckpointData(player).setLap(currentLap + 1);
                 // player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.checkpoint.lap.finished", currentLap + 1));
             }
         }

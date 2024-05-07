@@ -9,11 +9,11 @@ import gameapi.room.Room;
  * @author glorydark
  * @date {2023/12/31} {18:02}
  */
-public class RoomPlayerCheckRecordPointEvent extends RoomPlayerEvent {
+public class RoomPlayerReachCheckpointEvent extends RoomPlayerEvent {
 
     private final CheckpointData checkPointData;
 
-    public RoomPlayerCheckRecordPointEvent(Room room, Player player, CheckpointData checkPointData) {
+    public RoomPlayerReachCheckpointEvent(Room room, Player player, CheckpointData checkPointData) {
         this.room = room;
         this.player = player;
         this.checkPointData = checkPointData;
