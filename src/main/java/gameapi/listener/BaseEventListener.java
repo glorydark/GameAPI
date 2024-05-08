@@ -319,6 +319,16 @@ public class BaseEventListener implements Listener {
                 } else {
                     manager.setHealth(player, manager.getMaxHealth());
                 }
+            } else {
+                if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart && event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+                    if (room.getRoomRule().isAllowRespawn()) {
+                        int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
+                        room.setDeath(player);
+                        room.addRespawnTask(player, respawnTicks);
+                    } else {
+                        room.setDeath(player);
+                    }
+                }
             }
         } else {
             if (entity.getHealth() - event.getFinalDamage() <= 0) {
@@ -339,6 +349,16 @@ public class BaseEventListener implements Listener {
                     }
                 } else {
                     entity.setHealth(entity.getMaxHealth());
+                }
+            } else {
+                if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart && event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+                    if (room.getRoomRule().isAllowRespawn()) {
+                        int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
+                        room.setDeath(player);
+                        room.addRespawnTask(player, respawnTicks);
+                    } else {
+                        room.setDeath(player);
+                    }
                 }
             }
         }
@@ -486,19 +506,28 @@ public class BaseEventListener implements Listener {
         RoomPlayerChatEvent chatEvent = new RoomPlayerChatEvent(room, player, new RoomChatData(player.getName(), event.getMessage()));
         GameListenerRegistry.callEvent(room, chatEvent);
         if (!chatEvent.isCancelled()) {
-            String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatEvent.getRoomChatData().getDefaultChatMsg());
-            if (msg.startsWith("@") && !msg.equals("@")) {
+            RoomChatData chatData = chatEvent.getRoomChatData();
+            String rawMsg = chatData.getMessage();
+            if (rawMsg.startsWith("@") && !rawMsg.equals("@")) {
                 if (room.getTeams().size() > 0) {
                     BaseTeam team = room.getPlayerTeam(player);
                     if (team != null) {
-                        team.sendMessageToAll(msg.replaceFirst("@", ""));
+                        rawMsg = rawMsg.replaceFirst("@", "");
+                        String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), rawMsg);
+                        team.sendMessageToAll(msg);
                     }
+                } else {
+                    String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatData.getDefaultChatMsg());
+                    room.sendMessageToAll(msg);
                 }
-            } else if (msg.startsWith("!") && !msg.equals("!")) {
+            } else if (rawMsg.startsWith("!") && !rawMsg.equals("!")) {
+                chatData.setMessage(rawMsg.replaceFirst("!", ""));
                 for (Player value : Server.getInstance().getOnlinePlayers().values()) {
-                    value.sendMessage(msg.replaceFirst("!", ""));
+                    String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatData.getDefaultChatMsg());
+                    value.sendMessage(msg);
                 }
             } else {
+                String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatData.getDefaultChatMsg());
                 room.sendMessageToAll(msg);
             }
         }

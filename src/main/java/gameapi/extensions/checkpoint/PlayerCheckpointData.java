@@ -22,6 +22,9 @@ public class PlayerCheckpointData {
     }
 
     public boolean addCheckPointData(CheckpointData data) {
-        return checkpointDataList.add(data);
+        if (this.checkpointDataList.contains(data)) {
+            return false;
+        }
+        return this.checkpointDataList.add(data);
     }
 }

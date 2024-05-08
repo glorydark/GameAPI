@@ -52,6 +52,11 @@ public class RoomVirtualHealthManager {
         resetHealthBar(player, newHealth);
     }
 
+    public void resetHealth(Player player) {
+        healthMap.put(player, maxHealth);
+        resetHealthBar(player, maxHealth);
+    }
+
     public double getHealth(Player player) {
         return healthMap.getOrDefault(player, maxHealth);
     }

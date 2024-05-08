@@ -52,9 +52,9 @@ public class CheckpointManager {
         if (room == null) {
             return;
         }
-        int currentLap = getPlayerCheckpointData(player).getLap();
+        int currentLap = this.getPlayerCheckpointData(player).getLap();
         if (currentLap < maxLap) {
-            if (getPlayerCheckpointData(player).addCheckPointData(data)) {
+            if (this.getPlayerCheckpointData(player).addCheckPointData(data)) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.checkpoint.pass", data.getName()));
                 GameListenerRegistry.callEvent(room, new RoomPlayerReachCheckpointEvent(room, player, data));
             }

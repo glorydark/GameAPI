@@ -7,6 +7,8 @@ import cn.nukkit.form.element.ElementInput;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.network.protocol.LevelSoundEventPacket;
+import cn.nukkit.potion.Effect;
 import gameapi.GameAPI;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
@@ -387,6 +389,8 @@ public class Room {
             player.setFoodEnabled(true);
             player.removeAllEffects();
             player.setHealth(player.getMaxHealth());
+            player.addEffect(Effect.getEffect(Effect.FIRE_RESISTANCE).setDuration(10).setVisible(false));
+            player.getEffects().clear();
             player.setNameTag("");
             player.setGamemode(Server.getInstance().getDefaultGamemode());
             if (this.getPlayerTeam(player) != null) {
@@ -701,11 +705,18 @@ public class Room {
                     if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                         player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
                         player.setGamemode(roomRule.getGameMode());
+                        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> player.fireProof = false, 5);
                         if (ev.getRespawnLocation() == null) {
                             teleportToSpawn(player);
                         } else {
                             player.teleport(ev.getRespawnLocation(), null);
                         }
+                        if (this.getRoomRule().isVirtualHealth()) {
+                            this.roomVirtualHealthManager.resetHealth(player);
+                        } else {
+                            player.setHealth(player.getMaxHealth());
+                        }
+                        player.addEffect(Effect.getEffect(Effect.FIRE_RESISTANCE).setDuration(20).setVisible(false));
                     }
                 }, tick);
             } else {
@@ -713,11 +724,19 @@ public class Room {
                 if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
                     player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
                     player.setGamemode(roomRule.getGameMode());
+                    player.getEffects().clear();
+                    Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> player.fireProof = false, 5);
                     if (ev.getRespawnLocation() == null) {
                         teleportToSpawn(player);
                     } else {
                         player.teleport(ev.getRespawnLocation(), null);
                     }
+                    if (this.getRoomRule().isVirtualHealth()) {
+                        this.roomVirtualHealthManager.resetHealth(player);
+                    } else {
+                        player.setHealth(player.getMaxHealth());
+                    }
+                    player.addEffect(Effect.getEffect(Effect.FIRE_RESISTANCE).setDuration(20).setVisible(false));
                 }
             }
         }
