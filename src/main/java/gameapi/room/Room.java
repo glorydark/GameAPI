@@ -7,7 +7,6 @@ import cn.nukkit.form.element.ElementInput;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.network.protocol.LevelSoundEventPacket;
 import cn.nukkit.potion.Effect;
 import gameapi.GameAPI;
 import gameapi.event.player.*;
@@ -371,6 +370,9 @@ public class Room {
                         p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
                     }
                     GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
+                    if (this.roomRule.isPlayerHideFromOthers()) {
+                        this.hidePlayer(player);
+                    }
                 }
             }
         }
@@ -401,6 +403,9 @@ public class Room {
             this.roomVirtualHealthManager.removePlayer(player);
             RoomManager.playerRoomHashMap.remove(player);
             player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+            if (this.roomRule.isPlayerHideFromOthers()) {
+                this.showPlayer(player);
+            }
         }
     }
 

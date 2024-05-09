@@ -79,6 +79,8 @@ public class RoomRule {
 
     private List<String> allowCommands = new ArrayList<>();
 
+    private boolean playerHideFromOthers = true;
+
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
     }
