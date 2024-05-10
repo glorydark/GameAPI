@@ -66,4 +66,17 @@ public class BlockTools {
                 return item.getId() + ":" + item.getDamage();
         }
     }
+
+    public static Block getBlockByString(String s) {
+        String[] strings = s.split(":");
+        Block block;
+        if (strings.length == 1) {
+            block = Block.get(Integer.parseInt(strings[0]));
+        } else if (strings.length == 2) {
+            block = Block.get(Integer.parseInt(strings[0]), Integer.parseInt(strings[1]));
+        } else {
+            block = Block.get(0);
+        }
+        return block;
+    }
 }

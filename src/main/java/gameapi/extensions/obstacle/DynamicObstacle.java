@@ -2,7 +2,7 @@ package gameapi.extensions.obstacle;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
-import cn.nukkit.math.Vector3;
+import gameapi.utils.BlockInfoAndVecData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,9 +23,9 @@ public abstract class DynamicObstacle {
 
     int startCoolDownTick;
 
-    public DynamicObstacle(int startCoolDownTick, Level level, List<Vector3> vectorList, int replaceBlockId, int replaceBlockMeta) {
-        for (Vector3 vector3 : vectorList) {
-            Block block = level.getBlock(vector3);
+    public DynamicObstacle(int startCoolDownTick, Level level, List<BlockInfoAndVecData> blockInfoAndVecDataList, int replaceBlockId, int replaceBlockMeta) {
+        for (BlockInfoAndVecData blockInfoAndVecData : blockInfoAndVecDataList) {
+            Block block = blockInfoAndVecData.toBlock(level);
             Block clone = Block.get(block.getId(), block.getDamage());
             clone.position(block.getLocation());
             if (!block.getChunk().isLoaded()) {

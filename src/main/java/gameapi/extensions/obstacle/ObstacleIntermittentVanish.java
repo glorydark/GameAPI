@@ -2,8 +2,8 @@ package gameapi.extensions.obstacle;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
-import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
+import gameapi.utils.BlockInfoAndVecData;
 
 import java.util.List;
 
@@ -16,8 +16,8 @@ public class ObstacleIntermittentVanish extends DynamicObstacle {
 
     public int currentTicks = 0;
 
-    public ObstacleIntermittentVanish(int intervalTicks, int startCoolDownTick, Level level, List<Vector3> vectorList, int replaceBlockId, int replaceBlockMeta) {
-        super(startCoolDownTick, level, vectorList, replaceBlockId, replaceBlockMeta);
+    public ObstacleIntermittentVanish(int intervalTicks, int startCoolDownTick, Level level, List<BlockInfoAndVecData> blockInfoAndVecDataList, int replaceBlockId, int replaceBlockMeta) {
+        super(startCoolDownTick, level, blockInfoAndVecDataList, replaceBlockId, replaceBlockMeta);
         this.intervalTicks = intervalTicks;
     }
 

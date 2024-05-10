@@ -3,8 +3,8 @@ package gameapi.extensions.obstacle;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockAir;
 import cn.nukkit.level.Level;
-import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
+import gameapi.utils.BlockInfoAndVecData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +22,8 @@ public class ObstacleDynamicSectionHard extends DynamicObstacle {
 
     public int sectionCount;
 
-    public ObstacleDynamicSectionHard(int intervalTicks, int startCoolDownTick, int sectionCount, Level level, List<Vector3> vectorList) {
-        super(startCoolDownTick, level, vectorList, 0, 0);
+    public ObstacleDynamicSectionHard(int intervalTicks, int startCoolDownTick, int sectionCount, Level level, List<BlockInfoAndVecData> blockInfoAndVecDataList) {
+        super(startCoolDownTick, level, blockInfoAndVecDataList, 0, 0);
         this.intervalTicks = intervalTicks;
         this.sectionCount = sectionCount;
     }
