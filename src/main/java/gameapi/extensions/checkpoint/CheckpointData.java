@@ -27,6 +27,10 @@ public class CheckpointData {
 
     private boolean particleMarked;
 
+    private double globalMultiplier = 1.0f;
+
+    private double score = 0;
+
     public CheckpointData(String name, Vector3 vector3, double horizontalRadius, double verticalRadius) {
         this(name, vector3, horizontalRadius, verticalRadius, false);
     }

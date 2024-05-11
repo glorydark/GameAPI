@@ -16,6 +16,10 @@ public class PlayerCheckpointData {
 
     int lap;
 
+    double globalMultiplier = 1.0f;
+
+    double score = 0;
+
     public PlayerCheckpointData() {
         this.checkpointDataList = new ArrayList<>();
         this.lap = 0;
@@ -25,6 +29,12 @@ public class PlayerCheckpointData {
         if (this.checkpointDataList.contains(data)) {
             return false;
         }
+        this.globalMultiplier *= data.getGlobalMultiplier();
+        this.score += data.getScore();
         return this.checkpointDataList.add(data);
+    }
+
+    public double getTotalScore() {
+        return globalMultiplier * score;
     }
 }

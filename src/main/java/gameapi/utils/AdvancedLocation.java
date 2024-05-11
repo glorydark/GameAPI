@@ -58,7 +58,7 @@ public class AdvancedLocation {
     }
 
     public void teleport(Player player) {
-        teleport(player, null);
+        teleport(player, PlayerTeleportEvent.TeleportCause.PLUGIN);
     }
 
     public void teleport(Player player, PlayerTeleportEvent.TeleportCause cause) {
