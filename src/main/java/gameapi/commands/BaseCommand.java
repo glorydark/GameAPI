@@ -9,6 +9,10 @@ import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Level;
+import cn.nukkit.level.ParticleEffect;
+import cn.nukkit.math.SimpleAxisAlignedBB;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
@@ -18,10 +22,7 @@ import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
-import gameapi.tools.ItemTools;
-import gameapi.tools.SkinTools;
-import gameapi.tools.SmartTools;
-import gameapi.tools.SoundTools;
+import gameapi.tools.*;
 
 import java.io.File;
 import java.util.*;
@@ -244,7 +245,7 @@ public class BaseCommand extends Command {
                             room.setAllowedToStart(true);
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.start_pass.endowed", room.getRoomName()));
                         } else {
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found", room.getRoomName()));
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found", strings[2]));
                         }
                     }
                     break;
@@ -327,6 +328,23 @@ public class BaseCommand extends Command {
                         } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_offline", player.getName()));
                         }
+                    }
+                    break;
+                case "breakblocks":
+                    if (strings.length == 8) {
+                        Level level = Server.getInstance().getLevelByName(strings[7]);
+                        BlockTools.destroyAreaBlocks(new SimpleAxisAlignedBB(
+                                new Vector3(
+                                        Integer.parseInt(strings[1]),
+                                        Integer.parseInt(strings[2]),
+                                        Integer.parseInt(strings[3])
+                                ),
+                                new Vector3(
+                                        Integer.parseInt(strings[4]),
+                                        Integer.parseInt(strings[5]),
+                                        Integer.parseInt(strings[6])
+                                )
+                        ), level, true);
                     }
                     break;
             }

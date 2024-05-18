@@ -32,6 +32,9 @@ import lombok.Setter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -92,6 +95,7 @@ public class Room {
     private List<DynamicObstacle> dynamicObstacles = new ArrayList<>();
     @Setter(AccessLevel.NONE)
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
+    private ScheduledExecutorService roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this.maxRound = round;
@@ -435,6 +439,7 @@ public class Room {
         if (this.roomStatus == RoomStatus.ROOM_MapInitializing) {
             return;
         }
+        this.getRoomTaskExecutor().shutdown();
         this.setRoomStatus(RoomStatus.ROOM_MapInitializing);
         GameListenerRegistry.callEvent(this, new RoomResetEvent(this));
         for (Player player : new ArrayList<>(spectators)) {
@@ -478,10 +483,14 @@ public class Room {
             if (this.resetMap) {
                 GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.room_and_map", this.getRoomName()));
                 if (WorldTools.unloadAndReloadLevels(this)) {
+                    this.roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+                    this.getRoomTaskExecutor().scheduleAtFixedRate(this.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
                     this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                 }
             } else {
                 GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.only_room", this.getRoomName()));
+                this.roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+                this.getRoomTaskExecutor().scheduleAtFixedRate(this.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
                 this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
             }
         }

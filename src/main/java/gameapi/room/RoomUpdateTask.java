@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  * @author glorydark
  * @date {2023/12/27} {16:16}
  */
-public class RoomUpdateTask extends Task {
+public class RoomUpdateTask implements Runnable {
 
     private final Room room;
 
@@ -41,7 +41,7 @@ public class RoomUpdateTask extends Task {
     }
 
     @Override
-    public void onRun(int i) {
+    public void run() {
         for (Player player : new ArrayList<>(playerLocationHashMap.keySet())) {
             if (!room.hasPlayer(player)) {
                 playerLocationHashMap.remove(player);
@@ -56,7 +56,6 @@ public class RoomUpdateTask extends Task {
                 this.onUpdateRoomBlockTreadEvent(player);
                 this.onUpdateRoomPlayerEnterPortalEvent(player);
                 this.onUpdateRoomPlayerMovementEvent(player);
-                this.onUpdatePlayerAroundChunk(player);
                 // RecordPoint
                 room.getCheckpointManager().onUpdate(player);
             }
@@ -148,19 +147,6 @@ public class RoomUpdateTask extends Task {
             }
         } else {
             setPlayerLastLocation(player, roomPlayerMoveEvent.getTo());
-        }
-    }
-
-    // todo: Solve issues possibly caused by corrupt chunks?
-    protected void onUpdatePlayerAroundChunk(Player player) {
-        Level level = player.getLevel();
-        int chunkX = player.getChunkX();
-        int chunkZ = player.getChunkZ();
-        for (int i = chunkX - 1; i <= chunkX + 1; i++) {
-            for (int i2 = chunkZ - 1; i2 <= chunkZ + 1; i2++) {
-                level.loadChunk(i, i2);
-                level.getChunk(i, i2).populateSkyLight();
-            }
         }
     }
 

@@ -49,7 +49,7 @@ public class CheckpointManager {
 
     public void updatePlayerRecordPoint(Player player, CheckpointData data) {
         Room room = RoomManager.getRoom(player);
-        if (room == null) {
+        if (room == null || !room.getPlayLevels().contains(player.getLevel())) {
             return;
         }
         int currentLap = this.getPlayerCheckpointData(player).getLap();
@@ -69,7 +69,7 @@ public class CheckpointManager {
         int currentLap =  this.getPlayerCheckpointData(player).getLap();
         if (currentLap < maxLap) {
             int minCount = Math.max(minFinishCheckpoint, 0);
-            if ( this.getPlayerCheckpointData(player).getCheckpointDataList().size() < minCount) {
+            if (this.getPlayerCheckpointData(player).getCheckpointDataList().size() < minCount) {
                 return;
             }
             if (currentLap + 1 == maxLap) {
@@ -91,6 +91,10 @@ public class CheckpointManager {
     }
 
     public void onUpdate(Player player) {
+        Room room = RoomManager.getRoom(player);
+        if (room == null) {
+            return;
+        }
         List<CheckpointData> data = checkpointDataList.stream()
                 .filter(checkpointData -> checkpointData.isInRange(player))
                 .collect(Collectors.toList());
@@ -98,7 +102,7 @@ public class CheckpointManager {
             CheckpointData newData = data.get(0);
             this.updatePlayerRecordPoint(player, newData);
         }
-        if (endPoint != null && endPoint.isInRange(player)) {
+        if (room.getPlayLevels().contains(player.getLevel()) && endPoint != null && endPoint.isInRange(player)) {
             this.updatePlayerEndPoint(player);
         }
     }

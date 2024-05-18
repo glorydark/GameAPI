@@ -9,7 +9,6 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.scheduler.NukkitRunnable;
 import cn.nukkit.utils.Config;
 import gameapi.commands.BaseCommand;
 import gameapi.commands.WorldEditCommand;
@@ -38,8 +37,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.*;
 
 /**
  * @author Glorydark
@@ -58,6 +56,19 @@ public class GameAPI extends PluginBase implements Listener {
     public static SimpleAxisAlignedBB autoLoadChunkRange;
     public static GameLevelSystemManager system;
     protected static Language language = new Language("GameAPI");
+    protected static final int THREAD_POOL_SIZE = 4;
+    public static ScheduledExecutorService roomTaskExecutor;
+    protected static ThreadFactory threadFactory = new ThreadFactory() {
+        private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = defaultFactory.newThread(r);
+            thread.setUncaughtExceptionHandler((t, e) -> {
+                System.err.println("Thread " + t.getName() + " encountered an error: " + e.getMessage());
+            });
+            return thread;
+        }
+    };
 
     public static void addRoomEdit(EditData editData) {
         editDataList.add(editData);
@@ -79,6 +90,7 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onEnable() {
+        roomTaskExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE, threadFactory);
         path = this.getDataFolder().getPath();
         plugin = this;
         this.getDataFolder().mkdir();
@@ -104,43 +116,40 @@ public class GameAPI extends PluginBase implements Listener {
         this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
         this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
         // others ...
-        Server.getInstance().getScheduler().scheduleRepeatingTask(this, new NukkitRunnable() {
-            @Override
-            public void run() {
-                List<Player> players = new ArrayList<>(debug);
-                players.forEach(player -> {
-                            if (player == null || !player.isOnline()) {
-                                debug.remove(player);
-                                return;
-                            }
-                            DecimalFormat df = new DecimalFormat("#0.00");
-                            String out = "GameAPI Debug\n";
-                            out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
-                            out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
-                            Item item = player.getInventory().getItemInHand();
-                            out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + "] 数量:" + item.getCount() + "\n";
-                            Block block = player.getTargetBlock(32);
-                            if (block != null) {
-                                //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
-                                out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 物品id：" + block.getItemId() + " 方块名称:" + block.getName() + "\n";
-                                out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
-                            } else {
-                                out += "所指方块id: [无] 方块名称:无" + "\n";
-                                out += "所指方块位置: [无]" + "\n";
-                            }
-                            Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
-                            if (under != null) {
-                                //out += "所踩方块: " + under.toItem().getNamespaceId();
-                                out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);
-                            } else {
-                                out += "所踩方块: [无]";
-                            }
-                            player.sendActionBar(out);
+        roomTaskExecutor.scheduleAtFixedRate(() -> {
+            List<Player> players = new ArrayList<>(debug);
+            players.forEach(player -> {
+                        if (player == null || !player.isOnline()) {
+                            debug.remove(player);
+                            return;
                         }
-                );
-                GameEntityManager.onUpdate();
-            }
-        }, 5, true);
+                        DecimalFormat df = new DecimalFormat("#0.00");
+                        String out = "GameAPI Debug\n";
+                        out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
+                        out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
+                        Item item = player.getInventory().getItemInHand();
+                        out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + "] 数量:" + item.getCount() + "\n";
+                        Block block = player.getTargetBlock(32);
+                        if (block != null) {
+                            //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
+                            out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 物品id：" + block.getItemId() + " 方块名称:" + block.getName() + "\n";
+                            out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
+                        } else {
+                            out += "所指方块id: [无] 方块名称:无" + "\n";
+                            out += "所指方块位置: [无]" + "\n";
+                        }
+                        Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
+                        if (under != null) {
+                            //out += "所踩方块: " + under.toItem().getNamespaceId();
+                            out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);
+                        } else {
+                            out += "所踩方块: [无]";
+                        }
+                        player.sendActionBar(out);
+                    }
+            );
+            GameEntityManager.onUpdate();
+        }, 0, 200, TimeUnit.MILLISECONDS);
         WorldEditCommand.THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
         this.getLogger().info("§aDGameAPI Enabled!");
     }
@@ -173,8 +182,8 @@ public class GameAPI extends PluginBase implements Listener {
         GameTaskManager.saveAllData();
         GameTaskManager.close();
         GameEntityManager.closeAll();
-
         GameListenerRegistry.clearAllRegisters();
+        roomTaskExecutor.shutdown();
         WorldEditCommand.THREAD_POOL_EXECUTOR.shutdown();
         this.getLogger().info("DGameAPI Disabled!");
     }

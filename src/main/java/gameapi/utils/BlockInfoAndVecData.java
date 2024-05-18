@@ -22,7 +22,7 @@ public class BlockInfoAndVecData {
     public BlockInfoAndVecData(String blockData) { // id:meta:x:y:z
         String[] splits = blockData.split(":");
         if (splits.length == 5) {
-            Vector3 vector3 = SpatialTools.parseVectorFromString(blockData.replace(splits[0] + ":" + splits[1], ""));
+            Vector3 vector3 = SpatialTools.parseVectorFromString(blockData.replace(splits[0] + ":" + splits[1] + ":", ""));
             this.id = Integer.parseInt(splits[0]);
             this.damage = Integer.parseInt(splits[1]);
             this.vector3 = vector3;

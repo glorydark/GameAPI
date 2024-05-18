@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author glorydark
@@ -30,11 +31,11 @@ public class RoomManager {
         rooms.add(room);
         loadedRooms.put(room.getGameName(), rooms);
         room.setRoomStatus(baseStatus);
-        Server.getInstance().getScheduler().scheduleRepeatingTask(GameAPI.plugin, room.getRoomUpdateTask(), GameAPI.GAME_TASK_INTERVAL);
+        room.getRoomTaskExecutor().scheduleAtFixedRate(room.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
     }
 
     public static void unloadRoom(Room room) {
-        room.getRoomUpdateTask().cancel();
+        room.getRoomTaskExecutor().shutdown();
         for (Player player : room.getPlayers()) {
             player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
         }
