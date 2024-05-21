@@ -76,7 +76,9 @@ public class CheckpointManager {
                 RoomPlayerFinishAllLapsEvent roomPlayerFinishAllLapsEvent = new RoomPlayerFinishAllLapsEvent(room, player);
                 GameListenerRegistry.callEvent(room, roomPlayerFinishAllLapsEvent);
                 if (!roomPlayerFinishAllLapsEvent.isCancelled()) {
-                    this.getPlayerCheckpointData(player).setCheckpointDataList(new ArrayList<>());
+                    if (this.maxLap > 1) {
+                        this.getPlayerCheckpointData(player).setCheckpointDataList(new ArrayList<>());
+                    }
                     this.getPlayerCheckpointData(player).setLap(currentLap + 1);
                     // player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.checkpoint.laps.finished"));
                 }

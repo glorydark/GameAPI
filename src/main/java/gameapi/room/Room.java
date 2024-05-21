@@ -55,7 +55,7 @@ public class Room {
     // Used as a temporary room and will be deleted after the game.
     private RoomExecutor statusExecutor = new BaseRoomExecutor(this);
     private boolean temporary = false;
-    private boolean resetMap = false;
+    private boolean resetMap = true;
     private String roomName = "";
     private RoomRule roomRule;
     private RoomStatus roomStatus = RoomStatus.ROOM_STATUS_WAIT;

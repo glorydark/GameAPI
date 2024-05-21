@@ -104,6 +104,18 @@ public class BaseEventListener implements Listener {
                 }
             }
         } else {
+            if (GameAPI.worldEditPlayers.contains(player)) {
+                Block block = event.getBlock();
+                if (block == null) {
+                    return;
+                }
+                if (GameAPI.worldEditPlayers.contains(player)) {
+                    if (block.getId() != 0) {
+                        player.sendMessage("方块: " + block.toItem().getNamespaceId() + ", 位置: " + block.getFloorX() + ":" + block.getFloorY() + ":" + block.getFloorZ());
+                        return;
+                    }
+                }
+            }
             for (EditData editData : GameAPI.editDataList) {
                 Player editor = editData.getPlayer();
                 if (editor == player) {
@@ -154,7 +166,7 @@ public class BaseEventListener implements Listener {
                         WorldEditCommand.posSetLinkedHashMap.get(player).setPos1(block.getLocation());
                         player.sendMessage("Successfully set pos1 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
                         event.setCancelled(true);
-                        break;
+                        return;
                     case Block.EMERALD_BLOCK:
                         if (!WorldEditCommand.posSetLinkedHashMap.containsKey(player)) {
                             WorldEditCommand.posSetLinkedHashMap.put(player, new PosSet());
@@ -162,7 +174,7 @@ public class BaseEventListener implements Listener {
                         WorldEditCommand.posSetLinkedHashMap.get(player).setPos2(block.getLocation());
                         player.sendMessage("Successfully set pos2 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
                         event.setCancelled(true);
-                        break;
+                        return;
                 }
             } else {
                 for (EditData editData : GameAPI.editDataList) {
