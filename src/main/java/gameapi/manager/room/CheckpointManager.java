@@ -66,6 +66,9 @@ public class CheckpointManager {
         if (room == null) {
             return;
         }
+        if (this.getPlayerCheckpointData(player).addCheckPointData(endPoint)) {
+            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.checkpoint.pass", endPoint.getName()));
+        }
         int currentLap =  this.getPlayerCheckpointData(player).getLap();
         if (currentLap < maxLap) {
             int minCount = Math.max(minFinishCheckpoint, 0);

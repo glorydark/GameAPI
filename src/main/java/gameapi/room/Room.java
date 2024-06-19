@@ -383,6 +383,9 @@ public class Room {
     }
 
     public void removePlayer(Player player) {
+        if (!players.contains(player)) {
+            return;
+        }
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {

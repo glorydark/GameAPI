@@ -77,6 +77,26 @@ public class BaseCommand extends Command {
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (strings.length > 0) {
             switch (strings[0].toLowerCase()) {
+                case "kick":
+                    if (commandSender.isPlayer()) {
+                        Room room = RoomManager.getRoom((Player) commandSender);
+                        if (room != null) {
+                            Player player = Server.getInstance().getPlayer(strings[1]);
+                            if (player != null) {
+                                if (room.getPlayers().contains(player)) {
+                                    room.removePlayer(player);
+                                    commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.kick.success"));
+                                } else {
+                                    commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.error.not_in_game.others", player.getName()));
+                                }
+                            } else {
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_not_found", strings[1]));
+                            }
+                        } else {
+                            GameAPI.getLanguage().getTranslation("command.error.not_in_game");
+                        }
+                    }
+                    break;
                 case "quit":
                     if (commandSender.isPlayer()) {
                         Room room = RoomManager.getRoom((Player) commandSender);
@@ -105,7 +125,7 @@ public class BaseCommand extends Command {
                             }
                             SoundTools.playResourcePackOggMusic(player, strings[2], volume, pitch);
                         } else {
-                            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_not_found", strings[1]));
+                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_not_found", strings[1]));
                         }
                     }
                     break;
@@ -149,7 +169,7 @@ public class BaseCommand extends Command {
                             }
                         }
                     } else {
-                        GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation(commandSender, "command.save_battle.folder_created_failed", saveDic.getPath()));
+                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.save_battle.folder_created_failed", saveDic.getPath()));
                     }
                     break;
                 case "addrank":
@@ -294,6 +314,7 @@ public class BaseCommand extends Command {
                             }
                         }
                     }
+                    break;
                 case "playerever":
                     CompletableFuture.runAsync(() -> {
                         int count = 0;
