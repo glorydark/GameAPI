@@ -21,6 +21,7 @@ import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
+import gameapi.room.utils.HideType;
 import gameapi.tools.PlayerTools;
 import gameapi.tools.TipsTools;
 import gameapi.tools.WorldTools;
@@ -374,9 +375,8 @@ public class Room {
                         p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
                     }
                     GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
-                    if (this.roomRule.isPlayerHideFromOthers()) {
-                        this.hidePlayer(player);
-                    }
+                    this.hidePlayer(player, this.getRoomRule().getHideType());
+                    this.updateHideStatus(player, false);
                 }
             }
         }
@@ -410,9 +410,7 @@ public class Room {
             this.roomVirtualHealthManager.removePlayer(player);
             RoomManager.playerRoomHashMap.remove(player);
             player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
-            if (this.roomRule.isPlayerHideFromOthers()) {
-                this.showPlayer(player);
-            }
+            this.updateHideStatus(player, true);
         }
     }
 
@@ -866,14 +864,41 @@ public class Room {
         playLevels.remove(loadLevel);
     }
 
-    public void hidePlayer(Player player) {
-        for (Player value : Server.getInstance().getOnlinePlayers().values()) {
-            Room room = RoomManager.getRoom(player);
-            Room targetRoom = RoomManager.getRoom(value);
-            if (room != targetRoom) {
-                value.hidePlayer(player);
-                player.hidePlayer(value);
+    public void updateHideStatus(Player player, boolean isQuit) {
+        if (isQuit) {
+            for (Player onlinePlayer : Server.getInstance().getOnlinePlayers().values()) {
+                if (!player.canSee(onlinePlayer)) {
+                    player.showPlayer(onlinePlayer);
+                }
             }
+        } else if (roomRule.getHideType() == HideType.NOT_IN_THE_SAME_ROOM){
+            // 玩家加入房间，如果只有房内可见，只需要更新房内玩家的hidePlayers即可
+            for (Player roomPlayer : this.getPlayers()) {
+                roomPlayer.showPlayer(player);
+            }
+        }
+    }
+
+    public void hidePlayer(Player player, HideType type) {
+        switch (type) {
+            case ALL:
+                for (Player target : Server.getInstance().getOnlinePlayers().values()) {
+                    if (player.canSee(target)) {
+                        player.hidePlayer(target);
+                    }
+                }
+                break;
+            case NOT_IN_THE_SAME_ROOM:
+                Room room = RoomManager.getRoom(player);
+                for (Player target : Server.getInstance().getOnlinePlayers().values()) {
+                    Room targetRoom = RoomManager.getRoom(target);
+                    if (room != targetRoom) {
+                        if (player.canSee(target)) {
+                            player.hidePlayer(target);
+                        }
+                    }
+                }
+                break;
         }
     }
 
@@ -881,8 +906,7 @@ public class Room {
         for (Player value : Server.getInstance().getOnlinePlayers().values()) {
             Room room = RoomManager.getRoom(player);
             Room targetRoom = RoomManager.getRoom(value);
-            if (room == targetRoom) {
-                value.showPlayer(player);
+            if (room == targetRoom && !player.canSee(value)) {
                 player.showPlayer(value);
             }
         }

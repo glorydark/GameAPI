@@ -1,5 +1,6 @@
 package gameapi.room;
 
+import gameapi.room.utils.HideType;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ public class RoomRule {
 
     private List<String> allowCommands = new ArrayList<>();
 
-    private boolean playerHideFromOthers = false;
+    private HideType hideType = HideType.NONE;
 
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
