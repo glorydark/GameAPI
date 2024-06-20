@@ -6,7 +6,6 @@ import gameapi.room.Room;
 public class RoomGameStartEvent extends RoomEvent {
 
     public RoomGameStartEvent(Room room) {
-        this.room = room;
+        super(room);
     }
-
 }

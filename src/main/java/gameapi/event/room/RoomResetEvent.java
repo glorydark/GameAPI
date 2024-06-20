@@ -9,7 +9,6 @@ import gameapi.room.Room;
 public class RoomResetEvent extends RoomEvent {
 
     public RoomResetEvent(Room room) {
-        this.room = room;
+        super(room);
     }
-
 }

@@ -10,8 +10,7 @@ import gameapi.room.Room;
 public class RoomPlayerEnterPortalEvent extends RoomPlayerEvent {
 
     public RoomPlayerEnterPortalEvent(Room room, Player player) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
     }
 
 }

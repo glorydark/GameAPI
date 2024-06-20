@@ -12,6 +12,7 @@ import gameapi.GameAPI;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.extensions.obstacle.DynamicObstacle;
+import gameapi.extensions.supplyChest.SupplyChest;
 import gameapi.form.AdvancedFormWindowCustom;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
@@ -97,6 +98,7 @@ public class Room {
     @Setter(AccessLevel.NONE)
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
     private ScheduledExecutorService roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+    private List<SupplyChest> supplyChests = new ArrayList<>();
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this.maxRound = round;
@@ -458,6 +460,9 @@ public class Room {
         this.chatDataList = new ArrayList<>();
         this.getCheckpointManager().clearAllPlayerCheckPointData();
         this.roomVirtualHealthManager.clearAll();
+        for (SupplyChest supplyChest : this.getSupplyChests()) {
+            supplyChest.setLastUpdateMillis(-1);
+        }
         if (this.playLevels == null) {
             GameAPI.plugin.getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
             return;

@@ -3,6 +3,7 @@ package gameapi.event.entity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.HandlerList;
+import gameapi.room.Room;
 
 /**
  * @author glorydark
@@ -17,8 +18,8 @@ public class RoomEntityRegainHealthEvent extends RoomEntityEvent implements Canc
     private final int reason;
     private float amount;
 
-    public RoomEntityRegainHealthEvent(Entity entity, float amount, int regainReason) {
-        this.entity = entity;
+    public RoomEntityRegainHealthEvent(Room room, Entity entity, float amount, int regainReason) {
+        super(room, entity);
         this.amount = amount;
         this.reason = regainReason;
     }

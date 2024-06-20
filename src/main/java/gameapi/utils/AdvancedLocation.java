@@ -7,8 +7,6 @@ import cn.nukkit.level.Location;
 import gameapi.tools.SpatialTools;
 import lombok.Data;
 
-import java.util.ArrayList;
-
 /**
  * @author glorydark
  */

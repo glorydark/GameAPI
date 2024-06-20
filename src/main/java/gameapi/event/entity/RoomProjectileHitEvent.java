@@ -10,8 +10,7 @@ public class RoomProjectileHitEvent extends RoomEntityEvent implements Cancellab
     private MovingObjectPosition movingObjectPosition;
 
     public RoomProjectileHitEvent(Room room, Entity entity, MovingObjectPosition movingObjectPosition) {
-        this.room = room;
-        this.entity = entity;
+        super(room, entity);
         this.movingObjectPosition = movingObjectPosition;
     }
 

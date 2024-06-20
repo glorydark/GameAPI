@@ -1,7 +1,6 @@
 package gameapi.room;
 
 import lombok.Data;
-import lombok.Getter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

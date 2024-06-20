@@ -12,8 +12,7 @@ public class RoomPlayerToggleSprintEvent extends RoomPlayerEvent implements Canc
     protected final boolean isSprinting;
 
     public RoomPlayerToggleSprintEvent(Room room, Player player, boolean isSprinting) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.isSprinting = isSprinting;
     }
 

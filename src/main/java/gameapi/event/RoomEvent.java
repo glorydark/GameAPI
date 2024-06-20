@@ -12,9 +12,6 @@ public abstract class RoomEvent {
         this.room = room;
     }
 
-    protected RoomEvent() {
-    }
-
     public final String getEventName() {
         return this.eventName == null ? this.getClass().getName() : this.eventName;
     }

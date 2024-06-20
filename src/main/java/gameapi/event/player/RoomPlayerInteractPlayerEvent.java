@@ -15,8 +15,7 @@ public class RoomPlayerInteractPlayerEvent extends RoomPlayerEvent {
     private final Player interactedPlayer;
 
     public RoomPlayerInteractPlayerEvent(Room room, Player player, Player interactedPlayer) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.interactedPlayer = interactedPlayer;
     }
 

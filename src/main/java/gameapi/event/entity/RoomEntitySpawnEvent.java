@@ -19,8 +19,7 @@ public class RoomEntitySpawnEvent extends RoomEntityEvent {
     private final int entityType;
 
     public RoomEntitySpawnEvent(Room room, Entity entity) {
-        this.room = room;
-        this.entity = entity;
+        super(room, entity);
         this.entityType = entity.getNetworkId();
     }
 

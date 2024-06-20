@@ -9,7 +9,7 @@ import gameapi.room.Room;
 public class RoomGameEndEvent extends RoomEvent {
 
     public RoomGameEndEvent(Room room) {
-        this.room = room;
+        super(room);
     }
 
 }

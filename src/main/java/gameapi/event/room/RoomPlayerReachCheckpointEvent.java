@@ -14,8 +14,7 @@ public class RoomPlayerReachCheckpointEvent extends RoomPlayerEvent {
     private final CheckpointData checkPointData;
 
     public RoomPlayerReachCheckpointEvent(Room room, Player player, CheckpointData checkPointData) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.checkPointData = checkPointData;
     }
 

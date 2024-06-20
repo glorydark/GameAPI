@@ -12,8 +12,7 @@ public class RoomSpectatorLeaveEvent extends RoomPlayerEvent implements Cancella
     protected Location returnLocation;
 
     public RoomSpectatorLeaveEvent(Room room, Player player, Location returnLocation) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.returnLocation = returnLocation;
     }
 

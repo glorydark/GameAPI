@@ -22,9 +22,8 @@ public class RoomBlockBreakEvent extends RoomBlockEvent implements Cancellable {
     protected int blockXP;
 
     public RoomBlockBreakEvent(Room room, Block block, Player player, Item item, boolean instaBreak, Item[] blockDrops, int blockXP, BlockFace face) {
-        this.room = room;
+        super(room, block);
         this.player = player;
-        this.block = block;
         this.item = item;
         this.instaBreak = instaBreak;
         this.blockDrops = blockDrops;

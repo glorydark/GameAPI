@@ -9,7 +9,6 @@ import gameapi.room.Room;
 public class RoomPreStartEvent extends RoomEvent {
 
     public RoomPreStartEvent(Room room) {
-        this.room = room;
+        super(room);
     }
-
 }

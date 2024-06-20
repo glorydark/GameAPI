@@ -16,8 +16,7 @@ public class RoomEntityDamageEvent extends RoomEntityEvent implements Cancellabl
     private float damage;
 
     public RoomEntityDamageEvent(Room room, Entity entity, EntityDamageEvent.DamageCause cause, final float damage) {
-        this.room = room;
-        this.entity = entity;
+        super(room, entity);
         this.cause = cause;
         this.damage = damage;
     }

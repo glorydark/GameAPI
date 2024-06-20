@@ -13,8 +13,7 @@ public class RoomPlayerItemConsumeEvent extends RoomPlayerEvent implements Cance
     protected Item item;
 
     public RoomPlayerItemConsumeEvent(Room room, Player player, Item item) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.item = item;
     }
 

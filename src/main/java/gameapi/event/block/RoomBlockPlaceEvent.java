@@ -17,9 +17,8 @@ public class RoomBlockPlaceEvent extends RoomBlockEvent implements Cancellable {
     protected Block blockAgainst;
 
     public RoomBlockPlaceEvent(Room room, Block block, Player player, Item item, Block blockReplace, Block blockAgainst) {
-        this.room = room;
+        super(room, block);
         this.player = player;
-        this.block = block;
         this.item = item;
         this.blockReplace = blockReplace;
         this.blockAgainst = blockAgainst;

@@ -7,7 +7,6 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.level.particle.DestroyBlockParticle;
-import cn.nukkit.level.particle.Particle;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import gameapi.utils.NukkitTypeUtils;

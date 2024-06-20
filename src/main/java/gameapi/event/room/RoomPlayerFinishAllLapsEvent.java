@@ -12,7 +12,6 @@ import gameapi.room.Room;
 public class RoomPlayerFinishAllLapsEvent extends RoomPlayerEvent implements Cancellable {
 
     public RoomPlayerFinishAllLapsEvent(Room room, Player player) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
     }
 }

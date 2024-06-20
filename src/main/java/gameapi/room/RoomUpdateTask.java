@@ -3,16 +3,15 @@ package gameapi.room;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockLiquid;
-import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.scheduler.Task;
 import gameapi.event.block.RoomBlockTreadEvent;
 import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.player.RoomPlayerMoveEvent;
 import gameapi.extensions.checkpoint.CheckpointData;
 import gameapi.extensions.obstacle.DynamicObstacle;
+import gameapi.extensions.supplyChest.SupplyChest;
 import gameapi.listener.base.GameListenerRegistry;
 
 import java.util.ArrayList;
@@ -153,6 +152,12 @@ public class RoomUpdateTask implements Runnable {
     protected void onTickDynamicObstacles() {
         for (DynamicObstacle dynamicObstacle : new ArrayList<>(room.getDynamicObstacles())) {
             dynamicObstacle.onTick();
+        }
+    }
+
+    protected void refreshSupplyChests() {
+        for (SupplyChest supplyChest : room.getSupplyChests()) {
+            supplyChest.onUpdate();
         }
     }
 }

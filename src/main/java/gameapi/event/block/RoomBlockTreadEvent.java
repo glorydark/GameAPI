@@ -9,9 +9,8 @@ public class RoomBlockTreadEvent extends RoomBlockEvent {
     protected Player player;
 
     public RoomBlockTreadEvent(Room room, Block block, Player player) {
-        this.room = room;
+        super(room, block);
         this.player = player;
-        this.block = block;
     }
 
     public Player getPlayer() {

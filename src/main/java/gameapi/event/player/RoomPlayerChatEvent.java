@@ -10,8 +10,7 @@ public class RoomPlayerChatEvent extends RoomPlayerEvent implements Cancellable 
     protected RoomChatData roomChatData;
 
     public RoomPlayerChatEvent(Room room, Player player, RoomChatData roomChatData) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.roomChatData = roomChatData;
     }
 

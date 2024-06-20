@@ -12,8 +12,7 @@ public class RoomPlayerToggleSneakEvent extends RoomPlayerEvent implements Cance
     protected final boolean isSneaking;
 
     public RoomPlayerToggleSneakEvent(Room room, Player player, boolean isSneaking) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.isSneaking = isSneaking;
     }
 

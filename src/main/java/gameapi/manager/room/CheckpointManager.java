@@ -2,9 +2,9 @@ package gameapi.manager.room;
 
 import cn.nukkit.Player;
 import gameapi.GameAPI;
-import gameapi.event.room.RoomPlayerReachCheckpointEvent;
 import gameapi.event.room.RoomPlayerFinishAllLapsEvent;
 import gameapi.event.room.RoomPlayerFinishLapEvent;
+import gameapi.event.room.RoomPlayerReachCheckpointEvent;
 import gameapi.extensions.checkpoint.CheckpointData;
 import gameapi.extensions.checkpoint.PlayerCheckpointData;
 import gameapi.listener.base.GameListenerRegistry;

@@ -11,17 +11,12 @@ import gameapi.room.Room;
  */
 public class RoomPreStartTickEvent extends RoomEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private final Room room;
 
     public RoomPreStartTickEvent(Room room) {
-        this.room = room;
+        super(room);
     }
 
     public static HandlerList getHandlers() {
         return handlers;
-    }
-
-    public Room getRoom() {
-        return room;
     }
 }

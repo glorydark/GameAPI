@@ -11,8 +11,7 @@ public class RoomPlayerRespawnEvent extends RoomPlayerEvent implements Cancellab
     Location respawnLocation;
 
     public RoomPlayerRespawnEvent(Room room, Player player, Location respawnLocation) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.respawnLocation = respawnLocation;
     }
 

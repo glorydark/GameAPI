@@ -9,13 +9,8 @@ import gameapi.room.Room;
  * @author Glorydark
  */
 public class RoomWaitTickEvent extends RoomEvent implements Cancellable {
-    private final Room room;
 
     public RoomWaitTickEvent(Room room) {
-        this.room = room;
-    }
-
-    public Room getRoom() {
-        return room;
+        super(room);
     }
 }

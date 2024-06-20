@@ -8,13 +8,8 @@ import gameapi.room.Room;
  * @author Glorydark
  */
 public class RoomGameStartTickEvent extends RoomEvent implements Cancellable {
-    private final Room room;
 
     public RoomGameStartTickEvent(Room room) {
-        this.room = room;
-    }
-
-    public Room getRoom() {
-        return room;
+        super(room);
     }
 }

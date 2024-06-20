@@ -21,8 +21,7 @@ public class RoomPlayerInteractEvent extends RoomPlayerEvent implements Cancella
     protected PlayerInteractEvent.Action action;
 
     public RoomPlayerInteractEvent(Room room, Player player, Block block, Vector3 touchVector, BlockFace blockFace, Item item, PlayerInteractEvent.Action action) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.block = block;
         this.touchVector = touchVector;
         this.blockFace = blockFace;

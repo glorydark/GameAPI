@@ -234,26 +234,27 @@ public class BaseEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void ExplodePrimeEvent(ExplosionPrimeEvent event) {
+        Entity entity = event.getEntity();
         List<Room> roomList = new ArrayList<>();
         RoomManager.loadedRooms.forEach((s, rooms) -> roomList.addAll(rooms));
         for (Room room : roomList) {
             if (room != null) {
                 for (AdvancedLocation location : room.getStartSpawn()) {
-                    if (location.getLevel().getName().equals(event.getEntity().level.getName())) {
+                    if (location.getLevel().getName().equals(entity.level.getName())) {
                         return;
                     }
                 }
                 if (!room.getRoomRule().isAllowExplosion()) {
-                    event.getEntity().kill();
+                    entity.kill();
                     event.setCancelled(true);
                 }
-                RoomEntityExplodeEvent roomEntityExplodeEvent = new RoomEntityExplodeEvent(event.getEntity(), event.getForce());
+                RoomEntityExplodeEvent roomEntityExplodeEvent = new RoomEntityExplodeEvent(room, entity, event.getForce());
                 GameListenerRegistry.callEvent(room, roomEntityExplodeEvent);
                 if (!roomEntityExplodeEvent.isCancelled()) {
                     event.setForce(roomEntityExplodeEvent.getForce());
 
                 } else {
-                    event.getEntity().kill();
+                    entity.kill();
                 }
             }
         }
@@ -731,7 +732,7 @@ public class BaseEventListener implements Listener {
             }
             room = roomOptional.get();
         }
-        RoomEntityRegainHealthEvent roomEntityRegainHealthEvent = new RoomEntityRegainHealthEvent(event.getEntity(), event.getAmount(), event.getRegainReason());
+        RoomEntityRegainHealthEvent roomEntityRegainHealthEvent = new RoomEntityRegainHealthEvent(room, entity, event.getAmount(), event.getRegainReason());
         GameListenerRegistry.callEvent(room, roomEntityRegainHealthEvent);
         if (roomEntityRegainHealthEvent.isCancelled()) {
             event.setCancelled(true);

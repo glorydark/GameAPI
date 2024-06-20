@@ -10,8 +10,7 @@ import gameapi.room.Room;
 public class RoomPlayerPreJoinEvent extends RoomPlayerEvent implements Cancellable {
 
     public RoomPlayerPreJoinEvent(Room room, Player player) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
     }
 
 }

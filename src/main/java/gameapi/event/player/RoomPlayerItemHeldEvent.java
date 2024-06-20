@@ -13,8 +13,7 @@ public class RoomPlayerItemHeldEvent extends RoomPlayerEvent implements Cancella
     protected Item item;
 
     public RoomPlayerItemHeldEvent(Room room, Player player, Item item) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.item = item;
     }
 

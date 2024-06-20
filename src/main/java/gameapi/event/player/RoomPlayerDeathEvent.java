@@ -20,8 +20,7 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
     private final EntityDamageEvent.DamageCause cause;
 
     public RoomPlayerDeathEvent(Room room, Player player, EntityDamageEvent.DamageCause cause) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         //导入的伤害来源
         List<BaseEventListener.DamageSource> inputDamageSources = BaseEventListener.damageSources.getOrDefault(player.getName(), new ArrayList<>());
         //利用lambda进行filter，筛掉不合格的伤害来源。

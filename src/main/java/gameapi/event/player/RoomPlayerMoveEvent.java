@@ -14,8 +14,7 @@ public class RoomPlayerMoveEvent extends RoomPlayerEvent implements Cancellable 
     protected Location to;
 
     public RoomPlayerMoveEvent(Room room, Player player, Location from, Location to) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.from = from;
         this.to = to;
     }

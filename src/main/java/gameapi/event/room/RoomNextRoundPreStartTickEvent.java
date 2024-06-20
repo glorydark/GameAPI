@@ -9,10 +9,9 @@ import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 
 public class RoomNextRoundPreStartTickEvent extends RoomEvent implements Cancellable {
-    private final Room room;
 
     public RoomNextRoundPreStartTickEvent(Room room) {
-        this.room = room;
+        super(room);
         if (room.getTime() >= room.getWaitTime()) {
             room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony);
             room.setTime(0);

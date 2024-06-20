@@ -9,8 +9,7 @@ import gameapi.room.Room;
 public class RoomPlayerJoinEvent extends RoomPlayerEvent {
 
     public RoomPlayerJoinEvent(Room room, Player player) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
     }
 
 }

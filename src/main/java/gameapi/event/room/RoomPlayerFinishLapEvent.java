@@ -13,8 +13,7 @@ public class RoomPlayerFinishLapEvent extends RoomPlayerEvent {
     private final int lapNumber;
 
     public RoomPlayerFinishLapEvent(Room room, Player player, int lapNumber) {
-        this.room = room;
-        this.player = player;
+        super(room, player);
         this.lapNumber = lapNumber;
     }
 

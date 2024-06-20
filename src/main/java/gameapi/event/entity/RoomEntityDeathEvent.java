@@ -19,8 +19,7 @@ public class RoomEntityDeathEvent extends RoomEntityEvent {
     }
 
     public RoomEntityDeathEvent(Room room, EntityLiving entity, Item[] drops) {
-        this.room = room;
-        this.entity = entity;
+        super(room, entity);
         this.drops = drops;
     }
 

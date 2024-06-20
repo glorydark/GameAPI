@@ -9,7 +9,6 @@ import gameapi.room.Room;
 public class RoomNextRoundPreStartEvent extends RoomEvent {
 
     public RoomNextRoundPreStartEvent(Room room) {
-        this.room = room;
+        super(room);
     }
-
 }

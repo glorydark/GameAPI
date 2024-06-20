@@ -2,6 +2,7 @@ package gameapi.event.entity;
 
 import cn.nukkit.entity.Entity;
 import gameapi.event.Cancellable;
+import gameapi.room.Room;
 
 /**
  * @author glorydark
@@ -11,8 +12,8 @@ public class RoomEntityExplodeEvent extends RoomEntityEvent implements Cancellab
 
     private double force;
 
-    public RoomEntityExplodeEvent(Entity entity, double force) {
-        this.entity = entity;
+    public RoomEntityExplodeEvent(Room room, Entity entity, double force) {
+        super(room, entity);
         this.force = force;
     }
 
