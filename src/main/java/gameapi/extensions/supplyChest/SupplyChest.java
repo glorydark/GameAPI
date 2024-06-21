@@ -2,6 +2,7 @@ package gameapi.extensions.supplyChest;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntityChest;
+import cn.nukkit.inventory.BaseInventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import gameapi.event.room.RoomSupplyChestRefreshEvent;
@@ -17,43 +18,48 @@ import java.util.concurrent.ThreadLocalRandom;
 @Data
 public class SupplyChest {
 
-    Room room;
+    private Room room;
 
-    Location location;
+    private Location location;
 
-    List<SupplyItem> supplyItemList;
+    private List<SupplyItem> supplyItemList;
 
     protected long lastUpdateMillis;
 
-    int maxItemCount;
+    private int maxItemCount;
 
-    long startCoolDownMillis;
+    private long startCoolDownMillis;
 
-    long intervalTicks; // If this equal to zero, it would not regenerate again.
+    private long intervalTicks; // If this equal to zero, it would not regenerate again.
 
-    public SupplyChest(Room room, Location location, int maxItemCount, long startCoolDownMillis, long intervalTicks) {
-        this(room, location, new ArrayList<>(), maxItemCount, startCoolDownMillis, intervalTicks);
+    private int maxRefreshTimes;
+
+    private int refreshedTimes = 0;
+
+    public SupplyChest(Room room, Location location, int maxItemCount, long startCoolDownMillis, long intervalTicks, int maxRefreshTimes) {
+        this(room, location, new ArrayList<>(), maxItemCount, startCoolDownMillis, intervalTicks, maxRefreshTimes);
     }
 
-    public SupplyChest(Room room, Location location, List<SupplyItem> supplyChests, int maxItemCount, long startCoolDownMillis, long intervalTicks) {
+    public SupplyChest(Room room, Location location, List<SupplyItem> supplyChests, int maxItemCount, long startCoolDownMillis, long intervalTicks, int maxRefreshTimes) {
         this.room = room;
         this.location = location;
         this.supplyItemList = supplyChests;
         this.maxItemCount = maxItemCount;
         this.startCoolDownMillis = startCoolDownMillis;
         this.intervalTicks = intervalTicks;
+        this.maxRefreshTimes = maxRefreshTimes;
     }
 
     public boolean isCoolDownEnd() {
-        if (intervalTicks > 0) {
-            return this.getCoolDown() >= intervalTicks;
+        if (this.intervalTicks > 0) {
+            return this.getLastUpdateDiff() >= this.intervalTicks;
         } else {
             return false;
         }
     }
 
-    public long getCoolDown() {
-        return System.currentTimeMillis() - lastUpdateMillis;
+    public long getLastUpdateDiff() {
+        return System.currentTimeMillis() - this.lastUpdateMillis;
     }
 
     public void onUpdate() {
@@ -62,18 +68,17 @@ public class SupplyChest {
             return;
         }
         // If the subtraction is less than intervalTicks, it will not refresh the supplies in the chest
-        if (this.getCoolDown() < intervalTicks) {
+        if (this.getLastUpdateDiff() < this.intervalTicks) {
             return;
         }
         // Update the latestMillis
         BlockEntityChest entityChest = this.getEntity();
         if (entityChest != null) {
-            entityChest.getInventory().clearAll();
             // Try to get the refreshments
             int count = 0;
             List<Item> supplyItems = new ArrayList<>();
-            for (SupplyItem supplyItem : supplyItemList) {
-                if (count >= maxItemCount) {
+            for (SupplyItem supplyItem : this.supplyItemList) {
+                if (count >= this.maxItemCount) {
                     return;
                 }
                 if (this.processFakeRandom(supplyItem.getPossibility())) {
@@ -82,26 +87,33 @@ public class SupplyChest {
                 }
             }
             RoomSupplyChestRefreshEvent event = new RoomSupplyChestRefreshEvent(room, this, supplyItemList);
-            GameListenerRegistry.callEvent(room, event);
+            GameListenerRegistry.callEvent(this.room, event);
             if (!event.isCancelled()) {
-                lastUpdateMillis = System.currentTimeMillis();
+                entityChest.getInventory().clearAll();
+                this.lastUpdateMillis = System.currentTimeMillis();
                 for (Item supplyItem : supplyItems) {
-                    entityChest.getInventory().addItem(supplyItem);
+                    entityChest.getInventory().setItem(getRandomSlot(), supplyItem);
                 }
             }
         }
     }
 
     public boolean isRefreshable() {
-        return room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart
-                && System.currentTimeMillis() >= room.getStartMillis() + startCoolDownMillis
-                && intervalTicks != 0;
+        return this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart
+                && this.refreshedTimes < this.maxRefreshTimes
+                && System.currentTimeMillis() >= this.room.getStartMillis() + this.startCoolDownMillis
+                && this.intervalTicks != 0;
+    }
+
+    public void resetData() {
+        this.lastUpdateMillis = -1;
+        this.refreshedTimes = 0;
     }
 
     public BlockEntityChest getEntity() {
-        Block block = location.getLevel().getBlock(location.getLocation());
+        Block block = this.location.getLevel().getBlock(this.location.getLocation());
         if (block.getId() == 54) {
-            return (BlockEntityChest) location.getLevel().getBlockEntity(location.getLocation());
+            return (BlockEntityChest) this.location.getLevel().getBlockEntity(this.location.getLocation());
         }
         return null;
     }
@@ -111,5 +123,14 @@ public class SupplyChest {
      */
     public boolean processFakeRandom(int possibilities) {
         return ThreadLocalRandom.current().nextInt(1, possibilities + 1) <= possibilities;
+    }
+
+    protected int getRandomSlot() {
+        int slots = getEntity().getInventory().getSize();
+        int randSlot = ThreadLocalRandom.current().nextInt(slots);
+        if (getEntity().getInventory().getItemFast(randSlot).getId() != 0) {
+            return getRandomSlot();
+        }
+        return randSlot;
     }
 }

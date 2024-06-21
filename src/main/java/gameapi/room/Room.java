@@ -461,7 +461,7 @@ public class Room {
         this.getCheckpointManager().clearAllPlayerCheckPointData();
         this.roomVirtualHealthManager.clearAll();
         for (SupplyChest supplyChest : this.getSupplyChests()) {
-            supplyChest.setLastUpdateMillis(-1);
+            supplyChest.resetData();
         }
         if (this.playLevels == null) {
             GameAPI.plugin.getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
