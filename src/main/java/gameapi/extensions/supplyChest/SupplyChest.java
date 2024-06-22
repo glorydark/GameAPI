@@ -121,14 +121,14 @@ public class SupplyChest {
     /**
      * This is a method to get a random choice about whether it hits a winning streak or it is on a losing one.
      */
-    public boolean processFakeRandom(int possibilities) {
-        return ThreadLocalRandom.current().nextInt(1, possibilities + 1) <= possibilities;
+    public boolean processFakeRandom(double possibilities) {
+        return ThreadLocalRandom.current().nextDouble() <= possibilities;
     }
 
     protected int getRandomSlot() {
         int slots = getEntity().getInventory().getSize();
         int randSlot = ThreadLocalRandom.current().nextInt(slots);
-        if (getEntity().getInventory().getItemFast(randSlot).getId() != 0) {
+        if (this.getEntity().getInventory().getItemFast(randSlot).getId() != 0) {
             return getRandomSlot();
         }
         return randSlot;

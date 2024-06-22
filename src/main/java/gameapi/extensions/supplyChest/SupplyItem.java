@@ -1,19 +1,14 @@
 package gameapi.extensions.supplyChest;
 
 import cn.nukkit.item.Item;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
+@AllArgsConstructor
+@Data
 public class SupplyItem {
 
     protected Item item;
 
-    protected int possibility;
-
-    public Item getItem() {
-        return item;
-    }
-
-    public int getPossibility() {
-        return possibility;
-    }
-
+    protected double possibility; // 0-1
 }
