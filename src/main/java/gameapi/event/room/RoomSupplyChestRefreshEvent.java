@@ -3,7 +3,7 @@ package gameapi.event.room;
 import gameapi.event.Cancellable;
 import gameapi.event.RoomEvent;
 import gameapi.extensions.supplyChest.SupplyChest;
-import gameapi.extensions.supplyChest.SupplyItem;
+import gameapi.extensions.supplyChest.item.SupplyItem;
 import gameapi.room.Room;
 
 import java.util.List;

@@ -2,10 +2,10 @@ package gameapi.extensions.supplyChest;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntityChest;
-import cn.nukkit.inventory.BaseInventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import gameapi.event.room.RoomSupplyChestRefreshEvent;
+import gameapi.extensions.supplyChest.item.SupplyItem;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
@@ -102,7 +102,8 @@ public class SupplyChest {
         return this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart
                 && this.refreshedTimes < this.maxRefreshTimes
                 && System.currentTimeMillis() >= this.room.getStartMillis() + this.startCoolDownMillis
-                && this.intervalTicks != 0;
+                && this.intervalTicks != 0
+                && this.isCoolDownEnd();
     }
 
     public void resetData() {

@@ -1,4 +1,4 @@
-package gameapi.extensions.supplyChest;
+package gameapi.extensions.supplyChest.item;
 
 import cn.nukkit.item.Item;
 import lombok.AllArgsConstructor;
