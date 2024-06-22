@@ -4,32 +4,35 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomEnchantedSupplyItem extends SupplyItem {
 
+    protected LinkedHashMap<Integer, Double> possibilityMap = new LinkedHashMap<>();
 
     public RandomEnchantedSupplyItem(Item item, double possibility) {
         super(item, possibility);
+    }
+
+    public void addEnchantmentPossibility(int count, double possibility) {
+        this.possibilityMap.put(count, possibility);
     }
 
     @Override
     public Item getItem() {
         Item newItem = this.item.clone();
         double random = ThreadLocalRandom.current().nextDouble();
-        if (random < 0.1) {
-            for (int i = 0; i < 3; i++) {
-                endowRandomEnchantmentByItem(newItem);
-            }
-        } else if (random < 0.2) {
-            for (int i = 0; i < 2; i++) {
-                endowRandomEnchantmentByItem(newItem);
-            }
-        } else {
+        if (possibilityMap.isEmpty()) {
             endowRandomEnchantmentByItem(newItem);
+        } else {
+            for (Map.Entry<Integer, Double> entry : possibilityMap.entrySet()) {
+                if (random < entry.getValue()) {
+                    for (int i = 0; i < entry.getKey(); i++) {
+                        endowRandomEnchantmentByItem(newItem);
+                    }
+                }
+            }
         }
         return newItem;
     }
