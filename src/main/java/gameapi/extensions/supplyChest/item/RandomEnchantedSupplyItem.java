@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomEnchantedSupplyItem extends SupplyItem {
 
-    protected LinkedHashMap<Integer, Double> possibilityMap = new LinkedHashMap<>();
+    protected final LinkedHashMap<Integer, Double> possibilityMap = new LinkedHashMap<>();
 
     public RandomEnchantedSupplyItem(Item item, double possibility) {
         super(item, possibility);
