@@ -128,15 +128,11 @@ public class BaseRoomExecutor extends RoomExecutor {
         List<Player> senders = new ArrayList<>(room.getPlayers());
         senders.addAll(room.getSpectators());
         for (Player p : senders) {
-            ThreadLocalRandom random = ThreadLocalRandom.current();
-            int i1 = random.nextInt(14);
-            int i2 = random.nextInt(4);
             p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.ceremony", room.getCeremonyTime() - room.getTime()));
             if (p.getGamemode() == 3) {
                 continue;
             }
-            FireworkTools.spawnFirework(p.getLocation(), FireworkTools.getColorByInt(i1), FireworkTools.getExplosionTypeByInt(i2));
-
+            FireworkTools.spawnRandomFirework(p.getLocation());
         }
     }
 

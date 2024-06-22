@@ -12,8 +12,10 @@ import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.EntityEventPacket;
 import cn.nukkit.utils.DyeColor;
+import gameapi.GameAPI;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Adapted from: PetteriM's FireworkShow
@@ -22,11 +24,14 @@ import java.util.Random;
 public class FireworkTools {
 
     public static void spawnRandomFirework(Location location) {
-        FireworkTools.spawnFirework(location, DyeColor.YELLOW, ItemFirework.FireworkExplosion.ExplosionType.LARGE_BALL, true);
+        spawnRandomFirework(location, false);
     }
 
     public static void spawnRandomFirework(Location location, boolean isImmediateBomb) {
-        FireworkTools.spawnFirework(location, DyeColor.YELLOW, ItemFirework.FireworkExplosion.ExplosionType.LARGE_BALL, isImmediateBomb);
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        int i1 = random.nextInt(14);
+        int i2 = random.nextInt(4);
+        FireworkTools.spawnFirework(location, FireworkTools.getColorByInt(i1), FireworkTools.getExplosionTypeByInt(i2), isImmediateBomb);
     }
 
     public static void spawnFirework(Location location, DyeColor color, ItemFirework.FireworkExplosion.ExplosionType type) {
