@@ -21,6 +21,14 @@ import java.util.Random;
  */
 public class FireworkTools {
 
+    public static void spawnRandomFirework(Location location) {
+        FireworkTools.spawnFirework(location, DyeColor.YELLOW, ItemFirework.FireworkExplosion.ExplosionType.LARGE_BALL, true);
+    }
+
+    public static void spawnRandomFirework(Location location, boolean isImmediateBomb) {
+        FireworkTools.spawnFirework(location, DyeColor.YELLOW, ItemFirework.FireworkExplosion.ExplosionType.LARGE_BALL, isImmediateBomb);
+    }
+
     public static void spawnFirework(Location location, DyeColor color, ItemFirework.FireworkExplosion.ExplosionType type) {
         spawnFirework(location, color, type, false);
     }
