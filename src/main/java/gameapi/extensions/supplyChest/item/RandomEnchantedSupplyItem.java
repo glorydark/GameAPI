@@ -9,24 +9,18 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomEnchantedSupplyItem extends SupplyItem {
 
-    protected final LinkedHashMap<Integer, Double> possibilityMap = new LinkedHashMap<>();
-
     public RandomEnchantedSupplyItem(Item item, double possibility) {
         super(item, possibility);
-    }
-
-    public void addEnchantmentPossibility(int count, double possibility) {
-        this.possibilityMap.put(count, possibility);
     }
 
     @Override
     public Item select() {
         Item newItem = this.getItem().clone();
         double random = ThreadLocalRandom.current().nextDouble();
-        if (this.possibilityMap.isEmpty()) {
+        if (this.getRefreshCountChanceMap().isEmpty()) {
             endowRandomEnchantmentByItem(newItem);
         } else {
-            for (Map.Entry<Integer, Double> entry : this.possibilityMap.entrySet()) {
+            for (Map.Entry<Integer, Double> entry : this.getRefreshCountChanceMap().entrySet()) {
                 if (random < entry.getValue()) {
                     for (int i = 0; i < entry.getKey(); i++) {
                         endowRandomEnchantmentByItem(newItem);

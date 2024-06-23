@@ -38,7 +38,11 @@ public class SupplyItem extends AbstractSupplyItem {
         return newItem;
     }
 
-    public void addRefreshCountChanceMap(int count, double possibility) {
+    public void addRefreshCountData(int count, double possibility) {
         this.refreshCountChanceMap.put(count, possibility);
+    }
+
+    public LinkedHashMap<Integer, Double> getRefreshCountChanceMap() {
+        return refreshCountChanceMap;
     }
 }
