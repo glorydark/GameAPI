@@ -82,7 +82,7 @@ public class SupplyChest {
                     return;
                 }
                 if (this.processFakeRandom(supplyItem.getPossibility())) {
-                    supplyItems.add(supplyItem.getItem());
+                    supplyItems.add(supplyItem.select());
                     count++;
                 }
             }

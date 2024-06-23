@@ -20,13 +20,13 @@ public class RandomEnchantedSupplyItem extends SupplyItem {
     }
 
     @Override
-    public Item getItem() {
-        Item newItem = this.item.clone();
+    public Item select() {
+        Item newItem = this.getItem().clone();
         double random = ThreadLocalRandom.current().nextDouble();
-        if (possibilityMap.isEmpty()) {
+        if (this.possibilityMap.isEmpty()) {
             endowRandomEnchantmentByItem(newItem);
         } else {
-            for (Map.Entry<Integer, Double> entry : possibilityMap.entrySet()) {
+            for (Map.Entry<Integer, Double> entry : this.possibilityMap.entrySet()) {
                 if (random < entry.getValue()) {
                     for (int i = 0; i < entry.getKey(); i++) {
                         endowRandomEnchantmentByItem(newItem);

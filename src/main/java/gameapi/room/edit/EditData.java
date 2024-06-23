@@ -20,7 +20,7 @@ public class EditData {
     protected int index = 0;
 
     public EditData() {
-        configCache = new ConfigSection();
+        this.configCache = new ConfigSection();
     }
 
     public void onStart(Player player) {
@@ -29,21 +29,21 @@ public class EditData {
             return;
         }
         this.player = player;
-        configCache = new ConfigSection();
-        index = 0;
+        this.configCache = new ConfigSection();
+        this.index = 0;
         this.nextStep();
     }
 
     public List<EditStep> getSteps() {
-        return steps;
+        return this.steps;
     }
 
     public Player getPlayer() {
-        return player;
+        return this.player;
     }
 
     public void addStep(EditStep... addSteps) {
-        steps.addAll(Arrays.asList(addSteps));
+        this.steps.addAll(Arrays.asList(addSteps));
     }
 
     public EditStep getCurrentStep() {
@@ -60,7 +60,7 @@ public class EditData {
             lastStep.onEnd(this);
         }
         this.index++;
-        if (index >= this.steps.size()) {
+        if (this.index >= this.steps.size()) {
             this.onEnd();
             return;
         }

@@ -10,15 +10,7 @@ import java.util.Map;
 /**
  * @author glorydark
  */
-public abstract class GameTaskBase {
-
-    private String gameName;
-
-    private String taskIdentifier;
-
-    private String taskDisplayName;
-
-    private String description;
+public class GameTask extends AbstractGameTask {
 
     private List<String> commands;
 
@@ -26,11 +18,8 @@ public abstract class GameTaskBase {
 
     private LinkedHashMap<String, Map<String, Object>> taskCache;
 
-    public GameTaskBase(String gameName, String taskIdentifier, String taskDisplayName, String description, List<String> commands, List<String> messages) {
-        this.gameName = gameName;
-        this.taskIdentifier = taskIdentifier;
-        this.taskDisplayName = taskDisplayName;
-        this.description = description;
+    public GameTask(String gameName, String taskIdentifier, String taskDisplayName, String description, List<String> commands, List<String> messages) {
+        super(gameName, taskIdentifier, taskDisplayName, description);
         this.commands = commands;
         this.messages = messages;
     }
@@ -62,16 +51,14 @@ public abstract class GameTaskBase {
         taskCache.get(player).put(key, value);
     }
 
-    public boolean isFinished(Player player) {
-        return true;
-    }
-
+    @Override
     public boolean isEnabled(Player player) {
         return true;
     }
 
-    public boolean checkFinish(Player player) {
-        if (isEnabled(player) && isFinished(player)) {
+    @Override
+    public boolean isFinished(Player player) {
+        if (this.isEnabled(player)) {
             for (String command : commands) {
                 Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), command.replace("%player%", "\"" + player.getName() + "\""));
             }
@@ -88,39 +75,6 @@ public abstract class GameTaskBase {
         setPlayerTaskCache(player, "times", ((Integer) getPlayerTaskCache(player, "times", 0)) + 1);
         setPlayerTaskCache(player, "last_finish_millis", System.currentTimeMillis());
     }
-
-    public String getGameName() {
-        return gameName;
-    }
-
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
-
-    public String getTaskIdentifier() {
-        return taskIdentifier;
-    }
-
-    public void setTaskIdentifier(String taskIdentifier) {
-        this.taskIdentifier = taskIdentifier;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getTaskDisplayName() {
-        return taskDisplayName;
-    }
-
-    public void setTaskDisplayName(String taskDisplayName) {
-        this.taskDisplayName = taskDisplayName;
-    }
-
     public List<String> getMessages() {
         return messages;
     }
