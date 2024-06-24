@@ -75,6 +75,7 @@ public class GameTask extends AbstractGameTask {
         setPlayerTaskCache(player, "times", ((Integer) getPlayerTaskCache(player, "times", 0)) + 1);
         setPlayerTaskCache(player, "last_finish_millis", System.currentTimeMillis());
     }
+
     public List<String> getMessages() {
         return messages;
     }

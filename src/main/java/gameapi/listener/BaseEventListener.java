@@ -119,7 +119,7 @@ public class BaseEventListener implements Listener {
             for (EditData editData : GameAPI.editDataList) {
                 Player editor = editData.getPlayer();
                 if (editor == player) {
-                    editData.getCurrentStep().onBreak(editData);
+                    editData.getCurrentStep().onBreak();
                 }
                 break;
             }
@@ -180,7 +180,7 @@ public class BaseEventListener implements Listener {
                 for (EditData editData : GameAPI.editDataList) {
                     Player editor = editData.getPlayer();
                     if (editor == player) {
-                        editData.getCurrentStep().onPlace(editData);
+                        editData.getCurrentStep().onPlace();
                     }
                     break;
                 }
@@ -616,7 +616,7 @@ public class BaseEventListener implements Listener {
             for (EditData editData : GameAPI.editDataList) {
                 Player editor = editData.getPlayer();
                 if (editor == player) {
-                    editData.getCurrentStep().onInteract(editData);
+                    editData.getCurrentStep().onInteract();
                 }
                 break;
             }

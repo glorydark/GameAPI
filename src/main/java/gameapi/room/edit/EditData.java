@@ -57,7 +57,7 @@ public class EditData {
     public void nextStep() {
         if (this.index > 0 && this.index < this.steps.size()) {
             EditStep lastStep = getCurrentStep();
-            lastStep.onEnd(this);
+            lastStep.onEnd();
         }
         this.index++;
         if (this.index >= this.steps.size()) {
@@ -72,7 +72,7 @@ public class EditData {
             this.index = 0;
             return;
         }
-        nextStep.onStart(this);
+        nextStep.onStart();
     }
 
     public void onEnd() {

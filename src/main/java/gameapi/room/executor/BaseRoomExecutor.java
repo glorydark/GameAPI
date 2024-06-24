@@ -12,7 +12,6 @@ import gameapi.utils.AdvancedLocation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * This class is meant to design the basic operations,

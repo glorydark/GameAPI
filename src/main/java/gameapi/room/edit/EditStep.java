@@ -1,6 +1,5 @@
 package gameapi.room.edit;
 
-import cn.nukkit.utils.ConfigSection;
 import gameapi.annotation.Future;
 
 /**
@@ -9,33 +8,33 @@ import gameapi.annotation.Future;
 @Future
 public abstract class EditStep {
 
-    protected ConfigSection stepCache;
+    protected EditData editData;
 
-    public EditStep() {
-        stepCache = new ConfigSection();
+    public EditStep(EditData editData) {
+        this.editData = editData;
     }
 
-    public void onStart(EditData editData) {
-        stepCache = new ConfigSection();
-    }
-
-    public void onBreak(EditData editData) {
+    public void onStart() {
 
     }
 
-    public void onPlace(EditData editData) {
+    public void onBreak() {
 
     }
 
-    public void onInteract(EditData editData) {
+    public void onPlace() {
 
     }
 
-    protected void onEnd(EditData editData) {
+    public void onInteract() {
 
     }
 
-    public ConfigSection getStepCache() {
-        return stepCache;
+    protected void onEnd() {
+
+    }
+
+    public EditData getEditData() {
+        return editData;
     }
 }

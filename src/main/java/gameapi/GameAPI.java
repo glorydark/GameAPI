@@ -46,6 +46,7 @@ import java.util.concurrent.*;
 public class GameAPI extends PluginBase implements Listener {
 
     public static final int GAME_TASK_INTERVAL = 1;
+    protected static final int THREAD_POOL_SIZE = 4;
     public static String path;
     public static Plugin plugin;
     public static List<Player> debug = new ArrayList<>();
@@ -55,11 +56,11 @@ public class GameAPI extends PluginBase implements Listener {
     public static List<EditData> editDataList = new ArrayList<>();
     public static SimpleAxisAlignedBB autoLoadChunkRange;
     public static GameLevelSystemManager system;
-    protected static Language language = new Language("GameAPI");
-    protected static final int THREAD_POOL_SIZE = 4;
     public static ScheduledExecutorService roomTaskExecutor;
+    protected static Language language = new Language("GameAPI");
     protected static ThreadFactory threadFactory = new ThreadFactory() {
         private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
+
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = defaultFactory.newThread(r);

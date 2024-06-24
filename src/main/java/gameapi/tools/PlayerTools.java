@@ -214,7 +214,7 @@ public class PlayerTools {
     }
 
     public static String getOS(Player p) {
-        switch(p.getLoginChainData().getDeviceOS()) {
+        switch (p.getLoginChainData().getDeviceOS()) {
             case 1:
                 return "Android";
             case 2:

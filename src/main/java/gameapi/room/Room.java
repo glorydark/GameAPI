@@ -876,7 +876,7 @@ public class Room {
                     player.showPlayer(onlinePlayer);
                 }
             }
-        } else if (roomRule.getHideType() == HideType.NOT_IN_THE_SAME_ROOM){
+        } else if (roomRule.getHideType() == HideType.NOT_IN_THE_SAME_ROOM) {
             // 玩家加入房间，如果只有房内可见，只需要更新房内玩家的hidePlayers即可
             for (Player roomPlayer : this.getPlayers()) {
                 roomPlayer.showPlayer(player);

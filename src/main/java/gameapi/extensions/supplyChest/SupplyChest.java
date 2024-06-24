@@ -18,14 +18,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @Data
 public class SupplyChest {
 
-    private Room room;
-
-    private Location location;
-
-    private List<SupplyItem> supplyItemList;
-
     protected long lastUpdateMillis;
-
+    private Room room;
+    private Location location;
+    private List<SupplyItem> supplyItemList;
     private int maxItemCount;
 
     private long startCoolDownMillis;
