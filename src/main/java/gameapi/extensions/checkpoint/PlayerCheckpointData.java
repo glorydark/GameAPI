@@ -12,13 +12,13 @@ import java.util.List;
 @Data
 public class PlayerCheckpointData {
 
-    List<CheckpointData> checkpointDataList;
+    private List<CheckpointData> checkpointDataList;
 
-    int lap;
+    private int lap;
 
-    double globalMultiplier;
+    private double globalMultiplier;
 
-    double score;
+    private double score;
 
     public PlayerCheckpointData() {
         this(1.0d, 0d);
@@ -39,10 +39,11 @@ public class PlayerCheckpointData {
         }
         this.globalMultiplier *= data.getGlobalMultiplier();
         this.score += data.getScore();
-        return this.checkpointDataList.add(data);
+        this.checkpointDataList.add(data);
+        return true;
     }
 
     public double getTotalScore() {
-        return globalMultiplier * score;
+        return this.globalMultiplier * this.score;
     }
 }

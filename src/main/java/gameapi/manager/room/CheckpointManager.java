@@ -12,9 +12,7 @@ import gameapi.manager.RoomManager;
 import gameapi.room.Room;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -22,7 +20,7 @@ public class CheckpointManager {
 
     private List<CheckpointData> checkpointDataList;
 
-    private HashMap<Player, PlayerCheckpointData> playerCheckpointData;
+    private Map<Player, PlayerCheckpointData> playerCheckpointData;
 
     private int minFinishCheckpoint = -1;
 
@@ -32,19 +30,19 @@ public class CheckpointManager {
 
     public CheckpointManager() {
         this.checkpointDataList = new ArrayList<>();
-        this.playerCheckpointData = new HashMap<>();
+        this.playerCheckpointData = new LinkedHashMap<>();
         this.maxLap = 1;
     }
 
     public void clearAllPlayerCheckPointData() {
-        playerCheckpointData = new HashMap<>();
+        this.playerCheckpointData = new HashMap<>();
     }
 
     public PlayerCheckpointData getPlayerCheckpointData(Player player) {
-        if (!playerCheckpointData.containsKey(player)) {
-            playerCheckpointData.put(player, new PlayerCheckpointData());
+        if (!this.playerCheckpointData.containsKey(player)) {
+            this.playerCheckpointData.put(player, new PlayerCheckpointData());
         }
-        return playerCheckpointData.get(player);
+        return this.playerCheckpointData.get(player);
     }
 
     public void updatePlayerRecordPoint(Player player, CheckpointData data) {
@@ -53,7 +51,7 @@ public class CheckpointManager {
             return;
         }
         int currentLap = this.getPlayerCheckpointData(player).getLap();
-        if (currentLap < maxLap) {
+        if (currentLap < this.maxLap) {
             if (this.getPlayerCheckpointData(player).addCheckPointData(data)) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.checkpoint.pass", data.getName()));
                 GameListenerRegistry.callEvent(room, new RoomPlayerReachCheckpointEvent(room, player, data));
@@ -66,16 +64,16 @@ public class CheckpointManager {
         if (room == null) {
             return;
         }
-        if (this.getPlayerCheckpointData(player).addCheckPointData(endPoint)) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.checkpoint.pass", endPoint.getName()));
+        if (this.getPlayerCheckpointData(player).addCheckPointData(this.endPoint)) {
+            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.checkpoint.pass", this.endPoint.getName()));
         }
         int currentLap = this.getPlayerCheckpointData(player).getLap();
-        if (currentLap < maxLap) {
-            int minCount = Math.max(minFinishCheckpoint, 0);
+        if (currentLap < this.maxLap) {
+            int minCount = Math.max(this.minFinishCheckpoint, 0);
             if (this.getPlayerCheckpointData(player).getCheckpointDataList().size() < minCount) {
                 return;
             }
-            if (currentLap + 1 == maxLap) {
+            if (currentLap + 1 == this.maxLap) {
                 RoomPlayerFinishAllLapsEvent roomPlayerFinishAllLapsEvent = new RoomPlayerFinishAllLapsEvent(room, player);
                 GameListenerRegistry.callEvent(room, roomPlayerFinishAllLapsEvent);
                 if (!roomPlayerFinishAllLapsEvent.isCancelled()) {
@@ -100,14 +98,14 @@ public class CheckpointManager {
         if (room == null) {
             return;
         }
-        List<CheckpointData> data = checkpointDataList.stream()
+        List<CheckpointData> data = this.checkpointDataList.stream()
                 .filter(checkpointData -> checkpointData.isInRange(player))
                 .collect(Collectors.toList());
         if (data.size() > 0) {
             CheckpointData newData = data.get(0);
             this.updatePlayerRecordPoint(player, newData);
         }
-        if (room.getPlayLevels().contains(player.getLevel()) && endPoint != null && endPoint.isInRange(player)) {
+        if (room.getPlayLevels().contains(player.getLevel()) && this.endPoint != null && this.endPoint.isInRange(player)) {
             this.updatePlayerEndPoint(player);
         }
     }

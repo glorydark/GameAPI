@@ -6,6 +6,7 @@ import gameapi.room.Room;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author glorydark
@@ -13,7 +14,7 @@ import java.util.LinkedHashMap;
 public class RoomVirtualHealthManager {
 
     protected final Room room;
-    private LinkedHashMap<Player, Double> healthMap = new LinkedHashMap<>();
+    private Map<Player, Double> healthMap = new LinkedHashMap<>();
     private double maxHealth = 20.0d;
 
     public RoomVirtualHealthManager(Room room) {
@@ -30,48 +31,48 @@ public class RoomVirtualHealthManager {
 
     public void addHealth(Player player, Double value) {
         double newHealth = BigDecimal.valueOf(getHealth(player) + value).setScale(1, RoundingMode.HALF_UP).doubleValue();
-        if (newHealth >= maxHealth) {
-            newHealth = maxHealth;
+        if (newHealth >= this.maxHealth) {
+            newHealth = this.maxHealth;
         }
-        healthMap.put(player, newHealth);
+        this.healthMap.put(player, newHealth);
         resetHealthBar(player, newHealth);
     }
 
     public void reduceHealth(Player player, Double value) {
         double newHealth = BigDecimal.valueOf(getHealth(player) - value).setScale(1, RoundingMode.HALF_UP).doubleValue();
-        if (newHealth >= maxHealth) {
-            newHealth = maxHealth;
+        if (newHealth >= this.maxHealth) {
+            newHealth = this.maxHealth;
         }
-        healthMap.put(player, newHealth);
+        this.healthMap.put(player, newHealth);
         resetHealthBar(player, newHealth);
     }
 
     public void setHealth(Player player, Double value) {
         double newHealth = BigDecimal.valueOf(value).setScale(1, RoundingMode.HALF_UP).doubleValue();
-        healthMap.put(player, newHealth);
+        this.healthMap.put(player, newHealth);
         resetHealthBar(player, newHealth);
     }
 
     public void resetHealth(Player player) {
-        healthMap.put(player, maxHealth);
-        resetHealthBar(player, maxHealth);
+        this.healthMap.put(player, this.maxHealth);
+        resetHealthBar(player, this.maxHealth);
     }
 
     public double getHealth(Player player) {
-        return healthMap.getOrDefault(player, maxHealth);
+        return this.healthMap.getOrDefault(player, this.maxHealth);
     }
 
     public void removePlayer(Player player) {
-        healthMap.remove(player);
+        this.healthMap.remove(player);
     }
 
     public void clearAll() {
-        healthMap = new LinkedHashMap<>();
+        this.healthMap = new LinkedHashMap<>();
     }
 
     protected void resetHealthBar(Player player, double health) {
         BigDecimal decimal = new BigDecimal(health);
-        decimal = decimal.divide(new BigDecimal(maxHealth), 1, RoundingMode.HALF_UP).multiply(new BigDecimal(player.getMaxHealth()));
+        decimal = decimal.divide(new BigDecimal(this.maxHealth), 1, RoundingMode.HALF_UP).multiply(new BigDecimal(player.getMaxHealth()));
         int finalHealthDisplay = decimal.intValueExact();
         if (finalHealthDisplay < 1) {
             finalHealthDisplay = 1;
