@@ -3,6 +3,7 @@ package gameapi.extensions.obstacle;
 import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import gameapi.utils.BlockInfoAndVecData;
+import lombok.ToString;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
 /**
  * @author glorydark
  */
+@ToString
 public abstract class DynamicObstacle {
 
     List<Block> blocks = new ArrayList<>();

@@ -30,33 +30,33 @@ public class ObstacleDynamicSectionHard extends DynamicObstacle {
 
     @Override
     public void onTick() {
-        if (startCoolDownTick > 0) {
-            startCoolDownTick -= GameAPI.GAME_TASK_INTERVAL;
+        if (this.startCoolDownTick > 0) {
+            this.startCoolDownTick -= GameAPI.GAME_TASK_INTERVAL;
             return;
         }
-        currentTicks += GameAPI.GAME_TASK_INTERVAL;
-        if (currentTicks >= intervalTicks) {
+        this.currentTicks += GameAPI.GAME_TASK_INTERVAL;
+        if (this.currentTicks >= this.intervalTicks) {
             List<Integer> showIndexList = new ArrayList<>();
-            for (int i = nodeIndex; i <= nodeIndex + sectionCount; i++) {
+            for (int i = this.nodeIndex; i <= this.nodeIndex + this.sectionCount; i++) {
                 int realIndex = i;
-                if (realIndex >= blocks.size()) {
-                    realIndex -= blocks.size();
+                if (realIndex >= this.blocks.size()) {
+                    realIndex -= this.blocks.size();
                 }
                 showIndexList.add(realIndex);
             }
             for (int i = 0; i < this.getBlocks().size(); i++) {
-                Block block = blocks.get(i);
+                Block block = this.blocks.get(i);
                 if (showIndexList.contains(i)) {
                     this.level.setBlock(block, block, true, true);
                 } else {
-                    this.level.setBlock(block, new BlockAir(), true, true);
+                    this.level.setBlock(block, this.getSwitchBlock(), true, true);
                 }
             }
             this.nodeIndex += this.sectionCount;
-            if (this.nodeIndex >= blocks.size()) {
-                this.nodeIndex -= blocks.size();
+            if (this.nodeIndex >= this.blocks.size()) {
+                this.nodeIndex -= this.blocks.size();
             }
-            currentTicks = 0;
+            this.currentTicks = 0;
         }
     }
 

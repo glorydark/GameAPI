@@ -23,12 +23,12 @@ public class ObstacleIntermittentVanish extends DynamicObstacle {
 
     @Override
     public void onTick() {
-        if (startCoolDownTick > 0) {
-            startCoolDownTick -= GameAPI.GAME_TASK_INTERVAL;
+        if (this.startCoolDownTick > 0) {
+            this.startCoolDownTick -= GameAPI.GAME_TASK_INTERVAL;
             return;
         }
-        currentTicks += GameAPI.GAME_TASK_INTERVAL;
-        if (currentTicks >= intervalTicks) {
+        this.currentTicks += GameAPI.GAME_TASK_INTERVAL;
+        if (this.currentTicks >= this.intervalTicks) {
             for (Block block : this.getBlocks()) {
                 Block current = this.getLevel().getBlock(block);
                 if (current.getId() == block.getId() && current.getDamage() == block.getDamage()) {
@@ -37,7 +37,7 @@ public class ObstacleIntermittentVanish extends DynamicObstacle {
                     this.getLevel().setBlock(block, block, true, true);
                 }
             }
-            currentTicks = 0;
+            this.currentTicks = 0;
         }
     }
 

@@ -43,6 +43,7 @@ public class RoomTask extends Task {
             return false;
         }
         room.getPlayers().removeIf(player -> player == null || !player.isOnline());
+
         switch (room.getRoomStatus()) {
             case ROOM_STATUS_WAIT:
                 GameListenerRegistry.callEvent(room, new RoomWaitTickEvent(room));
@@ -64,8 +65,8 @@ public class RoomTask extends Task {
                 this.onStateUpdate(room, ListenerStatusType.Ceremony);
                 break;
             case ROOM_STATUS_PreStart:
-                if (room.getPlayers().size() < room.getMinPlayer()) {
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
+                if (room.getPlayers().size() < 1) {
+                    room.resetAll();
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomPreStartTickEvent(room));

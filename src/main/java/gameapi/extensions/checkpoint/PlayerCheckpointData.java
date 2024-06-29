@@ -16,13 +16,21 @@ public class PlayerCheckpointData {
 
     int lap;
 
-    double globalMultiplier = 1.0f;
+    double globalMultiplier;
 
-    double score = 0;
+    double score;
 
     public PlayerCheckpointData() {
+        this(1.0d, 0d);
         this.checkpointDataList = new ArrayList<>();
         this.lap = 0;
+    }
+
+    public PlayerCheckpointData(double globalMultiplier, double score) {
+        this.checkpointDataList = new ArrayList<>();
+        this.lap = 0;
+        this.globalMultiplier = globalMultiplier;
+        this.score = score;
     }
 
     public boolean addCheckPointData(CheckpointData data) {

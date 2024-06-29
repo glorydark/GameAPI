@@ -476,6 +476,7 @@ public class Room {
             }
         }
         if (this.temporary) {
+            this.getDynamicObstacles().clear();
             if (this.resetMap) {
                 GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_delete", this.getRoomName()));
                 for (Level playLevel : this.playLevels) {
@@ -824,47 +825,6 @@ public class Room {
         loadLevel.getGameRules().setGameRule(GameRule.SHOW_TAGS, true);
     }
 
-
-    public void sendMessageToAll(String string) {
-        PlayerTools.sendMessage(players, string);
-        PlayerTools.sendMessage(spectators, string);
-    }
-
-    public void sendActionbarToAll(String string) {
-        PlayerTools.sendActionbar(players, string);
-        PlayerTools.sendActionbar(spectators, string);
-    }
-
-    public void sendTitleToAll(String string) {
-        PlayerTools.sendTitle(players, string);
-        PlayerTools.sendTitle(spectators, string);
-    }
-
-    public void sendTipToAll(String string) {
-        PlayerTools.sendTip(players, string);
-        PlayerTools.sendTip(spectators, string);
-    }
-
-    public void sendMessageToAll(Language language, String string, Object... params) {
-        PlayerTools.sendMessage(players, language, string, params);
-        PlayerTools.sendMessage(spectators, language, string, params);
-    }
-
-    public void sendActionbarToAll(Language language, String string, Object... params) {
-        PlayerTools.sendActionbar(players, language, string, params);
-        PlayerTools.sendActionbar(spectators, language, string, params);
-    }
-
-    public void sendTitleToAll(Language language, String string, Object... params) {
-        PlayerTools.sendTitle(players, language, string, params);
-        PlayerTools.sendTitle(spectators, language, string, params);
-    }
-
-    public void sendTipToAll(Language language, String string, Object... params) {
-        PlayerTools.sendTip(players, language, string, params);
-        PlayerTools.sendTip(spectators, language, string, params);
-    }
-
     public void removePlayLevel(Level loadLevel) {
         playLevels.remove(loadLevel);
     }
@@ -914,6 +874,95 @@ public class Room {
             if (room == targetRoom && !player.canSee(value)) {
                 player.showPlayer(value);
             }
+        }
+    }
+
+    // Message, Tips, Actionbars & Titles
+    public void sendMessageToAll(String string) {
+        this.sendMessageToAll(string, true);
+    }
+
+    public void sendMessageToAll(String string, boolean includeSpectators) {
+        PlayerTools.sendMessage(players, string);
+        if (includeSpectators) {
+            PlayerTools.sendMessage(spectators, string);
+        }
+    }
+
+    public void sendActionbarToAll(String string) {
+        this.sendActionbarToAll(string, true);
+    }
+
+    public void sendActionbarToAll(String string, boolean includeSpectators) {
+        PlayerTools.sendActionbar(players, string);
+        if (includeSpectators) {
+            PlayerTools.sendActionbar(spectators, string);
+        }
+    }
+
+    public void sendTitleToAll(String string) {
+        this.sendTitleToAll(string, true);
+    }
+
+    public void sendTitleToAll(String string, boolean includeSpectators) {
+        PlayerTools.sendTitle(players, string);
+        if (includeSpectators) {
+            PlayerTools.sendTitle(spectators, string);
+        }
+    }
+
+    public void sendTipToAll(String string) {
+        this.sendTipToAll(string, true);
+    }
+
+    public void sendTipToAll(String string, boolean includeSpectators) {
+        PlayerTools.sendTip(players, string);
+        if (includeSpectators) {
+            PlayerTools.sendTip(spectators, string);
+        }
+    }
+
+    public void sendMessageToAll(Language language, String string, Object... params) {
+        this.sendMessageToAll(language, string, true, params);
+    }
+
+    public void sendMessageToAll(Language language, String string, boolean includeSpectators, Object... params) {
+        PlayerTools.sendMessage(players, language, string, params);
+        if (includeSpectators) {
+            PlayerTools.sendMessage(spectators, language, string, params);
+        }
+    }
+
+    public void sendActionbarToAll(Language language, String string, Object... params) {
+        this.sendActionbarToAll(language, string, true, params);
+    }
+
+    public void sendActionbarToAll(Language language, String string, boolean includeSpectators, Object... params) {
+        PlayerTools.sendActionbar(players, language, string, params);
+        if (includeSpectators) {
+            PlayerTools.sendActionbar(spectators, language, string, params);
+        }
+    }
+
+    public void sendTitleToAll(Language language, String string, Object... params) {
+        this.sendTitleToAll(language, string, true, params);
+    }
+
+    public void sendTitleToAll(Language language, String string, boolean includeSpectators, Object... params) {
+        PlayerTools.sendTitle(players, language, string, params);
+        if (includeSpectators) {
+            PlayerTools.sendTitle(spectators, language, string, params);
+        }
+    }
+
+    public void sendTipToAll(Language language, String string, Object... params) {
+        this.sendTipToAll(language, string, true, params);
+    }
+
+    public void sendTipToAll(Language language, String string, boolean includeSpectators, Object... params) {
+        PlayerTools.sendTip(players, language, string, params);
+        if (includeSpectators) {
+            PlayerTools.sendTip(spectators, language, string, params);
         }
     }
 }
