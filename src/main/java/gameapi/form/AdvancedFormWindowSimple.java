@@ -2,14 +2,13 @@ package gameapi.form;
 
 import cn.nukkit.Player;
 import cn.nukkit.form.element.ElementButton;
-import cn.nukkit.form.element.ElementButtonImageData;
 import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseSimple;
 import cn.nukkit.form.window.FormWindowSimple;
+import gameapi.form.element.ResponsiveElementButton;
+import gameapi.listener.AdvancedFormListener;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -30,83 +29,34 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
     public void dealResponse(Player player, FormResponse response) {
         FormResponseSimple responseSimple = (FormResponseSimple) response;
         if (this.wasClosed() || response == null) {
-            if (noResponseExecutor != null) {
-                noResponseExecutor.accept(player);
+            if (this.noResponseExecutor != null) {
+                this.noResponseExecutor.accept(player);
             }
         } else {
-            if (responseExecutor != null) {
-                responseExecutor.accept(player, responseSimple);
+            for (ElementButton button : this.getButtons()) {
+                if (button instanceof ResponsiveElementButton) {
+                    ResponsiveElementButton responsiveElementButton = (ResponsiveElementButton) button;
+                    Consumer<Player> onClickResponse = responsiveElementButton.getResponse();
+                    if (onClickResponse != null) {
+                        onClickResponse.accept(player);
+                    }
+                }
+            }
+            if (this.responseExecutor != null) {
+                this.responseExecutor.accept(player, responseSimple);
             }
         }
     }
 
-    public void setResponseExecutor(BiConsumer<Player, FormResponseSimple> responseExecutor) {
+    public void onRespond(BiConsumer<Player, FormResponseSimple> responseExecutor) {
         this.responseExecutor = responseExecutor;
     }
 
-    public void setNoResponseExecutor(Consumer<Player> noResponseExecutor) {
+    public void onClose(Consumer<Player> noResponseExecutor) {
         this.noResponseExecutor = noResponseExecutor;
     }
 
-    public void showFormWindow(Player player) {
-        AdvancedFormMain.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
-    }
-
-    public static class Builder {
-
-        private String title;
-
-        private String content;
-
-        private List<ElementButton> buttonList = new ArrayList<>();
-
-        private BiConsumer<Player, FormResponseSimple> responseExecutor;
-
-        private Consumer<Player> noResponseExecutor;
-
-        public Builder() {
-
-        }
-
-        public Builder title(String title) {
-            this.title = title;
-            return this;
-        }
-
-        public Builder content(String content) {
-            this.content = content;
-            return this;
-        }
-
-        public Builder addButton(String text) {
-            buttonList.add(new ElementButton(text));
-            return this;
-        }
-
-        public Builder addButton(String text, String icon, String iconPathType) {
-            buttonList.add(new ElementButton(text, new ElementButtonImageData(icon, iconPathType)));
-            return this;
-        }
-
-        public Builder onButtonClick(BiConsumer<Player, FormResponseSimple> responseExecutor) {
-            this.responseExecutor = responseExecutor;
-            return this;
-        }
-
-        public Builder onClose(Consumer<Player> noResponseExecutor) {
-            this.noResponseExecutor = noResponseExecutor;
-            return this;
-        }
-
-        public AdvancedFormWindowSimple build() {
-            AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple();
-            simple.setTitle(title);
-            simple.setContent(content);
-            simple.getButtons().addAll(buttonList);
-            simple.responseExecutor = this.responseExecutor;
-            simple.noResponseExecutor = this.noResponseExecutor;
-            return simple;
-        }
-
+    public void showToPlayer(Player player) {
+        AdvancedFormListener.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
     }
 }

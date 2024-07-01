@@ -1,14 +1,15 @@
 package gameapi.form;
 
 import cn.nukkit.Player;
-import cn.nukkit.form.element.Element;
+import cn.nukkit.form.element.*;
 import cn.nukkit.form.response.FormResponse;
 import cn.nukkit.form.response.FormResponseCustom;
+import cn.nukkit.form.response.FormResponseData;
 import cn.nukkit.form.window.FormWindowCustom;
+import gameapi.form.element.*;
+import gameapi.listener.AdvancedFormListener;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -27,70 +28,100 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
     }
 
     public void dealResponse(Player player, FormResponse response) {
-        if (this.wasClosed() || response == null) {
-            if (noResponseExecutor != null) {
-                noResponseExecutor.accept(player);
+        FormResponseCustom custom = (FormResponseCustom) response;
+        if (this.wasClosed() || custom == null) {
+            if (this.noResponseExecutor != null) {
+                this.noResponseExecutor.accept(player);
             }
         } else {
-            if (responseExecutor != null) {
-                responseExecutor.accept(player, (FormResponseCustom) response);
+            for (int i = 0; i < this.getElements().size(); i++) {
+                Element element = this.getElements().get(i);
+                if (element instanceof ResponsiveElementInput) {
+                    ResponsiveElementInput converted = (ResponsiveElementInput) element;
+                    BiConsumer<Player, String> consumer = converted.getResponse();
+                    if (consumer != null) {
+                        consumer.accept(player, custom.getInputResponse(i));
+                    }
+                } else if (element instanceof ResponsiveElementLabel) {
+                    ResponsiveElementLabel converted = (ResponsiveElementLabel) element;
+                    BiConsumer<Player, String> consumer = converted.getResponse();
+                    if (consumer != null) {
+                        consumer.accept(player, custom.getLabelResponse(i));
+                    }
+                } else if (element instanceof ResponsiveElementToggle) {
+                    ResponsiveElementToggle converted = (ResponsiveElementToggle) element;
+                    BiConsumer<Player, Boolean> consumer = converted.getResponse();
+                    if (consumer != null) {
+                        consumer.accept(player, custom.getToggleResponse(i));
+                    }
+                } else if (element instanceof ResponsiveElementSlider) {
+                    ResponsiveElementSlider converted = (ResponsiveElementSlider) element;
+                    BiConsumer<Player, Float> consumer = converted.getResponse();
+                    if (consumer != null) {
+                        consumer.accept(player, custom.getSliderResponse(i));
+                    }
+                } else if (element instanceof ResponsiveElementStepSlider) {
+                    ResponsiveElementStepSlider converted = (ResponsiveElementStepSlider) element;
+                    BiConsumer<Player, FormResponseData> consumer = converted.getResponse();
+                    if (consumer != null) {
+                        consumer.accept(player, custom.getStepSliderResponse(i));
+                    }
+                } else if (element instanceof ResponsiveElementDropdown) {
+                    ResponsiveElementDropdown converted = (ResponsiveElementDropdown) element;
+                    BiConsumer<Player, FormResponseData> consumer = converted.getResponse();
+                    if (consumer != null) {
+                        consumer.accept(player, custom.getDropdownResponse(i));
+                    }
+                }
+            }
+            if (this.responseExecutor != null) {
+                this.responseExecutor.accept(player, custom);
             }
         }
     }
 
-    public void setResponseExecutor(BiConsumer<Player, FormResponseCustom> responseExecutor) {
+    public AdvancedFormWindowCustom onRespond(BiConsumer<Player, FormResponseCustom> responseExecutor) {
         this.responseExecutor = responseExecutor;
+        return this;
     }
 
-    public void setNoResponseExecutor(Consumer<Player> noResponseExecutor) {
+    public AdvancedFormWindowCustom onClose(Consumer<Player> noResponseExecutor) {
         this.noResponseExecutor = noResponseExecutor;
+        return this;
     }
 
-    public void showFormWindow(Player player) {
-        AdvancedFormMain.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
+    public void showToPlayer(Player player) {
+        AdvancedFormListener.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
     }
 
-    public static class Builder {
+    // basic functions
+    public AdvancedFormWindowCustom label(ElementLabel element) {
+        this.addElement(element);
+        return this;
+    }
 
-        protected List<Element> elements = new ArrayList<>();
-        private String title;
-        private BiConsumer<Player, FormResponseCustom> responseExecutor;
-        private Consumer<Player> noResponseExecutor;
+    public AdvancedFormWindowCustom input(ElementInput element) {
+        this.addElement(element);
+        return this;
+    }
 
-        public Builder() {
+    public AdvancedFormWindowCustom dropdown(ElementDropdown element) {
+        this.addElement(element);
+        return this;
+    }
 
-        }
+    public AdvancedFormWindowCustom toggle(ElementToggle element) {
+        this.addElement(element);
+        return this;
+    }
 
-        public Builder title(String title) {
-            this.title = title;
-            return this;
-        }
+    public AdvancedFormWindowCustom slider(ElementSlider element) {
+        this.addElement(element);
+        return this;
+    }
 
-        public Builder onResponse(BiConsumer<Player, FormResponseCustom> responseExecutor) {
-            this.responseExecutor = responseExecutor;
-            return this;
-        }
-
-        public Builder onClose(Consumer<Player> noResponseExecutor) {
-            this.noResponseExecutor = noResponseExecutor;
-            return this;
-        }
-
-        public Builder addElement(Element element) {
-            this.elements.add(element);
-            return this;
-        }
-
-        public AdvancedFormWindowCustom build() {
-            AdvancedFormWindowCustom custom = new AdvancedFormWindowCustom();
-            custom.setTitle(title);
-            for (Element element : elements) {
-                custom.addElement(element);
-            }
-            custom.responseExecutor = this.responseExecutor;
-            custom.noResponseExecutor = this.noResponseExecutor;
-            return custom;
-        }
-
+    public AdvancedFormWindowCustom stepSlider(ElementStepSlider element) {
+        this.addElement(element);
+        return this;
     }
 }

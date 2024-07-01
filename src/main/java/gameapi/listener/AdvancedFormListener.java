@@ -1,15 +1,16 @@
-package gameapi.form;
+package gameapi.listener;
 
 import cn.nukkit.Player;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerFormRespondedEvent;
 import cn.nukkit.form.window.FormWindow;
+import gameapi.form.AdvancedForm;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-public class AdvancedFormMain implements Listener {
+public class AdvancedFormListener implements Listener {
 
     public static HashMap<Player, LinkedHashMap<Integer, FormWindow>> playerFormWindows = new HashMap<>();
 

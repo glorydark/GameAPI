@@ -14,6 +14,7 @@ import gameapi.event.room.*;
 import gameapi.extensions.obstacle.DynamicObstacle;
 import gameapi.extensions.supplyChest.SupplyChest;
 import gameapi.form.AdvancedFormWindowCustom;
+import gameapi.form.element.ResponsiveElementInput;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.CheckpointManager;
@@ -301,18 +302,19 @@ public class Room {
      */
     public void addPlayer(Player player) {
         if (!joinPassword.isEmpty()) {
-            AdvancedFormWindowCustom.Builder builder = new AdvancedFormWindowCustom.Builder();
-            builder.title(GameAPI.getLanguage().getTranslation(player, "room.window.password.title"));
-            builder.addElement(new ElementInput(GameAPI.getLanguage().getTranslation(player, "room.window.password.input_text")));
             String rightPassword = this.getJoinPassword();
-            builder.onResponse((dealPlayer, responseCustom) -> {
-                if (rightPassword.equals(responseCustom.getInputResponse(0))) {
-                    processPlayerJoin(dealPlayer);
-                } else {
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.password.wrong"));
-                }
-            });
-            builder.build().showFormWindow(player);
+            AdvancedFormWindowCustom custom = new AdvancedFormWindowCustom(GameAPI.getLanguage().getTranslation(player, "room.window.password.title"))
+                    .input(
+                            new ResponsiveElementInput(GameAPI.getLanguage().getTranslation(player, "room.window.password.input_text"))
+                                    .onRespond((player1, s) -> {
+                                        if (rightPassword.equals(s)) {
+                                            processPlayerJoin(player1);
+                                        } else {
+                                            player1.sendMessage(GameAPI.getLanguage().getTranslation(player1, "room.password.wrong"));
+                                        }
+                                    })
+                    );
+            custom.showToPlayer(player);
         } else {
             processPlayerJoin(player);
         }

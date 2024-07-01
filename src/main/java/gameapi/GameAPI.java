@@ -12,7 +12,7 @@ import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import gameapi.commands.BaseCommand;
 import gameapi.commands.WorldEditCommand;
-import gameapi.form.AdvancedFormMain;
+import gameapi.listener.AdvancedFormListener;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
@@ -113,7 +113,7 @@ public class GameAPI extends PluginBase implements Listener {
 
         this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(), 20);
         this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
-        this.getServer().getPluginManager().registerEvents(new AdvancedFormMain(), this);
+        this.getServer().getPluginManager().registerEvents(new AdvancedFormListener(), this);
         this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
         this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
         // others ...
