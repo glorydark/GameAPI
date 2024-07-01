@@ -1,4 +1,4 @@
-package gameapi.fakeInventory.minecart;
+package gameapi.form.minecart;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.item.EntityMinecartChest;
@@ -8,11 +8,11 @@ import cn.nukkit.nbt.tag.CompoundTag;
 /**
  * @author glorydark
  */
-public class AdvancedEntityMinecartChest extends EntityMinecartChest {
+public class CustomEntityMinecartChest extends EntityMinecartChest {
 
     private final Player owner;
 
-    public AdvancedEntityMinecartChest(FullChunk chunk, CompoundTag nbt, Player owner) {
+    public CustomEntityMinecartChest(FullChunk chunk, CompoundTag nbt, Player owner) {
         super(chunk, nbt);
         this.owner = owner;
     }

@@ -91,7 +91,7 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
     }
 
     public void showToPlayer(Player player) {
-        AdvancedFormListener.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
+        AdvancedFormListener.showToPlayer(player, this);
     }
 
     // basic functions

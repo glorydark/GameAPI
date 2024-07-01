@@ -16,6 +16,8 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
+import gameapi.form.element.ResponsiveElementSlotItem;
+import gameapi.form.minecart.AdvancedBaseMinecartChestMenu;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.RankingSortSequence;
@@ -76,6 +78,16 @@ public class BaseCommand extends Command {
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (strings.length > 0) {
             switch (strings[0].toLowerCase()) {
+                case "test":
+                    AdvancedBaseMinecartChestMenu form = new AdvancedBaseMinecartChestMenu("测试标题")
+                            .onClose(player -> player.sendMessage("我关了"))
+                            .onClick((player, item) -> player.sendMessage(item.getName()))
+                            .item(0,
+                                    new ResponsiveElementSlotItem(267)
+                                            .onRespond((player, item) -> player.sendMessage("嘤嘤嘤"))
+                            );
+                    form.showToPlayer((Player) commandSender);
+                    break;
                 case "kick":
                     if (commandSender.isPlayer()) {
                         Room room = RoomManager.getRoom((Player) commandSender);

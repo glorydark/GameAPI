@@ -1,4 +1,4 @@
-package gameapi.fakeInventory.funnel;
+package gameapi.form.funnel;
 
 import gameapi.annotation.Future;
 

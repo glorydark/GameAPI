@@ -57,6 +57,6 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
     }
 
     public void showToPlayer(Player player) {
-        AdvancedFormListener.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(this), this);
+        AdvancedFormListener.showToPlayer(player, this);
     }
 }
