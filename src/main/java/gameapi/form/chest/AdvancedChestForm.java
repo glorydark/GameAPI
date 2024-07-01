@@ -5,8 +5,10 @@ import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.item.Item;
+import gameapi.form.AdvancedChestFormBase;
 import gameapi.form.AdvancedFakeBlockContainerFormBase;
 import gameapi.form.element.ResponsiveElementSlotItem;
+import gameapi.form.response.ChestResponse;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -20,7 +22,7 @@ public class AdvancedChestForm extends AdvancedFakeBlockContainerFormBase {
         super(BlockEntity.CHEST, Block.CHEST, title, InventoryType.CHEST);
     }
 
-    public AdvancedChestForm onClick(BiConsumer<Player, Item> consumer) {
+    public AdvancedChestForm onClick(BiConsumer<Player, ChestResponse> consumer) {
         this.clickBiConsumer = consumer;
         return this;
     }

@@ -37,7 +37,7 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
     protected String tileId;
 
     protected int blockId;
-    protected BiConsumer<Player, Item> clickBiConsumer = null;
+    protected BiConsumer<Player, ChestResponse> clickBiConsumer = null;
 
     protected Consumer<Player> closeConsumer = null;
 
@@ -95,14 +95,14 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
             }
         } else {
             Item item = chestResponse.getItem();
-            BiConsumer<Player, Item> consumer = this.getResponseMap().get(chestResponse.getSlot());
+            BiConsumer<Player, ChestResponse> consumer = this.getResponseMap().get(chestResponse.getSlot());
             if (consumer != null) {
-                consumer.accept(player, item);
+                consumer.accept(player, chestResponse);
             }
 
             consumer = this.getClickBiConsumer();
             if (consumer != null) {
-                consumer.accept(player, item);
+                consumer.accept(player, chestResponse);
             }
         }
     }
@@ -144,7 +144,7 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
         }
     }
 
-    public BiConsumer<Player, Item> getClickBiConsumer() {
+    public BiConsumer<Player, ChestResponse> getClickBiConsumer() {
         return clickBiConsumer;
     }
 

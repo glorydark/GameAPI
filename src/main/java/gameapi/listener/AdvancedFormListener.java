@@ -94,12 +94,13 @@ public class AdvancedFormListener implements Listener {
         Inventory inventory = event.getInventory();
         if (isFormInventory(inventory)) {
             if (chestFormMap.containsKey(player)) {
-                chestFormMap.get(player).dealResponse(player, new ChestResponse(event.getSlot(), event.getSourceItem()));
+                AdvancedChestFormBase form = chestFormMap.get(player);
+                form.dealResponse(player, new ChestResponse(form, event.getSlot(), event.getSourceItem()));
             }
             event.setCancelled(true);
         } else if (isChestInventory(inventory)) {
             FakeInventory inv = (FakeInventory) inventory;
-            inv.getFormBase().dealResponse(player, new ChestResponse(event.getSlot(), event.getSourceItem()));
+            inv.getFormBase().dealResponse(player, new ChestResponse(inv.getFormBase(), event.getSlot(), event.getSourceItem()));
         }
     }
 

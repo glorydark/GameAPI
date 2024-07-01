@@ -43,10 +43,13 @@ public class BaseCommand extends Command {
             switch (strings[0].toLowerCase()) {
                 case "test":
                     AdvancedDoubleChestForm chestForm = new AdvancedDoubleChestForm("测试标题")
-                            .onClick((player, item) -> player.sendMessage("Click on " + item.getName()))
+                            .onClick((player, c) -> player.sendMessage("Click on " + c.getItem().getName()))
                             .onClose(player -> player.sendMessage("Close"))
                             .item(1, new ResponsiveElementSlotItem("minecraft:iron_sword")
-                                    .onRespond((player, item) -> player.sendMessage("我是1"))
+                                    .onRespond((player, chestResponse) -> {
+                                        player.sendMessage("我是1");
+                                        chestResponse.getAdvancedChestFormBase().close(player);
+                                    })
                             );
                     chestForm.showToPlayer((Player) commandSender);
 

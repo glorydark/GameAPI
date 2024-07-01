@@ -16,7 +16,7 @@ public abstract class AdvancedChestFormBase {
 
     protected Map<Integer, Item> inventory = new LinkedHashMap<>();
 
-    protected Map<Integer, BiConsumer<Player, Item>> responseMap = new LinkedHashMap<>();
+    protected Map<Integer, BiConsumer<Player, ChestResponse>> responseMap = new LinkedHashMap<>();
 
     protected LinkedHashMap<Player, List<FakeBlockCacheData>> fakeBlocks = new LinkedHashMap<>();
 
@@ -44,7 +44,7 @@ public abstract class AdvancedChestFormBase {
         return inventory;
     }
 
-    public Map<Integer, BiConsumer<Player, Item>> getResponseMap() {
+    public Map<Integer, BiConsumer<Player, ChestResponse>> getResponseMap() {
         return responseMap;
     }
 

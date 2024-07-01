@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 public class AdvancedMinecartChestMenu extends AdvancedChestFormBase {
 
     protected LinkedHashMap<Player, EntityMinecartChest> entityMap = null;
-    protected BiConsumer<Player, Item> clickBiConsumer = null;
+    protected BiConsumer<Player, ChestResponse> clickBiConsumer = null;
     protected Consumer<Player> closeConsumer = null;
 
     public AdvancedMinecartChestMenu(String title) {
@@ -35,7 +35,7 @@ public class AdvancedMinecartChestMenu extends AdvancedChestFormBase {
         return this;
     }
 
-    public AdvancedMinecartChestMenu onClick(BiConsumer<Player, Item> consumer) {
+    public AdvancedMinecartChestMenu onClick(BiConsumer<Player, ChestResponse> consumer) {
         this.clickBiConsumer = consumer;
         return this;
     }
@@ -53,15 +53,14 @@ public class AdvancedMinecartChestMenu extends AdvancedChestFormBase {
                 consumer.accept(player);
             }
         } else {
-            Item item = chestResponse.getItem();
-            BiConsumer<Player, Item> consumer = this.getResponseMap().get(chestResponse.getSlot());
+            BiConsumer<Player, ChestResponse> consumer = this.getResponseMap().get(chestResponse.getSlot());
             if (consumer != null) {
-                consumer.accept(player, item);
+                consumer.accept(player, chestResponse);
             }
 
             consumer = this.getClickBiConsumer();
             if (consumer != null) {
-                consumer.accept(player, item);
+                consumer.accept(player, chestResponse);
             }
         }
     }
@@ -104,7 +103,7 @@ public class AdvancedMinecartChestMenu extends AdvancedChestFormBase {
         return entityMap;
     }
 
-    public BiConsumer<Player, Item> getClickBiConsumer() {
+    public BiConsumer<Player, ChestResponse> getClickBiConsumer() {
         return clickBiConsumer;
     }
 
