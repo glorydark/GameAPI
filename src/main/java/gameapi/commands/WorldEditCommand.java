@@ -57,35 +57,6 @@ public class WorldEditCommand extends Command {
     public WorldEditCommand(String name) {
         super(name);
         this.commandParameters.clear();
-        this.commandParameters.put("sudo", new CommandParameter[]{
-                CommandParameter.newType("sudo", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("resetc", new CommandParameter[]{
-                CommandParameter.newType("resetc", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("pos1", new CommandParameter[]{
-                CommandParameter.newType("pos1", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("pos2", new CommandParameter[]{
-                CommandParameter.newType("pos2", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("fill", new CommandParameter[]{
-                CommandParameter.newType("fill", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("createbuild", new CommandParameter[]{
-                CommandParameter.newType("startX", CommandParamType.TEXT),
-                CommandParameter.newType("startY", CommandParamType.TEXT),
-                CommandParameter.newType("startZ", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("savebuild", new CommandParameter[]{
-                CommandParameter.newType("startX", CommandParamType.TEXT),
-                CommandParameter.newType("startY", CommandParamType.TEXT),
-                CommandParameter.newType("startZ", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("worldedit", new CommandParameter[]{
-                CommandParameter.newType("worldedit", CommandParamType.TEXT),
-                CommandParameter.newType("state", CommandParamType.TEXT)
-        });
     }
 
     @Override
@@ -107,20 +78,15 @@ public class WorldEditCommand extends Command {
                     } else {
                         commandSender.sendMessage(TextFormat.RED + "Cannot sudo operations because you haven't execute any operation yet.");
                     }
-                case "worldedit":
+                case "true":
+                    GameAPI.worldEditPlayers.add((Player) commandSender);
+                    commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.world_edit.on"));
                     if (strings.length != 2) {
                         return false;
                     }
-                    switch (strings[1]) {
-                        case "true":
-                            GameAPI.worldEditPlayers.add((Player) commandSender);
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.world_edit.on"));
-                            break;
-                        case "false":
-                            GameAPI.worldEditPlayers.remove((Player) commandSender);
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.world_edit.off"));
-                    }
-                    break;
+                case "false":
+                    GameAPI.worldEditPlayers.remove((Player) commandSender);
+                    commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.world_edit.off"));
                 case "pos1":
                     if (!posSetLinkedHashMap.containsKey(player)) {
                         posSetLinkedHashMap.put(player, new PosSet());

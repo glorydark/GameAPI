@@ -8,6 +8,7 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.entity.data.Skin;
+import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.SimpleAxisAlignedBB;
@@ -16,14 +17,15 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
+import gameapi.form.chest.AdvancedChestForm;
 import gameapi.form.element.ResponsiveElementSlotItem;
-import gameapi.form.minecart.AdvancedBaseMinecartChestMenu;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.tools.*;
+import me.iwareq.fakeinventories.FakeInventory;
 
 import java.io.File;
 import java.util.*;
@@ -37,41 +39,6 @@ public class BaseCommand extends Command {
 
     public BaseCommand(String name) {
         super(name);
-        this.commandParameters.clear();
-        this.commandParameters.put("quit", new CommandParameter[]{
-                CommandParameter.newType("quit", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("debug", new CommandParameter[]{
-                CommandParameter.newType("debug", CommandParamType.TEXT),
-                CommandParameter.newType("state", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("playsound", new CommandParameter[]{
-                CommandParameter.newType("playsound", CommandParamType.TEXT),
-                CommandParameter.newType("player", CommandParamType.TARGET),
-                CommandParameter.newType("identifier", CommandParamType.TEXT),
-                CommandParameter.newType("volume", CommandParamType.FLOAT),
-                CommandParameter.newType("pitch", CommandParamType.FLOAT),
-        });
-        this.commandParameters.put("addrank", new CommandParameter[]{
-                CommandParameter.newType("game_name", CommandParamType.TEXT),
-                CommandParameter.newType("compared_type", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("status", new CommandParameter[]{
-                CommandParameter.newType("status", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("setpwd", new CommandParameter[]{
-                CommandParameter.newType("setpwd", CommandParamType.TEXT),
-                CommandParameter.newType("game_name", CommandParamType.TEXT),
-                CommandParameter.newType("room_name", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("roomstart", new CommandParameter[]{
-                CommandParameter.newType("game_name", CommandParamType.TEXT),
-                CommandParameter.newType("room_name", CommandParamType.TEXT)
-        });
-        this.commandParameters.put("seeuuid", new CommandParameter[]{
-                CommandParameter.newType("seeuuid", CommandParamType.TEXT),
-                CommandParameter.newType("player", CommandParamType.TARGET)
-        });
     }
 
     @Override
@@ -79,7 +46,16 @@ public class BaseCommand extends Command {
         if (strings.length > 0) {
             switch (strings[0].toLowerCase()) {
                 case "test":
-                    AdvancedBaseMinecartChestMenu form = new AdvancedBaseMinecartChestMenu("测试标题")
+                    AdvancedChestForm chestForm = new AdvancedChestForm("测试标题")
+                            .onClick((player, item) -> player.sendMessage("Click on " + item.getName()))
+                            .onClose(player -> player.sendMessage("Close"))
+                            .item(1, new ResponsiveElementSlotItem("minecraft:iron_sword")
+                                    .onRespond((player, item) -> player.sendMessage("我是1"))
+                            );
+                    chestForm.showToPlayer((Player) commandSender);
+
+                    /*
+                    AdvancedMinecartChestMenu form = new AdvancedMinecartChestMenu("测试标题")
                             .onClose(player -> player.sendMessage("我关了"))
                             .onClick((player, item) -> player.sendMessage(item.getName()))
                             .item(0,
@@ -87,6 +63,7 @@ public class BaseCommand extends Command {
                                             .onRespond((player, item) -> player.sendMessage("嘤嘤嘤"))
                             );
                     form.showToPlayer((Player) commandSender);
+                     */
                     break;
                 case "kick":
                     if (commandSender.isPlayer()) {

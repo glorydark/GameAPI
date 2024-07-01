@@ -10,6 +10,8 @@ import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.form.response.ChestResponse;
 import gameapi.listener.AdvancedFormListener;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -17,37 +19,29 @@ import java.util.function.Consumer;
  * @author glorydark
  */
 @Future
-public class AdvancedBaseMinecartChestMenu extends AdvancedChestFormBase {
+public class AdvancedMinecartChestMenu extends AdvancedChestFormBase {
 
-    protected String title;
-    protected CustomEntityMinecartChest entity = null;
+    protected LinkedHashMap<Player, EntityMinecartChest> entityMap = null;
     protected BiConsumer<Player, Item> clickBiConsumer = null;
     protected Consumer<Player> closeConsumer = null;
 
-    public AdvancedBaseMinecartChestMenu(String title) {
-        this.title = title;
+    public AdvancedMinecartChestMenu(String title) {
+        super(title);
     }
 
-    public AdvancedBaseMinecartChestMenu item(int slot, ResponsiveElementSlotItem slotItem) {
+    public AdvancedMinecartChestMenu item(int slot, ResponsiveElementSlotItem slotItem) {
         Item item = slotItem.getItem();
         this.getInventory().put(slot, item);
         this.getResponseMap().put(slot, slotItem.getResponse());
-        if (this.getEntity() != null) {
-            this.getEntity().getInventory().setItem(slot, item);
-        }
         return this;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public AdvancedBaseMinecartChestMenu onClick(BiConsumer<Player, Item> consumer) {
+    public AdvancedMinecartChestMenu onClick(BiConsumer<Player, Item> consumer) {
         this.clickBiConsumer = consumer;
         return this;
     }
 
-    public AdvancedBaseMinecartChestMenu onClose(Consumer<Player> consumer) {
+    public AdvancedMinecartChestMenu onClose(Consumer<Player> consumer) {
         this.closeConsumer = consumer;
         return this;
     }
@@ -92,20 +86,23 @@ public class AdvancedBaseMinecartChestMenu extends AdvancedChestFormBase {
         chest.setImmobile(true);
         chest.spawnTo(player);
         player.addWindow(chest.getInventory());
-        this.entity = chest;
+        entityMap.put(player, chest);
         AdvancedFormListener.showToPlayer(player, this);
     }
 
     @Override
     protected void closeProcess(Player player) {
-        this.entity.getInventory().clearAll();
-        this.entity.despawnFrom(player);
-        this.entity.close();
-        AdvancedFormListener.removeChestMenuCache(player);
+        EntityMinecartChest entityMinecartChest = entityMap.get(player);
+        if (entityMinecartChest != null) {
+            entityMinecartChest.getInventory().clearAll();
+            entityMinecartChest.despawnFrom(player);
+            entityMinecartChest.close();
+            AdvancedFormListener.removeChestMenuCache(player);
+        }
     }
 
-    public CustomEntityMinecartChest getEntity() {
-        return entity;
+    public LinkedHashMap<Player, EntityMinecartChest> getEntityMap() {
+        return entityMap;
     }
 
     public BiConsumer<Player, Item> getClickBiConsumer() {
