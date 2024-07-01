@@ -1,6 +1,7 @@
 package gameapi.form;
 
 import cn.nukkit.Player;
+import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.item.Item;
 import gameapi.form.response.ChestResponse;
 import gameapi.utils.FakeBlockCacheData;
@@ -23,7 +24,7 @@ public abstract class AdvancedChestFormBase {
 
     protected LinkedHashMap<Player, FakeBlockCacheData> fakeBlocks = new LinkedHashMap<>();
 
-    public AdvancedChestFormBase(String title) {
+    public AdvancedChestFormBase(String title, InventoryType inventoryType) {
         this.title = title;
     }
 

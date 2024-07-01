@@ -2,6 +2,7 @@ package gameapi.form.minecart;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.item.EntityMinecartChest;
+import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.ListTag;
 import gameapi.annotation.Future;
@@ -11,7 +12,6 @@ import gameapi.form.response.ChestResponse;
 import gameapi.listener.AdvancedFormListener;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -26,7 +26,7 @@ public class AdvancedMinecartChestMenu extends AdvancedChestFormBase {
     protected Consumer<Player> closeConsumer = null;
 
     public AdvancedMinecartChestMenu(String title) {
-        super(title);
+        super(title, InventoryType.CHEST);
     }
 
     public AdvancedMinecartChestMenu item(int slot, ResponsiveElementSlotItem slotItem) {

@@ -39,10 +39,13 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
 
     protected Consumer<Player> closeConsumer = null;
 
-    public AdvancedFakeBlockContainerFormBase(String tileId, int blockId, String title) {
-        super(title);
+    protected InventoryType inventoryType;
+
+    public AdvancedFakeBlockContainerFormBase(String tileId, int blockId, String title, InventoryType inventoryType) {
+        super(title, null);
         this.blockId = blockId;
         this.tileId = tileId;
+        this.inventoryType = inventoryType;
     }
 
     @Override
@@ -71,7 +74,7 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
         FakeBlockCacheData fakeBlockCacheData = new FakeBlockCacheData(pk.x ,pk.y, pk.z, player.getLevel(), position.getLevelBlock());
         this.fakeBlocks.put(player, fakeBlockCacheData);
 
-        FakeInventory fakeInventory = new FakeInventory(this, fakeBlockCacheData, InventoryType.CHEST);
+        FakeInventory fakeInventory = new FakeInventory(this, fakeBlockCacheData, this.getInventoryType());
 
         Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, new Task() {
             @Override
@@ -148,5 +151,9 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
     protected CompoundTag getBlockEntityDataAt(Vector3 position, String title) {
         return BlockEntity.getDefaultCompound(position, tileId)
                 .putString("CustomName", title);
+    }
+
+    public InventoryType getInventoryType() {
+        return inventoryType;
     }
 }
