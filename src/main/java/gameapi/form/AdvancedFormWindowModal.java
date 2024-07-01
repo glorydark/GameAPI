@@ -6,7 +6,6 @@ import cn.nukkit.form.response.FormResponseModal;
 import cn.nukkit.form.window.FormWindowModal;
 import gameapi.listener.AdvancedFormListener;
 
-import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
 public class AdvancedFormWindowModal extends FormWindowModal implements AdvancedForm {

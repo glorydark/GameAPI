@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.form.element.ElementInput;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * @author glorydark

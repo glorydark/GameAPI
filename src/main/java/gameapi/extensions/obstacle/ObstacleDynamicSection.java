@@ -1,7 +1,6 @@
 package gameapi.extensions.obstacle;
 
 import cn.nukkit.block.Block;
-import cn.nukkit.block.BlockAir;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
 import gameapi.utils.BlockInfoAndVecData;

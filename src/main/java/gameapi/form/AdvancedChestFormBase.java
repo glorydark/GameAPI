@@ -1,7 +1,6 @@
 package gameapi.form;
 
 import cn.nukkit.Player;
-import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.item.Item;
 import gameapi.form.response.ChestResponse;
 import gameapi.utils.FakeBlockCacheData;
@@ -10,10 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-/*
- * AdvancedForm was originally from lt-name's MemoriesOfTime-GameCore.
- * I (the author) made scant changes in constructors and so on to be easier to use.
- */
 public abstract class AdvancedChestFormBase {
 
     protected String title;
@@ -24,7 +19,7 @@ public abstract class AdvancedChestFormBase {
 
     protected LinkedHashMap<Player, FakeBlockCacheData> fakeBlocks = new LinkedHashMap<>();
 
-    public AdvancedChestFormBase(String title, InventoryType inventoryType) {
+    public AdvancedChestFormBase(String title) {
         this.title = title;
     }
 

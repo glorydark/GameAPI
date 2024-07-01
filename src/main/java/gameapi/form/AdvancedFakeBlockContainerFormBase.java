@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 
 /**
  * @author glorydark
- *
+ * <p>
  * Reference:
  * https://github.com/CloudburstMC/FakeInventories/blob/master/src/main/java/com/nukkitx/fakeinventories/inventory/FakeInventory.java
  */
@@ -71,7 +71,7 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
         }
         player.dataPacket(blockEntityDataPacket);
 
-        FakeBlockCacheData fakeBlockCacheData = new FakeBlockCacheData(pk.x ,pk.y, pk.z, player.getLevel(), position.getLevelBlock());
+        FakeBlockCacheData fakeBlockCacheData = new FakeBlockCacheData(pk.x, pk.y, pk.z, player.getLevel(), position.getLevelBlock());
         this.fakeBlocks.put(player, fakeBlockCacheData);
 
         FakeInventory fakeInventory = new FakeInventory(this, fakeBlockCacheData, this.getInventoryType());
@@ -133,10 +133,10 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
         Level level = player.getLevel();
         if (player.getY() - 1 >= level.getMinBlockY()) {
             return player.add(0, -1, 0);
-        } else if (player.getY() + 3 <= level.getMaxBlockY()){
+        } else if (player.getY() + 3 <= level.getMaxBlockY()) {
             return player.add(0, 3, 0);
         } else {
-            return player.add(1, 0,1);
+            return player.add(1, 0, 1);
         }
     }
 

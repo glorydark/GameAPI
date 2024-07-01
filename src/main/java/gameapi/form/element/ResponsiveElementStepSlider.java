@@ -1,7 +1,6 @@
 package gameapi.form.element;
 
 import cn.nukkit.Player;
-import cn.nukkit.form.element.ElementSlider;
 import cn.nukkit.form.element.ElementStepSlider;
 import cn.nukkit.form.response.FormResponseData;
 

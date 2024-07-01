@@ -30,18 +30,6 @@ public class AdvancedFormListener implements Listener {
     protected static Map<Player, LinkedHashMap<Integer, FormWindow>> playerFormWindows = new LinkedHashMap<>();
     protected static Map<Player, AdvancedChestFormBase> chestFormMap = new LinkedHashMap<>();
 
-    protected void execute(PlayerFormRespondedEvent event) {
-        Player player = event.getPlayer();
-        if (playerFormWindows.containsKey(player)) {
-            FormWindow window = playerFormWindows.getOrDefault(player, new LinkedHashMap<>()).get(event.getFormID());
-            if (window != null) {
-                if (window instanceof AdvancedForm) {
-                    ((AdvancedForm) window).dealResponse(player, event.getResponse());
-                }
-            }
-        }
-    }
-
     public static void showToPlayer(Player player, FormWindow form) {
         AdvancedFormListener.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(form), form);
     }
@@ -56,6 +44,18 @@ public class AdvancedFormListener implements Listener {
 
     public static void removeChestMenuCache(Player player) {
         chestFormMap.remove(player);
+    }
+
+    protected void execute(PlayerFormRespondedEvent event) {
+        Player player = event.getPlayer();
+        if (playerFormWindows.containsKey(player)) {
+            FormWindow window = playerFormWindows.getOrDefault(player, new LinkedHashMap<>()).get(event.getFormID());
+            if (window != null) {
+                if (window instanceof AdvancedForm) {
+                    ((AdvancedForm) window).dealResponse(player, event.getResponse());
+                }
+            }
+        }
     }
 
     @EventHandler

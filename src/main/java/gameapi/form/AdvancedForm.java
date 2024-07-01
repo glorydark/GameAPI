@@ -3,8 +3,6 @@ package gameapi.form;
 import cn.nukkit.Player;
 import cn.nukkit.form.response.FormResponse;
 
-import java.util.function.Consumer;
-
 /*
  * AdvancedForm was originally from lt-name's MemoriesOfTime-GameCore.
  * I (the author) made scant changes in constructors and so on to be easier to use.

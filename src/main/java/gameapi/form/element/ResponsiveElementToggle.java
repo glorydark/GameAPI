@@ -1,7 +1,6 @@
 package gameapi.form.element;
 
 import cn.nukkit.Player;
-import cn.nukkit.form.element.ElementInput;
 import cn.nukkit.form.element.ElementToggle;
 
 import java.util.function.BiConsumer;

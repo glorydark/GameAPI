@@ -2,7 +2,6 @@ package gameapi.form.minecart;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.item.EntityMinecartChest;
-import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.ListTag;
 import gameapi.annotation.Future;
@@ -26,7 +25,7 @@ public class AdvancedMinecartChestMenu extends AdvancedChestFormBase {
     protected Consumer<Player> closeConsumer = null;
 
     public AdvancedMinecartChestMenu(String title) {
-        super(title, InventoryType.CHEST);
+        super(title);
     }
 
     public AdvancedMinecartChestMenu item(int slot, ResponsiveElementSlotItem slotItem) {

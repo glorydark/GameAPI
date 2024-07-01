@@ -9,7 +9,6 @@ import cn.nukkit.form.window.FormWindowCustom;
 import gameapi.form.element.*;
 import gameapi.listener.AdvancedFormListener;
 
-import java.util.LinkedHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
