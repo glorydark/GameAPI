@@ -6,6 +6,7 @@ import gameapi.form.response.ChestResponse;
 import gameapi.utils.FakeBlockCacheData;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -17,7 +18,7 @@ public abstract class AdvancedChestFormBase {
 
     protected Map<Integer, BiConsumer<Player, Item>> responseMap = new LinkedHashMap<>();
 
-    protected LinkedHashMap<Player, FakeBlockCacheData> fakeBlocks = new LinkedHashMap<>();
+    protected LinkedHashMap<Player, List<FakeBlockCacheData>> fakeBlocks = new LinkedHashMap<>();
 
     public AdvancedChestFormBase(String title) {
         this.title = title;

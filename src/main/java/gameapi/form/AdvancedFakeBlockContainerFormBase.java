@@ -21,6 +21,8 @@ import gameapi.utils.FakeBlockCacheData;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -42,7 +44,7 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
     protected InventoryType inventoryType;
 
     public AdvancedFakeBlockContainerFormBase(String tileId, int blockId, String title, InventoryType inventoryType) {
-        super(title, null);
+        super(title);
         this.blockId = blockId;
         this.tileId = tileId;
         this.inventoryType = inventoryType;
@@ -65,14 +67,14 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
         blockEntityDataPacket.y = position.getFloorY();
         blockEntityDataPacket.z = position.getFloorZ();
         try {
-            blockEntityDataPacket.namedTag = NBTIO.write(this.getBlockEntityDataAt(position, title), ByteOrder.LITTLE_ENDIAN, true);
+            blockEntityDataPacket.namedTag = NBTIO.write(this.getBlockEntityDataAt(position, title, false), ByteOrder.LITTLE_ENDIAN, true);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
         player.dataPacket(blockEntityDataPacket);
 
         FakeBlockCacheData fakeBlockCacheData = new FakeBlockCacheData(pk.x, pk.y, pk.z, player.getLevel(), position.getLevelBlock());
-        this.fakeBlocks.put(player, fakeBlockCacheData);
+        this.fakeBlocks.computeIfAbsent(player, player1 -> new ArrayList<>()).add(fakeBlockCacheData);
 
         FakeInventory fakeInventory = new FakeInventory(this, fakeBlockCacheData, this.getInventoryType());
 
@@ -117,15 +119,17 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
 
     protected void removeFakeBlock(Player player) {
         if (fakeBlocks.containsKey(player)) {
-            FakeBlockCacheData cacheData = this.fakeBlocks.get(player);
-            UpdateBlockPacket pk = new UpdateBlockPacket();
-            pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, cacheData.getBlock().getId(), cacheData.getBlock().getDamage());
-            pk.flags = UpdateBlockPacket.FLAG_ALL;
-            pk.x = cacheData.getX();
-            pk.y = cacheData.getY();
-            pk.z = cacheData.getZ();
-            this.fakeBlocks.put(player, new FakeBlockCacheData(pk.x, pk.y, pk.z, player.getLevel(), cacheData.getBlock()));
-            player.dataPacket(pk);
+            List<FakeBlockCacheData> cacheDataList = this.fakeBlocks.get(player);
+            for (FakeBlockCacheData cacheData : cacheDataList) {
+                UpdateBlockPacket pk = new UpdateBlockPacket();
+                pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, cacheData.getBlock().getId(), cacheData.getBlock().getDamage());
+                pk.flags = UpdateBlockPacket.FLAG_ALL;
+                pk.x = cacheData.getX();
+                pk.y = cacheData.getY();
+                pk.z = cacheData.getZ();
+                player.dataPacket(pk);
+            }
+            this.fakeBlocks.remove(player);
         }
     }
 
@@ -148,9 +152,15 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
         return closeConsumer;
     }
 
-    protected CompoundTag getBlockEntityDataAt(Vector3 position, String title) {
-        return BlockEntity.getDefaultCompound(position, tileId)
+    protected CompoundTag getBlockEntityDataAt(Vector3 position, String title, boolean pair) {
+        CompoundTag result = BlockEntity.getDefaultCompound(position, tileId)
                 .putString("CustomName", title);
+        if (pair) {
+            int pairX = - 1;
+            result.putInt("pairx", position.getFloorX() + pairX)
+                    .putInt("pairz", position.getFloorZ());
+        }
+        return result;
     }
 
     public InventoryType getInventoryType() {

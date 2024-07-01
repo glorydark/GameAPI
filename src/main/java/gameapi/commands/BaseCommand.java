@@ -14,7 +14,7 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
-import gameapi.form.chest.AdvancedChestForm;
+import gameapi.form.chest.AdvancedDoubleChestForm;
 import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.GameEntityManager;
@@ -42,7 +42,7 @@ public class BaseCommand extends Command {
         if (strings.length > 0) {
             switch (strings[0].toLowerCase()) {
                 case "test":
-                    AdvancedChestForm chestForm = new AdvancedChestForm("测试标题")
+                    AdvancedDoubleChestForm chestForm = new AdvancedDoubleChestForm("测试标题")
                             .onClick((player, item) -> player.sendMessage("Click on " + item.getName()))
                             .onClose(player -> player.sendMessage("Close"))
                             .item(1, new ResponsiveElementSlotItem("minecraft:iron_sword")
