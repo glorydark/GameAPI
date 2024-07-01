@@ -33,7 +33,11 @@ import java.util.function.Consumer;
 public class AdvancedDoubleChestForm extends AdvancedFakeBlockContainerFormBase {
 
     public AdvancedDoubleChestForm(String title) {
-        super(BlockEntity.CHEST, Block.CHEST, title, InventoryType.DOUBLE_CHEST);
+        this(title, false);
+    }
+
+    public AdvancedDoubleChestForm(String title, boolean movable) {
+        super(BlockEntity.CHEST, Block.CHEST, title, InventoryType.DOUBLE_CHEST, movable);
     }
 
     public AdvancedDoubleChestForm onClick(BiConsumer<Player, ChestResponse> consumer) {

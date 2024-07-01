@@ -19,7 +19,11 @@ import java.util.function.Consumer;
 public class AdvancedHopperForm extends AdvancedFakeBlockContainerFormBase {
 
     public AdvancedHopperForm(String title) {
-        super(BlockEntity.HOPPER, Block.HOPPER_BLOCK, title, InventoryType.HOPPER);
+        this(title, false);
+    }
+
+    public AdvancedHopperForm(String title, boolean movable) {
+        super(BlockEntity.CHEST, Block.CHEST, title, InventoryType.CHEST, movable);
     }
 
     public AdvancedHopperForm onClick(BiConsumer<Player, ChestResponse> consumer) {

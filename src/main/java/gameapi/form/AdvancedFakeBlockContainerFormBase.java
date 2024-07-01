@@ -43,11 +43,18 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
 
     protected InventoryType inventoryType;
 
+    protected boolean itemMovable;
+
     public AdvancedFakeBlockContainerFormBase(String tileId, int blockId, String title, InventoryType inventoryType) {
+        this(tileId, blockId, title, inventoryType, false);
+    }
+
+    public AdvancedFakeBlockContainerFormBase(String tileId, int blockId, String title, InventoryType inventoryType, boolean itemMovable) {
         super(title);
         this.blockId = blockId;
         this.tileId = tileId;
         this.inventoryType = inventoryType;
+        this.itemMovable = itemMovable;
     }
 
     @Override
@@ -165,5 +172,9 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
 
     public InventoryType getInventoryType() {
         return inventoryType;
+    }
+
+    public boolean isItemMovable() {
+        return itemMovable;
     }
 }

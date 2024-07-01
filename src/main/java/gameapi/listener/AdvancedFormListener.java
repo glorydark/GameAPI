@@ -16,6 +16,7 @@ import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryHolder;
 import gameapi.form.AdvancedChestFormBase;
+import gameapi.form.AdvancedFakeBlockContainerFormBase;
 import gameapi.form.AdvancedForm;
 import gameapi.form.inventory.FakeInventory;
 import gameapi.form.minecart.AdvancedMinecartChestMenu;
@@ -74,16 +75,26 @@ public class AdvancedFormListener implements Listener {
     @EventHandler
     public void InventoryMoveItemEvent(InventoryMoveItemEvent event) {
         Inventory inventory = event.getInventory();
-        if (this.isFormInventory(inventory) || this.isChestInventory(inventory)) {
+        if (this.isFormInventory(inventory)) {
             event.setCancelled(true);
+        } else if (this.isChestInventory(inventory)) {
+            AdvancedFakeBlockContainerFormBase form = ((FakeInventory) inventory).getFormBase();
+            if (!form.isItemMovable()) {
+                event.setCancelled(true);
+            }
         }
     }
 
     @EventHandler
     public void InventoryTransactionEvent(InventoryTransactionEvent event) {
         for (Inventory inventory : event.getTransaction().getInventories()) {
-            if (this.isFormInventory(inventory) || this.isChestInventory(inventory)) {
+            if (this.isFormInventory(inventory)) {
                 event.setCancelled(true);
+            } else if (this.isChestInventory(inventory)) {
+                AdvancedFakeBlockContainerFormBase form = ((FakeInventory) inventory).getFormBase();
+                if (!form.isItemMovable()) {
+                    event.setCancelled(true);
+                }
             }
         }
     }
@@ -100,7 +111,11 @@ public class AdvancedFormListener implements Listener {
             event.setCancelled(true);
         } else if (isChestInventory(inventory)) {
             FakeInventory inv = (FakeInventory) inventory;
-            inv.getFormBase().dealResponse(player, new ChestResponse(inv.getFormBase(), event.getSlot(), event.getSourceItem()));
+            AdvancedFakeBlockContainerFormBase form = inv.getFormBase();
+            form.dealResponse(player, new ChestResponse(inv.getFormBase(), event.getSlot(), event.getSourceItem()));
+            if (!form.isItemMovable()) {
+                event.setCancelled(true);
+            }
         }
     }
 
