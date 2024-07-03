@@ -81,4 +81,8 @@ public class AdvancedLocation {
         }
         player.teleport(out, cause);
     }
+
+    public boolean isValid() {
+        return location != null && location.isValid();
+    }
 }

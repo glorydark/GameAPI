@@ -72,7 +72,7 @@ public class WorldTools {
                 }
             } else {
                 GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.load.not_found", room.getRoomName()));
-                room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
+                room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
                 return false;
             }
         }
@@ -158,15 +158,15 @@ public class WorldTools {
                             }
                         } else {
                             GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
-                            room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
+                            room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
                         }
                     } else {
                         GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
-                        room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
+                        room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
                     }
                 } else {
                     GameAPI.plugin.getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
-                    room.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
+                    room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
                 }
                 b[0] = false;
             }

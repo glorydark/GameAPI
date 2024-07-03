@@ -52,7 +52,7 @@ public class RoomManager {
 
     public static Optional<Room> getRoom(Level level) {
         if (RoomManager.playerRoomHashMap.size() > 0) {
-            return RoomManager.playerRoomHashMap.values().stream().filter(room -> room != null && room.getPlayLevels().stream().anyMatch(l -> l.equals(level))).findFirst();
+            return RoomManager.playerRoomHashMap.values().stream().filter(room -> room != null && room.getPlayLevels().stream().anyMatch(l -> l == level)).findFirst();
         } else {
             return Optional.empty();
         }

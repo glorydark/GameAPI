@@ -5,7 +5,6 @@ import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.item.Item;
-import gameapi.form.AdvancedChestFormBase;
 import gameapi.form.AdvancedFakeBlockContainerFormBase;
 import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.form.response.ChestResponse;

@@ -69,6 +69,7 @@ public class Room {
     private int gameTime = 10;
     private int ceremonyTime = 10;
     private int gameEndTime = 10;
+    private int nextRoundPreStartTime = 10;
     private int maxRound;
     private int round = 0;
     private int time = 0; // Spent Seconds
@@ -241,7 +242,7 @@ public class Room {
     }
 
     public boolean addTeamPlayer(String registry, Player player) {
-        if (getPlayerTeam(player) != null) {
+        if (getTeam(player) != null) {
             return false;
         }
         if (teamCache.containsKey(registry) && teamCache.get(registry).isAvailable()) { //禁止加入满人队伍
@@ -253,22 +254,17 @@ public class Room {
         return true;
     }
 
-    public void removeTeamPlayer(String registry, Player player) {
-        if (teamCache.containsKey(registry)) {
-            teamCache.get(registry).removePlayer(player);
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.quit", teamCache.get(registry).getPrefix() + registry));
-        }
-    }
-
-    public void removeTeamPlayer(Player player) {
+    public void removePlayerFromTeam(Player player) {
         for (Map.Entry<String, BaseTeam> entrySet : teamCache.entrySet()) {
             if (entrySet.getValue().hasPlayer(player)) {
+                BaseTeam team = entrySet.getValue();
                 teamCache.get(entrySet.getKey()).removePlayer(player);
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.quit", team.getPrefix() + team.getRegistryName()));
             }
         }
     }
 
-    public BaseTeam getPlayerTeam(Player player) {
+    public BaseTeam getTeam(Player player) {
         for (Map.Entry<String, BaseTeam> entrySet : teamCache.entrySet()) {
             if (entrySet.getValue().hasPlayer(player)) {
                 return entrySet.getValue();
@@ -336,11 +332,11 @@ public class Room {
             }
         }
         RoomStatus roomStatus = this.getRoomStatus();
-        if (roomStatus == RoomStatus.ROOM_MapLoadFailed) {
+        if (roomStatus == RoomStatus.ROOM_MAP_LOAD_FAILED) {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
             return;
         }
-        if (roomStatus == RoomStatus.ROOM_MapInitializing) {
+        if (roomStatus == RoomStatus.ROOM_MAP_INITIALIZING) {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.resetting"));
             return;
         }
@@ -348,7 +344,7 @@ public class Room {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
             return;
         }
-        if (roomStatus != RoomStatus.ROOM_STATUS_WAIT && roomStatus != RoomStatus.ROOM_STATUS_PreStart) {
+        if (roomStatus != RoomStatus.ROOM_STATUS_WAIT && roomStatus != RoomStatus.ROOM_STATUS_PRESTART) {
             if (this.getRoomRule().isAllowSpectators()) {
                 this.processJoinSpectator(player);
             } else {
@@ -405,9 +401,7 @@ public class Room {
             player.getEffects().clear();
             player.setNameTag("");
             player.setGamemode(Server.getInstance().getDefaultGamemode());
-            if (this.getPlayerTeam(player) != null) {
-                this.getPlayerTeam(player).removePlayer(player);
-            }
+            this.removePlayerFromTeam(player);
             this.playerProperties.remove(player.getName());
             this.players.remove(player);
             this.roomVirtualHealthManager.removePlayer(player);
@@ -420,31 +414,34 @@ public class Room {
     public void setRoomStatus(RoomStatus status) {
         this.time = 0;
         switch (status) {
-            case ROOM_STATUS_GameReadyStart:
-                GameListenerRegistry.callEvent(this, new RoomReadyStartEvent(this));
-                break;
-            case ROOM_STATUS_PreStart:
+            case ROOM_STATUS_PRESTART:
                 GameListenerRegistry.callEvent(this, new RoomPreStartEvent(this));
                 break;
-            case ROOM_STATUS_GameStart:
+            case ROOM_STATUS_READY_START:
+                GameListenerRegistry.callEvent(this, new RoomReadyStartEvent(this));
+                break;
+            case ROOM_STATUS_START:
                 GameListenerRegistry.callEvent(this, new RoomGameStartEvent(this));
                 break;
-            case ROOM_STATUS_GameEnd:
+            case ROOM_STATUS_GAME_END:
                 GameListenerRegistry.callEvent(this, new RoomGameEndEvent(this));
                 break;
-            case ROOM_STATUS_Ceremony:
+            case ROOM_STATUS_CEREMONY:
                 GameListenerRegistry.callEvent(this, new RoomCeremonyEvent(this));
+                break;
+            case ROOM_STATUS_NEXT_ROUND_PRESTART:
+                GameListenerRegistry.callEvent(this, new RoomNextRoundPreStartEvent(this));
                 break;
         }
         this.roomStatus = status;
     }
 
     public void resetAll() {
-        if (this.roomStatus == RoomStatus.ROOM_MapInitializing) {
+        if (this.roomStatus == RoomStatus.ROOM_MAP_INITIALIZING) {
             return;
         }
         this.getRoomTaskExecutor().shutdown();
-        this.setRoomStatus(RoomStatus.ROOM_MapInitializing);
+        this.setRoomStatus(RoomStatus.ROOM_MAP_INITIALIZING);
         GameListenerRegistry.callEvent(this, new RoomResetEvent(this));
         for (Player player : new ArrayList<>(spectators)) {
             this.removeSpectator(player);
@@ -554,7 +551,7 @@ public class Room {
         if (location != null) {
             this.waitSpawn = location;
         } else {
-            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
+            this.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
         }
     }
 
@@ -563,7 +560,7 @@ public class Room {
         if (location != null) {
             this.startSpawn.add(location);
         } else {
-            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
+            this.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
         }
     }
 
@@ -572,7 +569,7 @@ public class Room {
         if (location != null) {
             this.spectatorSpawn.add(location);
         } else {
-            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
+            this.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
         }
     }
 
@@ -581,7 +578,7 @@ public class Room {
         if (location != null) {
             this.endSpawn = location;
         } else {
-            this.setRoomStatus(RoomStatus.ROOM_MapLoadFailed);
+            this.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
         }
     }
 
@@ -668,8 +665,8 @@ public class Room {
         }
         player.setGamemode(3);
         switch (this.getRoomStatus()) {
-            case ROOM_STATUS_GameReadyStart:
-            case ROOM_STATUS_GameStart:
+            case ROOM_STATUS_READY_START:
+            case ROOM_STATUS_START:
                 for (Level playLevel : this.getPlayLevels()) {
                     TipsTools.closeTipsShow(playLevel.getName(), player);
                 }
@@ -688,7 +685,7 @@ public class Room {
                 }
                 break;
             case ROOM_STATUS_WAIT:
-            case ROOM_STATUS_PreStart:
+            case ROOM_STATUS_PRESTART:
                 if (this.getWaitSpawn() != null) {
                     this.getWaitSpawn().teleport(player);
                 }
@@ -700,13 +697,15 @@ public class Room {
     }
 
     public void setDeath(Player player) {
-        player.removeAllEffects();
-        player.setGamemode(3);
-        player.setHealth(player.getMaxHealth());
-        player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);
         RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(this, player, EntityDamageEvent.DamageCause.VOID);
         GameListenerRegistry.callEvent(this, ev);
-        this.roomVirtualHealthManager.setHealth(player, this.roomVirtualHealthManager.getMaxHealth());
+        if (!ev.isCancelled()) {
+            player.removeAllEffects();
+            player.setGamemode(3);
+            player.setHealth(player.getMaxHealth());
+            player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);
+            this.roomVirtualHealthManager.setHealth(player, this.roomVirtualHealthManager.getMaxHealth());
+        }
     }
 
     public void addRespawnTask(Player player) {
@@ -724,7 +723,7 @@ public class Room {
             if (tick > 0) {
                 Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> {
                     GameListenerRegistry.callEvent(this, ev);
-                    if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
+                    if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
                         player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
                         player.setGamemode(roomRule.getGameMode());
                         Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> player.fireProof = false, 5);
@@ -743,7 +742,7 @@ public class Room {
                 }, tick);
             } else {
                 GameListenerRegistry.callEvent(this, ev);
-                if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart) {
+                if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
                     player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
                     player.setGamemode(roomRule.getGameMode());
                     player.getEffects().clear();
@@ -769,8 +768,8 @@ public class Room {
     }
 
     public void teleportToSpawn(Player p) {
-        if (this.getPlayerTeam(p) != null) {
-            this.getPlayerTeam(p).teleportToSpawn();
+        if (this.getTeam(p) != null) {
+            this.getTeam(p).teleportToSpawn();
             return;
         }
         if (this.startSpawn.size() > 1) {

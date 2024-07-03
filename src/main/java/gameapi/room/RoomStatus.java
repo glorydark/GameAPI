@@ -7,23 +7,23 @@ public enum RoomStatus {
 
     ROOM_STATUS_WAIT,
 
-    ROOM_STATUS_PreStart,
+    ROOM_STATUS_PRESTART,
 
-    ROOM_STATUS_GameReadyStart,
+    ROOM_STATUS_READY_START,
 
-    ROOM_STATUS_GameStart,
+    ROOM_STATUS_START,
 
-    ROOM_STATUS_GameEnd,
+    ROOM_STATUS_GAME_END,
 
-    ROOM_STATUS_Ceremony,
+    ROOM_STATUS_CEREMONY,
 
-    ROOM_STATUS_NextRoundPreStart,
+    ROOM_STATUS_NEXT_ROUND_PRESTART,
 
-    ROOM_STATUS_End,
+    ROOM_STATUS_END,
 
-    ROOM_MapInitializing,
+    ROOM_MAP_INITIALIZING,
 
-    ROOM_MapLoadFailed,
+    ROOM_MAP_LOAD_FAILED,
 
     ROOM_HALTED,
 

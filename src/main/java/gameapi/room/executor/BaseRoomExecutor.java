@@ -111,14 +111,8 @@ public class BaseRoomExecutor extends RoomExecutor {
     public void onGameEnd() {
         List<Player> senders = new ArrayList<>(room.getPlayers());
         senders.addAll(room.getSpectators());
-        if (room.getRound() == room.getMaxRound()) {
-            for (Player player : senders) {
-                player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.gameEnd", room.getGameEndTime() - room.getTime()));
-            }
-        } else {
-            for (Player player : senders) {
-                player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.nextRound", room.getGameEndTime() - room.getTime()));
-            }
+        for (Player player : senders) {
+            player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.gameEnd", room.getGameEndTime() - room.getTime()));
         }
     }
 
@@ -137,52 +131,8 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void onNextRoundPreStart() {
-        List<Player> senders = new ArrayList<>(room.getPlayers());
-        senders.addAll(room.getSpectators());
-        for (Player p : senders) {
-            int lastSec = room.getGameWaitTime() - room.getTime();
-            if (lastSec > 10) {
-                p.getLevel().addSound(p.getPosition(), Sound.NOTE_HARP);
-                p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown", room.getGameWaitTime() - room.getTime()));
-            } else {
-                if (lastSec == 1) {
-                    p.getLevel().addSound(p.getPosition(), Sound.NOTE_FLUTE);
-                } else {
-                    p.getLevel().addSound(p.getPosition(), Sound.NOTE_BASS);
-                }
-                switch (lastSec) {
-                    case 10:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.ten"));
-                        break;
-                    case 9:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.nine"));
-                        break;
-                    case 8:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.eight"));
-                        break;
-                    case 7:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.seven"));
-                        break;
-                    case 6:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.six"));
-                        break;
-                    case 5:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.five"));
-                        break;
-                    case 4:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.four"));
-                        break;
-                    case 3:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.three"));
-                        break;
-                    case 2:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.two"));
-                        break;
-                    case 1:
-                        p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown.one"));
-                        break;
-                }
-            }
+        for (Player p : room.getPlayers()) {
+            p.sendActionBar("§l§e下一场游戏开始还剩 §l§6" + (room.getNextRoundPreStartTime() - room.getTime()) + " §l§e秒");
         }
     }
 

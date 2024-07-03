@@ -123,7 +123,7 @@ public class RoomUpdateTask implements Runnable {
         if (player.getLocation().equals(getPlayerLastLocation(player))) {
             return;
         }
-        if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameReadyStart && !room.getRoomRule().isAllowReadyStartWalk()) {
+        if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START && !room.getRoomRule().isAllowReadyStartWalk()) {
             Location from = getPlayerLastLocation(player).clone();
             Location to = player.getLocation();
             if (from.getLevel() != to.getLevel()) {

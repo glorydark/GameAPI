@@ -8,6 +8,7 @@ import gameapi.room.Room;
  * @author glorydark
  * @date {2023/12/28} {20:43}
  */
+@Deprecated
 public class RoomPlayerInteractPlayerEvent extends RoomPlayerEvent {
 
     private static final HandlerList handlers = new HandlerList();

@@ -163,7 +163,7 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
         CompoundTag result = BlockEntity.getDefaultCompound(position, tileId)
                 .putString("CustomName", title);
         if (pair) {
-            int pairX = - 1;
+            int pairX = -1;
             result.putInt("pairx", position.getFloorX() + pairX)
                     .putInt("pairz", position.getFloorZ());
         }

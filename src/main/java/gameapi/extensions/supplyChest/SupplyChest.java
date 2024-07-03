@@ -95,7 +95,7 @@ public class SupplyChest {
     }
 
     public boolean isRefreshable() {
-        return this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_GameStart
+        return this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_START
                 && this.refreshedTimes < this.maxRefreshTimes
                 && System.currentTimeMillis() >= this.room.getStartMillis() + this.startCoolDownMillis
                 && this.intervalTicks != 0

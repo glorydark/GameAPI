@@ -39,40 +39,44 @@ public class RoomTask extends Task {
         if (room == null) {
             return false;
         }
-        if (room.getRoomStatus() == RoomStatus.ROOM_MapLoadFailed) {
+        if (room.getRoomStatus() == RoomStatus.ROOM_MAP_LOAD_FAILED) {
             return false;
         }
-        room.getPlayers().removeIf(player -> player == null || !player.isOnline());
+        for (Player player : new ArrayList<>(room.getPlayers())) {
+            if (player == null || !player.isOnline()) {
+                room.removePlayer(player);
+            }
+        }
 
         switch (room.getRoomStatus()) {
             case ROOM_STATUS_WAIT:
                 GameListenerRegistry.callEvent(room, new RoomWaitTickEvent(room));
-                this.onStateUpdate(room, ListenerStatusType.Wait);
+                this.onStateUpdate(room, ListenerStatusType.WAIT);
                 break;
-            case ROOM_STATUS_GameEnd:
+            case ROOM_STATUS_GAME_END:
                 if (room.getPlayers().size() < 1) {
                     room.resetAll();
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomGameEndTickEvent(room));
-                this.onStateUpdate(room, ListenerStatusType.GameEnd);
+                this.onStateUpdate(room, ListenerStatusType.GAME_END);
                 break;
-            case ROOM_STATUS_Ceremony:
+            case ROOM_STATUS_CEREMONY:
                 if (room.getPlayers().size() < 1) {
                     room.setTime(room.getCeremonyTime());
                 }
                 GameListenerRegistry.callEvent(room, new RoomCeremonyTickEvent(room));
-                this.onStateUpdate(room, ListenerStatusType.Ceremony);
+                this.onStateUpdate(room, ListenerStatusType.CEREMONY);
                 break;
-            case ROOM_STATUS_PreStart:
+            case ROOM_STATUS_PRESTART:
                 if (room.getPlayers().size() < 1) {
                     room.resetAll();
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomPreStartTickEvent(room));
-                this.onStateUpdate(room, ListenerStatusType.PreStart);
+                this.onStateUpdate(room, ListenerStatusType.PRESTART);
                 break;
-            case ROOM_STATUS_GameStart:
+            case ROOM_STATUS_READY_START:
                 if (room.getPlayers().size() < 1) {
                     room.resetAll();
                     return true;
@@ -84,33 +88,71 @@ public class RoomTask extends Task {
                                 hasPlayer.addAndGet(1);
                             }
                         });
-                        if (hasPlayer.get() < room.getMinPlayer()) {
-                            room.setTime(0);
-                            room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd);
+                        if (hasPlayer.get() <= 1) {
+                            room.resetAll();
                             return true;
                         }
                     } else {
                         if (room.getPlayers().size() < room.getMinPlayer()) {
-                            room.setTime(0);
-                            room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd);
+                            room.resetAll();
+                            return true;
+                        }
+                    }
+                }
+                GameListenerRegistry.callEvent(room, new RoomReadyStartTickEvent(room));
+                this.onStateUpdate(room, ListenerStatusType.READY_START);
+                break;
+            case ROOM_STATUS_START:
+                if (room.getPlayers().size() < 1) {
+                    room.resetAll();
+                    return true;
+                } else {
+                    if (room.getTeams().size() > 1) {
+                        AtomicInteger hasPlayer = new AtomicInteger(0);
+                        room.getTeams().forEach(team -> {
+                            if (team.getPlayers().size() > 0) {
+                                hasPlayer.addAndGet(1);
+                            }
+                        });
+                        if (hasPlayer.get() <= 1) {
+                            room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
+                            return true;
+                        }
+                    } else {
+                        if (room.getPlayers().size() < room.getMinPlayer()) {
+                            room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
                             return true;
                         }
                     }
                 }
                 GameListenerRegistry.callEvent(room, new RoomGameStartTickEvent(room));
-                this.onStateUpdate(room, ListenerStatusType.InGame);
+                this.onStateUpdate(room, ListenerStatusType.START);
                 break;
-            case ROOM_STATUS_GameReadyStart:
+            case ROOM_STATUS_NEXT_ROUND_PRESTART:
                 if (room.getPlayers().size() < 1) {
                     room.resetAll();
                     return true;
+                } else {
+                    if (room.getTeams().size() > 1) {
+                        AtomicInteger hasPlayer = new AtomicInteger(0);
+                        room.getTeams().forEach(team -> {
+                            if (team.getPlayers().size() > 0) {
+                                hasPlayer.addAndGet(1);
+                            }
+                        });
+                        if (hasPlayer.get() <= 1) {
+                            room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
+                            return true;
+                        }
+                    } else {
+                        if (room.getPlayers().size() < room.getMinPlayer()) {
+                            room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
+                            return true;
+                        }
+                    }
                 }
-                GameListenerRegistry.callEvent(room, new RoomReadyStartTickEvent(room));
-                this.onStateUpdate(room, ListenerStatusType.ReadyStart);
-                break;
-            case ROOM_STATUS_NextRoundPreStart:
                 GameListenerRegistry.callEvent(room, new RoomNextRoundPreStartTickEvent(room));
-                this.onStateUpdate(room, ListenerStatusType.NextRoundPreStart);
+                this.onStateUpdate(room, ListenerStatusType.NEXT_ROUND_PRE_START);
                 break;
         }
         return true;
@@ -118,10 +160,10 @@ public class RoomTask extends Task {
 
     public void onStateUpdate(Room room, ListenerStatusType type) {
         switch (type) {
-            case Wait:
+            case WAIT:
                 if (room.getPlayers().size() >= room.getMinPlayer()) {
                     if (room.isAllowedToStart()) {
-                        room.setRoomStatus(RoomStatus.ROOM_STATUS_PreStart);
+                        room.setRoomStatus(RoomStatus.ROOM_STATUS_PRESTART);
                         room.setRound(0);
                         room.getStatusExecutor().beginPreStart();
                     } else {
@@ -131,30 +173,35 @@ public class RoomTask extends Task {
                     room.getStatusExecutor().onWait();
                 }
                 break;
-            case PreStart:
+            case PRESTART:
                 if (room.getTime() >= room.getWaitTime()) {
                     room.getStatusExecutor().beginReadyStart();
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GameReadyStart);
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_READY_START);
                 } else {
                     room.getStatusExecutor().onPreStart();
                     room.setTime(room.getTime() + 1);
                 }
                 break;
-            case ReadyStart:
+            case READY_START:
                 if (room.getTime() >= room.getGameWaitTime()) {
                     room.setRound(room.getRound() + 1);
                     room.getStatusExecutor().beginGameStart();
                     room.setStartMillis(System.currentTimeMillis());
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart);
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_START);
                 } else {
                     room.getStatusExecutor().onReadyStart();
                     room.setTime(room.getTime() + 1);
                 }
                 break;
-            case InGame:
+            case START:
                 if (room.getTime() >= room.getGameTime()) {
-                    room.getStatusExecutor().beginGameEnd();
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GameEnd);
+                    if (room.getRound() >= room.getMaxRound()) {
+                        room.getStatusExecutor().beginGameEnd();
+                        room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
+                    } else {
+                        room.getStatusExecutor().beginNextRoundPreStart();
+                        room.setRoomStatus(RoomStatus.ROOM_STATUS_NEXT_ROUND_PRESTART);
+                    }
                 } else {
                     room.getStatusExecutor().onGameStart();
                     if (!room.getRoomRule().isNoTimeLimit()) {
@@ -162,21 +209,16 @@ public class RoomTask extends Task {
                     }
                 }
                 break;
-            case GameEnd:
+            case GAME_END:
                 if (room.getTime() >= room.getGameEndTime()) {
-                    if (room.getRound() == room.getMaxRound()) {
-                        room.getStatusExecutor().beginCeremony();
-                        room.setRoomStatus(RoomStatus.ROOM_STATUS_Ceremony);
-                    } else {
-                        room.getStatusExecutor().beginNextRoundPreStart();
-                        room.setRoomStatus(RoomStatus.ROOM_STATUS_NextRoundPreStart);
-                    }
+                    room.getStatusExecutor().beginCeremony();
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_CEREMONY);
                 } else {
                     room.getStatusExecutor().onGameEnd();
                     room.setTime(room.getTime() + 1);
                 }
                 break;
-            case Ceremony:
+            case CEREMONY:
                 if (room.getTime() >= room.getCeremonyTime()) {
                     for (Player p : room.getPlayers()) {
                         p.setGamemode(2);
@@ -185,16 +227,16 @@ public class RoomTask extends Task {
                         //玩家先走
                         p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                     }
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_End);
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_END);
                     room.resetAll();
                 } else {
                     room.getStatusExecutor().onCeremony();
                     room.setTime(room.getTime() + 1);
                 }
                 break;
-            case NextRoundPreStart:
-                if (room.getTime() >= room.getGameWaitTime()) {
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GameStart);
+            case NEXT_ROUND_PRE_START:
+                if (room.getTime() >= room.getNextRoundPreStartTime()) {
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_START);
                     room.setRound(room.getRound() + 1);
                     room.getStatusExecutor().beginGameStart();
                 } else {
@@ -206,12 +248,12 @@ public class RoomTask extends Task {
     }
 
     public enum ListenerStatusType {
-        Wait,
-        PreStart,
-        ReadyStart,
-        InGame,
-        GameEnd,
-        Ceremony,
-        NextRoundPreStart,
+        WAIT,
+        PRESTART,
+        READY_START,
+        START,
+        GAME_END,
+        CEREMONY,
+        NEXT_ROUND_PRE_START,
     }
 }
