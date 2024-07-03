@@ -32,13 +32,12 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
                 this.noResponseExecutor.accept(player);
             }
         } else {
-            for (ElementButton button : this.getButtons()) {
-                if (button instanceof ResponsiveElementButton) {
-                    ResponsiveElementButton responsiveElementButton = (ResponsiveElementButton) button;
-                    Consumer<Player> onClickResponse = responsiveElementButton.getResponse();
-                    if (onClickResponse != null) {
-                        onClickResponse.accept(player);
-                    }
+            ElementButton clickedButton = ((FormResponseSimple) response).getClickedButton();
+            if (clickedButton instanceof ResponsiveElementButton) {
+                ResponsiveElementButton responsiveElementButton = (ResponsiveElementButton) clickedButton;
+                Consumer<Player> onClickResponse = responsiveElementButton.getResponse();
+                if (onClickResponse != null) {
+                    onClickResponse.accept(player);
                 }
             }
             if (this.responseExecutor != null) {
