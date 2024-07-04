@@ -10,10 +10,7 @@ import gameapi.room.RoomStatus;
 import gameapi.tools.WorldTools;
 import gameapi.utils.RoomNameUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,7 +23,7 @@ public class RoomManager {
     public static LinkedHashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
 
     public static void loadRoom(Room room, RoomStatus baseStatus) {
-        RoomNameUtils.initializeRoomName(room);
+        RoomNameUtils.initializeRoomNameAndId(room);
         List<Room> rooms = new ArrayList<>(loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
         rooms.add(room);
         loadedRooms.put(room.getGameName(), rooms);
@@ -79,7 +76,15 @@ public class RoomManager {
     }
 
     public static void close() {
-        loadedRooms.keySet().forEach(WorldTools::delWorldByPrefix);
+        for (Map.Entry<String, List<Room>> entry : loadedRooms.entrySet()) {
+            for (Room room : entry.getValue()) {
+                String prefix = room.getGameName() + "_";
+                if (!room.getTempWorldPrefixOverride().isEmpty()) {
+                    prefix = room.getTempWorldPrefixOverride();
+                }
+                WorldTools.delWorldByPrefix(prefix);
+            }
+        }
         GameEntityManager.closeAll();
         for (String s : loadedRooms.keySet()) {
             for (Room room : loadedRooms.getOrDefault(s, new ArrayList<>())) {

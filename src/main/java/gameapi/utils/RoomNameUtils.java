@@ -15,17 +15,18 @@ public class RoomNameUtils {
 
     public static ConcurrentHashMap<String, Integer> tempRoomRecord = new ConcurrentHashMap<>();
 
-    public static void initializeRoomName(Room room) {
+    public static void initializeRoomNameAndId(Room room) {
+        int num = tempRoomRecord.getOrDefault(room.getGameName(), 0) + 1;
+        room.setId(num);
         if (room.getRoomName().isEmpty()) {
             if (room.isTemporary()) {
                 if (!tempRoomRecord.containsKey(room.getGameName())) {
                     tempRoomRecord.put(room.getGameName(), 0);
                 }
-                int num = tempRoomRecord.get(room.getGameName()) + 1;
                 String name = room.getGameName() + "_temp_" + num;
                 tempRoomRecord.put(room.getGameName(), num);
                 if (RoomManager.getRoom(room.getGameName(), name) != null) {
-                    initializeRoomName(room);
+                    initializeRoomNameAndId(room);
                     return;
                 }
                 room.setRoomName(name);
@@ -34,7 +35,7 @@ public class RoomNameUtils {
                 if (RoomManager.getRoom(room.getGameName(), name) == null) {
                     room.setRoomName(name);
                 } else {
-                    initializeRoomName(room);
+                    initializeRoomNameAndId(room);
                 }
             }
         }

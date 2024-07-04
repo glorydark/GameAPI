@@ -25,7 +25,7 @@ public class WorldTools {
     public static boolean delWorldByPrefix(String prefix) {
         String rootPath = Server.getInstance().getDataPath() + "/worlds";
         for (File file : Objects.requireNonNull(new File(rootPath).listFiles())) {
-            if (file.getName().startsWith(prefix + "_")) {
+            if (file.getName().startsWith(prefix)) {
                 Level level = Server.getInstance().getLevelByName(file.getName());
                 if (level == null) {
                     FileTools.delete(file);

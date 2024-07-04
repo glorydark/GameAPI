@@ -54,6 +54,7 @@ public class RoomVirtualHealthManager {
     public void setHealth(Player player, double value) {
         if (value < 0d) {
             value = 0d;
+            room.setDeath(player);
         }
         double newHealth = BigDecimal.valueOf(value).setScale(1, RoundingMode.HALF_UP).doubleValue();
         this.healthMap.put(player, newHealth);

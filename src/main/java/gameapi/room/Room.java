@@ -100,6 +100,8 @@ public class Room {
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
     private ScheduledExecutorService roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
     private List<SupplyChest> supplyChests = new ArrayList<>();
+    private String tempWorldPrefixOverride;
+    private int id = -1;
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this.maxRound = round;

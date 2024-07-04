@@ -2,6 +2,7 @@ package gameapi.task;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.level.Level;
 import cn.nukkit.scheduler.Task;
 import gameapi.event.room.*;
 import gameapi.listener.base.GameListenerRegistry;
@@ -9,6 +10,7 @@ import gameapi.manager.RoomManager;
 import gameapi.manager.tools.ScoreboardManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
+import gameapi.tools.WorldTools;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,31 +55,21 @@ public class RoomTask extends Task {
                 GameListenerRegistry.callEvent(room, new RoomWaitTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.WAIT);
                 break;
-            case ROOM_STATUS_GAME_END:
-                if (room.getPlayers().size() < 1) {
-                    room.resetAll();
-                    return true;
-                }
-                GameListenerRegistry.callEvent(room, new RoomGameEndTickEvent(room));
-                this.onStateUpdate(room, ListenerStatusType.GAME_END);
-                break;
-            case ROOM_STATUS_CEREMONY:
-                if (room.getPlayers().size() < 1) {
-                    room.setTime(room.getCeremonyTime());
-                }
-                GameListenerRegistry.callEvent(room, new RoomCeremonyTickEvent(room));
-                this.onStateUpdate(room, ListenerStatusType.CEREMONY);
-                break;
             case ROOM_STATUS_PRESTART:
-                if (room.getPlayers().size() < 1) {
-                    room.resetAll();
+                if (room.getPlayers().size() < room.getMinPlayer()) {
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
+                    for (Level playLevel : room.getPlayLevels()) {
+                        if (playLevel != null) {
+                            WorldTools.unloadLevel(playLevel, true);
+                        }
+                    }
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomPreStartTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.PRESTART);
                 break;
             case ROOM_STATUS_READY_START:
-                if (room.getPlayers().size() < 1) {
+                if (room.getPlayers().size() < room.getMinPlayer()) {
                     room.resetAll();
                     return true;
                 } else {
@@ -127,6 +119,21 @@ public class RoomTask extends Task {
                 }
                 GameListenerRegistry.callEvent(room, new RoomGameStartTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.START);
+                break;
+            case ROOM_STATUS_GAME_END:
+                if (room.getPlayers().size() < 1) {
+                    room.resetAll();
+                    return true;
+                }
+                GameListenerRegistry.callEvent(room, new RoomGameEndTickEvent(room));
+                this.onStateUpdate(room, ListenerStatusType.GAME_END);
+                break;
+            case ROOM_STATUS_CEREMONY:
+                if (room.getPlayers().size() < 1) {
+                    room.setTime(room.getCeremonyTime());
+                }
+                GameListenerRegistry.callEvent(room, new RoomCeremonyTickEvent(room));
+                this.onStateUpdate(room, ListenerStatusType.CEREMONY);
                 break;
             case ROOM_STATUS_NEXT_ROUND_PRESTART:
                 if (room.getPlayers().size() < 1) {
