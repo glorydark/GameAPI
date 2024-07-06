@@ -6,6 +6,7 @@ import cn.nukkit.level.Sound;
 import gameapi.GameAPI;
 import gameapi.room.Room;
 import gameapi.tools.FireworkTools;
+import gameapi.tools.SoundTools;
 import gameapi.tools.TipsTools;
 import gameapi.utils.AdvancedLocation;
 
@@ -60,16 +61,16 @@ public class BaseRoomExecutor extends RoomExecutor {
     public void onReadyStart() {
         List<Player> senders = new ArrayList<>(room.getPlayers());
         senders.addAll(room.getSpectators());
+        int lastSec = room.getGameWaitTime() - room.getTime();
         for (Player p : senders) {
-            int lastSec = room.getGameWaitTime() - room.getTime();
             if (lastSec > 10) {
-                p.getLevel().addSound(p.getPosition(), Sound.NOTE_HARP);
+                SoundTools.addSoundToPlayer(p, Sound.NOTE_HARP, 1.0f, 1.0f);
                 p.sendActionBar(GameAPI.getLanguage().getTranslation(p, "room.actionbar.readyStart.countdown", room.getGameWaitTime() - room.getTime()));
             } else {
                 if (lastSec == 1) {
-                    p.getLevel().addSound(p.getPosition(), Sound.NOTE_FLUTE);
+                    SoundTools.addSoundToPlayer(p, Sound.NOTE_FLUTE, 1.0f, 1.0f);
                 } else {
-                    p.getLevel().addSound(p.getPosition(), Sound.NOTE_BASS);
+                    SoundTools.addSoundToPlayer(p, Sound.NOTE_BASS, 1.0f, 1.0f);
                 }
                 switch (lastSec) {
                     case 10:

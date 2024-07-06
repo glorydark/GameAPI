@@ -2,6 +2,8 @@ package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Position;
+import cn.nukkit.level.Sound;
 import cn.nukkit.network.protocol.PlaySoundPacket;
 import cn.nukkit.network.protocol.StopSoundPacket;
 
@@ -20,12 +22,16 @@ public class SoundTools {
         player.dataPacket(pk);
     }
 
+    public static void addSoundToPlayer(Player player, Sound sound, float volume, float pitch) {
+        addSoundToPlayer(player, sound.getSound(), volume, pitch);
+    }
+
     /**
      * @param player    : 玩家
      * @param filename: 材质包中sound_definition的项的名称
      * @description: 播放材质包音乐
      */
-    public static void playResourcePackOggMusic(Player player, String filename, float volume, float pitch) {
+    public static void addSoundToPlayer(Player player, String filename, float volume, float pitch) {
         PlaySoundPacket pk = new PlaySoundPacket();
         pk.name = filename;
         pk.x = player.getFloorX();
@@ -36,7 +42,7 @@ public class SoundTools {
         player.dataPacket(pk);
     }
 
-    public static void addAmbientSound(Level level, Player player, cn.nukkit.level.Sound sound) {
-        level.addSound(player.getPosition(), sound);
+    public static void addAmbientSound(Position position, cn.nukkit.level.Sound sound) {
+        position.getLevel().addSound(position, sound);
     }
 }

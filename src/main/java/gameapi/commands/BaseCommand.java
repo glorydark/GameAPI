@@ -109,7 +109,7 @@ public class BaseCommand extends Command {
                                     pitch = Float.parseFloat(strings[4]);
                                 }
                             }
-                            SoundTools.playResourcePackOggMusic(player, strings[2], volume, pitch);
+                            SoundTools.addSoundToPlayer(player, strings[2], volume, pitch);
                         } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_not_found", strings[1]));
                         }
