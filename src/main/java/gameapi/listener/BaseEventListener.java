@@ -28,7 +28,7 @@ import gameapi.manager.room.RoomVirtualHealthManager;
 import gameapi.room.Room;
 import gameapi.room.RoomChatData;
 import gameapi.room.RoomStatus;
-import gameapi.room.edit.EditData;
+import gameapi.room.edit.EditProcess;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
 import gameapi.utils.AdvancedLocation;
@@ -68,10 +68,10 @@ public class BaseEventListener implements Listener {
             }
             player.setPosition(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation());
         } else {
-            for (EditData editData : GameAPI.editDataList) {
-                Player editor = editData.getPlayer();
+            for (EditProcess editProcess : GameAPI.editProcessList) {
+                Player editor = editProcess.getPlayer();
                 if (editor == player) {
-                    editData.onQuit();
+                    editProcess.onQuit();
                 }
                 break;
             }
@@ -124,10 +124,11 @@ public class BaseEventListener implements Listener {
                     }
                 }
             }
-            for (EditData editData : GameAPI.editDataList) {
-                Player editor = editData.getPlayer();
+            for (EditProcess editProcess : GameAPI.editProcessList) {
+                Player editor = editProcess.getPlayer();
                 if (editor == player) {
-                    editData.getCurrentStep().onBreak();
+                    editProcess.getCurrentStep().onBreak(event.getBlock());
+                    event.setCancelled(true);
                 }
                 break;
             }
@@ -184,10 +185,11 @@ public class BaseEventListener implements Listener {
                         event.setCancelled(true);
                 }
             } else {
-                for (EditData editData : GameAPI.editDataList) {
-                    Player editor = editData.getPlayer();
+                for (EditProcess editProcess : GameAPI.editProcessList) {
+                    Player editor = editProcess.getPlayer();
                     if (editor == player) {
-                        editData.getCurrentStep().onPlace();
+                        editProcess.getCurrentStep().onPlace(event.getBlock());
+                        event.setCancelled(true);
                     }
                     break;
                 }
@@ -300,23 +302,24 @@ public class BaseEventListener implements Listener {
                 player.teleport(player.getLevel().getSpawnLocation(), null);
             }
             event.setCancelled(true);
+            return;
         }
         switch (event.getCause()) {
             case FALL:
                 if (!room.getRoomRule().isAllowFallDamage()) {
-                    event.setCancelled(true);
+                    event.setDamage(0f);
                     return;
                 }
                 break;
             case ENTITY_EXPLOSION:
                 if (!room.getRoomRule().isAllowEntityExplosionDamage()) {
-                    event.setDamage(0);
+                    event.setDamage(0f);
                     return;
                 }
                 break;
             case BLOCK_EXPLOSION:
                 if (!room.getRoomRule().isAllowBlockExplosionDamage()) {
-                    event.setDamage(0);
+                    event.setDamage(0f);
                     return;
                 }
                 break;
@@ -325,7 +328,7 @@ public class BaseEventListener implements Listener {
             RoomVirtualHealthManager manager = room.getRoomVirtualHealthManager();
             if (manager.getHealth(player) - event.getFinalDamage() < 0.1d) {
                 room.setDeath(player); // 设置死亡
-                event.setDamage(0);
+                event.setDamage(0f);
                 if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
                     manager.setHealth(player, manager.getMaxHealth());
                     damageSources.remove(entity.getName());
@@ -339,6 +342,7 @@ public class BaseEventListener implements Listener {
                 } else {
                     manager.setHealth(player, manager.getMaxHealth());
                 }
+                return;
             }
         } else {
             if (entity.getHealth() - event.getFinalDamage() < 0.1d) {
@@ -360,6 +364,7 @@ public class BaseEventListener implements Listener {
                 } else {
                     entity.setHealth(entity.getMaxHealth());
                 }
+                return;
             }
         }
         RoomEntityDamageEvent roomEntityDamageEvent = new RoomEntityDamageEvent(room, entity, event.getCause(), event.getFinalDamage());
@@ -368,7 +373,6 @@ public class BaseEventListener implements Listener {
             event.setCancelled(true);
         } else {
             if (room.getRoomRule().isVirtualHealth()) {
-                event.setDamage(0f);
                 room.getRoomVirtualHealthManager().reduceHealth((Player) entity, BigDecimal.valueOf(roomEntityDamageEvent.getDamage()).doubleValue());
             } else {
                 event.setDamage(roomEntityDamageEvent.getDamage());
@@ -467,6 +471,10 @@ public class BaseEventListener implements Listener {
                 GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
                 if (roomEntityDamageByEntityEvent.isCancelled()) {
                     event.setCancelled(true);
+                } else {
+                    event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
+                    event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
+                    event.setDamage(roomEntityDamageByEntityEvent.getDamage());
                 }
             }
         }
@@ -639,10 +647,10 @@ public class BaseEventListener implements Listener {
                 }
             }
         } else {
-            for (EditData editData : GameAPI.editDataList) {
-                Player editor = editData.getPlayer();
+            for (EditProcess editProcess : GameAPI.editProcessList) {
+                Player editor = editProcess.getPlayer();
                 if (editor == player) {
-                    editData.getCurrentStep().onInteract();
+                    editProcess.getCurrentStep().onInteract();
                 }
                 break;
             }
@@ -777,6 +785,14 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void EntityDeathEvent(EntityDeathEvent event) {
         Entity entity = event.getEntity();
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
+            Room room = RoomManager.getRoom(player);
+            if (room != null) {
+                room.setDeath(player);
+                return;
+            }
+        }
         if (entity instanceof EntityLiving) {
             EntityLiving entityLiving = (EntityLiving) entity;
             Room room;

@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.item.EntityMinecartChest;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.ListTag;
-import gameapi.annotation.Future;
 import gameapi.form.AdvancedChestFormBase;
 import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.form.response.ChestResponse;
@@ -17,7 +16,6 @@ import java.util.function.Consumer;
 /**
  * @author glorydark
  */
-@Future
 public class AdvancedMinecartChestMenu extends AdvancedChestFormBase {
 
     protected LinkedHashMap<Player, EntityMinecartChest> entityMap = null;

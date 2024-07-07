@@ -21,9 +21,9 @@ public class RankingListEntity extends TextEntity {
         if (this.health <= 0) {
             this.setHealth(this.getMaxHealth());
         }
-        if (System.currentTimeMillis() - lastUpdateMillis >= 500) {
-            ranking.refreshRankingData();
-            lastUpdateMillis = System.currentTimeMillis();
+        if (System.currentTimeMillis() - this.lastUpdateMillis >= 500) {
+            this.ranking.refreshRankingData();
+            this.lastUpdateMillis = System.currentTimeMillis();
         }
         return super.onUpdate(currentTick);
     }

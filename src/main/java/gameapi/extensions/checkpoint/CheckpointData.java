@@ -8,6 +8,7 @@ import cn.nukkit.level.particle.Particle;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BlockColor;
+import gameapi.tools.ParticleTools;
 import lombok.Data;
 import lombok.ToString;
 
@@ -51,7 +52,7 @@ public class CheckpointData {
      * @return bool: is that player in range
      */
     public boolean isInRange(Player player) {
-        SimpleAxisAlignedBB bb = (SimpleAxisAlignedBB) new SimpleAxisAlignedBB(vector3, vector3).grow(horizontalRadius, verticalRadius, horizontalRadius);
+        SimpleAxisAlignedBB bb = (SimpleAxisAlignedBB) new SimpleAxisAlignedBB(this.vector3, this.vector3).grow(this.horizontalRadius, this.verticalRadius, this.horizontalRadius);
         return bb.isVectorInside(player.getPosition());
     }
 
@@ -60,21 +61,11 @@ public class CheckpointData {
      */
     public void showParticleMarks(Level level) {
         if (particleMarked) {
-            for (int angle = 0; angle < 360; angle++) {
-                double x1 = vector3.getX() + horizontalRadius * Math.cos(angle * 3.14 / 180);
-                double z1 = vector3.getZ() + horizontalRadius * Math.sin(angle * 3.14 / 180);
-                Particle particle_temp = (Particle) particle.clone();
-                particle_temp.setX(x1);
-                particle_temp.setY(vector3.getY());
-                particle_temp.setZ(z1);
-                if (angle % 30 == 0) {
-                    level.addParticle(particle_temp);
-                }
-            }
+            ParticleTools.drawCircle(this.particle, this.getLocation(level).add(0, 1, 0), this.horizontalRadius);
         }
     }
 
     public Location getLocation(Level level) {
-        return new Location(vector3.x, vector3.y, vector3.z, level);
+        return new Location(this.vector3.x, this.vector3.y, this.vector3.z, level);
     }
 }

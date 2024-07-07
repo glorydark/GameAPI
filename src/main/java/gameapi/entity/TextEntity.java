@@ -15,13 +15,13 @@ public class TextEntity extends Entity {
     public TextEntity(FullChunk chunk, Position position, String text, CompoundTag nbt) {
         super(chunk, nbt);
         this.setPosition(position);
-        setNameTag(text);
+        this.setNameTag(text);
     }
 
     @Deprecated
     public TextEntity(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
-        close();
+        this.close();
     }
 
     protected void initEntity() {

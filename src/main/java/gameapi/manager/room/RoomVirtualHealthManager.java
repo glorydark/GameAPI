@@ -30,7 +30,9 @@ public class RoomVirtualHealthManager {
     }
 
     public void addHealth(Player player, Double value) {
-        double newHealth = BigDecimal.valueOf(getHealth(player) + value).setScale(1, RoundingMode.HALF_UP).doubleValue();
+        double newHealth = BigDecimal.valueOf(this.getHealth(player)).add(BigDecimal.valueOf(value))
+                .setScale(1, RoundingMode.HALF_UP)
+                .doubleValue();
         if (newHealth >= this.maxHealth) {
             newHealth = this.maxHealth;
         } else if (newHealth < 0) {
@@ -41,7 +43,9 @@ public class RoomVirtualHealthManager {
     }
 
     public void reduceHealth(Player player, double value) {
-        double newHealth = BigDecimal.valueOf(getHealth(player) - value).setScale(1, RoundingMode.HALF_UP).doubleValue();
+        double newHealth = BigDecimal.valueOf(getHealth(player)).subtract(BigDecimal.valueOf(value))
+                .setScale(1, RoundingMode.HALF_UP)
+                .doubleValue();
         if (newHealth >= this.maxHealth) {
             newHealth = this.maxHealth;
         } else if (newHealth < 0) {
@@ -56,7 +60,9 @@ public class RoomVirtualHealthManager {
             value = 0d;
             room.setDeath(player);
         }
-        double newHealth = BigDecimal.valueOf(value).setScale(1, RoundingMode.HALF_UP).doubleValue();
+        double newHealth = BigDecimal.valueOf(value)
+                .setScale(1, RoundingMode.HALF_UP)
+                .doubleValue();
         this.healthMap.put(player, newHealth);
         resetHealthBar(player, newHealth);
     }

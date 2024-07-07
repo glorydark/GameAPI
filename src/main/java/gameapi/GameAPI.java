@@ -25,7 +25,7 @@ import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 import gameapi.room.Room;
-import gameapi.room.edit.EditData;
+import gameapi.room.edit.EditProcess;
 import gameapi.task.RoomTask;
 import gameapi.tools.BlockTools;
 import gameapi.tools.ItemTools;
@@ -53,7 +53,7 @@ public class GameAPI extends PluginBase implements Listener {
     public static List<Player> worldEditPlayers = new ArrayList<>();
     public static int entityRefreshIntervals = 100;
     public static boolean tipsEnabled;
-    public static List<EditData> editDataList = new ArrayList<>();
+    public static List<EditProcess> editProcessList = new ArrayList<>();
     public static SimpleAxisAlignedBB autoLoadChunkRange;
     public static GameLevelSystemManager system;
     public static ScheduledExecutorService roomTaskExecutor;
@@ -65,18 +65,18 @@ public class GameAPI extends PluginBase implements Listener {
         public Thread newThread(Runnable r) {
             Thread thread = defaultFactory.newThread(r);
             thread.setUncaughtExceptionHandler((t, e) -> {
-                System.err.println("Thread " + t.getName() + " encountered an error: " + e.getMessage());
+                GameAPI.plugin.getLogger().error("Thread " + t.getName() + " encountered an error: " + e);
             });
             return thread;
         }
     };
 
-    public static void addRoomEdit(EditData editData) {
-        editDataList.add(editData);
+    public static void addRoomEdit(EditProcess editProcess) {
+        editProcessList.add(editProcess);
     }
 
-    public static void joinRoomEdit(Player player, EditData editData) {
-        editData.onStart(player);
+    public static void joinRoomEdit(Player player, EditProcess editProcess) {
+        editProcess.begin(player);
     }
 
     public static Language getLanguage() {
@@ -117,6 +117,17 @@ public class GameAPI extends PluginBase implements Listener {
         this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
         this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
         // others ...
+        roomTaskExecutor.scheduleAtFixedRate(() -> {
+            try {
+                for (EditProcess editProcess : editProcessList) {
+                    editProcess.onTick();
+                    editProcess.getCurrentStep().onTick();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                roomTaskExecutor.shutdown();
+            }
+        }, 0, 1, TimeUnit.SECONDS);;
         roomTaskExecutor.scheduleAtFixedRate(() -> {
             List<Player> players = new ArrayList<>(debug);
             players.forEach(player -> {
@@ -169,10 +180,11 @@ public class GameAPI extends PluginBase implements Listener {
                     room.removeSpectator(player);
                 }
             } else {
-                for (EditData editData : GameAPI.editDataList) {
-                    Player editor = editData.getPlayer();
+                for (EditProcess editProcess : GameAPI.editProcessList) {
+                    Player editor = editProcess.getPlayer();
                     if (editor == player) {
-                        editData.onQuit();
+                        editProcess.onQuit();
+                        editProcess.clearAllTextEntities();
                     }
                     break;
                 }

@@ -1,28 +1,28 @@
 package gameapi.room.edit;
 
-import gameapi.annotation.Future;
+import cn.nukkit.Player;
+import cn.nukkit.block.Block;
 
 /**
  * @author glorydark
  */
-@Future
 public abstract class EditStep {
 
-    protected EditData editData;
+    protected EditProcess editProcess;
 
-    public EditStep(EditData editData) {
-        this.editData = editData;
+    public EditStep(EditProcess editProcess) {
+        this.editProcess = editProcess;
     }
 
     public void onStart() {
 
     }
 
-    public void onBreak() {
+    public void onBreak(Block block) {
 
     }
 
-    public void onPlace() {
+    public void onPlace(Block block) {
 
     }
 
@@ -30,11 +30,27 @@ public abstract class EditStep {
 
     }
 
-    protected void onEnd() {
+    public void onEnd() {
 
     }
 
-    public EditData getEditData() {
-        return editData;
+    public EditProcess getEditData() {
+        return this.editProcess;
+    }
+
+    public Player getPlayer() {
+        return this.getEditData().getPlayer();
+    }
+
+    protected void close() {
+        this.getEditData().nextStep();
+    }
+
+    protected int getNumber() {
+        return this.getEditData().getSteps().indexOf(this);
+    }
+
+    public void onTick() {
+
     }
 }

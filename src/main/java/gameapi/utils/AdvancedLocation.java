@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.math.Vector3;
 import gameapi.tools.SpatialTools;
 import lombok.Data;
 
@@ -21,6 +22,10 @@ public class AdvancedLocation {
     private String inputString;
 
     public AdvancedLocation() {
+    }
+
+    public AdvancedLocation(Vector3 vector3, Level level) {
+        this(new Location(vector3.x, vector3.y, vector3.z, level));
     }
 
     public AdvancedLocation(Location location) {
