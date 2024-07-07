@@ -21,9 +21,6 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
         super(room, entity);
         this.damage = damage;
         this.attackCoolDown = attackCoolDown;
-        if (!room.getRoomRule().isAllowAttackCoolDown()) {
-            this.attackCoolDown = 0;
-        }
         this.damager = damager;
         this.knockBack = knockBack;
         this.cause = cause;

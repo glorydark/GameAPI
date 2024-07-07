@@ -68,7 +68,9 @@ public class RoomRule {
 
     private boolean allowSpectators = true;
 
-    private boolean allowAttackCoolDown = true;
+    private boolean useDefaultAttackCooldown = true;
+
+    private long attackCoolDownMillis = 0;
 
     private boolean experimentalFeature = false;
 

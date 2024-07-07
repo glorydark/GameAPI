@@ -444,7 +444,18 @@ public class BaseEventListener implements Listener {
                             return;
                         }
                     }
-                    RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, event.getEntity(), event.getDamager(), event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
+                    if (!room1.getRoomRule().isUseDefaultAttackCooldown()) {
+                        long cd = room1.getRoomRule().getAttackCoolDownMillis();
+                        if (cd > 0) {
+                            long diff = System.currentTimeMillis() - room1.getPlayerProperty(damager, "last_attack_millis", 0L);
+                            if (diff < cd) {
+                                event.setCancelled(true);
+                                return;
+                            }
+                            room1.setPlayerProperty(damager, "last_attack_millis", System.currentTimeMillis());
+                        }
+                    }
+                    RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, entity, damager, event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
                     GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
                     if (roomEntityDamageByEntityEvent.isCancelled()) {
                         event.setCancelled(true);
@@ -785,14 +796,6 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void EntityDeathEvent(EntityDeathEvent event) {
         Entity entity = event.getEntity();
-        if (entity instanceof Player) {
-            Player player = (Player) entity;
-            Room room = RoomManager.getRoom(player);
-            if (room != null) {
-                room.setDeath(player);
-                return;
-            }
-        }
         if (entity instanceof EntityLiving) {
             EntityLiving entityLiving = (EntityLiving) entity;
             Room room;
