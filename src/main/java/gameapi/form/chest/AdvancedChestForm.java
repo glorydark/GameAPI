@@ -22,7 +22,7 @@ public class AdvancedChestForm extends AdvancedFakeBlockContainerFormBase {
     }
 
     public AdvancedChestForm(String title, boolean movable) {
-        super(BlockEntity.CHEST, Block.CHEST, title, InventoryType.CHEST, movable);
+        super(title, AdvancedChestFormType.CHEST, movable);
     }
 
     public AdvancedChestForm onClick(BiConsumer<Player, ChestResponse> consumer) {

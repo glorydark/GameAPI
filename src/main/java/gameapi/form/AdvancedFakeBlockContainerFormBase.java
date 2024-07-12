@@ -15,6 +15,7 @@ import cn.nukkit.network.protocol.BlockEntityDataPacket;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.scheduler.Task;
 import gameapi.GameAPI;
+import gameapi.form.chest.AdvancedChestFormType;
 import gameapi.form.inventory.FakeInventory;
 import gameapi.form.response.ChestResponse;
 import gameapi.utils.FakeBlockCacheData;
@@ -34,7 +35,7 @@ import java.util.function.Consumer;
  */
 public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFormBase {
 
-    protected String tileId;
+    protected String blockEntityIdentifier;
 
     protected int blockId;
     protected BiConsumer<Player, ChestResponse> clickBiConsumer = null;
@@ -45,15 +46,15 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
 
     protected boolean itemMovable;
 
-    public AdvancedFakeBlockContainerFormBase(String tileId, int blockId, String title, InventoryType inventoryType) {
-        this(tileId, blockId, title, inventoryType, false);
+    public AdvancedFakeBlockContainerFormBase(String title, AdvancedChestFormType type) {
+        this(title, type, false);
     }
 
-    public AdvancedFakeBlockContainerFormBase(String tileId, int blockId, String title, InventoryType inventoryType, boolean itemMovable) {
+    public AdvancedFakeBlockContainerFormBase(String title, AdvancedChestFormType type, boolean itemMovable) {
         super(title);
-        this.blockId = blockId;
-        this.tileId = tileId;
-        this.inventoryType = inventoryType;
+        this.blockId = type.getBlockId();
+        this.blockEntityIdentifier = type.getBlockEntityIdentifier();
+        this.inventoryType = type.getInventoryType();
         this.itemMovable = itemMovable;
     }
 
@@ -61,6 +62,7 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
     public void showToPlayer(Player player) {
         Position position = getValidPosition(player);
 
+        // 往客户端生成一个虚假方块
         UpdateBlockPacket pk = new UpdateBlockPacket();
         pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.blockId, 0);
         pk.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
@@ -69,20 +71,25 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
         pk.z = position.getFloorZ();
         player.dataPacket(pk);
 
-        BlockEntityDataPacket blockEntityDataPacket = new BlockEntityDataPacket();
-        blockEntityDataPacket.x = position.getFloorX();
-        blockEntityDataPacket.y = position.getFloorY();
-        blockEntityDataPacket.z = position.getFloorZ();
-        try {
-            blockEntityDataPacket.namedTag = NBTIO.write(this.getBlockEntityDataAt(position, title, false), ByteOrder.LITTLE_ENDIAN, true);
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        // 必要时客户端方面生成一个假的BlockEntity作为载体
+        if (!this.blockEntityIdentifier.isEmpty()) {
+            BlockEntityDataPacket blockEntityDataPacket = new BlockEntityDataPacket();
+            blockEntityDataPacket.x = position.getFloorX();
+            blockEntityDataPacket.y = position.getFloorY();
+            blockEntityDataPacket.z = position.getFloorZ();
+            try {
+                blockEntityDataPacket.namedTag = NBTIO.write(this.getBlockEntityDataAt(position, title, false), ByteOrder.LITTLE_ENDIAN, true);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+            player.dataPacket(blockEntityDataPacket);
         }
-        player.dataPacket(blockEntityDataPacket);
 
+        // 记录假方块信息，用于之后移除
         FakeBlockCacheData fakeBlockCacheData = new FakeBlockCacheData(pk.x, pk.y, pk.z, player.getLevel(), position.getLevelBlock());
         this.fakeBlocks.computeIfAbsent(player, player1 -> new ArrayList<>()).add(fakeBlockCacheData);
 
+        // 向玩家展示窗口
         FakeInventory fakeInventory = new FakeInventory(this, fakeBlockCacheData, this.getInventoryType());
 
         Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, new Task() {
@@ -101,7 +108,6 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
                 consumer.accept(player);
             }
         } else {
-            Item item = chestResponse.getItem();
             BiConsumer<Player, ChestResponse> consumer = this.getResponseMap().get(chestResponse.getSlot());
             if (consumer != null) {
                 consumer.accept(player, chestResponse);
@@ -125,7 +131,7 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
     }
 
     protected void removeFakeBlock(Player player) {
-        if (fakeBlocks.containsKey(player)) {
+        if (this.fakeBlocks.containsKey(player)) {
             List<FakeBlockCacheData> cacheDataList = this.fakeBlocks.get(player);
             for (FakeBlockCacheData cacheData : cacheDataList) {
                 UpdateBlockPacket pk = new UpdateBlockPacket();
@@ -160,9 +166,11 @@ public abstract class AdvancedFakeBlockContainerFormBase extends AdvancedChestFo
     }
 
     protected CompoundTag getBlockEntityDataAt(Vector3 position, String title, boolean pair) {
-        CompoundTag result = BlockEntity.getDefaultCompound(position, tileId)
+        // 获取blockEntity的tag，大箱子还需传入pair参数
+        CompoundTag result = BlockEntity.getDefaultCompound(position, blockEntityIdentifier)
                 .putString("CustomName", title);
         if (pair) {
+            // 这里默认写死pairX = -1
             int pairX = -1;
             result.putInt("pairx", position.getFloorX() + pairX)
                     .putInt("pairz", position.getFloorZ());

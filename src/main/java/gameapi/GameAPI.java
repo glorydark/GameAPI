@@ -183,7 +183,6 @@ public class GameAPI extends PluginBase implements Listener {
                         editProcess.onQuit();
                         editProcess.clearAllTextEntities();
                     }
-                    break;
                 }
             }
         }

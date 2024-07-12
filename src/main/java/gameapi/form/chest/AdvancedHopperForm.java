@@ -22,7 +22,7 @@ public class AdvancedHopperForm extends AdvancedFakeBlockContainerFormBase {
     }
 
     public AdvancedHopperForm(String title, boolean movable) {
-        super(BlockEntity.CHEST, Block.CHEST, title, InventoryType.CHEST, movable);
+        super(title, AdvancedChestFormType.HOPPER, movable);
     }
 
     public AdvancedHopperForm onClick(BiConsumer<Player, ChestResponse> consumer) {
