@@ -326,7 +326,7 @@ public class BaseEventListener implements Listener {
         }
         if (room.getRoomRule().isVirtualHealth()) {
             RoomVirtualHealthManager manager = room.getRoomVirtualHealthManager();
-            if (manager.getHealth(player) - event.getFinalDamage() < 0.1d) {
+            if (manager.getHealth(player) - event.getFinalDamage() <= 0d) {
                 room.setDeath(player); // 设置死亡
                 event.setDamage(0f);
                 if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
@@ -345,7 +345,7 @@ public class BaseEventListener implements Listener {
                 return;
             }
         } else {
-            if (entity.getHealth() - event.getFinalDamage() < 0.1d) {
+            if (entity.getHealth() - event.getFinalDamage() <= 0f) {
                 room.setDeath(player); // 设置死亡
                 if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
                     if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
@@ -404,7 +404,7 @@ public class BaseEventListener implements Listener {
                     }
                     if (room1.getRoomRule().isVirtualHealth()) {
                         RoomVirtualHealthManager manager = room1.getRoomVirtualHealthManager();
-                        if (manager.getHealth(victim) - event.getFinalDamage() < 0.1d) {
+                        if (manager.getHealth(victim) - event.getFinalDamage() <= 0d) {
                             addPlayerDamageSource(victim.getName(), damager.getName());
                             room1.setDeath(victim); // 设置死亡
                             if (room1.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
@@ -421,7 +421,7 @@ public class BaseEventListener implements Listener {
                             return;
                         }
                     } else {
-                        if (entity.getHealth() - event.getFinalDamage() < 0.1d) {
+                        if (entity.getHealth() - event.getFinalDamage() <= 0f) {
                             addPlayerDamageSource(victim.getName(), damager.getName());
                             room1.setDeath(victim); // 设置死亡
                             if (room1.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
@@ -796,6 +796,20 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void EntityDeathEvent(EntityDeathEvent event) {
         Entity entity = event.getEntity();
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
+            Room room = RoomManager.getRoom(player);
+            if (room != null) {
+                if (room.getRoomRule().isVirtualHealth()) {
+                    if (room.getRoomVirtualHealthManager().getHealth(player) < 0) {
+                        room.setDeath(player);
+                    } else {
+                        player.setHealth(1);
+                    }
+                    event.setCancelled(true);
+                }
+            }
+        }
         if (entity instanceof EntityLiving) {
             EntityLiving entityLiving = (EntityLiving) entity;
             Room room;

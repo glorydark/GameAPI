@@ -390,6 +390,9 @@ public class Room {
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
+            for (Player p : this.getPlayers()) {
+                p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.success", player.getName()));
+            }
             if (GameAPI.tipsEnabled) {
                 for (Level playLevel : this.getPlayLevels()) {
                     TipsTools.removeTipsConfig(playLevel.getName(), player);
@@ -405,11 +408,12 @@ public class Room {
             player.setGamemode(Server.getInstance().getDefaultGamemode());
             this.removePlayerFromTeam(player);
             this.playerProperties.remove(player.getName());
-            this.players.remove(player);
             this.roomVirtualHealthManager.removePlayer(player);
-            RoomManager.playerRoomHashMap.remove(player);
             player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             this.updateHideStatus(player, true);
+
+            this.players.remove(player);
+            RoomManager.playerRoomHashMap.remove(player);
         }
     }
 
