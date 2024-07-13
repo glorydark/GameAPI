@@ -32,7 +32,7 @@ public class AnimationTools {
     }
 
     public static AnimationPacketBuilder builder() {
-        return new AnimationTools.AnimationPacketBuilder();
+        return new AnimationPacketBuilder();
     }
 
     @SuppressWarnings("unused")

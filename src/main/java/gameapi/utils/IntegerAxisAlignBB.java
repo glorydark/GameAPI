@@ -83,7 +83,7 @@ public class IntegerAxisAlignBB {
         this.minZ = minZ;
     }
 
-    public void forEach(IntegerAxisAlignBB.BBConsumer action) {
+    public void forEach(BBConsumer action) {
         int minX = this.getMinX();
         int minY = this.getMinY();
         int minZ = this.getMinZ();

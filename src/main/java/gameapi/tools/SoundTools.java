@@ -1,7 +1,6 @@
 package gameapi.tools;
 
 import cn.nukkit.Player;
-import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.Sound;
 import cn.nukkit.network.protocol.PlaySoundPacket;
@@ -42,7 +41,7 @@ public class SoundTools {
         player.dataPacket(pk);
     }
 
-    public static void addAmbientSound(Position position, cn.nukkit.level.Sound sound) {
+    public static void addAmbientSound(Position position, Sound sound) {
         position.getLevel().addSound(position, sound);
     }
 }

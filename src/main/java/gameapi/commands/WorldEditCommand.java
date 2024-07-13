@@ -3,6 +3,7 @@ package gameapi.commands;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockID;
 import cn.nukkit.block.BlockUnknown;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
@@ -20,6 +21,7 @@ import gameapi.annotation.Experimental;
 import gameapi.commands.data.WorldEditOperation;
 import gameapi.commands.data.entry.OperationEntry;
 import gameapi.commands.data.entry.SimpleOperationEntry;
+import gameapi.tools.SchematicConverter;
 import gameapi.tools.SmartTools;
 import gameapi.utils.IntegerAxisAlignBB;
 import gameapi.utils.PosSet;
@@ -339,6 +341,9 @@ public class WorldEditCommand extends Command {
                             }
                     );
                     break;
+                case "loadschematics":
+                    SchematicConverter.createBuildFromSchematic(player, strings[1]);
+                    break;
                 case "createbuild":
                     if (generate) {
                         GameAPI.plugin.getLogger().info("You have started a task of creating or saving build. Please wait...");
@@ -383,11 +388,13 @@ public class WorldEditCommand extends Command {
                                     if (block == null) {
                                         block = new BlockUnknown(blocks.getInt("blockId"), blocks.getInt("damage"));
                                     }
-                                    player.getLevel().setBlock(new Vector3(x, y, z), block, true, false);
+                                    if (block.getId() != BlockID.AIR) {
+                                        player.getLevel().setBlock(new Vector3(x, y, z), block, true, false);
 
-                                    if (generated.get() >= (maxCount / 100) * (lastTipPercentage.get() + 5)) {
-                                        GameAPI.plugin.getLogger().info("[" + blockCount + "] Generating block... §e" + lastTipPercentage.get() + "%");
-                                        lastTipPercentage.getAndAdd(5);
+                                        if (generated.get() >= (maxCount / 100) * (lastTipPercentage.get() + 5)) {
+                                            GameAPI.plugin.getLogger().info("[" + blockCount + "] Generating block... §e" + lastTipPercentage.get() + "%");
+                                            lastTipPercentage.getAndAdd(5);
+                                        }
                                     }
                                     // GameAPI.plugin.getLogger().info("Generating block info at {" + x + ", " + y + ", " + z + "} with {" + block.getId() + ":" + block.getDamage() + "}");
                                     generated.getAndIncrement();

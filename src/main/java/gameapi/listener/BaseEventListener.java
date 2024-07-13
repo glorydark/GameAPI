@@ -494,7 +494,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
         String command = event.getMessage();
-        if (command.startsWith("/gameapi")) {
+        if (command.startsWith("/glorydark/nukkit/gameapi")) {
             return;
         }
         Player player = event.getPlayer();
