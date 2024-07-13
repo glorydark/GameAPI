@@ -1,10 +1,12 @@
 package gameapi.extensions.task;
 
 import cn.nukkit.Player;
+import gameapi.annotation.Future;
 
 /**
  * @author glorydark
  */
+@Future
 public abstract class AbstractGameTask {
 
     private final String gameName;

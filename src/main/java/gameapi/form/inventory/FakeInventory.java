@@ -16,9 +16,9 @@ public class FakeInventory extends BaseInventory {
 
     private String title;
 
-    private FakeBlockCacheData fakeBlockCacheData;
+    private final FakeBlockCacheData fakeBlockCacheData;
 
-    private AdvancedFakeBlockContainerFormBase formBase;
+    private final AdvancedFakeBlockContainerFormBase formBase;
 
     public FakeInventory(AdvancedFakeBlockContainerFormBase formBase, FakeBlockCacheData fakeBlockCacheData, InventoryType inventoryType) {
         this(formBase, fakeBlockCacheData, inventoryType, formBase.getTitle());

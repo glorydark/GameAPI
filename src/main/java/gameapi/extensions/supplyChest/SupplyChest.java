@@ -4,6 +4,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntityChest;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
+import gameapi.annotation.Experimental;
 import gameapi.event.room.RoomSupplyChestRefreshEvent;
 import gameapi.extensions.supplyChest.item.SupplyItem;
 import gameapi.listener.base.GameListenerRegistry;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Data
+@Experimental
 public class SupplyChest {
 
     protected long lastUpdateMillis;

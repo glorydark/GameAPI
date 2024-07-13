@@ -14,7 +14,7 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
-import gameapi.form.chest.AdvancedDoubleChestForm;
+import gameapi.form.inventory.AdvancedDoubleChestForm;
 import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.GameEntityManager;

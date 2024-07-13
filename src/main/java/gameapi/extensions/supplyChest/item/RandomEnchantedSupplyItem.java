@@ -3,6 +3,7 @@ package gameapi.extensions.supplyChest.item;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.utils.Utils;
+import gameapi.annotation.Experimental;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Experimental
 public class RandomEnchantedSupplyItem extends SupplyItem {
 
     public RandomEnchantedSupplyItem(Item item, double possibility) {

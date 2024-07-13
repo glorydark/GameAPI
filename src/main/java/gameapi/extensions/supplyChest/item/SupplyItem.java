@@ -1,11 +1,13 @@
 package gameapi.extensions.supplyChest.item;
 
 import cn.nukkit.item.Item;
+import gameapi.annotation.Experimental;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Experimental
 public class SupplyItem extends AbstractSupplyItem {
 
     protected final double possibility; // 0-1

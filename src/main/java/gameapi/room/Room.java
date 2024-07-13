@@ -16,6 +16,7 @@ import gameapi.form.AdvancedFormWindowCustom;
 import gameapi.form.element.ResponsiveElementInput;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
+import gameapi.manager.room.AdvancedBlockManager;
 import gameapi.manager.room.CheckpointManager;
 import gameapi.manager.room.RoomVirtualHealthManager;
 import gameapi.room.executor.BaseRoomExecutor;
@@ -28,6 +29,7 @@ import gameapi.tools.TipsTools;
 import gameapi.tools.WorldTools;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.Language;
+import it.unimi.dsi.fastutil.Function;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -62,6 +64,7 @@ public class Room {
     private RoomRule roomRule;
     private RoomStatus roomStatus = RoomStatus.ROOM_STATUS_WAIT;
     private List<Player> players = new ArrayList<>();
+    private List<Player> spectators = new ArrayList<>();
     private int maxPlayer = 2;
     private int minPlayer = 16;
     private int waitTime = 10;
@@ -74,7 +77,6 @@ public class Room {
     private int round = 0;
     private int time = 0; // Spent Seconds
     private boolean isAllowedToStart = true;
-    private List<Player> spectators = new ArrayList<>();
     private List<Level> playLevels = new ArrayList<>();
     private AdvancedLocation waitSpawn = new AdvancedLocation();
     private List<AdvancedLocation> startSpawn = new ArrayList<>();
@@ -87,6 +89,10 @@ public class Room {
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
     private long startMillis;
+    private List<SupplyChest> supplyChests = new ArrayList<>();
+    private String tempWorldPrefixOverride;
+    private int id = -1;
+
     @Setter(AccessLevel.NONE)
     private RoomUpdateTask roomUpdateTask;
     @Setter(AccessLevel.NONE)
@@ -99,57 +105,18 @@ public class Room {
     @Setter(AccessLevel.NONE)
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
     private ScheduledExecutorService roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
-    private List<SupplyChest> supplyChests = new ArrayList<>();
-    private String tempWorldPrefixOverride;
-    private int id = -1;
+    private AdvancedBlockManager advancedBlockManager = new AdvancedBlockManager();
 
     public Room(String gameName, RoomRule roomRule, int round) {
-        this.maxRound = round;
-        this.roomRule = roomRule;
-        this.gameName = gameName;
-        this.roomUpdateTask = new RoomUpdateTask(this);
+        this(gameName, roomRule, "", round);
     }
 
-    public Room(String gameName, RoomRule roomRule, Level playLevel, int round) {
+    public Room(String gameName, RoomRule roomRule, String roomLevelBackup, int round) {
         this.maxRound = round;
         this.roomRule = roomRule;
         this.gameName = gameName;
         this.roomUpdateTask = new RoomUpdateTask(this);
-        this.addPlayLevel(playLevel);
-    }
-
-    public Room(String gameName, RoomRule roomRule, Level playLevel, String roomLevelBackup, int round) {
-        this.maxRound = round;
-        this.roomRule = roomRule;
-        this.gameName = gameName;
-        this.roomUpdateTask = new RoomUpdateTask(this);
-        this.addPlayLevel(playLevel);
         this.roomLevelBackup = roomLevelBackup;
-    }
-
-    public Room(String gameName, RoomRule roomRule, List<Level> playLevels, int round) {
-        this.maxRound = round;
-        this.roomRule = roomRule;
-        this.gameName = gameName;
-        this.roomUpdateTask = new RoomUpdateTask(this);
-        this.getPlayLevels().addAll(playLevels);
-    }
-
-    public Room(String gameName, RoomRule roomRule, List<Level> playLevels, String roomLevelBackup, int round) {
-        this.maxRound = round;
-        this.roomRule = roomRule;
-        this.gameName = gameName;
-        this.roomUpdateTask = new RoomUpdateTask(this);
-        this.getPlayLevels().addAll(playLevels);
-        this.roomLevelBackup = roomLevelBackup;
-    }
-
-    public static boolean isRoomCurrentPlayLevel(Level level) {
-        if (RoomManager.playerRoomHashMap.size() > 0) {
-            return RoomManager.playerRoomHashMap.values().stream().anyMatch(room -> room != null && room.playLevels.stream().anyMatch(l -> l.equals(level)));
-        } else {
-            return false;
-        }
     }
 
     public void registerRoomItem(RoomItemBase... roomItems) {
@@ -179,21 +146,16 @@ public class Room {
     }
 
     public <T> T getPlayerProperty(String player, String key, T defaultValue) {
-        return playerProperties.containsKey(player) ? (T) playerProperties.get(player).getOrDefault(key, defaultValue) : defaultValue;
+        return this.playerProperties.containsKey(player) ? (T) this.playerProperties.get(player).getOrDefault(key, defaultValue) : defaultValue;
     }
 
     public void setPlayerProperty(String player, String key, Object value) {
-        if (playerProperties.containsKey(player)) {
-            playerProperties.get(player).put(key, value);
-        } else {
-            playerProperties.put(player, new LinkedHashMap<>());
-            playerProperties.get(player).put(key, value);
-        }
+        this.playerProperties.computeIfAbsent(player, (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>()).put(key, value);
     }
 
     public boolean hasPlayerProperty(String player, String key) {
-        if (playerProperties.containsKey(player)) {
-            return playerProperties.get(player).containsKey(key);
+        if (this.playerProperties.containsKey(player)) {
+            return this.playerProperties.get(player).containsKey(key);
         } else {
             return false;
         }
@@ -212,32 +174,32 @@ public class Room {
     }
 
     public boolean hasRoomProperty(String key) {
-        return roomProperties.containsKey(key);
+        return this.roomProperties.containsKey(key);
     }
 
     public void executeLoseCommands(Player player) {
-        for (String string : loseConsoleCommands) {
+        for (String string : this.loseConsoleCommands) {
             Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", "\"" + player.getName() + "\"").replace("%level%", player.getLevel().getName()).replace("%game_name%", gameName).replace("%room_name%", roomName));
         }
     }
 
     public void executeWinCommands(Player player) {
-        for (String string : winConsoleCommands) {
+        for (String string : this.winConsoleCommands) {
             Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", "\"" + player.getName() + "\"").replace("%level%", player.getLevel().getName()).replace("%game_name%", gameName).replace("%room_name%", roomName));
         }
     }
 
     public void allocatePlayerToTeams() {
-        if (teamCache.keySet().size() == 0) {
+        if (this.teamCache.keySet().size() == 0) {
             return;
         }
-        for (Player player : players) {
-            ConcurrentHashMap<String, BaseTeam> map = new ConcurrentHashMap<>(teamCache);
+        for (Player player : this.players) {
+            Map<String, BaseTeam> map = new ConcurrentHashMap<>(this.teamCache);
             List<Map.Entry<String, BaseTeam>> list = map.entrySet()
                     .stream()
                     .sorted(Comparator.comparing(t -> t.getValue().getSize()))
                     .collect(Collectors.toList());
-            teamCache.get(list.get(0).getKey()).addPlayer(player); //从最低人数来尝试加入
+            this.teamCache.get(list.get(0).getKey()).addPlayer(player); //从最低人数来尝试加入
             BaseTeam team = list.get(0).getValue();
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
         }
@@ -247,9 +209,9 @@ public class Room {
         if (getTeam(player) != null) {
             return false;
         }
-        if (teamCache.containsKey(registry) && teamCache.get(registry).isAvailable()) { //禁止加入满人队伍
-            teamCache.get(registry).addPlayer(player);
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", teamCache.get(registry).getPrefix() + registry));
+        if (this.teamCache.containsKey(registry) && this.teamCache.get(registry).isAvailable()) { //禁止加入满人队伍
+            this.teamCache.get(registry).addPlayer(player);
+            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", this.teamCache.get(registry).getPrefix() + registry));
         } else {
             return false;
         }
@@ -257,17 +219,17 @@ public class Room {
     }
 
     public void removePlayerFromTeam(Player player) {
-        for (Map.Entry<String, BaseTeam> entrySet : teamCache.entrySet()) {
+        for (Map.Entry<String, BaseTeam> entrySet : this.teamCache.entrySet()) {
             if (entrySet.getValue().hasPlayer(player)) {
                 BaseTeam team = entrySet.getValue();
-                teamCache.get(entrySet.getKey()).removePlayer(player);
+                this.teamCache.get(entrySet.getKey()).removePlayer(player);
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.quit", team.getPrefix() + team.getRegistryName()));
             }
         }
     }
 
     public BaseTeam getTeam(Player player) {
-        for (Map.Entry<String, BaseTeam> entrySet : teamCache.entrySet()) {
+        for (Map.Entry<String, BaseTeam> entrySet : this.teamCache.entrySet()) {
             if (entrySet.getValue().hasPlayer(player)) {
                 return entrySet.getValue();
             }
@@ -276,21 +238,21 @@ public class Room {
     }
 
     public List<BaseTeam> getTeams() {
-        return new ArrayList<>(teamCache.values());
+        return new ArrayList<>(this.teamCache.values());
     }
 
     public List<BaseTeam> getOpponentTeams(BaseTeam baseTeam) {
-        List<BaseTeam> baseTeams = new ArrayList<>(teamCache.values());
+        List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
         baseTeams.remove(baseTeam);
         return baseTeams;
     }
 
-    public BaseTeam getTeam(String registry) {
-        return teamCache.getOrDefault(registry, null);
+    public BaseTeam getTeam(String teamId) {
+        return this.teamCache.getOrDefault(teamId, null);
     }
 
     public void registerTeam(BaseTeam team) {
-        teamCache.put(team.getRegistryName(), team);
+        this.teamCache.put(team.getRegistryName(), team);
     }
 
     /*
@@ -355,7 +317,7 @@ public class Room {
             return;
         }
         if (this.players.size() < this.maxPlayer) {
-            if (this.hasPlayer(player)) {
+            if (this.hasPlayer(player) || this.hasSpectator(player)) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_this_room"));
             } else {
                 RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
@@ -507,109 +469,36 @@ public class Room {
         }
     }
 
-    public AdvancedLocation getLocationByString(String string) {
-        String[] positions = string.split(":");
-        if (positions.length < 4) {
-            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation("advancedLocation.error.wrong_format"));
-            return null;
-        }
-        if (!Server.getInstance().isLevelLoaded(positions[3])) {
-            GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation("advancedLocation.error.trying_to_load_world"));
-            if (Server.getInstance().loadLevel(positions[3])) {
-                Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
-                AdvancedLocation advancedLocation = new AdvancedLocation();
-                advancedLocation.setLocation(location);
-                advancedLocation.setVersion(0);
-                if (positions.length >= 6) {
-                    advancedLocation.setYaw(Double.parseDouble(positions[4]));
-                    advancedLocation.setPitch(Double.parseDouble(positions[5]));
-                    advancedLocation.setVersion(1);
-                    if (positions.length == 7) {
-                        advancedLocation.setHeadYaw(Double.parseDouble(positions[6]));
-                        advancedLocation.setVersion(2);
-                    }
-                }
-                return advancedLocation;
-            } else {
-                GameAPI.plugin.getLogger().warning(GameAPI.getLanguage().getTranslation("advancedLocation.error.world_load_failed", positions[3]));
-                return null;
-            }
-        } else {
-            Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
-            AdvancedLocation advancedLocation = new AdvancedLocation();
-            advancedLocation.setLocation(location);
-            advancedLocation.setVersion(0);
-            if (positions.length >= 6) {
-                advancedLocation.setYaw(Double.parseDouble(positions[4]));
-                advancedLocation.setPitch(Double.parseDouble(positions[5]));
-                advancedLocation.setVersion(1);
-                if (positions.length == 7) {
-                    advancedLocation.setHeadYaw(Double.parseDouble(positions[6]));
-                    advancedLocation.setVersion(2);
-                }
-            }
-            return advancedLocation;
-        }
-    }
-
     public void setWaitSpawn(String position) {
-        AdvancedLocation location = this.getLocationByString(position);
-        if (location != null) {
-            this.waitSpawn = location;
-        } else {
-            this.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
-        }
+        this.setWaitSpawn(new AdvancedLocation(position));
     }
 
     public void addStartSpawn(String position) {
-        AdvancedLocation location = this.getLocationByString(position);
-        if (location != null) {
-            this.startSpawn.add(location);
-        } else {
-            this.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
-        }
+        this.addStartSpawn(new AdvancedLocation(position));
     }
 
     public void addSpectatorSpawn(String position) {
-        AdvancedLocation location = this.getLocationByString(position);
-        if (location != null) {
-            this.spectatorSpawn.add(location);
-        } else {
-            this.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
-        }
+        this.addSpectatorSpawn(new AdvancedLocation(position));
     }
 
     public void setEndSpawn(String position) {
-        AdvancedLocation location = this.getLocationByString(position);
-        if (location != null) {
-            this.endSpawn = location;
-        } else {
-            this.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
-        }
+        this.setEndSpawn(new AdvancedLocation(position));
     }
 
     public void setWaitSpawn(Location location) {
-        AdvancedLocation advancedLocation = new AdvancedLocation();
-        advancedLocation.setLocation(location);
-        this.waitSpawn = advancedLocation;
+        this.setWaitSpawn(new AdvancedLocation(location));
     }
 
     public void addStartSpawn(Location location) {
-        AdvancedLocation advancedLocation = new AdvancedLocation();
-        advancedLocation.setLocation(location);
-        this.startSpawn.add(advancedLocation);
+        this.addStartSpawn(new AdvancedLocation(location));
     }
 
     public void addSpectatorSpawn(Location location) {
-        AdvancedLocation advancedLocation = new AdvancedLocation();
-        advancedLocation.setLocation(location);
-        this.spectatorSpawn.add(advancedLocation);
+        this.addSpectatorSpawn(new AdvancedLocation(location));
     }
 
     public void setEndSpawn(Location location) {
-        AdvancedLocation advancedLocation = new AdvancedLocation();
-        advancedLocation.setLocation(location);
-        this.endSpawn = advancedLocation;
+        this.setEndSpawn(new AdvancedLocation(location));
     }
 
     public void setWaitSpawn(AdvancedLocation location) {
@@ -629,11 +518,11 @@ public class Room {
     }
 
     public boolean hasPlayer(Player player) {
-        return players.contains(player);
+        return this.players.contains(player);
     }
 
-    public List<Player> getPlayers() {
-        return players;
+    public boolean hasSpectator(Player player) {
+        return this.spectators.contains(player);
     }
 
     public void removeSpectator(Player player) {
@@ -686,7 +575,7 @@ public class Room {
                         AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
                         location.teleport(player);
                     } else {
-                        player.teleport(players.get(0).getLocation(), null);
+                        player.teleport(this.players.get(0).getLocation(), null);
                     }
                 }
                 break;
@@ -697,7 +586,7 @@ public class Room {
                 }
                 break;
         }
-        spectators.add(player);
+        this.spectators.add(player);
         RoomManager.playerRoomHashMap.put(player, this);
         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
     }

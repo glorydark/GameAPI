@@ -2,6 +2,7 @@ package gameapi.extensions.task;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import gameapi.annotation.Future;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Map;
 /**
  * @author glorydark
  */
+@Future
 public class GameTask extends AbstractGameTask {
 
     private List<String> commands;

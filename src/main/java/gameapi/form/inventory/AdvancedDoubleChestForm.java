@@ -1,4 +1,4 @@
-package gameapi.form.chest;
+package gameapi.form.inventory;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -12,7 +12,6 @@ import cn.nukkit.scheduler.Task;
 import gameapi.GameAPI;
 import gameapi.form.AdvancedFakeBlockContainerFormBase;
 import gameapi.form.element.ResponsiveElementSlotItem;
-import gameapi.form.inventory.FakeInventory;
 import gameapi.form.response.ChestResponse;
 import gameapi.utils.FakeBlockCacheData;
 

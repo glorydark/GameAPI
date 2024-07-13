@@ -9,7 +9,7 @@ import gameapi.event.block.RoomBlockEvent;
 import gameapi.event.player.RoomPlayerInteractEvent;
 import gameapi.listener.base.annotations.GameEventHandler;
 import gameapi.listener.base.interfaces.GameListener;
-import gameapi.manager.extensions.AdvancedBlockManager;
+import gameapi.manager.room.AdvancedBlockManager;
 import gameapi.room.Room;
 
 import java.lang.reflect.Method;
@@ -65,9 +65,9 @@ public class GameListenerRegistry {
             listener.callEvent(gameName, event);
         }
         if (event instanceof RoomBlockEvent) {
-            AdvancedBlockManager.triggerBlock((RoomBlockEvent) event);
+            room.getAdvancedBlockManager().triggerBlock((RoomBlockEvent) event);
         } else if (event instanceof RoomPlayerInteractEvent) {
-            AdvancedBlockManager.triggerBlock(((RoomPlayerInteractEvent) event));
+            room.getAdvancedBlockManager().triggerBlock(((RoomPlayerInteractEvent) event));
         }
     }
 

@@ -1,4 +1,4 @@
-package gameapi.form.chest;
+package gameapi.form.inventory;
 
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;

@@ -14,7 +14,7 @@ import cn.nukkit.network.protocol.BlockEntityDataPacket;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.scheduler.Task;
 import gameapi.GameAPI;
-import gameapi.form.chest.AdvancedChestFormType;
+import gameapi.form.inventory.AdvancedChestFormType;
 import gameapi.form.inventory.FakeInventory;
 import gameapi.form.response.ChestResponse;
 import gameapi.utils.FakeBlockCacheData;
