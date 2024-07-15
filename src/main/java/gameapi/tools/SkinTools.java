@@ -29,7 +29,7 @@ public class SkinTools {
             try {
                 skin.setSkinData(ImageIO.read(skinDataFile));
             } catch (Exception e) {
-                GameAPI.plugin.getLogger().error("皮肤 " + loadName + " 读取错误，请检查图片格式或图片尺寸！", e);
+                GameAPI.getInstance().getLogger().error("皮肤 " + loadName + " 读取错误，请检查图片格式或图片尺寸！", e);
             }
 
             //如果是4D皮肤
@@ -44,17 +44,17 @@ public class SkinTools {
                     case "1.12.0":
                         geometryName = getGeometryName(skinJsonFile);
                         if (geometryName.equals("nullvalue")) {
-                            GameAPI.plugin.getLogger().error("暂不支持该版本格式的皮肤！请等待更新！");
+                            GameAPI.getInstance().getLogger().error("暂不支持该版本格式的皮肤！请等待更新！");
                         } else {
                             skin.generateSkinId(loadName);
                             skin.setSkinResourcePatch("{\"geometry\":{\"default\":\"" + geometryName + "\"}}");
                             skin.setGeometryName(geometryName);
                             skin.setGeometryData(readFile(skinJsonFile));
-                            GameAPI.plugin.getLogger().info("皮肤 " + loadName + " 读取中");
+                            GameAPI.getInstance().getLogger().info("皮肤 " + loadName + " 读取中");
                         }
                         break;
                     default:
-                        GameAPI.plugin.getLogger().warning("[" + loadName + "] 的版本格式为：" + formatVersion + "，正在尝试加载！");
+                        GameAPI.getInstance().getLogger().warning("[" + loadName + "] 的版本格式为：" + formatVersion + "，正在尝试加载！");
                     case "1.10.0":
                     case "1.8.0":
                         for (Map.Entry<String, Object> entry : skinJson.entrySet()) {
@@ -78,13 +78,13 @@ public class SkinTools {
             }
             skin.setTrusted(true);
             if (skin.isValid()) {
-                GameAPI.plugin.getLogger().info("皮肤 " + loadName + " 读取完成");
+                GameAPI.getInstance().getLogger().info("皮肤 " + loadName + " 读取完成");
                 return skin;
             } else {
-                GameAPI.plugin.getLogger().error("皮肤 " + loadName + " 验证失败，请检查皮肤文件完整性！");
+                GameAPI.getInstance().getLogger().error("皮肤 " + loadName + " 验证失败，请检查皮肤文件完整性！");
             }
         } else {
-            GameAPI.plugin.getLogger().error("皮肤 " + loadName + " 错误的名称格式，请将皮肤文件命名为 skin.png 模型文件命名为 skin.json");
+            GameAPI.getInstance().getLogger().error("皮肤 " + loadName + " 错误的名称格式，请将皮肤文件命名为 skin.png 模型文件命名为 skin.json");
         }
         return null;
     }
@@ -124,11 +124,11 @@ public class SkinTools {
     public static void parseSerializedImage(SerializedImage image, File file) {
         byte[] data = image.data;
         if (data == null) {
-            GameAPI.plugin.getLogger().warning("data为null");
+            GameAPI.getInstance().getLogger().warning("data为null");
             return;
         }
         if (data.length == 0) {
-            GameAPI.plugin.getLogger().warning("data长度为0");
+            GameAPI.getInstance().getLogger().warning("data长度为0");
             return;
         }
 

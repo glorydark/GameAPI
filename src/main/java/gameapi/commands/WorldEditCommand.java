@@ -113,7 +113,7 @@ public class WorldEditCommand extends Command {
                             commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
                             return false;
                         }
-                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
+                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.getInstance(), new AsyncTask() {
                             @Override
                             public void onRun() {
                                 List<OperationEntry> simpleOperationEntries = new ArrayList<>();
@@ -156,7 +156,7 @@ public class WorldEditCommand extends Command {
                             commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
                             return false;
                         }
-                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
+                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.getInstance(), new AsyncTask() {
                             @Override
                             public void onRun() {
                                 List<OperationEntry> simpleOperationEntries = new ArrayList<>();
@@ -202,7 +202,7 @@ public class WorldEditCommand extends Command {
                             commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
                             return false;
                         }
-                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.plugin, new AsyncTask() {
+                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.getInstance(), new AsyncTask() {
                             @Override
                             public void onRun() {
                                 List<OperationEntry> simpleOperationEntries = new ArrayList<>();
@@ -237,7 +237,7 @@ public class WorldEditCommand extends Command {
                 case "savebuild":
                     // /gameapi savebuild 631 71 -256
                     if (generate) {
-                        GameAPI.plugin.getLogger().info("You have started a task of creating or saving build. Please wait...");
+                        GameAPI.getInstance().getLogger().info("You have started a task of creating or saving build. Please wait...");
                     }
                     generate = true;
                     Vector3 p1 = new Vector3(Integer.parseInt(strings[1]), Integer.parseInt(strings[2]), Integer.parseInt(strings[3]));
@@ -247,14 +247,14 @@ public class WorldEditCommand extends Command {
                     long startMillisForAll = System.currentTimeMillis();
 
                     IntegerAxisAlignBB[] bbs = integerAxisAlignBB.splitAABB(64, 100, 64);
-                    GameAPI.plugin.getLogger().info("Start building save task in {" + integerAxisAlignBB + "}");
+                    GameAPI.getInstance().getLogger().info("Start building save task in {" + integerAxisAlignBB + "}");
                     player.sendMessage("Start building save task in {" + integerAxisAlignBB + "}");
 
                     player.sendMessage("For better performance, the range are cut into various sections: ");
-                    GameAPI.plugin.getLogger().info("For better performance, the range are cut into various sections: ");
+                    GameAPI.getInstance().getLogger().info("For better performance, the range are cut into various sections: ");
                     for (int i = 0; i < bbs.length; i++) {
                         player.sendMessage("- [" + i + "] " + bbs[i].toString());
-                        GameAPI.plugin.getLogger().info("- [" + i + "] " + bbs[i].toString());
+                        GameAPI.getInstance().getLogger().info("- [" + i + "] " + bbs[i].toString());
                     }
 
                     AtomicLong readBlockCountAll = new AtomicLong(0);
@@ -289,13 +289,13 @@ public class WorldEditCommand extends Command {
                                 }
                                 queryBlockTimes.getAndIncrement();
                                 if (queryBlockTimes.get() > (maxCount / 100) * (lastTipPercentage.get() + 5)) {
-                                    GameAPI.plugin.getLogger().info("[" + finalBbsIndex + "] Saving sections... §e" + lastTipPercentage + "%");
+                                    GameAPI.getInstance().getLogger().info("[" + finalBbsIndex + "] Saving sections... §e" + lastTipPercentage + "%");
                                     lastTipPercentage.getAndAdd(5);
                                 }
                                 if (queryBlockTimes.get() >= newBB.getSize()) {
                                     if (readBlockCountForSection.get() != 0) {
-                                        new File(GameAPI.path + "/buildings/" + name + "/").mkdirs();
-                                        File file = new File(GameAPI.path + "/buildings/" + name + "/" + System.currentTimeMillis() + "_" + UUID.randomUUID() + ".nbt");
+                                        new File(GameAPI.getPath() + "/buildings/" + name + "/").mkdirs();
+                                        File file = new File(GameAPI.getPath() + "/buildings/" + name + "/" + System.currentTimeMillis() + "_" + UUID.randomUUID() + ".nbt");
                                         if (file.exists()) {
                                             try {
                                                 file.createNewFile();
@@ -316,13 +316,13 @@ public class WorldEditCommand extends Command {
                                                 .append(" | ")
                                                 .append("Time Cost: ").append(SmartTools.timeDiffMillisToString(startMillisForSection, System.currentTimeMillis()));
                                         player.sendMessage(builder.toString());
-                                        GameAPI.plugin.getLogger().info(builder.toString());
+                                        GameAPI.getInstance().getLogger().info(builder.toString());
                                     } else {
                                         StringBuilder builder = new StringBuilder();
                                         builder.append("[").append(finalBbsIndex).append("] ")
                                                 .append(" Finish reading the section. The section contains nothing but air blocks. Turning into next sections...");
                                         player.sendMessage(builder.toString());
-                                        GameAPI.plugin.getLogger().info(builder.toString());
+                                        GameAPI.getInstance().getLogger().info(builder.toString());
                                     }
                                 }
                             }));
@@ -336,7 +336,7 @@ public class WorldEditCommand extends Command {
                                         .append(" | ")
                                         .append("Time cost: ").append(SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillisForAll));
                                 commandSender.sendMessage(builder.toString());
-                                GameAPI.plugin.getLogger().info(builder.toString());
+                                GameAPI.getInstance().getLogger().info(builder.toString());
                                 generate = false;
                             }
                     );
@@ -346,9 +346,9 @@ public class WorldEditCommand extends Command {
                     break;
                 case "createbuild":
                     if (generate) {
-                        GameAPI.plugin.getLogger().info("You have started a task of creating or saving build. Please wait...");
+                        GameAPI.getInstance().getLogger().info("You have started a task of creating or saving build. Please wait...");
                     }
-                    File[] files = new File(GameAPI.path + "/buildings/" + strings[1] + "/").listFiles();
+                    File[] files = new File(GameAPI.getPath() + "/buildings/" + strings[1] + "/").listFiles();
                     if (files == null) {
                         commandSender.sendMessage("Cannot find folder");
                         return false;
@@ -360,7 +360,7 @@ public class WorldEditCommand extends Command {
                     AtomicInteger blockCount = new AtomicInteger();
                     AtomicInteger generateSectionCount = new AtomicInteger();
                     commandSender.sendMessage("Start generating building task... [Count: " + maxGenerateSections + "]");
-                    GameAPI.plugin.getLogger().info("Start generating building task... [Count: " + maxGenerateSections + "]");
+                    GameAPI.getInstance().getLogger().info("Start generating building task... [Count: " + maxGenerateSections + "]");
                     try {
                         CompletableFuture.runAsync(() -> {
                             long startMillisForSection = System.currentTimeMillis();
@@ -369,7 +369,7 @@ public class WorldEditCommand extends Command {
                                 try {
                                     compoundTag = NBTIO.read(file);
                                 } catch (IOException e) {
-                                    GameAPI.plugin.getLogger().error(e.toString());
+                                    GameAPI.getInstance().getLogger().error(e.toString());
                                     return;
                                 }
                                 List<CompoundTag> tags = compoundTag.getList("blocks", CompoundTag.class).getAll();
@@ -392,7 +392,7 @@ public class WorldEditCommand extends Command {
                                         player.getLevel().setBlock(new Vector3(x, y, z), block, true, false);
 
                                         if (generated.get() >= (maxCount / 100) * (lastTipPercentage.get() + 5)) {
-                                            GameAPI.plugin.getLogger().info("[" + blockCount + "] Generating block... §e" + lastTipPercentage.get() + "%");
+                                            GameAPI.getInstance().getLogger().info("[" + blockCount + "] Generating block... §e" + lastTipPercentage.get() + "%");
                                             lastTipPercentage.getAndAdd(5);
                                         }
                                     }
@@ -403,17 +403,17 @@ public class WorldEditCommand extends Command {
                                 generateSectionCount.getAndIncrement();
                                 String timeDiffToString = SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillisForSection);
                                 commandSender.sendMessage("Finish saving building task [" + generateSectionCount + "/ " + maxGenerateSections + "]! Time cost: " + timeDiffToString);
-                                GameAPI.plugin.getLogger().info("Finish saving building task [" + generateSectionCount + "/ " + maxGenerateSections + "]! Time cost: " + timeDiffToString);
+                                GameAPI.getInstance().getLogger().info("Finish saving building task [" + generateSectionCount + "/ " + maxGenerateSections + "]! Time cost: " + timeDiffToString);
                             }
                         }).exceptionally(throwable -> {
-                            GameAPI.plugin.getLogger().error(throwable.toString());
+                            GameAPI.getInstance().getLogger().error(throwable.toString());
                             return null;
                         }).thenRun(() -> {
                             generate = false;
                             commandSender.sendMessage("Finish all saving tasks! Section Count: " + generateSectionCount + ". Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillisForAll));
                         });
                     } catch (CompletionException e) {
-                        GameAPI.plugin.getLogger().error(e.toString());
+                        GameAPI.getInstance().getLogger().error(e.toString());
                     }
                     break;
             }

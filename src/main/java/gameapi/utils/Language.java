@@ -32,9 +32,9 @@ public class Language {
         if (file.getName().endsWith(".properties")) {
             String locale = file.getName().replace(".properties", "");
             lang.put(locale, new Config(file, Config.PROPERTIES).getAll());
-            GameAPI.plugin.getLogger().info("§aLanguage Loaded: " + locale);
+            GameAPI.getInstance().getLogger().info("§aLanguage Loaded: " + locale);
         } else {
-            GameAPI.plugin.getLogger().info("§cInvalid Language File: " + file.getName());
+            GameAPI.getInstance().getLogger().info("§cInvalid Language File: " + file.getName());
         }
     }
 

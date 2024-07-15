@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
+import gameapi.annotation.Internal;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
@@ -18,9 +19,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class RoomManager {
 
-    public static LinkedHashMap<String, List<Room>> loadedRooms = new LinkedHashMap<>(); //房间状态
+    protected static final LinkedHashMap<String, List<Room>> loadedRooms = new LinkedHashMap<>(); //房间状态
 
-    public static LinkedHashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
+    protected static final LinkedHashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
 
     public static void loadRoom(Room room, RoomStatus baseStatus) {
         RoomNameUtils.initializeRoomNameAndId(room);
@@ -29,6 +30,12 @@ public class RoomManager {
         loadedRooms.put(room.getGameName(), rooms);
         room.setRoomStatus(baseStatus);
         room.getRoomTaskExecutor().scheduleAtFixedRate(room.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
+    }
+
+    public static void unloadRoom(String gameName) {
+        for (Room room : getRooms(gameName)) {
+            unloadRoom(room);
+        }
     }
 
     public static void unloadRoom(Room room) {
@@ -67,12 +74,20 @@ public class RoomManager {
     }
 
     public static Room getRoom(String gameName, String roomName) {
-        for (Room room : RoomManager.loadedRooms.getOrDefault(gameName, new ArrayList<>())) {
+        for (Room room : RoomManager.getRooms(gameName)) {
             if (room.getGameName().equals(gameName) && room.getRoomName().equals(roomName)) {
                 return room;
             }
         }
         return null;
+    }
+
+    public static List<Room> getRooms(String gameName) {
+        return new ArrayList<>(loadedRooms.getOrDefault(gameName, new ArrayList<>()));
+    }
+
+    public static List<String> getGameNameList() {
+        return new ArrayList<>(loadedRooms.keySet());
     }
 
     public static void close() {
@@ -98,5 +113,19 @@ public class RoomManager {
         }
         loadedRooms.clear();
         playerRoomHashMap.clear();
+    }
+
+    public static int getRoomCount() {
+        return loadedRooms.size();
+    }
+
+    @Internal
+    public static LinkedHashMap<Player, Room> getPlayerRoomHashMap() {
+        return playerRoomHashMap;
+    }
+
+    @Internal
+    public static LinkedHashMap<String, List<Room>> getLoadedRooms() {
+        return loadedRooms;
     }
 }

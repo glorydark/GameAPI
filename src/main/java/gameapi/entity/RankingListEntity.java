@@ -4,6 +4,7 @@ package gameapi.entity;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import gameapi.GameAPI;
 import gameapi.ranking.Ranking;
 
 public class RankingListEntity extends TextEntity {
@@ -21,7 +22,7 @@ public class RankingListEntity extends TextEntity {
         if (this.health <= 0) {
             this.setHealth(this.getMaxHealth());
         }
-        if (System.currentTimeMillis() - this.lastUpdateMillis >= 500) {
+        if (System.currentTimeMillis() - this.lastUpdateMillis >= GameAPI.getInstance().getEntityRefreshIntervals()) {
             this.ranking.refreshRankingData();
             this.lastUpdateMillis = System.currentTimeMillis();
         }

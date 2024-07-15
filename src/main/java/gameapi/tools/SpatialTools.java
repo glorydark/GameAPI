@@ -49,7 +49,7 @@ public class SpatialTools {
                 loc.setVersion(0);
                 return loc;
             }
-            GameAPI.plugin.getLogger().warning("Wrong Location Format! Please check it again, text: " + locationString);
+            GameAPI.getInstance().getLogger().warning("Wrong Location Format! Please check it again, text: " + locationString);
             return null;
         }
         if (!Server.getInstance().isLevelLoaded(positions[3])) {

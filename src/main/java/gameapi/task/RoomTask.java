@@ -24,12 +24,12 @@ public class RoomTask extends Task {
 
     @Override
     public void onRun(int i) {
-        if (RoomManager.loadedRooms.size() > 0) {
-            for (Map.Entry<String, List<Room>> entry : RoomManager.loadedRooms.entrySet()) {
+        if (RoomManager.getLoadedRooms().size() > 0) {
+            for (Map.Entry<String, List<Room>> entry : RoomManager.getLoadedRooms().entrySet()) {
                 List<Room> rooms = new ArrayList<>(entry.getValue());
                 for (Room room : rooms) {
                     if (!onUpdate(room)) {
-                        RoomManager.loadedRooms.get(entry.getKey()).remove(room);
+                        RoomManager.getLoadedRooms().get(entry.getKey()).remove(room);
                     }
                 }
             }

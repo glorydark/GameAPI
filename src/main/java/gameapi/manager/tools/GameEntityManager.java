@@ -49,7 +49,7 @@ public class GameEntityManager {
     }
 
     public static void addRankingList(Player player, String gameName, String comparedType, RankingSortSequence rankingSortSequence) {
-        Config config = new Config(GameAPI.path + "/rankings.yml");
+        Config config = new Config(GameAPI.getPath() + "/rankings.yml");
         List<Map<String, Object>> maps = (List<Map<String, Object>>) config.get("list");
         Map<String, Object> add = new LinkedHashMap<>();
         add.put("game_name", gameName);

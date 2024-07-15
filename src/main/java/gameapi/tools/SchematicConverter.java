@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SchematicConverter {
 
     public static void createBuildFromSchematic(Player player, String fileName) {
-        File file = new File(GameAPI.path + "/schematics/" + fileName + ".schematic");
+        File file = new File(GameAPI.getPath() + "/schematics/" + fileName + ".schematic");
         if (!file.exists()) {
             player.sendMessage("File not found: " + file);
         }
@@ -77,7 +77,7 @@ public class SchematicConverter {
                 int data = schematicBlockData[i] & 0xff;
                 blockDataList.add(new BlockData(blockId, data));
             }
-            GameAPI.plugin.getLogger().info("Finished loading " + blockDataPosList.size() + " blocks' ids and data! Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), lastStepStartMillis.get()));
+            GameAPI.getInstance().getLogger().info("Finished loading " + blockDataPosList.size() + " blocks' ids and data! Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), lastStepStartMillis.get()));
         }).thenRun(() -> {
             {
                 lastStepStartMillis.set(System.currentTimeMillis());
@@ -93,7 +93,7 @@ public class SchematicConverter {
                         }
                     }
                 }
-                GameAPI.plugin.getLogger().info("Finished parsing " + blockDataPosList.size() + " blocks' positions in the schematic! Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), lastStepStartMillis.get()));
+                GameAPI.getInstance().getLogger().info("Finished parsing " + blockDataPosList.size() + " blocks' positions in the schematic! Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), lastStepStartMillis.get()));
             }
         }).thenRun(() -> createStructure(player, blockDataPosList));
     }
@@ -110,14 +110,14 @@ public class SchematicConverter {
             for (BlockDataWithPos data : blockDataWithPos) {
                 if (finishedCount.get() % pieceSize == 0) {
                     percentage.addAndGet(5);
-                    GameAPI.plugin.getLogger().info("Generating blocks [" + finishedCount.get() + "/" + maxCount + "] " + percentage + "% [Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillis) + "]");
+                    GameAPI.getInstance().getLogger().info("Generating blocks [" + finishedCount.get() + "/" + maxCount + "] " + percentage + "% [Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillis) + "]");
                 }
                 if (data.id != 0) {
                     finishedCount.addAndGet(1);
                     level.setBlock(new Vector3(data.x + player.getFloorX(), data.y + player.getFloorY(), data.z + player.getFloorZ()), Block.get(data.id, data.data), true, true);
                 }
             }
-        }).thenRun(() -> GameAPI.plugin.getLogger().info("Finished generating all " + maxCount + " blocks! [Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillis) + "]"));
+        }).thenRun(() -> GameAPI.getInstance().getLogger().info("Finished generating all " + maxCount + " blocks! [Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillis) + "]"));
     }
 
     @Data

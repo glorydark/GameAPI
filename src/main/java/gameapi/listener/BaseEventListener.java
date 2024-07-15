@@ -221,7 +221,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void ExplodeEvent(EntityExplodeEvent event) {
         List<Room> roomList = new ArrayList<>();
-        RoomManager.loadedRooms.forEach((s, rooms) -> roomList.addAll(rooms));
+        RoomManager.getLoadedRooms().forEach((s, rooms) -> roomList.addAll(rooms));
         for (Room room : roomList) {
             if (room != null) {
                 for (AdvancedLocation location : room.getStartSpawn()) {
@@ -245,7 +245,7 @@ public class BaseEventListener implements Listener {
     public void ExplodePrimeEvent(ExplosionPrimeEvent event) {
         Entity entity = event.getEntity();
         List<Room> roomList = new ArrayList<>();
-        RoomManager.loadedRooms.forEach((s, rooms) -> roomList.addAll(rooms));
+        RoomManager.getLoadedRooms().forEach((s, rooms) -> roomList.addAll(rooms));
         for (Room room : roomList) {
             if (room != null) {
                 for (AdvancedLocation location : room.getStartSpawn()) {
@@ -557,7 +557,7 @@ public class BaseEventListener implements Listener {
         if (room == null) {
             // Player is not in game, so the server will send the message to the players who are not in game.
             event.setRecipients(Server.getInstance().getOnlinePlayers().values().stream()
-                    .filter(p -> RoomManager.playerRoomHashMap.get(p) == null).collect(Collectors.toSet()));
+                    .filter(p -> RoomManager.getRoom(p) == null).collect(Collectors.toSet()));
             return;
         }
         // Player is in game, so we trigger RoomPlayerChatEvent.

@@ -143,7 +143,7 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void beginGameStart() {
-        if (GameAPI.tipsEnabled) {
+        if (GameAPI.getInstance().isTipsEnabled()) {
             for (Level playLevel : room.getPlayLevels()) {
                 for (Player player : room.getPlayers()) {
                     TipsTools.closeTipsShow(playLevel.getName(), player);

@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import gameapi.GameAPI;
 import gameapi.form.inventory.AdvancedDoubleChestForm;
 import gameapi.form.element.ResponsiveElementSlotItem;
+import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.RankingSortSequence;
@@ -122,11 +123,11 @@ public class BaseCommand extends Command {
                     if (commandSender.isPlayer()) {
                         switch (strings[1]) {
                             case "true":
-                                GameAPI.debug.add((Player) commandSender);
+                                GameDebugManager.addPlayer((Player) commandSender);
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.debug.on"));
                                 break;
                             case "false":
-                                GameAPI.debug.remove((Player) commandSender);
+                                GameDebugManager.removePlayer((Player) commandSender);
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.debug.off"));
                         }
                     } else {
@@ -135,12 +136,12 @@ public class BaseCommand extends Command {
                     break;
                 case "savebattles":
                     // todo: For Tournament Restart Procedures
-                    File saveDic = new File(GameAPI.path + "/saves/" + SmartTools.dateToString(Calendar.getInstance().getTime(), "yyyyMMdd_HHmmss") + "/");
+                    File saveDic = new File(GameAPI.getPath() + "/saves/" + SmartTools.dateToString(Calendar.getInstance().getTime(), "yyyyMMdd_HHmmss") + "/");
                     if (saveDic.exists() || saveDic.mkdirs()) {
-                        for (String key : RoomManager.loadedRooms.keySet()) {
-                            for (Room room : RoomManager.loadedRooms.get(key)) {
+                        for (Map.Entry<String, List<Room>> entry : RoomManager.getLoadedRooms().entrySet()) {
+                            for (Room room : entry.getValue()) {
                                 if (room.getRoomStatus().equals(RoomStatus.ROOM_STATUS_START)) {
-                                    File file = new File(saveDic.getPath() + "/" + key + "_" + room.getRoomName() + ".json");
+                                    File file = new File(saveDic.getPath() + "/" + entry.getKey() + "_" + room.getRoomName() + ".json");
                                     Config config = new Config(file, Config.JSON);
                                     LinkedHashMap<String, Object> players = new LinkedHashMap<>();
                                     room.getPlayers().forEach(player -> players.put(player.getName(), getPlayerData(player)));
@@ -175,7 +176,7 @@ public class BaseCommand extends Command {
                             for (Player player : room.getPlayers()) {
                                 player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
                                 player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
-                                RoomManager.playerRoomHashMap.remove(player);
+                                RoomManager.getPlayerRoomHashMap().remove(player);
                             }
                             room.setRoomStatus(RoomStatus.ROOM_STOPPED);
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
@@ -224,8 +225,8 @@ public class BaseCommand extends Command {
                     break;
                 case "status":
                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.getting"));
-                    if (RoomManager.loadedRooms.size() > 0) {
-                        for (Map.Entry<String, List<Room>> game : RoomManager.loadedRooms.entrySet()) {
+                    if (RoomManager.getRoomCount() > 0) {
+                        for (Map.Entry<String, List<Room>> game : RoomManager.getLoadedRooms().entrySet()) {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.title", game));
                             List<Room> rooms = game.getValue();
                             if (rooms.size() > 0) {
@@ -273,12 +274,12 @@ public class BaseCommand extends Command {
                         String playerName = strings[1];
                         Player seePlayer = Server.getInstance().getPlayer(playerName);
                         if (seePlayer != null) {
-                            GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("command.see_uuid.success", playerName, seePlayer.getUniqueId().toString()));
+                            GameAPI.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("command.see_uuid.success", playerName, seePlayer.getUniqueId().toString()));
                         } else {
                             Optional<UUID> offlineUUID = Server.getInstance().lookupName(playerName);
                             if (offlineUUID.isPresent()) {
                                 IPlayer seePlayerOffline = Server.getInstance().getOfflinePlayer(offlineUUID.get());
-                                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("command.see_uuid.success", playerName, seePlayerOffline.getUniqueId().toString()));
+                                GameAPI.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("command.see_uuid.success", playerName, seePlayerOffline.getUniqueId().toString()));
                             } else {
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.see_uuid.player_not_found", playerName));
                             }
@@ -290,11 +291,11 @@ public class BaseCommand extends Command {
                         UUID uuid = UUID.fromString(strings[1]);
                         Optional<Player> seePlayer = Server.getInstance().getPlayer(uuid);
                         if (seePlayer.isPresent()) {
-                            GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("command.see_name.success", uuid, seePlayer.get().getName()));
+                            GameAPI.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("command.see_name.success", uuid, seePlayer.get().getName()));
                         } else {
                             IPlayer offlinePlayer = Server.getInstance().getOfflinePlayer(uuid);
                             if (offlinePlayer != null) {
-                                GameAPI.plugin.getLogger().info(GameAPI.getLanguage().getTranslation("command.see_name.success", uuid, offlinePlayer.getName()));
+                                GameAPI.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("command.see_name.success", uuid, offlinePlayer.getName()));
                             } else {
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.see_name.player_not_found", uuid));
                             }
@@ -327,10 +328,10 @@ public class BaseCommand extends Command {
                         if (player != null) {
                             Skin skin = player.getSkin();
                             String fileName = System.currentTimeMillis() + "";
-                            new File(GameAPI.path + "/skin_exports/" + pn + "/").mkdirs();
-                            SkinTools.savePlayerJson(skin.getGeometryData(), new File(GameAPI.path + "/skin_exports/" + pn + "/" + fileName + ".json"));
-                            SkinTools.parseSerializedImage(skin.getSkinData(), new File(GameAPI.path + "/skin_exports/" + pn + "/" + fileName + "_skin.png"));
-                            SkinTools.parseSerializedImage(skin.getCapeData(), new File(GameAPI.path + "/skin_exports/" + pn + "/" + fileName + "_cape.png"));
+                            new File(GameAPI.getPath() + "/skin_exports/" + pn + "/").mkdirs();
+                            SkinTools.savePlayerJson(skin.getGeometryData(), new File(GameAPI.getPath() + "/skin_exports/" + pn + "/" + fileName + ".json"));
+                            SkinTools.parseSerializedImage(skin.getSkinData(), new File(GameAPI.getPath() + "/skin_exports/" + pn + "/" + fileName + "_skin.png"));
+                            SkinTools.parseSerializedImage(skin.getCapeData(), new File(GameAPI.getPath() + "/skin_exports/" + pn + "/" + fileName + "_cape.png"));
                             commandSender.sendMessage(TextFormat.GREEN + "Saved in /skin_exports/" + fileName);
                         } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_offline", player.getName()));

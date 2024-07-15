@@ -41,7 +41,7 @@ public class PlayerGameDataManager {
         int value = (Integer) allData.getOrDefault(player, 0) + add;
         allData.put(player, value);
         playerData.put(gameName + "/" + fileName, allData);
-        Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + "/" + fileName + ".yml", Config.YAML);
+        Config config = new Config(GameAPI.getPath() + "/gameRecords/" + gameName + "/" + fileName + ".yml", Config.YAML);
         config.set(player, value);
         config.save();
     }
@@ -51,7 +51,7 @@ public class PlayerGameDataManager {
         int value = (Integer) allData.getOrDefault(player, 0) - reduce;
         allData.put(player, value);
         playerData.put(gameName + "/" + fileName, allData);
-        Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + "/" + fileName + ".yml", Config.YAML);
+        Config config = new Config(GameAPI.getPath() + "/gameRecords/" + gameName + "/" + fileName + ".yml", Config.YAML);
         config.set(player, value);
         config.save();
     }
@@ -77,7 +77,7 @@ public class PlayerGameDataManager {
         Map<String, Object> allData = getPlayerAllGameData(gameName, fileName);
         allData.put(player, value);
         playerData.put(gameName + "/" + fileName, allData);
-        Config config = new Config(GameAPI.path + "/gameRecords/" + gameName + "/" + fileName + ".yml", Config.YAML);
+        Config config = new Config(GameAPI.getPath() + "/gameRecords/" + gameName + "/" + fileName + ".yml", Config.YAML);
         config.set(player, value);
         config.save();
     }

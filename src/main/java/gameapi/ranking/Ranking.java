@@ -160,7 +160,7 @@ public class Ranking {
                 if (clazz.isInstance(value)) {
                     newMap.put(key, (T) value);
                 } else {
-                    GameAPI.plugin.getLogger().error("Can not convert value because value is not instance of the defined type: " + value.toString());
+                    GameAPI.getInstance().getLogger().error("Can not convert value because value is not instance of the defined type: " + value.toString());
                 }
             }
         }

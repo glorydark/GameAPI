@@ -9,8 +9,8 @@ import gameapi.event.block.RoomBlockEvent;
 import gameapi.event.player.RoomPlayerInteractEvent;
 import gameapi.listener.base.annotations.GameEventHandler;
 import gameapi.listener.base.interfaces.GameListener;
-import gameapi.manager.room.AdvancedBlockManager;
 import gameapi.room.Room;
+import it.unimi.dsi.fastutil.Function;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -42,6 +42,9 @@ public class GameListenerRegistry {
             }
 
             for (Method method : methods) {
+                if (method.getParameterTypes().length == 0) {
+                    continue;
+                }
                 GameEventHandler eh = method.getAnnotation(GameEventHandler.class);
                 RoomListener evl;
                 if (eh != null) {
@@ -49,10 +52,7 @@ public class GameListenerRegistry {
                 } else {
                     evl = new RoomListener(gameName, listener, new MethodGameEventExecutor(method), EventPriority.NORMAL, plugin, false);
                 }
-                if (!listeners.containsKey(gameName)) {
-                    listeners.put(gameName, new ArrayList<>());
-                }
-                listeners.get(gameName).add(evl);
+                listeners.computeIfAbsent(gameName, (Function<String, List<RoomListener>>) o -> new ArrayList<>()).add(evl);
             }
         }
     }

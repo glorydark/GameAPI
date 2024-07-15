@@ -324,7 +324,7 @@ public class Room {
                 GameListenerRegistry.callEvent(this, ev);
                 if (!ev.isCancelled()) {
                     roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
-                    RoomManager.playerRoomHashMap.put(player, this);
+                    RoomManager.getPlayerRoomHashMap().put(player, this);
                     playerProperties.put(player.getName(), new LinkedHashMap<>());
                     this.players.add(player);
                     waitSpawn.teleport(player);
@@ -355,7 +355,7 @@ public class Room {
             for (Player p : this.getPlayers()) {
                 p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.success", player.getName()));
             }
-            if (GameAPI.tipsEnabled) {
+            if (GameAPI.getInstance().isTipsEnabled()) {
                 for (Level playLevel : this.getPlayLevels()) {
                     TipsTools.removeTipsConfig(playLevel.getName(), player);
                 }
@@ -375,7 +375,7 @@ public class Room {
             this.updateHideStatus(player, true);
 
             this.players.remove(player);
-            RoomManager.playerRoomHashMap.remove(player);
+            RoomManager.getPlayerRoomHashMap().remove(player);
         }
     }
 
@@ -430,7 +430,7 @@ public class Room {
             supplyChest.resetData();
         }
         if (this.playLevels == null) {
-            GameAPI.plugin.getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
+            GameAPI.getInstance().getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
             return;
         }
         // 增加默认地图判断
@@ -444,7 +444,7 @@ public class Room {
         if (this.temporary) {
             this.getDynamicObstacles().clear();
             if (this.resetMap) {
-                GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_delete", this.getRoomName()));
+                GameAPI.getInstance().getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_delete", this.getRoomName()));
                 for (Level playLevel : this.playLevels) {
                     if (playLevel != null) {
                         WorldTools.unloadLevel(playLevel, true);
@@ -454,14 +454,14 @@ public class Room {
             RoomManager.unloadRoom(this);
         } else {
             if (this.resetMap) {
-                GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.room_and_map", this.getRoomName()));
+                GameAPI.getInstance().getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.room_and_map", this.getRoomName()));
                 if (WorldTools.unloadAndReloadLevels(this)) {
                     this.roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
                     this.getRoomTaskExecutor().scheduleAtFixedRate(this.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
                     this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                 }
             } else {
-                GameAPI.plugin.getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.only_room", this.getRoomName()));
+                GameAPI.getInstance().getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.only_room", this.getRoomName()));
                 this.roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
                 this.getRoomTaskExecutor().scheduleAtFixedRate(this.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
                 this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
@@ -531,7 +531,7 @@ public class Room {
         if (roomSpectatorLeaveEvent.isCancelled()) {
             return;
         }
-        if (GameAPI.tipsEnabled) {
+        if (GameAPI.getInstance().isTipsEnabled()) {
             for (Level playLevel : this.getPlayLevels()) {
                 TipsTools.removeTipsConfig(playLevel.getName(), player);
             }
@@ -539,7 +539,7 @@ public class Room {
         player.setGamemode(Server.getInstance().getDefaultGamemode());
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
         player.sendMessage(GameAPI.getLanguage().getTranslation("room.spectator.quit"));
-        RoomManager.playerRoomHashMap.remove(player);
+        RoomManager.getPlayerRoomHashMap().remove(player);
         spectators.remove(player);
     }
 
@@ -587,7 +587,7 @@ public class Room {
                 break;
         }
         this.spectators.add(player);
-        RoomManager.playerRoomHashMap.put(player, this);
+        RoomManager.getPlayerRoomHashMap().put(player, this);
         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
     }
 
@@ -616,12 +616,12 @@ public class Room {
         RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player, null);
         if (!ev.isCancelled()) {
             if (tick > 0) {
-                Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> {
+                Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), () -> {
                     GameListenerRegistry.callEvent(this, ev);
                     if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
                         player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
                         player.setGamemode(roomRule.getGameMode());
-                        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> player.fireProof = false, 5);
+                        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), () -> player.fireProof = false, 5);
                         if (ev.getRespawnLocation() == null) {
                             teleportToSpawn(player);
                         } else {
@@ -641,7 +641,7 @@ public class Room {
                     player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
                     player.setGamemode(roomRule.getGameMode());
                     player.getEffects().clear();
-                    Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, () -> player.fireProof = false, 5);
+                    Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), () -> player.fireProof = false, 5);
                     if (ev.getRespawnLocation() == null) {
                         teleportToSpawn(player);
                     } else {

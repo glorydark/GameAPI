@@ -90,7 +90,7 @@ public class AdvancedDoubleChestForm extends AdvancedFakeBlockContainerFormBase 
 
         FakeInventory fakeInventory = new FakeInventory(this, fakeBlockCacheData, this.getInventoryType());
 
-        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.plugin, new Task() {
+        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), new Task() {
             @Override
             public void onRun(int i) {
                 player.addWindow(fakeInventory);

@@ -95,7 +95,7 @@ public class EasyEffect {
             effect.setAmbient(ambient);
             entity.addEffect(effect);
         } else {
-            GameAPI.plugin.getLogger().error("Error in parsing effect: " + this);
+            GameAPI.getInstance().getLogger().error("Error in parsing effect: " + this);
         }
     }
 

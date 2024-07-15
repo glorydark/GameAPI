@@ -6,8 +6,6 @@ import cn.nukkit.block.Block;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
-import cn.nukkit.math.SimpleAxisAlignedBB;
-import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import gameapi.commands.BaseCommand;
@@ -15,10 +13,9 @@ import gameapi.commands.WorldEditCommand;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.data.PlayerGameDataManager;
-import gameapi.manager.extensions.GameLevelSystemManager;
-import gameapi.manager.extensions.GameTaskManager;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
@@ -45,19 +42,20 @@ import java.util.concurrent.*;
  */
 public class GameAPI extends PluginBase implements Listener {
 
+    protected static String path;
+    protected static GameAPI instance;
+
     public static final int GAME_TASK_INTERVAL = 1;
-    protected static final int THREAD_POOL_SIZE = 4;
-    public static String path;
-    public static Plugin plugin;
-    public static List<Player> debug = new ArrayList<>();
+    protected static final int THREAD_POOL_SIZE = 8;
+    protected int entityRefreshIntervals = 100;
+    protected boolean tipsEnabled;
+
     public static List<Player> worldEditPlayers = new ArrayList<>();
-    public static int entityRefreshIntervals = 100;
-    public static boolean tipsEnabled;
     public static List<EditProcess> editProcessList = new ArrayList<>();
-    public static SimpleAxisAlignedBB autoLoadChunkRange;
-    public static GameLevelSystemManager system;
-    public static ScheduledExecutorService roomTaskExecutor;
-    protected static Language language = new Language("GameAPI");
+
+    protected static ScheduledExecutorService roomTaskExecutor;
+    protected static final Language language = new Language("GameAPI");
+
     protected static ThreadFactory threadFactory = new ThreadFactory() {
         private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
 
@@ -65,23 +63,11 @@ public class GameAPI extends PluginBase implements Listener {
         public Thread newThread(Runnable r) {
             Thread thread = defaultFactory.newThread(r);
             thread.setUncaughtExceptionHandler((t, e) -> {
-                GameAPI.plugin.getLogger().error("Thread " + t.getName() + " encountered an error: " + e);
+                GameAPI.getInstance().getLogger().error("Thread " + t.getName() + " encountered an error: " + e);
             });
             return thread;
         }
     };
-
-    public static void addRoomEdit(EditProcess editProcess) {
-        editProcessList.add(editProcess);
-    }
-
-    public static void joinRoomEdit(Player player, EditProcess editProcess) {
-        editProcess.begin(player);
-    }
-
-    public static Language getLanguage() {
-        return language;
-    }
 
     @Override
     public void onLoad() {
@@ -93,7 +79,7 @@ public class GameAPI extends PluginBase implements Listener {
     public void onEnable() {
         roomTaskExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE, threadFactory);
         path = this.getDataFolder().getPath();
-        plugin = this;
+        instance = this;
         this.getDataFolder().mkdir();
         this.saveDefaultConfig();
         this.saveResource("rankings.yml", false);
@@ -106,14 +92,13 @@ public class GameAPI extends PluginBase implements Listener {
         Config config = new Config(path + "/config.yml", Config.YAML);
         // load lang data
         this.loadLanguage();
-        language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
-        autoLoadChunkRange = new SimpleAxisAlignedBB(config.getInt("auto_load_chunk.minX", -2), config.getInt("auto_load_chunk.maxX", 2), 0, 0, config.getInt("auto_load_chunk.minZ", -2), config.getInt("auto_load_chunk.maxZ", 2));
-        tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
+        this.language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
+        this.tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
 
         this.loadAllPlayerGameData();
         this.loadRanking();
 
-        this.getServer().getScheduler().scheduleRepeatingTask(plugin, new RoomTask(), 20);
+        this.getServer().getScheduler().scheduleRepeatingTask(instance, new RoomTask(), 20);
         this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
         this.getServer().getPluginManager().registerEvents(new AdvancedFormListener(), this);
         this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
@@ -131,12 +116,7 @@ public class GameAPI extends PluginBase implements Listener {
             }
         }, 0, 1, TimeUnit.SECONDS);;
         roomTaskExecutor.scheduleAtFixedRate(() -> {
-            List<Player> players = new ArrayList<>(debug);
-            players.forEach(player -> {
-                        if (player == null || !player.isOnline()) {
-                            debug.remove(player);
-                            return;
-                        }
+            GameDebugManager.getPlayers().forEach(player -> {
                         DecimalFormat df = new DecimalFormat("#0.00");
                         String out = "GameAPI Debug\n";
                         out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
@@ -162,8 +142,8 @@ public class GameAPI extends PluginBase implements Listener {
                         player.sendActionBar(out);
                     }
             );
-            GameEntityManager.onUpdate();
         }, 0, 200, TimeUnit.MILLISECONDS);
+        roomTaskExecutor.scheduleAtFixedRate(GameEntityManager::onUpdate, 0, 2, TimeUnit.SECONDS);
         WorldEditCommand.THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
         this.getLogger().info("§aDGameAPI Enabled!");
     }
@@ -190,8 +170,6 @@ public class GameAPI extends PluginBase implements Listener {
         }
         RoomManager.close();
         PlayerGameDataManager.close();
-        GameTaskManager.saveAllData();
-        GameTaskManager.close();
         GameEntityManager.closeAll();
         GameListenerRegistry.clearAllRegisters();
         roomTaskExecutor.shutdown();
@@ -202,8 +180,8 @@ public class GameAPI extends PluginBase implements Listener {
     public void loadLanguage() {
         this.saveResource("languages/zh_CN.properties", false);
         this.saveResource("languages/en_US.properties", false);
-        language.addLanguage(new File(path + "/languages/zh_CN.properties"));
-        language.addLanguage(new File(path + "/languages/en_US.properties"));
+        this.language.addLanguage(new File(path + "/languages/zh_CN.properties"));
+        this.language.addLanguage(new File(path + "/languages/en_US.properties"));
     }
 
     public void loadRanking() {
@@ -245,28 +223,55 @@ public class GameAPI extends PluginBase implements Listener {
             String level = (String) map.get("level");
             if (Server.getInstance().getLevelByName(level) == null) {
                 if (!Server.getInstance().loadLevel(level)) {
-                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.world.not_found", level));
+                    this.getLogger().warning(this.language.getTranslation("loading.ranking_loader.world.not_found", level));
                     continue;
                 } else {
-                    this.getLogger().info(language.getTranslation("loading.ranking_loader.world.load.start", level));
+                    this.getLogger().info(this.language.getTranslation("loading.ranking_loader.world.load.start", level));
                 }
             } else {
-                this.getLogger().info(language.getTranslation("loading.ranking_loader.world.already_loaded", level));
+                this.getLogger().info(this.language.getTranslation("loading.ranking_loader.world.already_loaded", level));
             }
             Location location = new Location((Double) map.get("x"), (Double) map.get("y"), (Double) map.get("z"), this.getServer().getLevelByName((String) map.get("level")));
             if (location.getChunk() == null) {
                 if (!location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ())) {
-                    this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.load_start", location.getChunkX(), location.getChunkZ()));
+                    this.getLogger().info(this.language.getTranslation("loading.ranking_loader.chunk.load_start", location.getChunkX(), location.getChunkZ()));
                     return;
                 } else {
-                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.chunk.load.failed", location.getChunkX(), location.getChunkZ()));
+                    this.getLogger().warning(this.language.getTranslation("loading.ranking_loader.chunk.load.failed", location.getChunkX(), location.getChunkZ()));
                 }
             } else {
-                this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
+                this.getLogger().info(this.language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
             }
             Ranking ranking = new SimpleRanking(location, (String) map.getOrDefault("value_type", ""), (String) map.getOrDefault("title", "Undefined"), "No Data", new RankingFormat(), (Boolean) map.getOrDefault("sort_consequence_ascend", false) ? RankingSortSequence.ASCEND : RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
             ranking.spawnEntity();
         }
     }
 
+    public static void addRoomEdit(EditProcess editProcess) {
+        editProcessList.add(editProcess);
+    }
+
+    public static void joinRoomEdit(Player player, EditProcess editProcess) {
+        editProcess.begin(player);
+    }
+
+    public static GameAPI getInstance() {
+        return instance;
+    }
+
+    public static String getPath() {
+        return path;
+    }
+
+    public int getEntityRefreshIntervals() {
+        return entityRefreshIntervals;
+    }
+
+    public boolean isTipsEnabled() {
+        return this.tipsEnabled;
+    }
+
+    public static Language getLanguage() {
+        return language;
+    }
 }
