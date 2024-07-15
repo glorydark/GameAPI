@@ -62,9 +62,7 @@ public class GameAPI extends PluginBase implements Listener {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = defaultFactory.newThread(r);
-            thread.setUncaughtExceptionHandler((t, e) -> {
-                GameAPI.getInstance().getLogger().error("Thread " + t.getName() + " encountered an error: " + e);
-            });
+            thread.setUncaughtExceptionHandler((t, e) -> GameAPI.getInstance().getLogger().error("Thread " + t.getName() + " encountered an error: " + e));
             return thread;
         }
     };
@@ -92,7 +90,7 @@ public class GameAPI extends PluginBase implements Listener {
         Config config = new Config(path + "/config.yml", Config.YAML);
         // load lang data
         this.loadLanguage();
-        this.language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
+        language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
         this.tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
 
         this.loadAllPlayerGameData();
@@ -114,35 +112,33 @@ public class GameAPI extends PluginBase implements Listener {
                 e.printStackTrace();
                 roomTaskExecutor.shutdown();
             }
-        }, 0, 1, TimeUnit.SECONDS);;
-        roomTaskExecutor.scheduleAtFixedRate(() -> {
-            GameDebugManager.getPlayers().forEach(player -> {
-                        DecimalFormat df = new DecimalFormat("#0.00");
-                        String out = "GameAPI Debug\n";
-                        out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
-                        out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
-                        Item item = player.getInventory().getItemInHand();
-                        out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + "] 数量:" + item.getCount() + "\n";
-                        Block block = player.getTargetBlock(32);
-                        if (block != null) {
-                            //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
-                            out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 物品id：" + block.getItemId() + " 方块名称:" + block.getName() + "\n";
-                            out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
-                        } else {
-                            out += "所指方块id: [无] 方块名称:无" + "\n";
-                            out += "所指方块位置: [无]" + "\n";
-                        }
-                        Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
-                        if (under != null) {
-                            //out += "所踩方块: " + under.toItem().getNamespaceId();
-                            out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);
-                        } else {
-                            out += "所踩方块: [无]";
-                        }
-                        player.sendActionBar(out);
+        }, 0, 1, TimeUnit.SECONDS);
+        roomTaskExecutor.scheduleAtFixedRate(() -> GameDebugManager.getPlayers().forEach(player -> {
+                    DecimalFormat df = new DecimalFormat("#0.00");
+                    String out = "GameAPI Debug\n";
+                    out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
+                    out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
+                    Item item = player.getInventory().getItemInHand();
+                    out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + "] 数量:" + item.getCount() + "\n";
+                    Block block = player.getTargetBlock(32);
+                    if (block != null) {
+                        //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
+                        out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 物品id：" + block.getItemId() + " 方块名称:" + block.getName() + "\n";
+                        out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
+                    } else {
+                        out += "所指方块id: [无] 方块名称:无" + "\n";
+                        out += "所指方块位置: [无]" + "\n";
                     }
-            );
-        }, 0, 200, TimeUnit.MILLISECONDS);
+                    Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
+                    if (under != null) {
+                        //out += "所踩方块: " + under.toItem().getNamespaceId();
+                        out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);
+                    } else {
+                        out += "所踩方块: [无]";
+                    }
+                    player.sendActionBar(out);
+                }
+        ), 0, 200, TimeUnit.MILLISECONDS);
         roomTaskExecutor.scheduleAtFixedRate(GameEntityManager::onUpdate, 0, 2, TimeUnit.SECONDS);
         WorldEditCommand.THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
         this.getLogger().info("§aDGameAPI Enabled!");
@@ -180,8 +176,8 @@ public class GameAPI extends PluginBase implements Listener {
     public void loadLanguage() {
         this.saveResource("languages/zh_CN.properties", false);
         this.saveResource("languages/en_US.properties", false);
-        this.language.addLanguage(new File(path + "/languages/zh_CN.properties"));
-        this.language.addLanguage(new File(path + "/languages/en_US.properties"));
+        language.addLanguage(new File(path + "/languages/zh_CN.properties"));
+        language.addLanguage(new File(path + "/languages/en_US.properties"));
     }
 
     public void loadRanking() {
@@ -223,24 +219,24 @@ public class GameAPI extends PluginBase implements Listener {
             String level = (String) map.get("level");
             if (Server.getInstance().getLevelByName(level) == null) {
                 if (!Server.getInstance().loadLevel(level)) {
-                    this.getLogger().warning(this.language.getTranslation("loading.ranking_loader.world.not_found", level));
+                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.world.not_found", level));
                     continue;
                 } else {
-                    this.getLogger().info(this.language.getTranslation("loading.ranking_loader.world.load.start", level));
+                    this.getLogger().info(language.getTranslation("loading.ranking_loader.world.load.start", level));
                 }
             } else {
-                this.getLogger().info(this.language.getTranslation("loading.ranking_loader.world.already_loaded", level));
+                this.getLogger().info(language.getTranslation("loading.ranking_loader.world.already_loaded", level));
             }
             Location location = new Location((Double) map.get("x"), (Double) map.get("y"), (Double) map.get("z"), this.getServer().getLevelByName((String) map.get("level")));
             if (location.getChunk() == null) {
                 if (!location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ())) {
-                    this.getLogger().info(this.language.getTranslation("loading.ranking_loader.chunk.load_start", location.getChunkX(), location.getChunkZ()));
+                    this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.load_start", location.getChunkX(), location.getChunkZ()));
                     return;
                 } else {
-                    this.getLogger().warning(this.language.getTranslation("loading.ranking_loader.chunk.load.failed", location.getChunkX(), location.getChunkZ()));
+                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.chunk.load.failed", location.getChunkX(), location.getChunkZ()));
                 }
             } else {
-                this.getLogger().info(this.language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
+                this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
             }
             Ranking ranking = new SimpleRanking(location, (String) map.getOrDefault("value_type", ""), (String) map.getOrDefault("title", "Undefined"), "No Data", new RankingFormat(), (Boolean) map.getOrDefault("sort_consequence_ascend", false) ? RankingSortSequence.ASCEND : RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
             ranking.spawnEntity();
