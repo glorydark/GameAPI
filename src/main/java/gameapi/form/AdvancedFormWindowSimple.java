@@ -10,6 +10,7 @@ import gameapi.listener.AdvancedFormListener;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class AdvancedFormWindowSimple extends FormWindowSimple implements AdvancedForm {
 
@@ -17,12 +18,34 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
 
     protected Consumer<Player> noResponseExecutor;
 
+    public AdvancedFormWindowSimple() {
+        this("", "");
+    }
+
+    public AdvancedFormWindowSimple(String title) {
+        this(title, "");
+    }
+
     public AdvancedFormWindowSimple(String title, String content) {
         super(title, content);
     }
 
-    public AdvancedFormWindowSimple() {
-        super("", "");
+    public AdvancedFormWindowSimple title(Supplier<String> supplier) {
+        return this.title(supplier.get());
+    }
+
+    public AdvancedFormWindowSimple title(String string) {
+        this.setTitle(string);
+        return this;
+    }
+
+    public AdvancedFormWindowSimple content(Supplier<String> supplier) {
+        return this.content(supplier.get());
+    }
+
+    public AdvancedFormWindowSimple content(String string) {
+        this.setContent(string);
+        return this;
     }
 
     public void dealResponse(Player player, FormResponse response) {

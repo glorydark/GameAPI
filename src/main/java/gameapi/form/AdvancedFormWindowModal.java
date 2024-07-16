@@ -7,6 +7,7 @@ import cn.nukkit.form.window.FormWindowModal;
 import gameapi.listener.AdvancedFormListener;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class AdvancedFormWindowModal extends FormWindowModal implements AdvancedForm {
 
@@ -17,11 +18,29 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
     protected Consumer<Player> noResponseExecutor = null;
 
     public AdvancedFormWindowModal() {
-        super("", "", "", "");
+        this("", "", "", "");
     }
 
     public AdvancedFormWindowModal(String title, String content, String firstButtonText, String secondButtonText) {
         super(title, content, firstButtonText, secondButtonText);
+    }
+
+    public AdvancedFormWindowModal title(Supplier<String> supplier) {
+        return this.title(supplier.get());
+    }
+
+    public AdvancedFormWindowModal title(String string) {
+        this.setTitle(string);
+        return this;
+    }
+
+    public AdvancedFormWindowModal content(Supplier<String> supplier) {
+        return this.content(supplier.get());
+    }
+
+    public AdvancedFormWindowModal content(String string) {
+        this.setContent(string);
+        return this;
     }
 
     public AdvancedFormWindowModal onClose(Consumer<Player> noResponseExecutor) {
@@ -29,13 +48,15 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
         return this;
     }
 
-    public AdvancedFormWindowModal onClickFalse(Consumer<Player> falseButtonResponseExecutor) {
-        this.falseButtonResponseExecutor = falseButtonResponseExecutor;
+    public AdvancedFormWindowModal trueButton(String content, Consumer<Player> trueButtonResponseExecutor) {
+        this.setButton1(content);
+        this.trueButtonResponseExecutor = trueButtonResponseExecutor;
         return this;
     }
 
-    public AdvancedFormWindowModal onClickTrue(Consumer<Player> trueButtonResponseExecutor) {
-        this.trueButtonResponseExecutor = trueButtonResponseExecutor;
+    public AdvancedFormWindowModal falseButton(String content, Consumer<Player> falseButtonResponseExecutor) {
+        this.setButton2(content);
+        this.falseButtonResponseExecutor = falseButtonResponseExecutor;
         return this;
     }
 
