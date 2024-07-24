@@ -54,8 +54,8 @@ public class SchematicConverter {
                 simple.addButton(new ResponsiveElementButton("Start")
                         .onRespond(player1 ->
                                 startGen(player1, (byte[]) compoundTag.getValue().get("Blocks").getValue(),
-                                (byte[]) compoundTag.getValue().get("Data").getValue(),
-                                width, height, length)
+                                        (byte[]) compoundTag.getValue().get("Data").getValue(),
+                                        width, height, length)
                         )
                 );
                 simple.addButton(new ElementButton("Cancel"));

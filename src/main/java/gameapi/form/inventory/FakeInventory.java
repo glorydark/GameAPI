@@ -5,7 +5,7 @@ import cn.nukkit.inventory.BaseInventory;
 import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.network.protocol.ContainerClosePacket;
 import cn.nukkit.network.protocol.ContainerOpenPacket;
-import gameapi.form.AdvancedFakeBlockContainerFormBase;
+import gameapi.form.AdvancedFakeBlockContainerFormBaseImpl;
 import gameapi.utils.FakeBlockCacheData;
 
 /**
@@ -14,17 +14,15 @@ import gameapi.utils.FakeBlockCacheData;
  */
 public class FakeInventory extends BaseInventory {
 
+    private final FakeBlockCacheData fakeBlockCacheData;
+    private final AdvancedFakeBlockContainerFormBaseImpl formBase;
     private String title;
 
-    private final FakeBlockCacheData fakeBlockCacheData;
-
-    private final AdvancedFakeBlockContainerFormBase formBase;
-
-    public FakeInventory(AdvancedFakeBlockContainerFormBase formBase, FakeBlockCacheData fakeBlockCacheData, InventoryType inventoryType) {
+    public FakeInventory(AdvancedFakeBlockContainerFormBaseImpl formBase, FakeBlockCacheData fakeBlockCacheData, InventoryType inventoryType) {
         this(formBase, fakeBlockCacheData, inventoryType, formBase.getTitle());
     }
 
-    public FakeInventory(AdvancedFakeBlockContainerFormBase formBase, FakeBlockCacheData fakeBlockCacheData, InventoryType inventoryType, String title) {
+    public FakeInventory(AdvancedFakeBlockContainerFormBaseImpl formBase, FakeBlockCacheData fakeBlockCacheData, InventoryType inventoryType, String title) {
         super(null, inventoryType);
 
         this.setContents(formBase.getInventory());
@@ -69,7 +67,7 @@ public class FakeInventory extends BaseInventory {
         this.title = title;
     }
 
-    public AdvancedFakeBlockContainerFormBase getFormBase() {
+    public AdvancedFakeBlockContainerFormBaseImpl getFormBase() {
         return formBase;
     }
 

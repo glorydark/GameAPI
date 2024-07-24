@@ -90,7 +90,7 @@ public class Room {
     private List<RoomChatData> chatDataList = new ArrayList<>();
     private long startMillis;
     private List<SupplyChest> supplyChests = new ArrayList<>();
-    private String tempWorldPrefixOverride;
+    private String tempWorldPrefixOverride = "";
     private int id = -1;
 
     @Setter(AccessLevel.NONE)
@@ -595,6 +595,12 @@ public class Room {
         RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(this, player, EntityDamageEvent.DamageCause.VOID);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
+            if (!ev.isKeepExp()) {
+                player.setExperience(0, 0);
+            }
+            if (!ev.isKeepInventory()) {
+                player.getInventory().clearAll();
+            }
             player.removeAllEffects();
             player.setGamemode(3);
             player.setHealth(player.getMaxHealth());
@@ -796,13 +802,17 @@ public class Room {
     }
 
     public void sendTitleToAll(String string) {
-        this.sendTitleToAll(string, true);
+        this.sendTitleToAll(string, "", true);
     }
 
-    public void sendTitleToAll(String string, boolean includeSpectators) {
-        PlayerTools.sendTitle(players, string);
+    public void sendTitleToAll(String string, String subtitle) {
+        this.sendTitleToAll(string, subtitle, true);
+    }
+
+    public void sendTitleToAll(String string, String subtitle, boolean includeSpectators) {
+        PlayerTools.sendTitle(players, string, subtitle);
         if (includeSpectators) {
-            PlayerTools.sendTitle(spectators, string);
+            PlayerTools.sendTitle(spectators, string, subtitle);
         }
     }
 

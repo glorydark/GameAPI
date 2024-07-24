@@ -10,7 +10,7 @@ import cn.nukkit.network.protocol.BlockEntityDataPacket;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.scheduler.Task;
 import gameapi.GameAPI;
-import gameapi.form.AdvancedFakeBlockContainerFormBase;
+import gameapi.form.AdvancedFakeBlockContainerFormBaseImpl;
 import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.form.response.ChestResponse;
 import gameapi.utils.FakeBlockCacheData;
@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 /**
  * @author glorydark
  */
-public class AdvancedDoubleChestForm extends AdvancedFakeBlockContainerFormBase {
+public class AdvancedDoubleChestForm extends AdvancedFakeBlockContainerFormBaseImpl {
 
     public AdvancedDoubleChestForm(String title) {
         this(title, false);

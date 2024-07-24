@@ -42,20 +42,14 @@ import java.util.concurrent.*;
  */
 public class GameAPI extends PluginBase implements Listener {
 
-    protected static String path;
-    protected static GameAPI instance;
-
     public static final int GAME_TASK_INTERVAL = 1;
     protected static final int THREAD_POOL_SIZE = 8;
-    protected int entityRefreshIntervals = 100;
-    protected boolean tipsEnabled;
-
+    protected static final Language language = new Language("GameAPI");
     public static List<Player> worldEditPlayers = new ArrayList<>();
     public static List<EditProcess> editProcessList = new ArrayList<>();
-
+    protected static String path;
+    protected static GameAPI instance;
     protected static ScheduledExecutorService roomTaskExecutor;
-    protected static final Language language = new Language("GameAPI");
-
     protected static ThreadFactory threadFactory = new ThreadFactory() {
         private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
 
@@ -66,6 +60,28 @@ public class GameAPI extends PluginBase implements Listener {
             return thread;
         }
     };
+    protected int entityRefreshIntervals = 100;
+    protected boolean tipsEnabled;
+
+    public static void addRoomEdit(EditProcess editProcess) {
+        editProcessList.add(editProcess);
+    }
+
+    public static void joinRoomEdit(Player player, EditProcess editProcess) {
+        editProcess.begin(player);
+    }
+
+    public static GameAPI getInstance() {
+        return instance;
+    }
+
+    public static String getPath() {
+        return path;
+    }
+
+    public static Language getLanguage() {
+        return language;
+    }
 
     @Override
     public void onLoad() {
@@ -243,31 +259,11 @@ public class GameAPI extends PluginBase implements Listener {
         }
     }
 
-    public static void addRoomEdit(EditProcess editProcess) {
-        editProcessList.add(editProcess);
-    }
-
-    public static void joinRoomEdit(Player player, EditProcess editProcess) {
-        editProcess.begin(player);
-    }
-
-    public static GameAPI getInstance() {
-        return instance;
-    }
-
-    public static String getPath() {
-        return path;
-    }
-
     public int getEntityRefreshIntervals() {
         return entityRefreshIntervals;
     }
 
     public boolean isTipsEnabled() {
         return this.tipsEnabled;
-    }
-
-    public static Language getLanguage() {
-        return language;
     }
 }

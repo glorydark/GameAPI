@@ -19,6 +19,10 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     protected EntityDamageEvent.DamageCause cause;
 
+    protected boolean keepInventory = true;
+
+    protected boolean keepExp = true;
+
     public RoomPlayerDeathEvent(Room room, Player player, EntityDamageEvent.DamageCause cause) {
         super(room, player);
         //导入的伤害来源
@@ -43,5 +47,21 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     public EntityDamageEvent.DamageCause getCause() {
         return cause;
+    }
+
+    public boolean isKeepExp() {
+        return keepExp;
+    }
+
+    public void setKeepExp(boolean keepExp) {
+        this.keepExp = keepExp;
+    }
+
+    public boolean isKeepInventory() {
+        return keepInventory;
+    }
+
+    public void setKeepInventory(boolean keepInventory) {
+        this.keepInventory = keepInventory;
     }
 }

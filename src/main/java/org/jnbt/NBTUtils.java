@@ -2,6 +2,9 @@ package org.jnbt;
 
 /* loaded from: jnbt-1.1.jar:org/jnbt/NBTUtils.class */
 public final class NBTUtils {
+    private NBTUtils() {
+    }
+
     public static String getTypeName(Class<? extends Tag> clazz) {
         if (clazz.equals(ByteArrayTag.class)) {
             return "TAG_Byte_Array";
@@ -103,8 +106,5 @@ public final class NBTUtils {
             default:
                 throw new IllegalArgumentException("Invalid tag type : " + type + ".");
         }
-    }
-
-    private NBTUtils() {
     }
 }

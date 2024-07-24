@@ -65,7 +65,7 @@ public class ScoreboardManager {
                 sb.append(second);
             }
         }
-        if (second == 0) {
+        if (second <= 0) {
             sb.append("00");
         }
         return sb.toString();

@@ -1,10 +1,9 @@
 package gameapi.tools;
 
-import cn.nukkit.block.Block;
-import cn.nukkit.item.Item;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class SmartTools {
 
@@ -130,7 +129,7 @@ public class SmartTools {
         }
     }
 
-    public static Block getBlockfromString(String string) {
-        return Item.fromString(string).getBlockUnsafe();
+    public <T> List<T> buildList(Supplier<List<T>> supplier) {
+        return supplier.get();
     }
 }

@@ -21,6 +21,7 @@ import gameapi.annotation.Experimental;
 import gameapi.commands.data.WorldEditOperation;
 import gameapi.commands.data.entry.OperationEntry;
 import gameapi.commands.data.entry.SimpleOperationEntry;
+import gameapi.tools.BlockTools;
 import gameapi.tools.SchematicConverter;
 import gameapi.tools.SmartTools;
 import gameapi.utils.IntegerAxisAlignBB;
@@ -108,7 +109,7 @@ public class WorldEditCommand extends Command {
                     PosSet posSet = posSetLinkedHashMap.get(player);
                     if (strings.length == 2) {
                         SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
-                        Block block = SmartTools.getBlockfromString(strings[1]);
+                        Block block = BlockTools.getBlockfromString(strings[1]);
                         if (block == null) {
                             commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
                             return false;
@@ -116,9 +117,10 @@ public class WorldEditCommand extends Command {
                         Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.getInstance(), new AsyncTask() {
                             @Override
                             public void onRun() {
-                                List<OperationEntry> simpleOperationEntries = new ArrayList<>();
+                                //List<OperationEntry> simpleOperationEntries = new ArrayList<>();
                                 bb.forEach(((i, i1, i2) -> {
-                                    Block before = player.getLevel().getBlock(i, i1, i2);
+                                    //Block before = player.getLevel().getBlock(i, i1, i2);
+                                    /*
                                     simpleOperationEntries.add(SimpleOperationEntry.builder()
                                             .beforeBlockId(before.getId())
                                             .beforeBlockMeta(before.getDamage())
@@ -126,13 +128,16 @@ public class WorldEditCommand extends Command {
                                             .floorY(i1)
                                             .floorZ(i2)
                                             .build());
-                                    player.getLevel().setBlock(i, i1, i2, block, true, true);
+                                     */
+                                    player.getLevel().setBlock(i, i1, i2, block, true, false);
                                 }));
                                 player.sendMessage("Finish fill task");
+                                /*
                                 WorldEditOperation worldEditOperation = WorldEditOperation.builder()
                                         .changedBlockEntries(simpleOperationEntries)
                                         .build();
-                                lastOperation.put(player, worldEditOperation);
+                                 */
+                                //lastOperation.put(player, worldEditOperation);
                             }
                         });
                     }
@@ -145,13 +150,13 @@ public class WorldEditCommand extends Command {
                     if (strings.length == 3) {
                         SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
                         Level level = player.getLevel();
-                        Block block = SmartTools.getBlockfromString(strings[1]);
+                        Block block = BlockTools.getBlockfromString(strings[1]);
                         if (block == null) {
                             commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
                             return false;
                         }
                         boolean checkBlockDamage = (strings[1].split(":").length == 2);
-                        Block blockReplaced = SmartTools.getBlockfromString(strings[2]);
+                        Block blockReplaced = BlockTools.getBlockfromString(strings[2]);
                         if (blockReplaced == null) {
                             commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
                             return false;
@@ -197,7 +202,7 @@ public class WorldEditCommand extends Command {
                     if (strings.length == 2) {
                         SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
                         Level level = player.getLevel();
-                        Block blockReplaced = SmartTools.getBlockfromString(strings[1]);
+                        Block blockReplaced = BlockTools.getBlockfromString(strings[1]);
                         if (blockReplaced == null) {
                             commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
                             return false;
@@ -246,7 +251,7 @@ public class WorldEditCommand extends Command {
                     String name = String.valueOf(System.currentTimeMillis());
                     long startMillisForAll = System.currentTimeMillis();
 
-                    IntegerAxisAlignBB[] bbs = integerAxisAlignBB.splitAABB(64, 100, 64);
+                    IntegerAxisAlignBB[] bbs = integerAxisAlignBB.splitAABB(64, 64, 64);
                     GameAPI.getInstance().getLogger().info("Start building save task in {" + integerAxisAlignBB + "}");
                     player.sendMessage("Start building save task in {" + integerAxisAlignBB + "}");
 
@@ -272,18 +277,33 @@ public class WorldEditCommand extends Command {
                             CompoundTag tag = new CompoundTag().putList(new ListTag<>("blocks"));
                             int finalBbsIndex = bbsIndex;
                             newBB.forEach(((i, i1, i2) -> {
-                                Block block = player.getLevel().getBlock(i, i1, i2, true);
+                                Position position = new Position(i, i1, i2, player.getLevel());
+                                if (!position.getChunk().isLoaded()) {
+                                    try {
+                                        position.getChunk().load(true);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                                Block block = player.getLevel().getBlock(position, true);
                                 if (block.getId() != Block.AIR) {
                                     int x = BigDecimal.valueOf(i).subtract(BigDecimal.valueOf(integerAxisAlignBB.getMinX())).intValue();
                                     int y = BigDecimal.valueOf(i1).subtract(BigDecimal.valueOf(integerAxisAlignBB.getMinY())).intValue();
                                     int z = BigDecimal.valueOf(i2).subtract(BigDecimal.valueOf(integerAxisAlignBB.getMinZ())).intValue();
-                                    tag.getList("blocks", CompoundTag.class).add(new CompoundTag()
+                                    CompoundTag addTag = new CompoundTag()
                                             .putInt("x", x)
                                             .putInt("y", y)
                                             .putInt("z", z)
                                             .putInt("blockId", block.getId())
-                                            .putInt("damage", block.getDamage())
-                                    );
+                                            .putInt("damage", block.getDamage());
+                                    Block blockLayer1 = player.getLevel().getBlock(position, 1, true);
+                                    if (blockLayer1.getId() != BlockID.AIR) {
+                                        addTag.putCompound("layer1", new CompoundTag()
+                                                .putInt("blockId", blockLayer1.getId())
+                                                .putInt("damage", blockLayer1.getDamage())
+                                        );
+                                    }
+                                    tag.getList("blocks", CompoundTag.class).add(addTag);
                                     readBlockCountAll.getAndIncrement();
                                     readBlockCountForSection.getAndIncrement();
                                 }
@@ -389,11 +409,17 @@ public class WorldEditCommand extends Command {
                                         block = new BlockUnknown(blocks.getInt("blockId"), blocks.getInt("damage"));
                                     }
                                     if (block.getId() != BlockID.AIR) {
-                                        player.getLevel().setBlock(new Vector3(x, y, z), block, true, false);
-
+                                        Vector3 pos = new Vector3(x, y, z);
+                                        player.getLevel().setBlock(pos, block, true, false);
                                         if (generated.get() >= (maxCount / 100) * (lastTipPercentage.get() + 5)) {
                                             GameAPI.getInstance().getLogger().info("[" + blockCount + "] Generating block... §e" + lastTipPercentage.get() + "%");
                                             lastTipPercentage.getAndAdd(5);
+                                        }
+                                        CompoundTag layer1 = blocks.getCompound("layer1");
+                                        int blockLayer1Id = layer1.getInt("blockId");
+                                        int blockLayer1Damage = layer1.getInt("damage");
+                                        if (blockLayer1Id != 0) {
+                                            player.getLevel().setBlock(pos, 1, Block.get(blockLayer1Id, blockLayer1Damage), true, false);
                                         }
                                     }
                                     // GameAPI.plugin.getLogger().info("Generating block info at {" + x + ", " + y + ", " + z + "} with {" + block.getId() + ":" + block.getDamage() + "}");

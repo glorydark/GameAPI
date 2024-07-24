@@ -92,9 +92,9 @@ public final class NBTOutputStream implements Closeable {
         int size = tags.size();
         this.os.writeByte(NBTUtils.getTypeCode(clazz));
         this.os.writeInt(size);
-		for (Tag value : tags) {
-			writeTagPayload(value);
-		}
+        for (Tag value : tags) {
+            writeTagPayload(value);
+        }
     }
 
     private void writeStringTagPayload(StringTag tag) throws IOException {

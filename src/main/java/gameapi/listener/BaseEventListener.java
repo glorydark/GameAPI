@@ -13,7 +13,9 @@ import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.*;
 import cn.nukkit.event.inventory.CraftItemEvent;
+import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.player.*;
+import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
 import gameapi.commands.WorldEditCommand;
@@ -21,6 +23,7 @@ import gameapi.entity.GameProjectileEntity;
 import gameapi.event.block.RoomBlockBreakEvent;
 import gameapi.event.block.RoomBlockPlaceEvent;
 import gameapi.event.entity.*;
+import gameapi.event.inventory.RoomInventoryPickupItemEvent;
 import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
@@ -202,15 +205,15 @@ public class BaseEventListener implements Listener {
         Player player = event.getPlayer();
         Room room = RoomManager.getRoom(player);
         if (room != null) {
-            if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_START) {
+            if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
                 if (room.getRoomRule().isAllowDropItem()) {
-                    event.setCancelled(true);
-                } else {
                     RoomPlayerDropItemEvent roomPlayerDropItemEvent = new RoomPlayerDropItemEvent(room, player, event.getItem());
                     GameListenerRegistry.callEvent(room, roomPlayerDropItemEvent);
                     if (roomPlayerDropItemEvent.isCancelled()) {
                         event.setCancelled(true);
                     }
+                } else {
+                    event.setCancelled(true);
                 }
             } else {
                 event.setCancelled(true);
@@ -828,4 +831,19 @@ public class BaseEventListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void InventoryPickupItemEvent(InventoryPickupItemEvent event) {
+        InventoryHolder holder = event.getInventory().getHolder();
+        if (holder instanceof Player) {
+            Player player = (Player) holder;
+            Room room = RoomManager.getRoom(player);
+            if (room != null) {
+                RoomInventoryPickupItemEvent roomInventoryPickupItemEvent = new RoomInventoryPickupItemEvent(room, event.getInventory(), event.getItem());
+                GameListenerRegistry.callEvent(room, roomInventoryPickupItemEvent);
+                if (roomInventoryPickupItemEvent.isCancelled()) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
 }

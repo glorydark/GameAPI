@@ -62,15 +62,15 @@ public class PlayerTools {
     }
 
     public static void sendTitle(Collection<Player> players, String title) {
-        sendTitle(players.toArray(new Player[0]), title, null, 20, 20, 5);
-    }
-
-    public static void sendTitle(Player[] players, String title) {
-        sendTitle(players, title, null, 20, 20, 5);
+        sendTitle(players.toArray(new Player[0]), title, "", 20, 20, 5);
     }
 
     public static void sendTitle(Collection<Player> players, String title, String subtitle) {
         sendTitle(players.toArray(new Player[0]), title, subtitle, 20, 20, 5);
+    }
+
+    public static void sendTitle(Player[] players, String title) {
+        sendTitle(players, title, "", 20, 20, 5);
     }
 
     public static void sendTitle(Player[] players, String title, String subtitle) {

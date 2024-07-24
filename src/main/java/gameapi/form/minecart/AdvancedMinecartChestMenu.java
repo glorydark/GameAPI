@@ -4,7 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.item.EntityMinecartChest;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.ListTag;
-import gameapi.form.AdvancedChestFormBase;
+import gameapi.form.AdvancedFakeBlockContainerFormBase;
 import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.form.response.ChestResponse;
 import gameapi.listener.AdvancedFormListener;
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 /**
  * @author glorydark
  */
-public class AdvancedMinecartChestMenu extends AdvancedChestFormBase {
+public class AdvancedMinecartChestMenu extends AdvancedFakeBlockContainerFormBase {
 
     protected LinkedHashMap<Player, EntityMinecartChest> entityMap = null;
     protected BiConsumer<Player, ChestResponse> clickBiConsumer = null;

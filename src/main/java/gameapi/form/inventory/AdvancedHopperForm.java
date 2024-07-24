@@ -2,7 +2,7 @@ package gameapi.form.inventory;
 
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
-import gameapi.form.AdvancedFakeBlockContainerFormBase;
+import gameapi.form.AdvancedFakeBlockContainerFormBaseImpl;
 import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.form.response.ChestResponse;
 
@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 /**
  * @author glorydark
  */
-public class AdvancedHopperForm extends AdvancedFakeBlockContainerFormBase {
+public class AdvancedHopperForm extends AdvancedFakeBlockContainerFormBaseImpl {
 
     public AdvancedHopperForm(String title) {
         this(title, false);

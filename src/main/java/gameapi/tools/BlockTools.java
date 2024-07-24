@@ -95,4 +95,8 @@ public class BlockTools {
         }
         return block;
     }
+
+    public static Block getBlockfromString(String string) {
+        return Item.fromString(string).getBlockUnsafe();
+    }
 }

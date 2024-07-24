@@ -4,6 +4,7 @@ import cn.nukkit.math.Vector3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author glorydark
@@ -33,6 +34,19 @@ public class IntegerAxisAlignBB {
         this.maxX = maxX;
         this.maxY = maxY;
         this.maxZ = maxZ;
+    }
+
+    public static void main(String[] args) {
+        AtomicLong count = new AtomicLong();
+        IntegerAxisAlignBB bb = new IntegerAxisAlignBB(0, 0, 0, 640, 640, 640);
+        bb.forEach((var1, var2, var3) -> count.addAndGet(1));
+
+        AtomicLong count1 = new AtomicLong();
+        for (IntegerAxisAlignBB bb1 : bb.splitAABB(32, 32, 32)) {
+            bb1.forEach(((var1, var2, var3) -> count1.addAndGet(1)));
+        }
+
+        System.out.println(count1 + "/" + count);
     }
 
     public int getMaxX() {
@@ -125,17 +139,24 @@ public class IntegerAxisAlignBB {
         int maxY = this.getMaxY();
         int maxZ = this.getMaxZ();
 
-        for (int x = minX; x < maxX + xLength; x += xLength) {
-            for (int y = minY; y < maxY + yLength; y += yLength) {
-                for (int z = minZ; z < maxZ + zLength; z += zLength) {
+        for (int x = minX; x <= maxX + xLength; x += xLength) {
+            for (int y = minY; y <= maxY + yLength; y += yLength) {
+                for (int z = minZ; z <= maxZ + zLength; z += zLength) {
                     int subMaxX = Math.min(x + xLength - 1, maxX);
                     int subMaxY = Math.min(y + yLength - 1, maxY);
                     int subMaxZ = Math.min(z + zLength - 1, maxZ);
-                    IntegerAxisAlignBB subAABB = new IntegerAxisAlignBB(x, y, z, Math.min(subMaxX, maxX), Math.min(subMaxY, maxY), Math.min(subMaxZ, maxZ));
+                    IntegerAxisAlignBB subAABB = new IntegerAxisAlignBB(x, y, z, subMaxX, subMaxY, subMaxZ);
                     bbs.add(subAABB);
                 }
             }
         }
+
+        // Handle any last blocks if they are smaller than the specified lengths
+        if (bbs.isEmpty()) {
+            // In case there are no AABBs generated, create a single one covering the entire range
+            bbs.add(new IntegerAxisAlignBB(minX, minY, minZ, maxX, maxY, maxZ));
+        }
+
         return bbs.toArray(new IntegerAxisAlignBB[0]);
     }
 

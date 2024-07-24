@@ -4,11 +4,11 @@ package org.jnbt;
 public abstract class Tag {
     private final String name;
 
-    public abstract Object getValue();
-
     public Tag(String name) {
         this.name = name;
     }
+
+    public abstract Object getValue();
 
     public final String getName() {
         return this.name;
