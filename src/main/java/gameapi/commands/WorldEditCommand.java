@@ -15,7 +15,6 @@ import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.scheduler.AsyncTask;
-import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.annotation.Experimental;
 import gameapi.commands.data.WorldEditOperation;
@@ -51,8 +50,6 @@ public class WorldEditCommand extends Command {
 
     public static LinkedHashMap<Player, PosSet> posSetLinkedHashMap = new LinkedHashMap<>();
 
-    public static LinkedHashMap<Player, WorldEditOperation> lastOperation = new LinkedHashMap<>();
-
     public boolean generate;
 
     public WorldEditCommand(String name) {
@@ -71,14 +68,6 @@ public class WorldEditCommand extends Command {
         final Player player = (Player) commandSender;
         if (strings.length > 0) {
             switch (strings[0].toLowerCase()) {
-                case "sudo":
-                    if (lastOperation.containsKey(player)) {
-                        if (lastOperation.get(player).sudo()) {
-                            commandSender.sendMessage(TextFormat.GREEN + "Successfully sudo the last worldedit operation!");
-                        }
-                    } else {
-                        commandSender.sendMessage(TextFormat.RED + "Cannot sudo operations because you haven't execute any operation yet.");
-                    }
                 case "true":
                     GameAPI.worldEditPlayers.add((Player) commandSender);
                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.world_edit.on"));
@@ -188,7 +177,6 @@ public class WorldEditCommand extends Command {
                                 WorldEditOperation worldEditOperation = WorldEditOperation.builder()
                                         .changedBlockEntries(simpleOperationEntries)
                                         .build();
-                                lastOperation.put(player, worldEditOperation);
                                 player.sendMessage("Finish fill task for " + count + " " + block.getName() + " replaced with " + blockReplaced.getName());
                             }
                         });
@@ -229,7 +217,6 @@ public class WorldEditCommand extends Command {
                                 WorldEditOperation worldEditOperation = WorldEditOperation.builder()
                                         .changedBlockEntries(simpleOperationEntries)
                                         .build();
-                                lastOperation.put(player, worldEditOperation);
                                 player.sendMessage("Finish fill task for " + count + " unknown blocks replaced with" + blockReplaced.getName());
                             }
                         });
