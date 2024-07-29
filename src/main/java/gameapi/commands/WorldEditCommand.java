@@ -17,9 +17,6 @@ import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.scheduler.AsyncTask;
 import gameapi.GameAPI;
 import gameapi.annotation.Experimental;
-import gameapi.commands.data.WorldEditOperation;
-import gameapi.commands.data.entry.OperationEntry;
-import gameapi.commands.data.entry.SimpleOperationEntry;
 import gameapi.tools.BlockTools;
 import gameapi.tools.SchematicConverter;
 import gameapi.tools.SmartTools;
@@ -30,7 +27,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
@@ -121,12 +117,6 @@ public class WorldEditCommand extends Command {
                                     player.getLevel().setBlock(i, i1, i2, block, true, false);
                                 }));
                                 player.sendMessage("Finish fill task");
-                                /*
-                                WorldEditOperation worldEditOperation = WorldEditOperation.builder()
-                                        .changedBlockEntries(simpleOperationEntries)
-                                        .build();
-                                 */
-                                //lastOperation.put(player, worldEditOperation);
                             }
                         });
                     }
@@ -153,7 +143,6 @@ public class WorldEditCommand extends Command {
                         Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.getInstance(), new AsyncTask() {
                             @Override
                             public void onRun() {
-                                List<OperationEntry> simpleOperationEntries = new ArrayList<>();
                                 AtomicInteger count = new AtomicInteger();
                                 bb.forEach(((i, i1, i2) -> {
                                     Block before = player.getLevel().getBlock(i, i1, i2);
@@ -163,20 +152,10 @@ public class WorldEditCommand extends Command {
                                                 return;
                                             }
                                         }
-                                        simpleOperationEntries.add(SimpleOperationEntry.builder()
-                                                .beforeBlockId(before.getId())
-                                                .beforeBlockMeta(before.getDamage())
-                                                .floorX(i)
-                                                .floorY(i1)
-                                                .floorZ(i2)
-                                                .build());
                                         level.setBlock(i, i1, i2, blockReplaced, true, true);
                                         count.getAndIncrement();
                                     }
                                 }));
-                                WorldEditOperation worldEditOperation = WorldEditOperation.builder()
-                                        .changedBlockEntries(simpleOperationEntries)
-                                        .build();
                                 player.sendMessage("Finish fill task for " + count + " " + block.getName() + " replaced with " + blockReplaced.getName());
                             }
                         });
@@ -198,25 +177,14 @@ public class WorldEditCommand extends Command {
                         Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.getInstance(), new AsyncTask() {
                             @Override
                             public void onRun() {
-                                List<OperationEntry> simpleOperationEntries = new ArrayList<>();
                                 AtomicInteger count = new AtomicInteger();
                                 bb.forEach(((i, i1, i2) -> {
                                     Block before = player.getLevel().getBlock(i, i1, i2);
                                     if (before instanceof BlockUnknown) {
-                                        simpleOperationEntries.add(SimpleOperationEntry.builder()
-                                                .beforeBlockId(before.getId())
-                                                .beforeBlockMeta(before.getDamage())
-                                                .floorX(i)
-                                                .floorY(i1)
-                                                .floorZ(i2)
-                                                .build());
                                         level.setBlock(i, i1, i2, blockReplaced, true, true);
                                         count.getAndIncrement();
                                     }
                                 }));
-                                WorldEditOperation worldEditOperation = WorldEditOperation.builder()
-                                        .changedBlockEntries(simpleOperationEntries)
-                                        .build();
                                 player.sendMessage("Finish fill task for " + count + " unknown blocks replaced with" + blockReplaced.getName());
                             }
                         });
