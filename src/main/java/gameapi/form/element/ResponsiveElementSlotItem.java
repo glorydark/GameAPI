@@ -4,7 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
-import gameapi.form.response.ChestResponse;
+import gameapi.form.response.BlockInventoryResponse;
 import gameapi.room.items.RoomItemBase;
 
 import java.util.function.BiConsumer;
@@ -16,7 +16,7 @@ public class ResponsiveElementSlotItem {
 
     protected Item item;
 
-    private BiConsumer<Player, ChestResponse> response;
+    private BiConsumer<Player, BlockInventoryResponse> response;
 
     public ResponsiveElementSlotItem(int id) {
         this(id, 0);
@@ -39,12 +39,12 @@ public class ResponsiveElementSlotItem {
     }
 
 
-    public ResponsiveElementSlotItem onRespond(BiConsumer<Player, ChestResponse> response) {
+    public ResponsiveElementSlotItem onRespond(BiConsumer<Player, BlockInventoryResponse> response) {
         this.response = response;
         return this;
     }
 
-    public BiConsumer<Player, ChestResponse> getResponse() {
+    public BiConsumer<Player, BlockInventoryResponse> getResponse() {
         return response;
     }
 

@@ -1,4 +1,4 @@
-package gameapi.form.inventory;
+package gameapi.form;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -10,14 +10,14 @@ import cn.nukkit.network.protocol.BlockEntityDataPacket;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.scheduler.Task;
 import gameapi.GameAPI;
-import gameapi.form.AdvancedFakeBlockContainerFormBaseImpl;
 import gameapi.form.element.ResponsiveElementSlotItem;
-import gameapi.form.response.ChestResponse;
+import gameapi.form.inventory.block.AdvancedFakeBlockInventoryImpl;
+import gameapi.form.inventory.FakeInventoryType;
+import gameapi.form.response.BlockInventoryResponse;
 import gameapi.utils.FakeBlockCacheData;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -25,17 +25,13 @@ import java.util.function.Consumer;
 /**
  * @author glorydark
  */
-public class AdvancedDoubleChestForm extends AdvancedFakeBlockContainerFormBaseImpl {
+public class AdvancedDoubleChestForm extends AdvancedFakeBlockInventoryImpl {
 
     public AdvancedDoubleChestForm(String title) {
-        this(title, false);
+        super(title, FakeInventoryType.DOUBLE_CHEST);
     }
 
-    public AdvancedDoubleChestForm(String title, boolean movable) {
-        super(title, AdvancedChestFormType.DOUBLE_CHEST, movable);
-    }
-
-    public AdvancedDoubleChestForm onClick(BiConsumer<Player, ChestResponse> consumer) {
+    public AdvancedDoubleChestForm onClick(BiConsumer<Player, BlockInventoryResponse> consumer) {
         this.clickBiConsumer = consumer;
         return this;
     }
@@ -47,7 +43,7 @@ public class AdvancedDoubleChestForm extends AdvancedFakeBlockContainerFormBaseI
 
     public AdvancedDoubleChestForm item(int slot, ResponsiveElementSlotItem slotItem) {
         Item item = slotItem.getItem();
-        this.getInventory().put(slot, item);
+        this.addItemToSlot(slot, item);
         this.getResponseMap().put(slot, slotItem.getResponse());
         return this;
     }
@@ -57,7 +53,7 @@ public class AdvancedDoubleChestForm extends AdvancedFakeBlockContainerFormBaseI
         Position position = getValidPosition(player);
 
         UpdateBlockPacket pk = new UpdateBlockPacket();
-        pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.blockId, 0);
+        pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.getFakeBlockFormType().getBlockId(), 0);
         pk.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
         pk.x = position.getFloorX();
         pk.y = position.getFloorY();
@@ -65,7 +61,7 @@ public class AdvancedDoubleChestForm extends AdvancedFakeBlockContainerFormBaseI
         player.dataPacket(pk);
 
         UpdateBlockPacket pk1 = new UpdateBlockPacket();
-        pk1.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.blockId, 0);
+        pk1.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.getFakeBlockFormType().getBlockId(), 0);
         pk1.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
         pk1.x = position.getFloorX() - 1;
         pk1.y = position.getFloorY();
@@ -86,14 +82,12 @@ public class AdvancedDoubleChestForm extends AdvancedFakeBlockContainerFormBaseI
         FakeBlockCacheData fakeBlockCacheData = new FakeBlockCacheData(pk.x, pk.y, pk.z, player.getLevel(), position.getLevelBlock());
 
         FakeBlockCacheData fakeBlockCacheData1 = new FakeBlockCacheData(pk1.x, pk1.y, pk1.z, player.getLevel(), position.add(-1, 0, 1).getLevelBlock());
-        this.fakeBlocks.computeIfAbsent(player, player1 -> new ArrayList<>()).addAll(Arrays.asList(fakeBlockCacheData, fakeBlockCacheData1));
-
-        FakeInventory fakeInventory = new FakeInventory(this, fakeBlockCacheData, this.getInventoryType());
+        this.getFakeBlockList().addAll(Arrays.asList(fakeBlockCacheData, fakeBlockCacheData1));
 
         Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), new Task() {
             @Override
             public void onRun(int i) {
-                player.addWindow(fakeInventory);
+                player.addWindow(getResultInventory());
             }
         }, 3);
     }

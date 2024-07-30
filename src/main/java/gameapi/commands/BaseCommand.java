@@ -3,6 +3,7 @@ package gameapi.commands;
 import cn.nukkit.IPlayer;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.block.BlockID;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.data.Skin;
@@ -14,8 +15,8 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
+import gameapi.form.AdvancedDoubleChestForm;
 import gameapi.form.element.ResponsiveElementSlotItem;
-import gameapi.form.inventory.AdvancedDoubleChestForm;
 import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.GameEntityManager;
@@ -43,12 +44,18 @@ public class BaseCommand extends Command {
         if (strings.length > 0) {
             switch (strings[0].toLowerCase()) {
                 case "test":
-                    AdvancedDoubleChestForm chestForm = new AdvancedDoubleChestForm("测试标题", true)
+                    AdvancedDoubleChestForm chestForm = new AdvancedDoubleChestForm("测试标题")
                             .onClick((player, c) -> player.sendMessage("Click on " + c.getItem().getName()))
                             .onClose(player -> player.sendMessage("Close"))
                             .item(1, new ResponsiveElementSlotItem("minecraft:iron_sword")
                                     .onRespond((player, chestResponse) -> {
-                                        player.sendMessage("我是1");
+                                        player.sendMessage("进入子菜单");
+                                        chestResponse.getInventory().clearAll();
+                                        chestResponse.getInventory().addItemToSlot(2, new ResponsiveElementSlotItem("minecraft:red_flower")
+                                                .onRespond((player1, blockInventoryResponse) -> {
+                                                    player1.sendMessage("关闭界面");
+                                                    blockInventoryResponse.getInventory().closeForPlayer(player1);
+                                                }));
                                     })
                             );
                     chestForm.showToPlayer((Player) commandSender);

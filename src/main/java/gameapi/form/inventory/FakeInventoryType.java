@@ -7,9 +7,11 @@ import cn.nukkit.inventory.InventoryType;
 /**
  * @author glorydark
  */
-public enum AdvancedChestFormType {
+public enum FakeInventoryType {
 
-    // interactive uis
+    /**
+     * These are interactive ui based on client-side fake block
+     */
     CHEST(BlockEntity.CHEST, Block.CHEST, InventoryType.CHEST),
     DOUBLE_CHEST(BlockEntity.CHEST, Block.CHEST, InventoryType.DOUBLE_CHEST),
     ENDER_CHEST(BlockEntity.ENDER_CHEST, Block.ENDER_CHEST, InventoryType.ENDER_CHEST),
@@ -31,7 +33,7 @@ public enum AdvancedChestFormType {
 
     final InventoryType inventoryType;
 
-    AdvancedChestFormType(String blockEntityIdentifier, int blockId, InventoryType inventoryType) {
+    FakeInventoryType(String blockEntityIdentifier, int blockId, InventoryType inventoryType) {
         this.blockEntityIdentifier = blockEntityIdentifier;
         this.blockId = blockId;
         this.inventoryType = inventoryType;

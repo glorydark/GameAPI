@@ -15,12 +15,10 @@ import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryHolder;
-import gameapi.form.AdvancedFakeBlockContainerFormBase;
-import gameapi.form.AdvancedFakeBlockContainerFormBaseImpl;
+import gameapi.form.inventory.block.AdvancedFakeBlockInventoryImpl;
 import gameapi.form.AdvancedForm;
-import gameapi.form.inventory.FakeInventory;
-import gameapi.form.minecart.AdvancedMinecartChestMenu;
-import gameapi.form.response.ChestResponse;
+import gameapi.form.inventory.block.AdvancedFakeBlockInventory;
+import gameapi.form.response.BlockInventoryResponse;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,18 +27,10 @@ public class AdvancedFormListener implements Listener {
 
     public static final String FORM_ENTITY_TAG = "GameAPIFormEntity";
     protected static Map<Player, LinkedHashMap<Integer, FormWindow>> playerFormWindows = new LinkedHashMap<>();
-    protected static Map<Player, AdvancedFakeBlockContainerFormBase> chestFormMap = new LinkedHashMap<>();
+    protected static Map<Player, AdvancedFakeBlockInventory> chestFormMap = new LinkedHashMap<>();
 
     public static void showToPlayer(Player player, FormWindow form) {
         AdvancedFormListener.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(form), form);
-    }
-
-    public static boolean showToPlayer(Player player, AdvancedMinecartChestMenu menu) {
-        if (chestFormMap.containsKey(player)) {
-            return false;
-        }
-        chestFormMap.put(player, menu);
-        return true;
     }
 
     public static void removeChestMenuCache(Player player) {
@@ -78,7 +68,7 @@ public class AdvancedFormListener implements Listener {
         if (this.isFormInventory(inventory)) {
             event.setCancelled(true);
         } else if (this.isChestInventory(inventory)) {
-            AdvancedFakeBlockContainerFormBaseImpl form = ((FakeInventory) inventory).getFormBase();
+            AdvancedFakeBlockInventoryImpl form = (AdvancedFakeBlockInventoryImpl) inventory;
             if (!form.isItemMovable()) {
                 event.setCancelled(true);
             }
@@ -91,7 +81,7 @@ public class AdvancedFormListener implements Listener {
             if (this.isFormInventory(inventory)) {
                 event.setCancelled(true);
             } else if (this.isChestInventory(inventory)) {
-                AdvancedFakeBlockContainerFormBaseImpl form = ((FakeInventory) inventory).getFormBase();
+                AdvancedFakeBlockInventoryImpl form = (AdvancedFakeBlockInventoryImpl) inventory;
                 if (!form.isItemMovable()) {
                     event.setCancelled(true);
                 }
@@ -105,14 +95,13 @@ public class AdvancedFormListener implements Listener {
         Inventory inventory = event.getInventory();
         if (isFormInventory(inventory)) {
             if (chestFormMap.containsKey(player)) {
-                AdvancedFakeBlockContainerFormBase form = chestFormMap.get(player);
-                form.dealResponse(player, new ChestResponse(form, event.getSlot(), event.getSourceItem()));
+                AdvancedFakeBlockInventory form = chestFormMap.get(player);
+                form.dealResponse(player, new BlockInventoryResponse(form, event.getSlot(), event.getSourceItem()));
             }
             event.setCancelled(true);
         } else if (isChestInventory(inventory)) {
-            FakeInventory inv = (FakeInventory) inventory;
-            AdvancedFakeBlockContainerFormBaseImpl form = inv.getFormBase();
-            form.dealResponse(player, new ChestResponse(inv.getFormBase(), event.getSlot(), event.getSourceItem()));
+            AdvancedFakeBlockInventoryImpl form = (AdvancedFakeBlockInventoryImpl) inventory;
+            form.dealResponse(player, new BlockInventoryResponse(form, event.getSlot(), event.getSourceItem()));
             if (!form.isItemMovable()) {
                 event.setCancelled(true);
             }
@@ -134,8 +123,8 @@ public class AdvancedFormListener implements Listener {
                 chestFormMap.get(player).close(player);
             }
         } else if (isChestInventory(inventory)) {
-            FakeInventory inv = (FakeInventory) inventory;
-            inv.getFormBase().dealResponse(player, null);
+            AdvancedFakeBlockInventoryImpl inv = (AdvancedFakeBlockInventoryImpl) inventory;
+            inv.dealResponse(player, null);
         }
     }
 
@@ -183,7 +172,7 @@ public class AdvancedFormListener implements Listener {
     }
 
     public boolean isChestInventory(Inventory inventory) {
-        return inventory instanceof FakeInventory;
+        return inventory instanceof AdvancedFakeBlockInventoryImpl;
     }
 
     public boolean isFormEntity(Entity entity) {

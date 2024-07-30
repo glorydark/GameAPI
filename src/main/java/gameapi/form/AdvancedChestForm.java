@@ -1,10 +1,11 @@
-package gameapi.form.inventory;
+package gameapi.form;
 
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
-import gameapi.form.AdvancedFakeBlockContainerFormBaseImpl;
 import gameapi.form.element.ResponsiveElementSlotItem;
-import gameapi.form.response.ChestResponse;
+import gameapi.form.inventory.FakeInventoryType;
+import gameapi.form.inventory.block.AdvancedFakeBlockInventoryImpl;
+import gameapi.form.response.BlockInventoryResponse;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -12,17 +13,13 @@ import java.util.function.Consumer;
 /**
  * @author glorydark
  */
-public class AdvancedChestForm extends AdvancedFakeBlockContainerFormBaseImpl {
+public class AdvancedChestForm extends AdvancedFakeBlockInventoryImpl {
 
     public AdvancedChestForm(String title) {
-        this(title, false);
+        super(title, FakeInventoryType.CHEST);
     }
 
-    public AdvancedChestForm(String title, boolean movable) {
-        super(title, AdvancedChestFormType.CHEST, movable);
-    }
-
-    public AdvancedChestForm onClick(BiConsumer<Player, ChestResponse> consumer) {
+    public AdvancedChestForm onClick(BiConsumer<Player, BlockInventoryResponse> consumer) {
         this.clickBiConsumer = consumer;
         return this;
     }
@@ -34,7 +31,7 @@ public class AdvancedChestForm extends AdvancedFakeBlockContainerFormBaseImpl {
 
     public AdvancedChestForm item(int slot, ResponsiveElementSlotItem slotItem) {
         Item item = slotItem.getItem();
-        this.getInventory().put(slot, item);
+        this.addItemToSlot(slot, item);
         this.getResponseMap().put(slot, slotItem.getResponse());
         return this;
     }
