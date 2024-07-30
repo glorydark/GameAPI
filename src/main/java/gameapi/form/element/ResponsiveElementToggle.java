@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.form.element.ElementToggle;
 
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * @author glorydark
@@ -27,5 +28,15 @@ public class ResponsiveElementToggle extends ElementToggle {
 
     public BiConsumer<Player, Boolean> getResponse() {
         return response;
+    }
+
+    public ResponsiveElementToggle text(String text) {
+        this.setText(text);
+        return this;
+    }
+
+    public ResponsiveElementToggle text(Supplier<String> supplier) {
+        this.setText(supplier.get());
+        return this;
     }
 }

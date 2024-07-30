@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.form.element.ElementInput;
 
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * @author glorydark
@@ -31,5 +32,15 @@ public class ResponsiveElementInput extends ElementInput {
 
     public BiConsumer<Player, String> getResponse() {
         return response;
+    }
+
+    public ResponsiveElementInput text(String text) {
+        this.setText(text);
+        return this;
+    }
+
+    public ResponsiveElementInput text(Supplier<String> supplier) {
+        this.setText(supplier.get());
+        return this;
     }
 }

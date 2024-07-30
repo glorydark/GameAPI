@@ -6,6 +6,7 @@ import cn.nukkit.form.response.FormResponseData;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * @author glorydark
@@ -33,5 +34,35 @@ public class ResponsiveElementStepSlider extends ElementStepSlider {
 
     public BiConsumer<Player, FormResponseData> getResponse() {
         return response;
+    }
+
+    public ResponsiveElementStepSlider text(String text) {
+        this.setText(text);
+        return this;
+    }
+
+    public ResponsiveElementStepSlider text(Supplier<String> supplier) {
+        this.setText(supplier.get());
+        return this;
+    }
+
+    public ResponsiveElementStepSlider step(String option) {
+        this.getSteps().add(option);
+        return this;
+    }
+
+    public ResponsiveElementStepSlider step(Supplier<String> supplier) {
+        this.getSteps().add(supplier.get());
+        return this;
+    }
+
+    public ResponsiveElementStepSlider steps(List<String> stringList) {
+        this.getSteps().addAll(stringList);
+        return this;
+    }
+
+    public ResponsiveElementStepSlider steps(Supplier<List<String>> supplier) {
+        this.getSteps().addAll(supplier.get());
+        return this;
     }
 }

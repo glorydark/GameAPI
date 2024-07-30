@@ -11,6 +11,7 @@ import gameapi.listener.AdvancedFormListener;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class AdvancedFormWindowCustom extends FormWindowCustom implements AdvancedForm {
 
@@ -24,6 +25,15 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
 
     public AdvancedFormWindowCustom() {
         super("");
+    }
+
+    public AdvancedFormWindowCustom title(Supplier<String> supplier) {
+        return this.title(supplier.get());
+    }
+
+    public AdvancedFormWindowCustom title(String string) {
+        this.setTitle(string);
+        return this;
     }
 
     public void dealResponse(Player player, FormResponse response) {

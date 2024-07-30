@@ -5,6 +5,7 @@ import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.element.ElementButtonImageData;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author glorydark
@@ -28,5 +29,15 @@ public class ResponsiveElementButton extends ElementButton {
 
     public Consumer<Player> getResponse() {
         return response;
+    }
+
+    public ResponsiveElementButton text(String text) {
+        this.setText(text);
+        return this;
+    }
+
+    public ResponsiveElementButton text(Supplier<String> supplier) {
+        this.setText(supplier.get());
+        return this;
     }
 }
