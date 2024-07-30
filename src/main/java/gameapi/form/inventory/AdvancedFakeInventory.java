@@ -41,7 +41,7 @@ public class AdvancedFakeInventory extends BaseInventory {
         this.fakeBlockFormType = fakeBlockFormType;
     }
 
-    protected void closeProcess(Player player) {
+    protected void postCloseExecute(Player player) {
 
     }
 

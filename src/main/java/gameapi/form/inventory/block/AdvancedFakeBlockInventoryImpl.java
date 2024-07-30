@@ -91,11 +91,11 @@ public abstract class AdvancedFakeBlockInventoryImpl extends AdvancedFakeBlockIn
 
     @Override
     public void closeForPlayer(Player player) {
-        this.closeProcess(player);
+        this.postCloseExecute(player);
     }
 
     @Override
-    protected void closeProcess(Player player) {
+    protected void postCloseExecute(Player player) {
         this.removeFakeBlock(player);
     }
 

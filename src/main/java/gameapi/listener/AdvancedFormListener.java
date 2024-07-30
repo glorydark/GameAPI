@@ -15,9 +15,9 @@ import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryHolder;
-import gameapi.form.inventory.block.AdvancedFakeBlockInventoryImpl;
 import gameapi.form.AdvancedForm;
 import gameapi.form.inventory.block.AdvancedFakeBlockInventory;
+import gameapi.form.inventory.block.AdvancedFakeBlockInventoryImpl;
 import gameapi.form.response.BlockInventoryResponse;
 
 import java.util.LinkedHashMap;

@@ -8,9 +8,7 @@ import cn.nukkit.level.GlobalBlockPalette;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.ContainerClosePacket;
 import cn.nukkit.network.protocol.ContainerOpenPacket;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
@@ -84,7 +82,7 @@ public abstract class AdvancedFakeBlockInventory extends AdvancedFakeInventory {
         player.dataPacket(packet);
 
         super.onClose(player);
-        this.closeProcess(player);
+        this.postCloseExecute(player);
     }
 
     public void addItemToSlot(int slot, Item item) {

@@ -11,8 +11,8 @@ import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.scheduler.Task;
 import gameapi.GameAPI;
 import gameapi.form.element.ResponsiveElementSlotItem;
-import gameapi.form.inventory.block.AdvancedFakeBlockInventoryImpl;
 import gameapi.form.inventory.FakeInventoryType;
+import gameapi.form.inventory.block.AdvancedFakeBlockInventoryImpl;
 import gameapi.form.response.BlockInventoryResponse;
 import gameapi.utils.FakeBlockCacheData;
 
