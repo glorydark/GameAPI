@@ -3,6 +3,7 @@ package gameapi.tools;
 /**
  * @author glorydark
  */
+@Deprecated
 public class FormulaCalculatorTools {
 
     public static boolean isNumber(String str) {
