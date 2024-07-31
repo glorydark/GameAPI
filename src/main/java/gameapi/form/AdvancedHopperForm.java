@@ -30,9 +30,13 @@ public class AdvancedHopperForm extends AdvancedFakeBlockInventoryImpl {
     }
 
     public AdvancedHopperForm item(int slot, ResponsiveElementSlotItem slotItem) {
+        this.addItem(slot, slotItem);
+        return this;
+    }
+
+    public void addItem(int slot, ResponsiveElementSlotItem slotItem) {
         Item item = slotItem.getItem();
         this.addItemToSlot(slot, item);
         this.getResponseMap().put(slot, slotItem.getResponse());
-        return this;
     }
 }
