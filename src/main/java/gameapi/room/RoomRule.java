@@ -84,6 +84,10 @@ public class RoomRule {
 
     private HideType hideType = HideType.NONE;
 
+    private boolean allowJoinAfterStart = false;
+
+    private boolean savePlayerPropertiesAfterQuit = false;
+
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
     }

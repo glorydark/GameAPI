@@ -559,8 +559,10 @@ public class BaseEventListener implements Listener {
         Room room = RoomManager.getRoom(player);
         if (room == null) {
             // Player is not in game, so the server will send the message to the players who are not in game.
-            event.setRecipients(Server.getInstance().getOnlinePlayers().values().stream()
-                    .filter(p -> RoomManager.getRoom(p) == null).collect(Collectors.toSet()));
+            event.setRecipients(event.getRecipients()
+                    .stream()
+                    .filter(p -> !p.isPlayer() || RoomManager.getRoom((Player) p) == null)
+                    .collect(Collectors.toSet()));
             return;
         }
         // Player is in game, so we trigger RoomPlayerChatEvent.

@@ -24,6 +24,7 @@ import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
 import gameapi.room.utils.HideType;
+import gameapi.room.utils.QuitRoomReason;
 import gameapi.tools.PlayerTools;
 import gameapi.tools.TipsTools;
 import gameapi.tools.WorldTools;
@@ -284,7 +285,7 @@ public class Room {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_other_room"));
             return;
         }
-        if (!this.getJoinPassword().equals(joinPassword)) {
+        if (!this.getJoinPassword().equals(this.joinPassword)) {
             player.sendMessage(GameAPI.getLanguage().getTranslation("command.error.incorrect_password"));
             return;
         }
@@ -295,26 +296,27 @@ public class Room {
                 return;
             }
         }
-        RoomStatus roomStatus = this.getRoomStatus();
-        if (roomStatus == RoomStatus.ROOM_MAP_LOAD_FAILED) {
+        if (this.roomStatus == RoomStatus.ROOM_MAP_LOAD_FAILED) {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
             return;
         }
-        if (roomStatus == RoomStatus.ROOM_MAP_INITIALIZING) {
+        if (this.roomStatus == RoomStatus.ROOM_MAP_INITIALIZING) {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.resetting"));
             return;
         }
-        if (roomStatus == RoomStatus.ROOM_HALTED) {
+        if (this.roomStatus == RoomStatus.ROOM_HALTED) {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
             return;
         }
-        if (roomStatus != RoomStatus.ROOM_STATUS_WAIT && roomStatus != RoomStatus.ROOM_STATUS_PRESTART) {
-            if (this.getRoomRule().isAllowSpectators()) {
-                this.processJoinSpectator(player);
-            } else {
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+        if (this.roomStatus != RoomStatus.ROOM_STATUS_WAIT && this.roomStatus != RoomStatus.ROOM_STATUS_PRESTART) {
+            if (!this.roomRule.isAllowJoinAfterStart()) {
+                if (this.getRoomRule().isAllowSpectators()) {
+                    this.processJoinSpectator(player);
+                } else {
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                }
+                return;
             }
-            return;
         }
         if (this.players.size() < this.maxPlayer) {
             if (this.hasPlayer(player) || this.hasSpectator(player)) {
@@ -323,11 +325,11 @@ public class Room {
                 RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
                 GameListenerRegistry.callEvent(this, ev);
                 if (!ev.isCancelled()) {
-                    roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
+                    this.roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
                     RoomManager.getPlayerRoomHashMap().put(player, this);
-                    playerProperties.put(player.getName(), new LinkedHashMap<>());
+                    this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
                     this.players.add(player);
-                    waitSpawn.teleport(player);
+                    this.waitSpawn.teleport(player);
                     player.setGamemode(2);
                     player.getFoodData().reset();
                     player.setFoodEnabled(this.getRoomRule().isAllowFoodLevelChange());
@@ -337,21 +339,28 @@ public class Room {
                     for (Player p : this.players) {
                         p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
                     }
-                    GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
                     this.hidePlayer(player, this.getRoomRule().getHideType());
                     this.updateHideStatus(player, false);
+                    GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
                 }
             }
         }
     }
 
     public void removePlayer(Player player) {
-        if (!players.contains(player)) {
+        this.removePlayer(player, QuitRoomReason.DEFAULT);
+    }
+
+    public void removePlayer(Player player, QuitRoomReason reason) {
+        if (!this.players.contains(player)) {
             return;
         }
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
+            if (!this.getRoomRule().isSavePlayerPropertiesAfterQuit()) {
+                this.playerProperties.remove(player.getName());
+            }
             for (Player p : this.getPlayers()) {
                 p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.success", player.getName()));
             }
@@ -368,9 +377,8 @@ public class Room {
             player.getEffects().clear();
             player.setNameTag("");
             player.setGamemode(Server.getInstance().getDefaultGamemode());
-            this.removePlayerFromTeam(player);
-            this.playerProperties.remove(player.getName());
             this.roomVirtualHealthManager.removePlayer(player);
+            this.removePlayerFromTeam(player);
             player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             this.updateHideStatus(player, true);
 
@@ -737,7 +745,7 @@ public class Room {
                     player.showPlayer(onlinePlayer);
                 }
             }
-        } else if (roomRule.getHideType() == HideType.NOT_IN_THE_SAME_ROOM) {
+        } else if (this.roomRule.getHideType() == HideType.NOT_IN_THE_SAME_ROOM) {
             // 玩家加入房间，如果只有房内可见，只需要更新房内玩家的hidePlayers即可
             for (Player roomPlayer : this.getPlayers()) {
                 roomPlayer.showPlayer(player);
