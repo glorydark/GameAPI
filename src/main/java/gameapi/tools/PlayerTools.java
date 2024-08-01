@@ -62,19 +62,19 @@ public class PlayerTools {
     }
 
     public static void sendTitle(Collection<Player> players, String title) {
-        sendTitle(players.toArray(new Player[0]), title, "", 20, 20, 5);
+        sendTitle(players.toArray(new Player[0]), title, "", 10, 20, 10);
     }
 
     public static void sendTitle(Collection<Player> players, String title, String subtitle) {
-        sendTitle(players.toArray(new Player[0]), title, subtitle, 20, 20, 5);
+        sendTitle(players.toArray(new Player[0]), title, subtitle, 10, 20, 10);
     }
 
     public static void sendTitle(Player[] players, String title) {
-        sendTitle(players, title, "", 20, 20, 5);
+        sendTitle(players, title, "");
     }
 
     public static void sendTitle(Player[] players, String title, String subtitle) {
-        sendTitle(players, title, subtitle, 20, 20, 5);
+        sendTitle(players, title, subtitle, 10, 20, 10);
     }
 
     public static void sendTitle(Collection<Player> players, String title, String subtitle, int fadeIn, int stay, int fadeOut) {

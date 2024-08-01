@@ -3,6 +3,7 @@ package gameapi.listener;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.entity.projectile.EntityProjectile;
@@ -130,7 +131,7 @@ public class BaseEventListener implements Listener {
             for (EditProcess editProcess : GameAPI.editProcessList) {
                 Player editor = editProcess.getPlayer();
                 if (editor == player) {
-                    editProcess.getCurrentStep().onBreak(event.getBlock());
+                    editProcess.getCurrentStep().onBreak(player, event.getBlock());
                     event.setCancelled(true);
                 }
                 break;
@@ -191,7 +192,7 @@ public class BaseEventListener implements Listener {
                 for (EditProcess editProcess : GameAPI.editProcessList) {
                     Player editor = editProcess.getPlayer();
                     if (editor == player) {
-                        editProcess.getCurrentStep().onPlace(event.getBlock());
+                        editProcess.getCurrentStep().onPlace(player, event.getBlock());
                         event.setCancelled(true);
                     }
                     break;
@@ -666,7 +667,12 @@ public class BaseEventListener implements Listener {
             for (EditProcess editProcess : GameAPI.editProcessList) {
                 Player editor = editProcess.getPlayer();
                 if (editor == player) {
-                    editProcess.getCurrentStep().onInteract();
+                    Block block = event.getBlock();
+                    if (block.getId() == BlockID.AIR) {
+                        editProcess.getCurrentStep().onInteractAir(player);
+                    } else {
+                        editProcess.getCurrentStep().onInteract(player, block);
+                    }
                 }
                 break;
             }

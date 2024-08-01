@@ -14,40 +14,44 @@ public abstract class EditStep {
         this.editProcess = editProcess;
     }
 
-    public void onStart() {
+    public void onStart(Player player) {
 
     }
 
-    public void onBreak(Block block) {
+    public void onBreak(Player player, Block block) {
 
     }
 
-    public void onPlace(Block block) {
+    public void onPlace(Player player, Block block) {
 
     }
 
-    public void onInteract() {
+    public void onInteract(Player player, Block block) {
 
     }
 
-    public void onEnd() {
+    public void onInteractAir(Player player) {
 
     }
 
-    public EditProcess getEditData() {
+    public void onEnd(Player player) {
+
+    }
+
+    public EditProcess getEditProcess() {
         return this.editProcess;
     }
 
     public Player getPlayer() {
-        return this.getEditData().getPlayer();
+        return this.getEditProcess().getPlayer();
     }
 
     protected void close() {
-        this.getEditData().nextStep();
+        this.getEditProcess().nextStep();
     }
 
-    protected int getNumber() {
-        return this.getEditData().getSteps().indexOf(this);
+    protected int getId() {
+        return this.getEditProcess().getSteps().indexOf(this);
     }
 
     public void onTick() {

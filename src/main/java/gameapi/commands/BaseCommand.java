@@ -22,6 +22,7 @@ import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
+import gameapi.test.Test;
 import gameapi.tools.*;
 
 import java.io.File;
@@ -42,6 +43,9 @@ public class BaseCommand extends Command {
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (strings.length > 0) {
             switch (strings[0].toLowerCase()) {
+                case "testload":
+                    Test.main(new String[0]);
+                    break;
                 case "test":
                     AdvancedDoubleChestForm chestForm = new AdvancedDoubleChestForm("测试标题")
                             .onClick((player, c) -> player.sendMessage("Click on " + c.getItem().getName()))
