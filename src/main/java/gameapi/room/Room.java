@@ -8,6 +8,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.potion.Effect;
 import gameapi.GameAPI;
+import gameapi.annotation.Future;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.extensions.obstacle.DynamicObstacle;
@@ -22,6 +23,7 @@ import gameapi.manager.room.RoomVirtualHealthManager;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
+import gameapi.room.state.GameState;
 import gameapi.room.team.BaseTeam;
 import gameapi.room.utils.HideType;
 import gameapi.room.utils.QuitRoomReason;
@@ -90,10 +92,15 @@ public class Room {
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
     private long startMillis;
-    private List<SupplyChest> supplyChests = new ArrayList<>();
     private String tempWorldPrefixOverride = "";
     private int id = -1;
 
+    @Future
+    private List<GameState> gameStates = new ArrayList<>();
+    @Future
+    private int gameStateCurrentIndex = 0;
+
+    private List<SupplyChest> supplyChests = new ArrayList<>();
     @Setter(AccessLevel.NONE)
     private RoomUpdateTask roomUpdateTask;
     @Setter(AccessLevel.NONE)

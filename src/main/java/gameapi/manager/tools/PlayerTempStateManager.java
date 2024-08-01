@@ -20,20 +20,28 @@ public class PlayerTempStateManager {
 
     public static final String KEY_OFFHAND_CACHES = "offhand_caches";
 
+    public static final String KEY_ENDER_CHEST_CACHE = "ender_chest_caches";
+
     public static final String KEY_EXP = "exp";
 
     public static final String KEY_EXP_LEVEL = "exp_level";
 
-    @Experimental
     public static void recoverData(Player player) {
-        loadBag(player);
+        if (!GameAPI.getInstance().isSaveTempStates()) {
+            return;
+        }
+        loadBag(player); // offhand & player inventory
         loadExpCaches(player);
+        loadEnderChestCaches(player);
     }
 
-    @Experimental
     public static void saveAllData(Player player) {
+        if (!GameAPI.getInstance().isSaveTempStates()) {
+            return;
+        }
         saveBag(player);
         saveExpCaches(player);
+        saveEnderChestCaches(player);
     }
 
     protected static void loadBag(Player player) {
@@ -67,6 +75,25 @@ public class PlayerTempStateManager {
                 player.getOffhandInventory().setItem(i, ItemTools.toItem(bag.get(i)));
             }
             removePlayerTempDataConfig(player, KEY_OFFHAND_CACHES);
+        }
+    }
+
+    protected static void saveEnderChestCaches(Player player) {
+        List<String> bag = new ArrayList<>();
+        for (int i = 0; i < player.getEnderChestInventory().getSize() + 4; i++) {
+            Item item = player.getEnderChestInventory().getItem(i);
+            bag.add(ItemTools.toString(item));
+        }
+        setPlayerTempDataConfig(player, KEY_ENDER_CHEST_CACHE, bag);
+    }
+
+    protected static void loadEnderChestCaches(Player player) {
+        List<String> bag = getPlayerConfig(player, KEY_ENDER_CHEST_CACHE, new ArrayList<>());
+        if (bag != null && bag.size() > 0) {
+            for (int i = 0; i < player.getEnderChestInventory().getSize() + 4; i++) {
+                player.getEnderChestInventory().setItem(i, ItemTools.toItem(bag.get(i)));
+            }
+            removePlayerTempDataConfig(player, KEY_ENDER_CHEST_CACHE);
         }
     }
 

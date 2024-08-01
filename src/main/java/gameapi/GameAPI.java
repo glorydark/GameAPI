@@ -62,6 +62,7 @@ public class GameAPI extends PluginBase implements Listener {
     };
     protected int entityRefreshIntervals = 100;
     protected boolean tipsEnabled;
+    protected boolean saveTempStates = false;
 
     public static void addRoomEdit(EditProcess editProcess) {
         editProcessList.add(editProcess);
@@ -104,9 +105,11 @@ public class GameAPI extends PluginBase implements Listener {
         new File(path + "/schematics/").mkdirs();
         new File(path + "/buildings/").mkdirs();
         Config config = new Config(path + "/config.yml", Config.YAML);
+        this.saveTempStates = config.getBoolean("save-temp-state", true);
+        this.entityRefreshIntervals = config.getInt("entity-refresh-intervals", 100);
         // load lang data
         this.loadLanguage();
-        language.setDefaultLanguage(config.getString("default_language", "zh_CN"));
+        language.setDefaultLanguage(config.getString("default-language", "zh_CN"));
         this.tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
 
         this.loadAllPlayerGameData();
@@ -265,5 +268,9 @@ public class GameAPI extends PluginBase implements Listener {
 
     public boolean isTipsEnabled() {
         return this.tipsEnabled;
+    }
+
+    public boolean isSaveTempStates() {
+        return saveTempStates;
     }
 }

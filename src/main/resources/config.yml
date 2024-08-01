@@ -1,2 +1,3 @@
-save_bag: false
-default_language: en_US
+default-language: en_US
+save-temp-state: true
+entity-refresh-intervals: 100

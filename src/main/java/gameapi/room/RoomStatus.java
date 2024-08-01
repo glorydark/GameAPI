@@ -29,5 +29,7 @@ public enum RoomStatus {
 
     ROOM_STOPPED,
 
-    ROOM_PLAYBACK
+    ROOM_PLAYBACK,
+
+    ROOM_EDIT
 }
