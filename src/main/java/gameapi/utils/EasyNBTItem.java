@@ -99,7 +99,9 @@ public class EasyNBTItem {
         if (!this.customName.isEmpty()) {
             item.setCustomName(this.customName);
         }
-        item.setLore(this.lore);
+        if (this.lore != null) {
+            item.setLore(this.lore);
+        }
         return item;
     }
 }
