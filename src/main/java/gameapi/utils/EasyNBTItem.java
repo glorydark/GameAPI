@@ -3,6 +3,7 @@ package gameapi.utils;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
+import gameapi.room.items.RoomItemBase;
 import lombok.Data;
 
 /**
@@ -17,7 +18,7 @@ public class EasyNBTItem {
 
     private final int meta;
 
-    private String customName;
+    private String customName = "";
 
     protected CompoundTag compoundTag = new CompoundTag();
 
@@ -80,6 +81,26 @@ public class EasyNBTItem {
 
     public EasyNBTItem stringTag(String key, String value) {
         this.compoundTag.putString(key, value);
+        return this;
+    }
+
+    public EasyNBTItem byteTag(String key, byte value) {
+        this.compoundTag.putByte(key, value);
+        return this;
+    }
+
+    public EasyNBTItem lockType(RoomItemBase.ItemLockType lockType) {
+        if (lockType == RoomItemBase.ItemLockType.NONE) {
+            return this;
+        }
+        this.compoundTag.putByte("minecraft:item_lock", lockType.ordinal());
+        return this;
+    }
+
+    public EasyNBTItem unbreakable(boolean unbreakable) {
+        if (unbreakable) {
+            this.compoundTag.putBoolean("Unbreakable", unbreakable);
+        }
         return this;
     }
 

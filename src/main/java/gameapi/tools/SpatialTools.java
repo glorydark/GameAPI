@@ -6,6 +6,7 @@ import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.IntegerAxisAlignBB;
+import gameapi.utils.Rotation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,23 @@ import java.util.List;
  * @author glorydark
  */
 public class SpatialTools {
+
+    public static List<Rotation> parseRotationFromStrings(String... str) {
+        List<Rotation> vector3List = new ArrayList<>();
+        for (String s : str) {
+            vector3List.add(parseRotationFromString(s));
+        }
+        return vector3List;
+    }
+
+    public static Rotation parseRotationFromString(String str) {
+        String[] locArray = str.split(":");
+        if (locArray.length == 3) {
+            return new Rotation(Double.parseDouble(locArray[0]), Double.parseDouble(locArray[1]), Double.parseDouble(locArray[2]));
+        } else {
+            return new Rotation(0, 0, 0);
+        }
+    }
 
     public static List<Vector3> parseVectorsFromStrings(String... str) {
         List<Vector3> vector3List = new ArrayList<>();

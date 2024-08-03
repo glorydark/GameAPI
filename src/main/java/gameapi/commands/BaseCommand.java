@@ -54,11 +54,13 @@ public class BaseCommand extends Command {
                                     .onRespond((player, chestResponse) -> {
                                         player.sendMessage("进入子菜单");
                                         chestResponse.getInventory().clearAll();
-                                        chestResponse.getInventory().addItemToSlot(2, new ResponsiveElementSlotItem("minecraft:red_flower")
-                                                .onRespond((player1, blockInventoryResponse) -> {
-                                                    player1.sendMessage("关闭界面");
-                                                    blockInventoryResponse.getInventory().closeForPlayer(player1);
-                                                }));
+                                        chestResponse.getInventory().addItemToSlot(2,
+                                                new ResponsiveElementSlotItem("minecraft:red_flower")
+                                                        .onRespond((player1, blockInventoryResponse) -> {
+                                                            player1.sendMessage("关闭界面");
+                                                            blockInventoryResponse.getInventory().closeForPlayer(player1);
+                                                        })
+                                        );
                                     })
                             );
                     chestForm.showToPlayer((Player) commandSender);

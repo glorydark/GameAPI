@@ -9,6 +9,7 @@ import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.BlockColor;
 import gameapi.tools.ParticleTools;
+import gameapi.utils.Rotation;
 import lombok.Data;
 import lombok.ToString;
 
@@ -17,6 +18,8 @@ import lombok.ToString;
 public class CheckpointData {
 
     private Vector3 vector3;
+
+    private Rotation rotation = null;
 
     private double horizontalRadius;
 
@@ -44,6 +47,10 @@ public class CheckpointData {
         this.particleMarked = particleMarked;
     }
 
+    public void setRotation(Rotation rotation) {
+        this.rotation = rotation;
+    }
+
     /**
      * This method is to check whether player is in the checking range or not, which depends on location and radius.
      * If the level of player is in different from that of this checking point, this method is bound to return false.
@@ -60,12 +67,16 @@ public class CheckpointData {
      * This method is to summon a particle mark.
      */
     public void showParticleMarks(Level level) {
-        if (particleMarked) {
+        if (this.particleMarked) {
             ParticleTools.drawCircle(this.particle, this.getLocation(level).add(0, 1, 0), this.horizontalRadius);
         }
     }
 
     public Location getLocation(Level level) {
-        return new Location(this.vector3.x, this.vector3.y, this.vector3.z, level);
+        if (this.rotation == null) {
+            return Location.fromObject(vector3, level);
+        } else {
+            return Location.fromObject(vector3, level, rotation.getYaw(), rotation.getPitch(), rotation.getHeadYaw());
+        }
     }
 }

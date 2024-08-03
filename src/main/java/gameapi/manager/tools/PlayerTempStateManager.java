@@ -5,7 +5,6 @@ import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
-import gameapi.annotation.Experimental;
 import gameapi.tools.ItemTools;
 
 import java.util.ArrayList;

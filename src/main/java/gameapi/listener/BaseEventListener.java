@@ -142,6 +142,14 @@ public class BaseEventListener implements Listener {
         Player player = event.getPlayer();
         Room room = RoomManager.getRoom(player);
         if (room != null) {
+            if (event.getItem() != null) {
+                RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(event.getItem()));
+                if (roomItemBase != null) {
+                    roomItemBase.onBlockPlace(room, player);
+                    event.setCancelled(true);
+                    return;
+                }
+            }
             if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_START) {
                 event.setCancelled(true);
             } else {
@@ -298,11 +306,7 @@ public class BaseEventListener implements Listener {
             return;
         }
         Player player = (Player) entity;
-        if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_START) {
-            if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-                event.setDamage(0);
-                player.teleport(player.getLevel().getSpawnLocation(), null);
-            }
+        if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_START) { // 未开始都不算数
             event.setCancelled(true);
             return;
         }
@@ -329,43 +333,27 @@ public class BaseEventListener implements Listener {
         if (room.getRoomRule().isVirtualHealth()) {
             RoomVirtualHealthManager manager = room.getRoomVirtualHealthManager();
             if (manager.getHealth(player) - event.getFinalDamage() <= 0d) {
-                room.setDeath(player); // 设置死亡
-                event.setDamage(0f);
-                if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
-                    manager.setHealth(player, manager.getMaxHealth());
-                    damageSources.remove(entity.getName());
-                    if (room.getRoomRule().isAllowRespawn()) {
-                        int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
-                        room.setDeath(player);
-                        room.addRespawnTask(player, respawnTicks);
-                    } else {
-                        room.setDeath(player);
-                    }
-                } else {
-                    manager.setHealth(player, manager.getMaxHealth());
+                manager.setHealth(player, manager.getMaxHealth());
+                damageSources.remove(entity.getName());
+                room.setDeath(player);
+                if (room.getRoomRule().isAllowRespawn()) {
+                    int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
+                    room.addRespawnTask(player, respawnTicks);
+                    event.setCancelled(true);
                 }
                 return;
             }
         } else {
             if (entity.getHealth() - event.getFinalDamage() <= 0f) {
                 room.setDeath(player); // 设置死亡
-                if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
-                    if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-                        if (room.getRoomRule().isAllowRespawn()) {
-                            int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
-                            room.addRespawnTask(player, respawnTicks);
-                        }
-                    } else {
-                        entity.setHealth(entity.getMaxHealth());
-                        damageSources.remove(entity.getName());
-                        if (room.getRoomRule().isAllowRespawn()) {
-                            int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
-                            room.addRespawnTask(player, respawnTicks);
-                        }
-                    }
-                } else {
-                    entity.setHealth(entity.getMaxHealth());
+                if (event.getCause() != EntityDamageEvent.DamageCause.VOID) {
+                    damageSources.remove(entity.getName());
                 }
+                if (room.getRoomRule().isAllowRespawn()) {
+                    int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
+                    room.addRespawnTask(player, respawnTicks);
+                }
+                event.setCancelled(true);
                 return;
             }
         }
@@ -390,7 +378,7 @@ public class BaseEventListener implements Listener {
             Room room1 = RoomManager.getRoom((Player) entity);
             Room room2 = RoomManager.getRoom((Player) entity2);
             if (room1 != null && room1 == room2) {
-                if (room1.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
+                if (room1.getRoomStatus() == RoomStatus.ROOM_STATUS_START) { // 未开始游戏不算数
                     Player victim = (Player) event.getEntity();
                     Player damager = (Player) event.getDamager();
                     if (!room1.getRoomRule().isAllowDamagePlayer()) {
@@ -409,16 +397,11 @@ public class BaseEventListener implements Listener {
                         if (manager.getHealth(victim) - event.getFinalDamage() <= 0d) {
                             addPlayerDamageSource(victim.getName(), damager.getName());
                             room1.setDeath(victim); // 设置死亡
-                            if (room1.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
-                                room1.setDeath(victim); // 设置死亡
-                                manager.setHealth(victim, manager.getMaxHealth());
-                                damageSources.remove(entity.getName());
-                                if (room1.getRoomRule().isAllowRespawn()) {
-                                    int respawnTicks = room1.getRoomRule().getRespawnCoolDownTick();
-                                    room1.addRespawnTask(victim, respawnTicks);
-                                }
-                            } else {
-                                manager.setHealth(victim, manager.getMaxHealth());
+                            manager.setHealth(victim, manager.getMaxHealth());
+                            damageSources.remove(entity.getName());
+                            if (room1.getRoomRule().isAllowRespawn()) {
+                                int respawnTicks = room1.getRoomRule().getRespawnCoolDownTick();
+                                room1.addRespawnTask(victim, respawnTicks);
                             }
                             return;
                         }
@@ -426,22 +409,18 @@ public class BaseEventListener implements Listener {
                         if (entity.getHealth() - event.getFinalDamage() <= 0f) {
                             addPlayerDamageSource(victim.getName(), damager.getName());
                             room1.setDeath(victim); // 设置死亡
-                            if (room1.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
-                                if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-                                    if (room1.getRoomRule().isAllowRespawn()) {
-                                        int respawnTicks = room1.getRoomRule().getRespawnCoolDownTick();
-                                        room1.addRespawnTask(victim, respawnTicks);
-                                    }
-                                } else {
-                                    entity.setHealth(entity.getMaxHealth());
-                                    damageSources.remove(entity.getName());
-                                    if (room1.getRoomRule().isAllowRespawn()) {
-                                        int respawnTicks = room1.getRoomRule().getRespawnCoolDownTick();
-                                        room1.addRespawnTask(victim, respawnTicks);
-                                    }
+                            if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+                                if (room1.getRoomRule().isAllowRespawn()) {
+                                    int respawnTicks = room1.getRoomRule().getRespawnCoolDownTick();
+                                    room1.addRespawnTask(victim, respawnTicks);
                                 }
                             } else {
                                 entity.setHealth(entity.getMaxHealth());
+                                damageSources.remove(entity.getName());
+                                if (room1.getRoomRule().isAllowRespawn()) {
+                                    int respawnTicks = room1.getRoomRule().getRespawnCoolDownTick();
+                                    room1.addRespawnTask(victim, respawnTicks);
+                                }
                             }
                             return;
                         }
@@ -523,14 +502,21 @@ public class BaseEventListener implements Listener {
             return;
         }
         Room room = RoomManager.getRoom(player);
-        if (room != null && event.getCause() != null) {
+        if (room != null) {
             if (!fromLevel.equals(toLevel)) {
-                List<Level> arenas = new LinkedList<>();
-                if (room.getWaitSpawn().isValid()) {
+                Set<Level> arenas = new HashSet<>();
+                if (room.getWaitSpawn() != null && room.getWaitSpawn().isValid()) {
                     arenas.add(room.getWaitSpawn().getLevel());
                 }
-                room.getStartSpawn().forEach(spawn -> arenas.add(spawn.getLevel()));
-                if (!arenas.contains(fromLevel) && !arenas.contains(toLevel)) {
+                if (room.getEndSpawn() != null && room.getEndSpawn().isValid()) {
+                    arenas.add(room.getEndSpawn().getLevel());
+                }
+                for (AdvancedLocation location : room.getStartSpawn()) {
+                    if (location != null && location.isValid()) {
+                        arenas.add(location.getLevel());
+                    }
+                }
+                if (!player.isOp() && !arenas.contains(fromLevel) && !arenas.contains(toLevel)) {
                     event.setCancelled(true);
                     player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.level_change.not_allowed"));
                 }
@@ -651,11 +637,11 @@ public class BaseEventListener implements Listener {
         Player player = event.getPlayer();
         Room room = RoomManager.getRoom(player);
         if (room != null) {
-            RoomPlayerInteractEvent roomPlayerInteractEvent = new RoomPlayerInteractEvent(room, player, event.getBlock(), event.getTouchVector(), event.getFace(), event.getItem(), event.getAction());
             RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(player.getInventory().getItemInHand()));
             if (roomItemBase != null) {
-                roomItemBase.executeInteract(roomPlayerInteractEvent);
+                roomItemBase.onInteract(room, player);
             } else {
+                RoomPlayerInteractEvent roomPlayerInteractEvent = new RoomPlayerInteractEvent(room, player, event.getBlock(), event.getTouchVector(), event.getFace(), event.getItem(), event.getAction());
                 GameListenerRegistry.callEvent(room, roomPlayerInteractEvent);
                 if (roomPlayerInteractEvent.isCancelled()) {
                     event.setCancelled(true);
@@ -694,12 +680,12 @@ public class BaseEventListener implements Listener {
     public void PlayerItemHeldEvent(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
         Room room = RoomManager.getRoom(player);
-        if (room != null) {
-            RoomPlayerItemHeldEvent roomPlayerItemHeldEvent = new RoomPlayerItemHeldEvent(room, player, event.getItem());
-            RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(player.getInventory().getItemInHand()));
+        if (room != null && event.getItem() != null) {
+            RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(event.getItem()));
             if (roomItemBase != null) {
-                roomItemBase.executeHeldItem(roomPlayerItemHeldEvent);
+                roomItemBase.onItemHeld(room, player);
             } else {
+                RoomPlayerItemHeldEvent roomPlayerItemHeldEvent = new RoomPlayerItemHeldEvent(room, player, event.getItem());
                 GameListenerRegistry.callEvent(room, roomPlayerItemHeldEvent);
                 if (roomPlayerItemHeldEvent.isCancelled()) {
                     event.setCancelled(true);
@@ -803,22 +789,29 @@ public class BaseEventListener implements Listener {
     }
 
     @EventHandler
-    public void EntityDeathEvent(EntityDeathEvent event) {
-        Entity entity = event.getEntity();
-        if (entity instanceof Player) {
-            Player player = (Player) entity;
-            Room room = RoomManager.getRoom(player);
-            if (room != null) {
-                if (room.getRoomRule().isVirtualHealth()) {
-                    if (room.getRoomVirtualHealthManager().getHealth(player) < 0) {
-                        room.setDeath(player);
-                    } else {
-                        player.setHealth(1);
-                    }
+    public void PlayerDeathEvent(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        Room room = RoomManager.getRoom(player);
+        if (room != null) {
+            if (room.getRoomRule().isVirtualHealth()) {
+                if (room.getRoomVirtualHealthManager().getHealth(player) > 0) {
+                    player.setHealth(player.getMaxHealth());
                     event.setCancelled(true);
+                    return;
                 }
             }
+            room.setDeath(player);
+            if (room.getRoomRule().isAllowRespawn()) {
+                int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
+                room.addRespawnTask(player, respawnTicks);
+            }
+            event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void EntityDeathEvent(EntityDeathEvent event) {
+        Entity entity = event.getEntity();
         if (entity instanceof EntityLiving) {
             EntityLiving entityLiving = (EntityLiving) entity;
             Room room;

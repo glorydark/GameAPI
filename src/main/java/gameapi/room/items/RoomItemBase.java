@@ -1,26 +1,22 @@
 package gameapi.room.items;
 
+import cn.nukkit.Player;
 import cn.nukkit.item.Item;
-import cn.nukkit.nbt.tag.CompoundTag;
-import gameapi.event.player.RoomPlayerInteractEvent;
-import gameapi.event.player.RoomPlayerItemHeldEvent;
+import gameapi.room.Room;
 import gameapi.tools.ItemTools;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * @author glorydark
  */
-public class RoomItemBase {
+public abstract class RoomItemBase {
 
     protected Item item;
 
     protected String identifier;
 
-    protected Consumer<RoomPlayerInteractEvent> interactConsumer = null;
-
-    protected Consumer<RoomPlayerItemHeldEvent> itemHeldConsumer = null;
+    public static final String KEY_IDENTIFIER = "room_item";
 
     public RoomItemBase(String identifier, String name, Item item) {
         this(identifier, name, item, ItemLockType.NONE);
@@ -30,12 +26,11 @@ public class RoomItemBase {
         this.item = item;
         this.identifier = identifier;
         this.item.setCustomName(name);
-        CompoundTag tag = this.item.getNamedTag();
-        tag.putString("room_item", identifier);
+        this.item.getNamedTag().putString(KEY_IDENTIFIER, this.identifier);
         if (lockType.ordinal() > 0 && lockType.ordinal() < 3) {
-            tag.putByte("minecraft:item_lock", lockType.ordinal());
+            this.item.getNamedTag().putByte("minecraft:item_lock", lockType.ordinal());
         }
-        this.item.setCompoundTag(tag);
+        this.item.setCompoundTag(this.item.getNamedTag());
     }
 
     public RoomItemBase(String identifier, String name, String itemString) {
@@ -50,42 +45,32 @@ public class RoomItemBase {
         if (!item.hasCompoundTag()) {
             return "";
         }
-        return item.getNamedTag().getString("room_item");
+        return item.getNamedTag().getString(KEY_IDENTIFIER);
     }
 
-    public Item getItem() {
-        return item.clone();
+    public Item toItem() {
+        return this.item.clone();
     }
 
     public String getIdentifier() {
-        return identifier;
+        return this.identifier;
     }
 
-    public void executeInteract(RoomPlayerInteractEvent event) {
-        if (interactConsumer != null) {
-            interactConsumer.accept(event);
-        }
+    public void onInteract(Room room, Player player) {
+
     }
 
-    public void executeHeldItem(RoomPlayerItemHeldEvent event) {
-        if (itemHeldConsumer != null) {
-            itemHeldConsumer.accept(event);
-        }
+    public void onBlockPlace(Room room, Player player) {
+
     }
 
-    public RoomItemBase onInteract(Consumer<RoomPlayerInteractEvent> interactConsumer) {
-        this.interactConsumer = interactConsumer;
-        return this;
-    }
+    public void onItemHeld(Room room, Player player) {
 
-    public RoomItemBase onItemHeld(Consumer<RoomPlayerItemHeldEvent> itemHeldConsumer) {
-        this.itemHeldConsumer = itemHeldConsumer;
-        return this;
     }
 
     public enum ItemLockType {
         NONE,
-        LOCK_IN_INVENTORY,
-        LOCK_IN_SLOT
+        LOCK_IN_SLOT,
+        LOCK_IN_INVENTORY
     }
 }

@@ -6,7 +6,6 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.potion.Effect;
 import gameapi.GameAPI;
 import gameapi.annotation.Future;
 import gameapi.event.player.*;
@@ -315,43 +314,49 @@ public class Room {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
             return;
         }
-        if (this.roomStatus != RoomStatus.ROOM_STATUS_WAIT && this.roomStatus != RoomStatus.ROOM_STATUS_PRESTART) {
+        if (this.roomStatus == RoomStatus.ROOM_STATUS_WAIT || this.roomStatus == RoomStatus.ROOM_STATUS_PRESTART) {
+            if (this.players.size() < this.maxPlayer) {
+                if (this.hasPlayer(player) || this.hasSpectator(player)) {
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_this_room"));
+                } else {
+                    RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
+                    GameListenerRegistry.callEvent(this, ev);
+                    if (!ev.isCancelled()) {
+                        this.roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
+                        this.addPlayerToRoom(player);
+
+                        this.waitSpawn.teleport(player);
+
+                        player.setGamemode(2);
+                        player.getFoodData().reset();
+                        player.setFoodEnabled(this.getRoomRule().isAllowFoodLevelChange());
+                        player.setNameTagVisible(true);
+                        player.setNameTagAlwaysVisible(true);
+                        player.setHealth(player.getMaxHealth());
+                        for (Player p : this.players) {
+                            p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
+                        }
+                        this.hidePlayer(player, this.getRoomRule().getHideType());
+                        this.updateHideStatus(player, false);
+
+                        GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
+                    }
+                }
+            }
+        } else if (this.roomStatus == RoomStatus.ROOM_STATUS_START) {
             if (!this.roomRule.isAllowJoinAfterStart()) {
                 if (this.getRoomRule().isAllowSpectators()) {
                     this.processJoinSpectator(player);
                 } else {
                     player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
                 }
-                return;
             }
         }
-        if (this.players.size() < this.maxPlayer) {
-            if (this.hasPlayer(player) || this.hasSpectator(player)) {
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_this_room"));
-            } else {
-                RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
-                GameListenerRegistry.callEvent(this, ev);
-                if (!ev.isCancelled()) {
-                    this.roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
-                    RoomManager.getPlayerRoomHashMap().put(player, this);
-                    this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
-                    this.players.add(player);
-                    this.waitSpawn.teleport(player);
-                    player.setGamemode(2);
-                    player.getFoodData().reset();
-                    player.setFoodEnabled(this.getRoomRule().isAllowFoodLevelChange());
-                    player.setNameTagVisible(true);
-                    player.setNameTagAlwaysVisible(true);
-                    player.setHealth(player.getMaxHealth());
-                    for (Player p : this.players) {
-                        p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
-                    }
-                    this.hidePlayer(player, this.getRoomRule().getHideType());
-                    this.updateHideStatus(player, false);
-                    GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
-                }
-            }
-        }
+    }
+
+    public void addPlayerToRoom(Player player) {
+        RoomManager.getPlayerRoomHashMap().put(player, this);
+        this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
     }
 
     public void removePlayer(Player player) {
@@ -359,12 +364,11 @@ public class Room {
     }
 
     public void removePlayer(Player player, QuitRoomReason reason) {
-        if (!this.players.contains(player)) {
-            return;
-        }
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
+            RoomManager.getPlayerRoomHashMap().remove(player);
+
             if (!this.getRoomRule().isSavePlayerPropertiesAfterQuit()) {
                 this.playerProperties.remove(player.getName());
             }
@@ -380,7 +384,6 @@ public class Room {
             player.setFoodEnabled(true);
             player.removeAllEffects();
             player.setHealth(player.getMaxHealth());
-            player.addEffect(Effect.getEffect(Effect.FIRE_RESISTANCE).setDuration(10).setVisible(false));
             player.getEffects().clear();
             player.setNameTag("");
             player.setGamemode(Server.getInstance().getDefaultGamemode());
@@ -390,7 +393,6 @@ public class Room {
             this.updateHideStatus(player, true);
 
             this.players.remove(player);
-            RoomManager.getPlayerRoomHashMap().remove(player);
         }
     }
 
@@ -426,10 +428,10 @@ public class Room {
         this.getRoomTaskExecutor().shutdown();
         this.setRoomStatus(RoomStatus.ROOM_MAP_INITIALIZING);
         GameListenerRegistry.callEvent(this, new RoomResetEvent(this));
-        for (Player player : new ArrayList<>(spectators)) {
+        for (Player player : new ArrayList<>(this.spectators)) {
             this.removeSpectator(player);
         }
-        for (Player player : new ArrayList<>(players)) {
+        for (Player player : new ArrayList<>(this.players)) {
             this.removePlayer(player);
         }
         //因为某些原因无法正常传送走玩家，就全部踹出服务器！
@@ -616,11 +618,14 @@ public class Room {
             if (!ev.isKeepInventory()) {
                 player.getInventory().clearAll();
             }
+            if (this.roomRule.isVirtualHealth()) {
+                this.roomVirtualHealthManager.setHealth(player, this.roomVirtualHealthManager.getMaxHealth());
+            }
+            player.extinguish();
             player.removeAllEffects();
             player.setGamemode(3);
             player.setHealth(player.getMaxHealth());
             player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);
-            this.roomVirtualHealthManager.setHealth(player, this.roomVirtualHealthManager.getMaxHealth());
         }
     }
 
@@ -629,10 +634,10 @@ public class Room {
     }
 
     public void addRespawnTask(Player player, int tick) {
-        if (spectatorSpawn.size() != 0) {
+        if (this.spectatorSpawn.size() != 0) {
             Random random = new Random();
-            spectatorSpawn.get(random.nextInt(spectatorSpawn.size())).teleport(player);
-            teleportToSpawn(player);
+            this.spectatorSpawn.get(random.nextInt(spectatorSpawn.size())).teleport(player);
+            this.teleportToSpawn(player);
         }
         RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player, null);
         if (!ev.isCancelled()) {
@@ -640,11 +645,11 @@ public class Room {
                 Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), () -> {
                     GameListenerRegistry.callEvent(this, ev);
                     if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
+                        player.extinguish();
                         player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
-                        player.setGamemode(roomRule.getGameMode());
-                        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), () -> player.fireProof = false, 5);
+                        player.setGamemode(this.roomRule.getGameMode());
                         if (ev.getRespawnLocation() == null) {
-                            teleportToSpawn(player);
+                            this.teleportToSpawn(player);
                         } else {
                             player.teleport(ev.getRespawnLocation(), null);
                         }
@@ -653,7 +658,6 @@ public class Room {
                         } else {
                             player.setHealth(player.getMaxHealth());
                         }
-                        player.addEffect(Effect.getEffect(Effect.FIRE_RESISTANCE).setDuration(20).setVisible(false));
                     }
                 }, tick);
             } else {
@@ -673,7 +677,6 @@ public class Room {
                     } else {
                         player.setHealth(player.getMaxHealth());
                     }
-                    player.addEffect(Effect.getEffect(Effect.FIRE_RESISTANCE).setDuration(20).setVisible(false));
                 }
             }
         }
