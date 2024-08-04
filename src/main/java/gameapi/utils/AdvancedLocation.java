@@ -13,19 +13,23 @@ import lombok.Data;
  */
 @Data
 public class AdvancedLocation {
-    private Location location;
+    private Location location = null;
     private double yaw;
     private double pitch;
     private double headYaw;
-    private int version;
+    private LocationType version;
 
-    private String inputString;
+    private String inputString = "";
 
     public AdvancedLocation() {
     }
 
-    public AdvancedLocation(Vector3 vector3, Level level) {
-        this(new Location(vector3.x, vector3.y, vector3.z, level));
+    public AdvancedLocation(Vector3 pos, Level level) {
+        this(Location.fromObject(pos, level));
+    }
+
+    public AdvancedLocation(Vector3 pos, Vector3 rot, Level level) {
+        this(Location.fromObject(pos, level, rot.x, rot.y, rot.z));
     }
 
     public AdvancedLocation(Location location) {
@@ -40,12 +44,12 @@ public class AdvancedLocation {
         AdvancedLocation loc = SpatialTools.parseLocation(string);
         if (loc != null) {
             switch (loc.getVersion()) {
-                case 2:
+                case POS_AND_ROT:
                     this.headYaw = loc.getHeadYaw();
-                case 1:
+                case POS_AND_ROT_EXCEPT_HEADYAW:
                     this.yaw = loc.getYaw();
                     this.pitch = loc.getPitch();
-                case 0:
+                case POS:
                     this.location = loc.getLocation();
                     break;
             }
@@ -53,7 +57,7 @@ public class AdvancedLocation {
     }
 
     public Level getLevel() {
-        return location.getLevel();
+        return this.location.getLevel();
     }
 
     public void setLevel(Level level) {
@@ -65,23 +69,23 @@ public class AdvancedLocation {
     }
 
     public void teleport(Player player, PlayerTeleportEvent.TeleportCause cause) {
-        if (location == null || !location.isValid()) {
+        if (this.location == null || !this.location.isValid()) {
             return;
         }
         Location out;
-        switch (version) {
-            case 1:
-                out = new Location(location.getX(), location.getY(), location.getZ(), yaw, pitch);
-                out.setLevel(location.getLevel());
+        switch (this.version) {
+            case POS_AND_ROT_EXCEPT_HEADYAW:
+                out = new Location(this.location.getX(), this.location.getY(), this.location.getZ(), this.yaw, this.pitch);
+                out.setLevel(this.location.getLevel());
                 break;
-            case 2:
-                out = new Location(location.getX(), location.getY(), location.getZ(), yaw, pitch, headYaw);
-                out.setLevel(location.getLevel());
+            case POS_AND_ROT:
+                out = new Location(this.location.getX(), this.location.getY(), this.location.getZ(), this.yaw, this.pitch, this.headYaw);
+                out.setLevel(this.location.getLevel());
                 break;
             default:
-            case 0:
-                out = new Location(location.getX(), location.getY(), location.getZ(), player.getYaw(), player.getPitch(), player.getHeadYaw());
-                out.setLevel(location.getLevel());
+            case POS:
+                out = new Location(this.location.getX(), this.location.getY(), this.location.getZ(), player.getYaw(), player.getPitch(), player.getHeadYaw());
+                out.setLevel(this.location.getLevel());
                 break;
         }
         player.teleport(out, cause);
@@ -89,5 +93,11 @@ public class AdvancedLocation {
 
     public boolean isValid() {
         return location != null && location.isValid();
+    }
+
+    public enum LocationType {
+        POS,
+        POS_AND_ROT_EXCEPT_HEADYAW,
+        POS_AND_ROT
     }
 }

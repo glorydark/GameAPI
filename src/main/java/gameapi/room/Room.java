@@ -314,41 +314,42 @@ public class Room {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
             return;
         }
-        if (this.roomStatus == RoomStatus.ROOM_STATUS_WAIT || this.roomStatus == RoomStatus.ROOM_STATUS_PRESTART) {
-            if (this.players.size() < this.maxPlayer) {
-                if (this.hasPlayer(player) || this.hasSpectator(player)) {
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_this_room"));
-                } else {
-                    RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
-                    GameListenerRegistry.callEvent(this, ev);
-                    if (!ev.isCancelled()) {
-                        this.roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
-                        this.addPlayerToRoom(player);
 
-                        this.waitSpawn.teleport(player);
-
-                        player.setGamemode(2);
-                        player.getFoodData().reset();
-                        player.setFoodEnabled(this.getRoomRule().isAllowFoodLevelChange());
-                        player.setNameTagVisible(true);
-                        player.setNameTagAlwaysVisible(true);
-                        player.setHealth(player.getMaxHealth());
-                        for (Player p : this.players) {
-                            p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
-                        }
-                        this.hidePlayer(player, this.getRoomRule().getHideType());
-                        this.updateHideStatus(player, false);
-
-                        GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
-                    }
-                }
-            }
-        } else if (this.roomStatus == RoomStatus.ROOM_STATUS_START) {
+        if (this.roomStatus != RoomStatus.ROOM_STATUS_WAIT && this.roomStatus != RoomStatus.ROOM_STATUS_PRESTART) {
             if (!this.roomRule.isAllowJoinAfterStart()) {
                 if (this.getRoomRule().isAllowSpectators()) {
                     this.processJoinSpectator(player);
                 } else {
                     player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                }
+                return;
+            }
+        }
+
+        if (this.players.size() < this.maxPlayer) {
+            if (this.hasPlayer(player) || this.hasSpectator(player)) {
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_this_room"));
+            } else {
+                RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
+                GameListenerRegistry.callEvent(this, ev);
+                if (!ev.isCancelled()) {
+                    this.addPlayerToRoom(player);
+                    this.roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
+                    this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
+                    this.players.add(player);
+                    this.waitSpawn.teleport(player);
+                    player.setGamemode(2);
+                    player.getFoodData().reset();
+                    player.setFoodEnabled(this.getRoomRule().isAllowFoodLevelChange());
+                    player.setNameTagVisible(true);
+                    player.setNameTagAlwaysVisible(true);
+                    player.setHealth(player.getMaxHealth());
+                    for (Player p : this.players) {
+                        p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
+                    }
+                    this.hidePlayer(player, this.getRoomRule().getHideType());
+                    this.updateHideStatus(player, false);
+                    GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
                 }
             }
         }
