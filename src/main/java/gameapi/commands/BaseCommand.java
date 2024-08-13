@@ -3,22 +3,30 @@ package gameapi.commands;
 import cn.nukkit.IPlayer;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.block.BlockID;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
+import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
+import gameapi.entity.TextEntity;
 import gameapi.form.AdvancedDoubleChestForm;
+import gameapi.form.AdvancedFormWindowSimple;
+import gameapi.form.element.ResponsiveElementButton;
 import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
+import gameapi.manager.data.PlayerGameDataManager;
 import gameapi.manager.tools.GameEntityManager;
+import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
@@ -43,10 +51,39 @@ public class BaseCommand extends Command {
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (strings.length > 0) {
             switch (strings[0].toLowerCase()) {
-                case "testload":
-                    Test.main(new String[0]);
+                case "addfakeplayer":
+                    if (commandSender.isPlayer() && commandSender.isOp()) {
+                        Player player = commandSender.asPlayer();
+                        Room room = RoomManager.getRoom(player);
+                        if (room != null) {
+
+                        }
+                    }
                     break;
-                case "test":
+                case "getchestpos":
+                    SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(new Vector3(80, 125, 67), new Vector3(-75, 46, -74));
+                    Player p = commandSender.asPlayer();
+                    Level l = p.getLevel();
+                    bb.forEach(new AxisAlignedBB.BBConsumer() {
+                        @Override
+                        public void accept(int i, int i1, int i2) {
+                            if (l.getBlock(i, i1, i2, true).getId() == BlockID.TRAPPED_CHEST) {
+                                System.out.println(i + ", " + i1 + ", " + i2 + "\n");
+                            }
+                        }
+                    });
+                    break;
+                case "checkrank":
+                    for (Map.Entry<Ranking, Set<TextEntity>> entry : GameEntityManager.entityList.entrySet()) {
+                        for (TextEntity textEntity : entry.getValue()) {
+                            commandSender.sendMessage(textEntity.toString());
+                        }
+                    }
+                    break;
+                case "refreshrank":
+                    GameAPI.getInstance().loadRanking();
+                    break;
+                case "test1":
                     AdvancedDoubleChestForm chestForm = new AdvancedDoubleChestForm("测试标题")
                             .onClick((player, c) -> player.sendMessage("Click on " + c.getItem().getName()))
                             .onClose(player -> player.sendMessage("Close"))
@@ -173,9 +210,9 @@ public class BaseCommand extends Command {
                     break;
                 case "addrank":
                     if (commandSender.isPlayer()) {
-                        if (strings.length == 3) {
+                        if (strings.length >= 6) {
                             Player player = (Player) commandSender;
-                            GameEntityManager.addRankingList(player, strings[1], strings[2], RankingSortSequence.DESCEND);
+                            GameEntityManager.addRankingList(player, strings[1], strings[2], strings[3], strings[4], Ranking.getRankingSortSequence(strings[5]));
                         }
                     } else {
                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.use_in_game"));

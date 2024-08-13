@@ -17,10 +17,9 @@ import java.util.stream.Collectors;
 
 @Data
 public class Ranking {
-
     private final RankingValueType type;
     // This only stores the inner compared values
-    protected LinkedHashMap<String, ?> rankingData;
+    protected Map<String, ?> rankingData;
     private RankingSortSequence rankingSortSequence;
     private String title;
     private String noDataContent;
@@ -29,41 +28,47 @@ public class Ranking {
     private RankingListEntity entity;
     private Location location;
 
-    public Ranking(Location location, String type, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence) {
+    public Ranking(Location location, RankingValueType valueType, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence) {
         this.location = location;
         this.title = title;
         this.noDataContent = noDataContent;
         this.rankingFormat = rankingFormat;
         this.rankingData = new LinkedHashMap<>();
         this.rankingSortSequence = rankingSortSequence;
-        switch (type.toLowerCase()) {
+        this.type = valueType;
+    }
+
+    public static RankingSortSequence getRankingSortSequence(String s) {
+        if ("ascend".equals(s)) {
+            return RankingSortSequence.ASCEND;
+        }
+        return RankingSortSequence.DESCEND;
+    }
+
+    public static RankingValueType getRankingValueType(String s) {
+        switch (s.toLowerCase()) {
             case "double":
-                this.type = RankingValueType.DOUBLE;
-                break;
-            case "integer_to_time":
-                this.type = RankingValueType.INTEGER_T0_TIME;
-                break;
+                return RankingValueType.DOUBLE;
+            case "long_to_time":
+                return RankingValueType.LONG_T0_TIME;
             case "float":
-                this.type = RankingValueType.FLOAT;
-                break;
+                return RankingValueType.FLOAT;
             case "long":
-                this.type = RankingValueType.LONG;
-                break;
+                return RankingValueType.LONG;
             case "integer":
             default:
-                this.type = RankingValueType.INTEGER;
-                break;
+                return RankingValueType.INTEGER;
         }
     }
 
     public String getDisplayContent() {
         RankingFormat format = this.getRankingFormat();
         StringBuilder builder = new StringBuilder().append(this.getTitle().replace("\\n", "\n"));
-        if (rankingData.size() > 0) {
+        if (this.rankingData.size() > 0) {
             int i = 1;
-            for (Map.Entry<String, ?> entry : rankingData.entrySet()) {
+            for (Map.Entry<String, ?> entry : this.rankingData.entrySet()) {
                 String text = format.getScoreShowFormat().replace("%rank%", String.valueOf(i)).replace("%player%", entry.getKey()).replace("\\n", "\n");
-                if (this.getType() == RankingValueType.INTEGER_T0_TIME) {
+                if (this.getType() == RankingValueType.LONG_T0_TIME) {
                     text = text.replace("%score%", SmartTools.timeMillisToString(Long.parseLong(entry.getValue().toString())));
                 } else {
                     text = text.replace("%score%", entry.getValue().toString());
@@ -92,10 +97,10 @@ public class Ranking {
     }
 
     public void refreshRankingData() {
-        LinkedHashMap<String, Object> oldRankingData = new LinkedHashMap<>(getLatestRankingData());
-        LinkedHashMap<String, Object> output = new LinkedHashMap<>();
+        Map<String, Object> oldRankingData = new LinkedHashMap<>(this.getLatestRankingData());
+        Map<String, Object> output = new LinkedHashMap<>();
         // 先转换成Map.Entry进行排序
-        switch (type) {
+        switch (this.type) {
             case DOUBLE:
                 List<Map.Entry<String, Double>> doubleTemp;
                 if (this.rankingSortSequence == RankingSortSequence.DESCEND) {
@@ -119,6 +124,7 @@ public class Ranking {
                 }
                 break;
             case LONG:
+            case LONG_T0_TIME:
                 List<Map.Entry<String, Long>> longTemp;
                 if (this.rankingSortSequence == RankingSortSequence.DESCEND) {
                     longTemp = getMapByType(oldRankingData, Long.class).entrySet().stream().sorted(Map.Entry.<String, Long>comparingByValue().reversed()).collect(Collectors.toList());
@@ -130,7 +136,6 @@ public class Ranking {
                 }
                 break;
             case INTEGER:
-            case INTEGER_T0_TIME:
             default:
                 List<Map.Entry<String, Integer>> integerTemp;
                 if (this.rankingSortSequence == RankingSortSequence.DESCEND) {
@@ -148,7 +153,7 @@ public class Ranking {
     }
 
     public void spawnEntity() {
-        GameEntityManager.spawnTextEntity(this.location, this);
+        GameEntityManager.spawnRankingListEntity(this.location, this);
     }
 
     public <T> Map<String, T> getMapByType(Map<String, Object> map, Class<T> clazz) {
@@ -160,7 +165,23 @@ public class Ranking {
                 if (clazz.isInstance(value)) {
                     newMap.put(key, (T) value);
                 } else {
-                    GameAPI.getInstance().getLogger().error("Can not convert value because value is not instance of the defined type: " + value.toString());
+                    if (clazz.isAssignableFrom(Integer.class)) {
+                        if (value.getClass().isAssignableFrom(Long.class)) {
+                            if (((Long) value) <= Integer.MAX_VALUE) {
+                                Object o = Integer.parseInt(value.toString());
+                                newMap.put(key, (T) o);
+                                continue;
+                            }
+                        }
+                    } else if (clazz.isAssignableFrom(Long.class)) {
+                        if (value.getClass().isAssignableFrom(Integer.class)) {
+                            Object o = Long.parseLong(value.toString());
+                            newMap.put(key, (T) o);
+                            continue;
+                        }
+                    }
+
+                    GameAPI.getInstance().getLogger().error("Can not convert value because value is not instance of the defined type: " + value + ", " + value.getClass().getName());
                 }
             }
         }

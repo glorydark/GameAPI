@@ -64,7 +64,7 @@ public class SpatialTools {
             if (positions.length == 3) {
                 AdvancedLocation loc = new AdvancedLocation();
                 loc.setLocation(new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2])));
-                loc.setVersion(0);
+                loc.setVersion(AdvancedLocation.LocationType.POS);
                 return loc;
             }
             GameAPI.getInstance().getLogger().warning("Wrong Location Format! Please check it again, text: " + locationString);
@@ -75,14 +75,14 @@ public class SpatialTools {
                 Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
                 AdvancedLocation advancedLocation = new AdvancedLocation();
                 advancedLocation.setLocation(location);
-                advancedLocation.setVersion(0);
+                advancedLocation.setVersion(AdvancedLocation.LocationType.POS);
                 if (positions.length >= 6) {
                     advancedLocation.setYaw(Double.parseDouble(positions[4]));
                     advancedLocation.setPitch(Double.parseDouble(positions[5]));
-                    advancedLocation.setVersion(1);
+                    advancedLocation.setVersion(AdvancedLocation.LocationType.POS_AND_ROT_EXCEPT_HEADYAW);
                     if (positions.length == 7) {
                         advancedLocation.setHeadYaw(Double.parseDouble(positions[6]));
-                        advancedLocation.setVersion(2);
+                        advancedLocation.setVersion(AdvancedLocation.LocationType.POS_AND_ROT);
                     }
                 }
                 return advancedLocation;
@@ -93,14 +93,14 @@ public class SpatialTools {
             Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
             AdvancedLocation advancedLocation = new AdvancedLocation();
             advancedLocation.setLocation(location);
-            advancedLocation.setVersion(0);
+            advancedLocation.setVersion(AdvancedLocation.LocationType.POS);
             if (positions.length >= 6) {
                 advancedLocation.setYaw(Double.parseDouble(positions[4]));
                 advancedLocation.setPitch(Double.parseDouble(positions[5]));
-                advancedLocation.setVersion(1);
+                advancedLocation.setVersion(AdvancedLocation.LocationType.POS_AND_ROT_EXCEPT_HEADYAW);
                 if (positions.length == 7) {
                     advancedLocation.setHeadYaw(Double.parseDouble(positions[6]));
-                    advancedLocation.setVersion(2);
+                    advancedLocation.setVersion(AdvancedLocation.LocationType.POS_AND_ROT);
                 }
             }
             return advancedLocation;

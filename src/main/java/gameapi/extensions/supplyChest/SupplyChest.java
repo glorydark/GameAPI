@@ -8,76 +8,68 @@ import gameapi.annotation.Experimental;
 import gameapi.event.room.RoomSupplyChestRefreshEvent;
 import gameapi.extensions.supplyChest.item.SupplyItem;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.GameDebugManager;
 import gameapi.room.Room;
-import gameapi.room.RoomStatus;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Data
 @Experimental
 public class SupplyChest {
-
-    protected long lastUpdateMillis;
     private Room room;
     private Location location;
     private List<SupplyItem> supplyItemList;
+    private List<SupplyItem> boundItemList = new ArrayList<>();
     private int maxItemCount;
 
-    private long startCoolDownMillis;
-
-    private long intervalTicks; // If this equal to zero, it would not regenerate again.
-
-    private int maxRefreshTimes;
-
-    private int refreshedTimes = 0;
-
-    public SupplyChest(Room room, Location location, int maxItemCount, long startCoolDownMillis, long intervalTicks, int maxRefreshTimes) {
-        this(room, location, new ArrayList<>(), maxItemCount, startCoolDownMillis, intervalTicks, maxRefreshTimes);
+    public SupplyChest(Room room, Location location, int maxItemCount) {
+        this(room, location, new ArrayList<>(), maxItemCount);
     }
 
-    public SupplyChest(Room room, Location location, List<SupplyItem> supplyChests, int maxItemCount, long startCoolDownMillis, long intervalTicks, int maxRefreshTimes) {
+    public SupplyChest(Room room, Location location, List<SupplyItem> supplyChests, int maxItemCount) {
         this.room = room;
         this.location = location;
         this.supplyItemList = supplyChests;
         this.maxItemCount = maxItemCount;
-        this.startCoolDownMillis = startCoolDownMillis;
-        this.intervalTicks = intervalTicks;
-        this.maxRefreshTimes = maxRefreshTimes;
     }
 
-    public boolean isCoolDownEnd() {
-        if (this.intervalTicks > 0) {
-            return this.getLastUpdateDiff() >= this.intervalTicks;
-        } else {
-            return false;
+    public SupplyChest maxItemCount(int maxItemCount) {
+        this.maxItemCount = maxItemCount;
+        return this;
+    }
+
+    public SupplyChest boundItem(SupplyItem... supplyItems) {
+        this.supplyItemList.addAll(Arrays.asList(supplyItems));
+        return this;
+    }
+
+    public void clear() {
+        BlockEntityChest entityChest = this.getEntity();
+        if (entityChest != null) {
+            entityChest.getInventory().clearAll();
+            entityChest.saveNBT();
         }
     }
 
-    public long getLastUpdateDiff() {
-        return System.currentTimeMillis() - this.lastUpdateMillis;
-    }
-
-    public void onUpdate() {
-        // If it is not allowed to refresh, it will no longer refresh the items in the chest
-        if (!this.isRefreshable()) {
-            return;
-        }
-        // If the subtraction is less than intervalTicks, it will not refresh the supplies in the chest
-        if (this.getLastUpdateDiff() < this.intervalTicks) {
-            return;
-        }
-        // Update the latestMillis
+    public void refresh() {
         BlockEntityChest entityChest = this.getEntity();
         if (entityChest != null) {
             // Try to get the refreshments
             int count = 0;
             List<Item> supplyItems = new ArrayList<>();
+            for (SupplyItem supplyItem : this.boundItemList) {
+                supplyItems.add(supplyItem.select());
+                count++;
+            }
+            Collections.shuffle(this.supplyItemList);
             for (SupplyItem supplyItem : this.supplyItemList) {
                 if (count >= this.maxItemCount) {
-                    return;
+                    break;
                 }
                 if (this.processFakeRandom(supplyItem.getPossibility())) {
                     supplyItems.add(supplyItem.select());
@@ -88,30 +80,18 @@ public class SupplyChest {
             GameListenerRegistry.callEvent(this.room, event);
             if (!event.isCancelled()) {
                 entityChest.getInventory().clearAll();
-                this.lastUpdateMillis = System.currentTimeMillis();
                 for (Item supplyItem : supplyItems) {
                     entityChest.getInventory().setItem(getRandomSlot(), supplyItem);
                 }
             }
+        } else {
+            GameDebugManager.error("Cannot find the chest at " + location.asBlockVector3().asVector3().toString());
         }
-    }
-
-    public boolean isRefreshable() {
-        return this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_START
-                && this.refreshedTimes < this.maxRefreshTimes
-                && System.currentTimeMillis() >= this.room.getStartMillis() + this.startCoolDownMillis
-                && this.intervalTicks != 0
-                && this.isCoolDownEnd();
-    }
-
-    public void resetData() {
-        this.lastUpdateMillis = -1;
-        this.refreshedTimes = 0;
     }
 
     public BlockEntityChest getEntity() {
         Block block = this.location.getLevel().getBlock(this.location.getLocation());
-        if (block.getId() == 54) {
+        if (block.getId() == 54 || block.getId() == 146) {
             return (BlockEntityChest) this.location.getLevel().getBlockEntity(this.location.getLocation());
         }
         return null;

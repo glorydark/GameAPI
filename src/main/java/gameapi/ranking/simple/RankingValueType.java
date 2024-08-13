@@ -9,6 +9,6 @@ public enum RankingValueType {
     LONG,
     // LONG_TO_TIME,
     INTEGER,
-    INTEGER_T0_TIME,
+    LONG_T0_TIME,
     DOUBLE
 }

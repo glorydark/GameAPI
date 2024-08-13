@@ -1,6 +1,7 @@
 package gameapi.entity;
 
 
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -19,13 +20,23 @@ public class RankingListEntity extends TextEntity {
     }
 
     public boolean onUpdate(int currentTick) {
-        if (this.health <= 0) {
-            this.setHealth(this.getMaxHealth());
+        if (this.getLevel().getPlayers().size() == 0) {
+            return super.onUpdate(currentTick);
         }
         if (System.currentTimeMillis() - this.lastUpdateMillis >= GameAPI.getInstance().getEntityRefreshIntervals()) {
             this.ranking.refreshRankingData();
+            this.setNameTag(this.ranking.getDisplayContent());
             this.lastUpdateMillis = System.currentTimeMillis();
         }
         return super.onUpdate(currentTick);
+    }
+
+    @Override
+    public boolean attack(EntityDamageEvent source) {
+        return false;
+    }
+
+    @Override
+    public void kill() {
     }
 }

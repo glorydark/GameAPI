@@ -34,7 +34,11 @@ public class EntityTools {
     public static void knockBack(Entity attacker, Entity victim, double base, boolean directionReverse) {
         double x = victim.getX() - attacker.getX();
         double z = victim.getZ() - attacker.getZ();
-        double f = Math.sqrt(x * x + z * z);
+        knockBackV2(victim, x, z, base, 1.0, 1.0, directionReverse);
+    }
+
+    public static void knockBackV2(Entity victim, double xDiff, double zDiff, double base, double XzKB, double yKB, boolean directionReverse) {
+        double f = Math.sqrt(xDiff * xDiff + zDiff * zDiff);
         if (f <= 0) {
             return;
         }
@@ -44,48 +48,34 @@ public class EntityTools {
         Vector3 motion = new Vector3(victim.motionX, victim.motionY, victim.motionZ);
 
         if (directionReverse) {
-            x = -x;
-            z = -z;
+            xDiff = -xDiff;
+            zDiff = -zDiff;
         }
 
         motion.x /= 2.0d;
         motion.y /= 2.0d;
         motion.z /= 2.0d;
-        motion.x += x * f * base;
-        motion.y += base;
-        motion.z += z * f * base;
+        motion.x += xDiff * f * base * XzKB;
+        motion.y += base * yKB;
+        motion.z += zDiff * f * base * XzKB;
 
         if (motion.y > base) {
             motion.y = base;
         }
 
-        victim.setMotion(motion);
+        victim.motionX = motion.x;
+        victim.motionY = motion.y;
+        victim.motionZ = motion.z;
+
+        if (!victim.justCreated) {
+            victim.updateMovement();
+        }
     }
 
     public static void knockBackV2(Entity attacker, Entity victim, double base, double XzKB, double yKB) {
         double x = victim.getX() - attacker.getX();
         double z = victim.getZ() - attacker.getZ();
-        double f = Math.sqrt(x * x + z * z);
-        if (f <= 0) {
-            return;
-        }
-
-        f = 1.0 / f;
-
-        Vector3 motion = new Vector3(victim.motionX, victim.motionY, victim.motionZ);
-
-        motion.x /= 2.0d;
-        motion.y /= 2.0d;
-        motion.z /= 2.0d;
-        motion.x += x * f * base * XzKB;
-        motion.y += base * yKB;
-        motion.z += z * f * base * XzKB;
-
-        if (motion.y > base) {
-            motion.y = base;
-        }
-
-        victim.setMotion(motion);
+        knockBackV2(victim, x, z, base, XzKB, yKB, false);
     }
 
     public static void dropExpOrb(Location source, int exp) {

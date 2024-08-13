@@ -6,6 +6,8 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.potion.Effect;
+import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.annotation.Future;
 import gameapi.event.player.*;
@@ -15,10 +17,12 @@ import gameapi.extensions.supplyChest.SupplyChest;
 import gameapi.form.AdvancedFormWindowCustom;
 import gameapi.form.element.ResponsiveElementInput;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.AdvancedBlockManager;
 import gameapi.manager.room.CheckpointManager;
 import gameapi.manager.room.RoomVirtualHealthManager;
+import gameapi.manager.tools.ScoreboardManager;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
@@ -197,18 +201,43 @@ public class Room {
     }
 
     public void allocatePlayerToTeams() {
+        allocatePlayerToTeams(true);
+    }
+
+    public void allocatePlayerToTeams(boolean defaultMethod) {
         if (this.teamCache.keySet().size() == 0) {
             return;
         }
-        for (Player player : this.players) {
-            Map<String, BaseTeam> map = new ConcurrentHashMap<>(this.teamCache);
-            List<Map.Entry<String, BaseTeam>> list = map.entrySet()
-                    .stream()
-                    .sorted(Comparator.comparing(t -> t.getValue().getSize()))
-                    .collect(Collectors.toList());
-            this.teamCache.get(list.get(0).getKey()).addPlayer(player); //从最低人数来尝试加入
-            BaseTeam team = list.get(0).getValue();
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
+        if (defaultMethod) {
+            for (Player player : this.players) {
+                if (this.getTeam(player) != null) {
+                    continue;
+                }
+                Map<String, BaseTeam> map = new ConcurrentHashMap<>(this.teamCache);
+                List<Map.Entry<String, BaseTeam>> list = map.entrySet()
+                        .stream()
+                        .sorted(Comparator.comparing(t -> t.getValue().getSize()))
+                        .collect(Collectors.toList());
+                this.teamCache.get(list.get(0).getKey()).addPlayer(player); //从最低人数来尝试加入
+                BaseTeam team = list.get(0).getValue();
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
+            }
+        } else {
+            for (Player player : this.players) {
+                if (this.getTeam(player) != null) {
+                    continue;
+                }
+                List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
+                Collections.shuffle(baseTeams);
+                for (BaseTeam baseTeam : baseTeams) {
+                    if (baseTeam.getSize() + 1 <= baseTeam.getMaxPlayer()) {
+                        baseTeam.addPlayer(player);
+                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", baseTeam.getPrefix() + baseTeam.getRegistryName()));
+                        break;
+                    }
+                }
+                GameDebugManager.error(TextFormat.RED + "Failed to find an available team for " + player.getName() + "!");
+            }
         }
     }
 
@@ -226,13 +255,12 @@ public class Room {
     }
 
     public void removePlayerFromTeam(Player player) {
-        for (Map.Entry<String, BaseTeam> entrySet : this.teamCache.entrySet()) {
-            if (entrySet.getValue().hasPlayer(player)) {
-                BaseTeam team = entrySet.getValue();
-                this.teamCache.get(entrySet.getKey()).removePlayer(player);
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.quit", team.getPrefix() + team.getRegistryName()));
-            }
+        BaseTeam team = this.getTeam(player);
+        if (team == null) {
+            return;
         }
+        team.removePlayer(player);
+        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.quit", team.getPrefix() + team.getRegistryName()));
     }
 
     public BaseTeam getTeam(Player player) {
@@ -291,10 +319,6 @@ public class Room {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_other_room"));
             return;
         }
-        if (!this.getJoinPassword().equals(this.joinPassword)) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation("command.error.incorrect_password"));
-            return;
-        }
         List<String> whitelists = this.getRoomRule().getAllowJoinPlayers();
         if (whitelists.size() > 0) {
             if (!whitelists.contains(player.getName())) {
@@ -341,8 +365,6 @@ public class Room {
                     player.setGamemode(2);
                     player.getFoodData().reset();
                     player.setFoodEnabled(this.getRoomRule().isAllowFoodLevelChange());
-                    player.setNameTagVisible(true);
-                    player.setNameTagAlwaysVisible(true);
                     player.setHealth(player.getMaxHealth());
                     for (Player p : this.players) {
                         p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
@@ -386,10 +408,11 @@ public class Room {
             player.removeAllEffects();
             player.setHealth(player.getMaxHealth());
             player.getEffects().clear();
-            player.setNameTag("");
             player.setGamemode(Server.getInstance().getDefaultGamemode());
+            this.showAllPlayers(player);
             this.roomVirtualHealthManager.removePlayer(player);
             this.removePlayerFromTeam(player);
+            ScoreboardManager.removeScoreboard(player);
             player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             this.updateHideStatus(player, true);
 
@@ -426,8 +449,8 @@ public class Room {
         if (this.roomStatus == RoomStatus.ROOM_MAP_INITIALIZING) {
             return;
         }
-        this.getRoomTaskExecutor().shutdown();
         this.setRoomStatus(RoomStatus.ROOM_MAP_INITIALIZING);
+        this.getRoomTaskExecutor().shutdown();
         GameListenerRegistry.callEvent(this, new RoomResetEvent(this));
         for (Player player : new ArrayList<>(this.spectators)) {
             this.removeSpectator(player);
@@ -444,9 +467,6 @@ public class Room {
         this.chatDataList = new ArrayList<>();
         this.getCheckpointManager().clearAllPlayerCheckPointData();
         this.roomVirtualHealthManager.clearAll();
-        for (SupplyChest supplyChest : this.getSupplyChests()) {
-            supplyChest.resetData();
-        }
         if (this.playLevels == null) {
             GameAPI.getInstance().getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
             return;
@@ -465,7 +485,12 @@ public class Room {
                 GameAPI.getInstance().getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_delete", this.getRoomName()));
                 for (Level playLevel : this.playLevels) {
                     if (playLevel != null) {
-                        WorldTools.unloadLevel(playLevel, true);
+                        String levelName = playLevel.getName();
+                        if (WorldTools.unloadLevel(playLevel, true)) {
+                            GameDebugManager.info("Successfully delete map: " + levelName);
+                        } else {
+                            GameDebugManager.error("Fail to delete map: " + levelName);
+                        }
                     }
                 }
             }
@@ -554,8 +579,12 @@ public class Room {
                 TipsTools.removeTipsConfig(playLevel.getName(), player);
             }
         }
+        player.setNameTagVisible(true);
+        player.setNameTagAlwaysVisible(true);
+        player.getEffects().clear();
         player.setGamemode(Server.getInstance().getDefaultGamemode());
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
+        ScoreboardManager.removeScoreboard(player);
         player.sendMessage(GameAPI.getLanguage().getTranslation("room.spectator.quit"));
         RoomManager.getPlayerRoomHashMap().remove(player);
         spectators.remove(player);
@@ -577,6 +606,8 @@ public class Room {
             return;
         }
         player.setGamemode(3);
+        player.setNameTagVisible(false);
+        player.setNameTagAlwaysVisible(false);
         switch (this.getRoomStatus()) {
             case ROOM_STATUS_READY_START:
             case ROOM_STATUS_START:
@@ -605,6 +636,9 @@ public class Room {
                 break;
         }
         this.spectators.add(player);
+        for (Player p : this.getPlayers()) {
+            GameAPI.getLanguage().getTranslation(p, "room.game.broadcast.join_spectator", player.getName());
+        }
         RoomManager.getPlayerRoomHashMap().put(player, this);
         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
     }
@@ -626,6 +660,7 @@ public class Room {
             player.removeAllEffects();
             player.setGamemode(3);
             player.setHealth(player.getMaxHealth());
+            player.getFoodData().reset();
             player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);
         }
     }
@@ -797,6 +832,18 @@ public class Room {
         }
     }
 
+    public void hideAllPlayers(Player player) {
+        for (Player other : Server.getInstance().getOnlinePlayers().values()) {
+            player.hidePlayer(other);
+        }
+    }
+
+    public void showAllPlayers(Player player) {
+        for (Player other : Server.getInstance().getOnlinePlayers().values()) {
+            player.showPlayer(other);
+        }
+    }
+
     // Message, Tips, Actionbars & Titles
     public void sendMessageToAll(String string) {
         this.sendMessageToAll(string, true);
@@ -807,6 +854,7 @@ public class Room {
         if (includeSpectators) {
             PlayerTools.sendMessage(spectators, string);
         }
+        GameAPI.getInstance().getLogger().info(string);
     }
 
     public void sendActionbarToAll(String string) {

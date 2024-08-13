@@ -28,7 +28,7 @@ public class ResponsiveElementButton extends ElementButton {
     }
 
     public Consumer<Player> getResponse() {
-        return response;
+        return this.response;
     }
 
     public ResponsiveElementButton text(String text) {

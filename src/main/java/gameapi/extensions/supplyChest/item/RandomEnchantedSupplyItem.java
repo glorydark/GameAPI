@@ -14,8 +14,15 @@ import java.util.concurrent.ThreadLocalRandom;
 @Experimental
 public class RandomEnchantedSupplyItem extends SupplyItem {
 
+    public boolean hasNegative;
+
     public RandomEnchantedSupplyItem(Item item, double possibility) {
+        this(item, possibility, true);
+    }
+
+    public RandomEnchantedSupplyItem(Item item, double possibility, boolean hasNegative) {
         super(item, possibility);
+        this.hasNegative = hasNegative;
     }
 
     @Override
@@ -38,7 +45,7 @@ public class RandomEnchantedSupplyItem extends SupplyItem {
 
     public void endowRandomEnchantmentByItem(Item randomItem) {
         Random random = ThreadLocalRandom.current();
-        List<Enchantment> enchantments = getSupportEnchantments(randomItem);
+        List<Enchantment> enchantments = getSupportEnchantments(randomItem, hasNegative);
         if (!enchantments.isEmpty()) {
             Enchantment enchantment = enchantments.get(random.nextInt(enchantments.size()));
             double randomDouble = random.nextDouble();
@@ -57,9 +64,16 @@ public class RandomEnchantedSupplyItem extends SupplyItem {
      * @param item 物品
      * @return 支持的附魔
      */
-    public List<Enchantment> getSupportEnchantments(Item item) {
+    public List<Enchantment> getSupportEnchantments(Item item, boolean hasNegative) {
         ArrayList<Enchantment> enchantments = new ArrayList<>();
         for (Enchantment enchantment : Enchantment.getEnchantments()) {
+            if (hasNegative) {
+                switch (enchantment.id) {
+                    case Enchantment.ID_BINDING_CURSE:
+                    case Enchantment.ID_VANISHING_CURSE:
+                        continue;
+                }
+            }
             if (item.getId() == Item.ENCHANTED_BOOK || enchantment.canEnchant(item)) {
                 enchantments.add(enchantment);
             }

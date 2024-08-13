@@ -69,7 +69,6 @@ public class RoomUpdateTask implements Runnable {
             roomConsumer.accept(this.room);
         }
         this.onTickDynamicObstacles();
-        this.refreshSupplyChests();
     }
 
     protected Location getPlayerLastLocation(Player player) {
@@ -153,12 +152,6 @@ public class RoomUpdateTask implements Runnable {
     protected void onTickDynamicObstacles() {
         for (DynamicObstacle dynamicObstacle : new ArrayList<>(room.getDynamicObstacles())) {
             dynamicObstacle.onTick();
-        }
-    }
-
-    protected void refreshSupplyChests() {
-        for (SupplyChest supplyChest : room.getSupplyChests()) {
-            supplyChest.onUpdate();
         }
     }
 }

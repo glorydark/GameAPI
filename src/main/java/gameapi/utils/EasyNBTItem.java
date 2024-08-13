@@ -1,10 +1,15 @@
 package gameapi.utils;
 
 import cn.nukkit.item.Item;
+import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
 import gameapi.room.items.RoomItemBase;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author glorydark
@@ -16,13 +21,15 @@ public class EasyNBTItem {
 
     private final int id;
 
-    private final int meta;
+    private int meta;
 
     private String customName = "";
 
     protected CompoundTag compoundTag = new CompoundTag();
 
     protected String[] lore = null;
+
+    protected List<Enchantment> enchantments = new ArrayList<>();
 
     public EasyNBTItem(String identifier) {
         this(identifier, 0);
@@ -46,6 +53,11 @@ public class EasyNBTItem {
 
     public EasyNBTItem lore(String... strings) {
         this.lore = strings;
+        return this;
+    }
+
+    public EasyNBTItem damage(int damage) {
+        this.meta = damage;
         return this;
     }
 
@@ -104,6 +116,11 @@ public class EasyNBTItem {
         return this;
     }
 
+    public EasyNBTItem enchantment(Enchantment... enchantments) {
+        this.enchantments.addAll(Arrays.asList(enchantments));
+        return this;
+    }
+
     public Item toItem() {
         Item item;
         if (this.id == 255) {
@@ -122,6 +139,9 @@ public class EasyNBTItem {
         }
         if (this.lore != null) {
             item.setLore(this.lore);
+        }
+        if (this.enchantments.size() > 0) {
+            item.addEnchantment(this.enchantments.toArray(new Enchantment[0]));
         }
         return item;
     }

@@ -17,7 +17,7 @@ public class AdvancedLocation {
     private double yaw;
     private double pitch;
     private double headYaw;
-    private LocationType version;
+    private LocationType version = LocationType.POS_AND_ROT;
 
     private String inputString = "";
 
@@ -37,12 +37,16 @@ public class AdvancedLocation {
         this.pitch = location.getPitch();
         this.headYaw = location.getHeadYaw();
         this.yaw = location.getYaw();
+        this.headYaw = location.getHeadYaw();
     }
 
     public AdvancedLocation(String string) {
         this.inputString = string;
         AdvancedLocation loc = SpatialTools.parseLocation(string);
         if (loc != null) {
+            if (loc.getVersion() == null) {
+                loc.setVersion(LocationType.POS);
+            }
             switch (loc.getVersion()) {
                 case POS_AND_ROT:
                     this.headYaw = loc.getHeadYaw();
@@ -69,30 +73,28 @@ public class AdvancedLocation {
     }
 
     public void teleport(Player player, PlayerTeleportEvent.TeleportCause cause) {
-        if (this.location == null || !this.location.isValid()) {
+        if (!this.isValid()) {
             return;
         }
         Location out;
         switch (this.version) {
             case POS_AND_ROT_EXCEPT_HEADYAW:
                 out = new Location(this.location.getX(), this.location.getY(), this.location.getZ(), this.yaw, this.pitch);
-                out.setLevel(this.location.getLevel());
                 break;
             case POS_AND_ROT:
                 out = new Location(this.location.getX(), this.location.getY(), this.location.getZ(), this.yaw, this.pitch, this.headYaw);
-                out.setLevel(this.location.getLevel());
                 break;
             default:
             case POS:
                 out = new Location(this.location.getX(), this.location.getY(), this.location.getZ(), player.getYaw(), player.getPitch(), player.getHeadYaw());
-                out.setLevel(this.location.getLevel());
                 break;
         }
+        out.setLevel(this.location.getLevel());
         player.teleport(out, cause);
     }
 
     public boolean isValid() {
-        return location != null && location.isValid();
+        return location != null && location.isValid() && this.location.getLevel() != null;
     }
 
     public enum LocationType {

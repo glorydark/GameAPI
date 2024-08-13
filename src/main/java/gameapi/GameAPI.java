@@ -3,13 +3,16 @@ package gameapi;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import gameapi.commands.BaseCommand;
 import gameapi.commands.WorldEditCommand;
+import gameapi.entity.RankingListEntity;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -220,7 +223,7 @@ public class GameAPI extends PluginBase implements Listener {
                     if (subFiles != null && subFiles.length > 0) {
                         for (File subFile : subFiles) {
                             String name = file.getName() + "/" + subFile.getName().split("\\.")[0];
-                            playerGameData.put(name, new Config(subFile.getPath(), Config.YAML).getAll());
+                            playerGameData.put(name, new Config(subFile, Config.YAML).getAll());
                             this.getLogger().info("Loaded player data: " + subFile);
                         }
                     }
@@ -230,7 +233,14 @@ public class GameAPI extends PluginBase implements Listener {
         PlayerGameDataManager.setPlayerGameData(playerGameData);
     }
 
-    public void loadAllRankingListEntities() {
+    protected void loadAllRankingListEntities() {
+        for (Level level : Server.getInstance().getLevels().values()) {
+            for (Entity entity : level.getEntities()) {
+                if (entity instanceof RankingListEntity) {
+                    entity.close();
+                }
+            }
+        }
         Config config = new Config(path + "/rankings.yml");
         entityRefreshIntervals = config.getInt("refresh_interval", 100);
         List<Map<String, Object>> maps = config.get("list", new ArrayList<>());
@@ -257,7 +267,7 @@ public class GameAPI extends PluginBase implements Listener {
             } else {
                 this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
             }
-            Ranking ranking = new SimpleRanking(location, (String) map.getOrDefault("value_type", ""), (String) map.getOrDefault("title", "Undefined"), "No Data", new RankingFormat(), (Boolean) map.getOrDefault("sort_consequence_ascend", false) ? RankingSortSequence.ASCEND : RankingSortSequence.DESCEND, (String) map.get("game_name"), (String) map.get("compared_type"));
+            Ranking ranking = new SimpleRanking(location, Ranking.getRankingValueType((String) map.getOrDefault("value_type", "")), (String) map.getOrDefault("game_name", ""), (String) map.getOrDefault("data_name", ""), (String) map.getOrDefault("title", "Undefined"), "暂无数据", new RankingFormat(), Ranking.getRankingSortSequence((String) map.getOrDefault("sort_sequence", "descend")));
             ranking.spawnEntity();
         }
     }

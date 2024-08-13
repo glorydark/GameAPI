@@ -7,6 +7,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
 import cn.nukkit.scheduler.NukkitRunnable;
 import gameapi.GameAPI;
+import gameapi.manager.GameDebugManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.utils.AdvancedLocation;
@@ -81,8 +82,8 @@ public class WorldTools {
 
     public static boolean unloadLevel(Level level, boolean delete) {
 
-        if (level == null) {
-            GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.not_found"));
+        if (level == null || level.getProvider() == null) {
+            GameDebugManager.error(GameAPI.getLanguage().getTranslation("world.load.not_found"));
             return false;
         }
 

@@ -78,7 +78,7 @@ public class RoomRule {
 
     private boolean virtualHealth = false;
 
-    private boolean autoTeleport = true;
+    private boolean autoStartTeleport = true;
 
     private List<String> allowCommands = new ArrayList<>();
 
@@ -87,6 +87,8 @@ public class RoomRule {
     private boolean allowJoinAfterStart = false;
 
     private boolean savePlayerPropertiesAfterQuit = false;
+
+    private boolean autoAllocatePlayerToTeam = true;
 
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;

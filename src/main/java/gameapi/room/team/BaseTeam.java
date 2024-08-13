@@ -8,9 +8,7 @@ import gameapi.utils.AdvancedLocation;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Setter
 @Getter
@@ -31,7 +29,7 @@ public class BaseTeam {
 
     private boolean isAlive = true;
 
-    private HashMap<String, Object> properties = new HashMap<>();
+    private Map<String, Object> properties = new LinkedHashMap<>();
 
     public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, int spawnIndex) {
         this.room = room;
@@ -71,6 +69,10 @@ public class BaseTeam {
     }
 
     public void teleportToSpawn() {
+        this.teleportToSpawn(this.getPlayers().toArray(new Player[0]));
+    }
+
+    public void teleportToSpawn(Player... players) {
         if (room.getStartSpawn().size() == 0) {
             return;
         }
@@ -85,6 +87,7 @@ public class BaseTeam {
 
     public void sendMessageToAll(String string) {
         PlayerTools.sendMessage(players, string);
+        GameAPI.getInstance().getLogger().info(string);
     }
 
     public void sendActionbarToAll(String string) {

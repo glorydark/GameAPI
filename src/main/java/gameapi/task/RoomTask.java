@@ -44,9 +44,10 @@ public class RoomTask extends Task {
         if (room.getRoomStatus() == RoomStatus.ROOM_MAP_LOAD_FAILED) {
             return false;
         }
+        room.getPlayers().remove(null);
         for (Player player : new ArrayList<>(room.getPlayers())) {
-            if (player == null || !player.isOnline()) {
-                room.removePlayer(player);
+            if (!player.isOnline()) {
+                room.removePlayer(null);
             }
         }
 
@@ -58,9 +59,9 @@ public class RoomTask extends Task {
             case ROOM_STATUS_PRESTART:
                 if (room.getPlayers().size() < room.getMinPlayer()) {
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
-                    for (Level playLevel : room.getPlayLevels()) {
-                        if (playLevel != null) {
-                            WorldTools.unloadLevel(playLevel, true);
+                    if (room.getPlayers().size() == 0) {
+                        if (room.isTemporary()) {
+                            room.resetAll();
                         }
                     }
                     return true;
@@ -72,24 +73,6 @@ public class RoomTask extends Task {
                 if (room.getPlayers().size() < room.getMinPlayer()) {
                     room.resetAll();
                     return true;
-                } else {
-                    if (room.getTeams().size() > 1) {
-                        AtomicInteger hasPlayer = new AtomicInteger(0);
-                        room.getTeams().forEach(team -> {
-                            if (team.getPlayers().size() > 0) {
-                                hasPlayer.addAndGet(1);
-                            }
-                        });
-                        if (hasPlayer.get() <= 1) {
-                            room.resetAll();
-                            return true;
-                        }
-                    } else {
-                        if (room.getPlayers().size() < room.getMinPlayer()) {
-                            room.resetAll();
-                            return true;
-                        }
-                    }
                 }
                 GameListenerRegistry.callEvent(room, new RoomReadyStartTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.READY_START);
@@ -102,7 +85,7 @@ public class RoomTask extends Task {
                     if (room.getTeams().size() > 1) {
                         AtomicInteger hasPlayer = new AtomicInteger(0);
                         room.getTeams().forEach(team -> {
-                            if (team.getPlayers().size() > 0) {
+                            if (team.getSize() > 0) {
                                 hasPlayer.addAndGet(1);
                             }
                         });
@@ -130,7 +113,7 @@ public class RoomTask extends Task {
                 break;
             case ROOM_STATUS_CEREMONY:
                 if (room.getPlayers().size() < 1) {
-                    room.setTime(room.getCeremonyTime());
+                    room.resetAll();
                 }
                 GameListenerRegistry.callEvent(room, new RoomCeremonyTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.CEREMONY);

@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class PlayerGameDataManager {
 
-    protected static HashMap<String, Map<String, Object>> playerData = new HashMap<>();
+    protected static Map<String, Map<String, Object>> playerData = new LinkedHashMap<>();
 
     protected static RankingFormat rankingFormat = new RankingFormat();
 
@@ -29,11 +29,7 @@ public class PlayerGameDataManager {
     }
 
     public static Map<String, Object> getPlayerAllGameData(String gameName, String fileName) {
-        if (playerData.containsKey(gameName + "/" + fileName)) {
-            return playerData.get(gameName + "/" + fileName);
-        } else {
-            return new LinkedHashMap<>();
-        }
+        return playerData.getOrDefault(gameName + "/" + fileName, new LinkedHashMap<>());
     }
 
     public static void addPlayerGameData(String gameName, String fileName, String player, Integer add) {
@@ -82,7 +78,7 @@ public class PlayerGameDataManager {
         config.save();
     }
 
-    public static void setPlayerGameData(HashMap<String, Map<String, Object>> playerData) {
+    public static void setPlayerGameData(Map<String, Map<String, Object>> playerData) {
         PlayerGameDataManager.playerData = playerData;
     }
 

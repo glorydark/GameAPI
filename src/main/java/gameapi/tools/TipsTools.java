@@ -1,6 +1,7 @@
 package gameapi.tools;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import tip.messages.defaults.*;
 import tip.utils.Api;
 
@@ -90,6 +91,12 @@ public class TipsTools {
             } catch (Exception ignored) {
 
             }
+        }
+        Player player = Server.getInstance().getPlayer(playerName);
+        if (player != null) {
+            player.setNameTag(player.getName());
+            player.setNameTagVisible(true);
+            player.setNameTagAlwaysVisible(true);
         }
     }
 

@@ -56,15 +56,15 @@ public abstract class RoomItemBase {
         return this.identifier;
     }
 
-    public void onInteract(Room room, Player player) {
+    public void onInteract(Room room, Player player, Item item) {
 
     }
 
-    public void onBlockPlace(Room room, Player player) {
+    public void onBlockPlace(Room room, Player player, Item item) {
 
     }
 
-    public void onItemHeld(Room room, Player player) {
+    public void onItemHeld(Room room, Player player, Item item) {
 
     }
 
@@ -72,5 +72,11 @@ public abstract class RoomItemBase {
         NONE,
         LOCK_IN_SLOT,
         LOCK_IN_INVENTORY
+    }
+
+    public void executeCoolDown(Player player, Item heldItem, long delay) {
+        heldItem.getNamedTag().putLong("next_use_millis", System.currentTimeMillis() + delay);
+        heldItem.setCompoundTag(heldItem.getNamedTag());
+        player.getInventory().setItemInHand(heldItem);
     }
 }

@@ -165,40 +165,18 @@ public class BaseRoomExecutor extends RoomExecutor {
             sender.sendActionBar(GameAPI.getLanguage().getTranslation(sender, "room.actionbar.readyStart.countdown.zero"));
         }
 
-        if (!this.room.getRoomRule().isAutoTeleport()) {
+        if (!this.room.getRoomRule().isAutoStartTeleport()) {
             return;
         }
         List<AdvancedLocation> startSpawns = this.room.getStartSpawn();
         if (this.room.getTeams().size() > 0) {
-            this.room.allocatePlayerToTeams();
+            if (this.room.getRoomRule().isAutoAllocatePlayerToTeam()) {
+                this.room.allocatePlayerToTeams();
+            }
             this.room.getPlayers().forEach(room::teleportToSpawn);
-            this.room.getSpectators().forEach(player -> {
-                if (this.room.getSpectatorSpawn().size() != 0) {
-                    Random random = new Random(this.room.getSpectatorSpawn().size());
-                    AdvancedLocation location = this.room.getSpectatorSpawn().get(random.nextInt(this.room.getSpectatorSpawn().size()));
-                    location.teleport(player);
-                } else {
-                    if (this.room.getStartSpawn().size() != 0) {
-                        Random random = new Random(this.room.getStartSpawn().size());
-                        AdvancedLocation location = this.room.getStartSpawn().get(random.nextInt(this.room.getStartSpawn().size()));
-                        location.teleport(player);
-                    } else {
-                        player.teleport(this.room.getPlayers().get(0).getLocation());
-                    }
-                }
-            });
         } else {
             if (startSpawns.size() > 1) {
-                for (Player p : this.room.getPlayers()) {
-                    if (this.room.getRoomProperty(p.getName(), "spawnIndex") == null) {
-                        Random random = new Random(System.currentTimeMillis());
-                        AdvancedLocation location = startSpawns.get(random.nextInt(startSpawns.size()));
-                        location.teleport(p);
-                    } else {
-                        AdvancedLocation location = startSpawns.get(this.room.getPlayerProperty(p.getName(), "spawnIndex", 0));
-                        location.teleport(p);
-                    }
-                }
+                this.room.getPlayers().forEach(room::teleportToSpawn);
             } else if (this.room.getStartSpawn().size() == 1) {
                 AdvancedLocation location = startSpawns.get(0);
                 for (Player p : this.room.getPlayers()) {
@@ -206,6 +184,21 @@ public class BaseRoomExecutor extends RoomExecutor {
                 }
             }
         }
+        this.room.getSpectators().forEach(player -> {
+            if (this.room.getSpectatorSpawn().size() != 0) {
+                Random random = new Random(this.room.getSpectatorSpawn().size());
+                AdvancedLocation location = this.room.getSpectatorSpawn().get(random.nextInt(this.room.getSpectatorSpawn().size()));
+                location.teleport(player);
+            } else {
+                if (this.room.getStartSpawn().size() != 0) {
+                    Random random = new Random(this.room.getStartSpawn().size());
+                    AdvancedLocation location = this.room.getStartSpawn().get(random.nextInt(this.room.getStartSpawn().size()));
+                    location.teleport(player);
+                } else {
+                    player.teleport(this.room.getPlayers().get(0).getLocation());
+                }
+            }
+        });
     }
 
     @Override

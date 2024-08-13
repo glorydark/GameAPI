@@ -6,6 +6,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -16,19 +17,13 @@ public class TextEntity extends Entity {
         super(chunk, nbt);
         this.setPosition(position);
         this.setNameTag(text);
-    }
-
-    @Deprecated
-    public TextEntity(FullChunk chunk, CompoundTag nbt) {
-        super(chunk, nbt);
-        this.close();
+        this.setNameTagVisible(true);
+        this.setNameTagAlwaysVisible(true);
+        this.setImmobile(true);
     }
 
     protected void initEntity() {
         super.initEntity();
-        this.setNameTagVisible(true);
-        this.setNameTagAlwaysVisible(true);
-        this.setImmobile(true);
         this.getDataProperties().putLong(0, 65536L);
     }
 
@@ -37,13 +32,8 @@ public class TextEntity extends Entity {
     }
 
     public boolean onUpdate(int currentTick) {
-        if (this.isClosed()) {
-            return false;
-        }
-        for (Map.Entry<Integer, Player> entry : new ArrayList<>(this.hasSpawned.entrySet())) {
-            Player player = entry.getValue();
-            if (!player.isOnline() ||
-                    player.getLevel() != this.getLevel()) {
+        for (Player player : new ArrayList<>(this.getViewers().values())) {
+            if (!player.isOnline() && player.getLevel() != this.getLevel()) {
                 this.despawnFrom(player);
             }
         }

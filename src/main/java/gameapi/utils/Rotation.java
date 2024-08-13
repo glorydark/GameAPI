@@ -21,7 +21,11 @@ public class Rotation {
         this.headYaw = headYaw;
     }
 
-    public static Rotation fromVector(Vector3 vector3) {
+    public static Rotation fromVector3(Vector3 vector3) {
         return new Rotation(vector3.x, vector3.y, vector3.z);
+    }
+
+    public Vector3 toVector3() {
+        return new Vector3(this.yaw, this.pitch, this.headYaw);
     }
 }
