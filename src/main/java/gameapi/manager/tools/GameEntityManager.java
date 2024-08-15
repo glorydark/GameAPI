@@ -15,7 +15,6 @@ import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class GameEntityManager {
 

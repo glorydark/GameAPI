@@ -21,7 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Test {
 
-    public static MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();;
+    public static MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+    ;
 
 
     public static void main(String[] args) {
@@ -33,6 +34,7 @@ public class Test {
         Server.getInstance().getScheduler().scheduleRepeatingTask(GameAPI.getInstance(), new Task() {
 
             int time = 0;
+
             @Override
             public void onRun(int i) {
                 time++;
@@ -48,7 +50,7 @@ public class Test {
                             successCount.addAndGet(1);
                         }
                     });
-                    double loadAfter = NukkitMath.round((double)(runtime.totalMemory() - runtime.freeMemory()) / 1024.0 / 1024.0, 2);
+                    double loadAfter = NukkitMath.round((double) (runtime.totalMemory() - runtime.freeMemory()) / 1024.0 / 1024.0, 2);
                     if (loadBefore != -1 && loadAfter - loadBefore > 10) {
                         GameAPI.getInstance().getLogger().warning(loadBefore + "MB - " + loadAfter + "MB");
                     }

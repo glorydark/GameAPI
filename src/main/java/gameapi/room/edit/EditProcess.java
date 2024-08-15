@@ -14,13 +14,13 @@ import java.util.*;
  */
 public abstract class EditProcess {
 
+    protected static final int INDEX_OFFSET = 1;
     protected List<TextEntity> textEntities = new ArrayList<>();
     protected List<EditStep> steps = new ArrayList<>();
     protected ConfigSection configCache;
     protected Map<String, Object> properties = new LinkedHashMap<>();
     protected Player player = null;
     protected int currentStep = 0;
-    protected static final int INDEX_OFFSET = 1;
 
     public EditProcess() {
         this.configCache = new ConfigSection();

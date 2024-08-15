@@ -9,15 +9,11 @@ import gameapi.room.Room;
 @Future
 public class GameState {
 
-    private String name;
-
-    private String description = "";
-
     public int timer;
-
     public int maxTime;
-
     public Room room = null;
+    private String name;
+    private String description = "";
 
     public GameState(String name, int maxTime) {
         this.name = name;
@@ -45,12 +41,12 @@ public class GameState {
         }
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
-    }
-
     public Room getRoom() {
         return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     public String getDescription() {

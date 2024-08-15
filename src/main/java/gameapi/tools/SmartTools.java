@@ -1,5 +1,7 @@
 package gameapi.tools;
 
+import gameapi.manager.GameDebugManager;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -81,7 +83,7 @@ public class SmartTools {
         try {
             date = format.parse(string);
         } catch (Exception e) {
-            e.getStackTrace();
+            GameDebugManager.error(e.getMessage());
         }
         return date;
     }

@@ -6,8 +6,6 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.potion.Effect;
-import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.annotation.Future;
 import gameapi.event.player.*;
@@ -115,7 +113,7 @@ public class Room {
     private List<DynamicObstacle> dynamicObstacles = new ArrayList<>();
     @Setter(AccessLevel.NONE)
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
-    private ScheduledExecutorService roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService roomTaskExecutor = Executors.newScheduledThreadPool(4);
     private AdvancedBlockManager advancedBlockManager = new AdvancedBlockManager();
 
     public Room(String gameName, RoomRule roomRule, int round) {
@@ -218,9 +216,10 @@ public class Room {
                         .stream()
                         .sorted(Comparator.comparing(t -> t.getValue().getSize()))
                         .collect(Collectors.toList());
-                this.teamCache.get(list.get(0).getKey()).addPlayer(player); //从最低人数来尝试加入
                 BaseTeam team = list.get(0).getValue();
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
+                if (team.addPlayer(player)) {
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
+                }
             }
         } else {
             for (Player player : this.players) {
@@ -230,28 +229,29 @@ public class Room {
                 List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
                 Collections.shuffle(baseTeams);
                 for (BaseTeam baseTeam : baseTeams) {
-                    if (baseTeam.getSize() + 1 <= baseTeam.getMaxPlayer()) {
-                        baseTeam.addPlayer(player);
+                    if (baseTeam.addPlayer(player)) {
                         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", baseTeam.getPrefix() + baseTeam.getRegistryName()));
                         break;
                     }
                 }
-                GameDebugManager.error(TextFormat.RED + "Failed to find an available team for " + player.getName() + "!");
             }
         }
     }
 
     public boolean addTeamPlayer(String registry, Player player) {
-        if (getTeam(player) != null) {
+        if (this.getTeam(player) != null) {
             return false;
         }
-        if (this.teamCache.containsKey(registry) && this.teamCache.get(registry).isAvailable()) { //禁止加入满人队伍
-            this.teamCache.get(registry).addPlayer(player);
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", this.teamCache.get(registry).getPrefix() + registry));
+        BaseTeam team = this.teamCache.get(registry);
+        if (team != null) { //禁止加入满人队伍
+            if (team.addPlayer(player)) {
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
+                return true;
+            }
         } else {
             return false;
         }
-        return true;
+        return false;
     }
 
     public void removePlayerFromTeam(Player player) {
@@ -276,8 +276,14 @@ public class Room {
         return new ArrayList<>(this.teamCache.values());
     }
 
-    public List<BaseTeam> getOpponentTeams(BaseTeam baseTeam) {
+    public List<BaseTeam> getAvailableTeams() {
         List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
+        baseTeams.removeIf(baseTeam -> baseTeam.getPlayers().size() == 0);
+        return baseTeams;
+    }
+
+    public List<BaseTeam> getOpponentTeams(BaseTeam baseTeam) {
+        List<BaseTeam> baseTeams = new ArrayList<>(this.getAvailableTeams());
         baseTeams.remove(baseTeam);
         return baseTeams;
     }
@@ -450,7 +456,10 @@ public class Room {
             return;
         }
         this.setRoomStatus(RoomStatus.ROOM_MAP_INITIALIZING);
-        this.getRoomTaskExecutor().shutdown();
+        if (this.getRoomTaskExecutor() != null) {
+            this.getRoomTaskExecutor().shutdownNow();
+            GameDebugManager.info("关闭线程池成功: " + this.getRoomTaskExecutor().toString());
+        }
         GameListenerRegistry.callEvent(this, new RoomResetEvent(this));
         for (Player player : new ArrayList<>(this.spectators)) {
             this.removeSpectator(player);
@@ -473,6 +482,9 @@ public class Room {
         }
         // 增加默认地图判断
         for (Level playLevel : this.playLevels) {
+            if (playLevel == null || playLevel.getProvider() == null) {
+                continue;
+            }
             if (playLevel != Server.getInstance().getDefaultLevel()) {
                 for (Player player : playLevel.getPlayers().values()) {
                     player.kick("Teleport error!");
@@ -484,7 +496,7 @@ public class Room {
             if (this.resetMap) {
                 GameAPI.getInstance().getLogger().alert(GameAPI.getLanguage().getTranslation("room.detect_delete", this.getRoomName()));
                 for (Level playLevel : this.playLevels) {
-                    if (playLevel != null) {
+                    if (playLevel != null && playLevel.getProvider() != null) {
                         String levelName = playLevel.getName();
                         if (WorldTools.unloadLevel(playLevel, true)) {
                             GameDebugManager.info("Successfully delete map: " + levelName);
@@ -499,13 +511,13 @@ public class Room {
             if (this.resetMap) {
                 GameAPI.getInstance().getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.room_and_map", this.getRoomName()));
                 if (WorldTools.unloadAndReloadLevels(this)) {
-                    this.roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+                    this.roomTaskExecutor = Executors.newScheduledThreadPool(4);
                     this.getRoomTaskExecutor().scheduleAtFixedRate(this.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
                     this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
                 }
             } else {
                 GameAPI.getInstance().getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.only_room", this.getRoomName()));
-                this.roomTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+                this.roomTaskExecutor = Executors.newScheduledThreadPool(4);
                 this.getRoomTaskExecutor().scheduleAtFixedRate(this.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
                 this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
             }
@@ -722,23 +734,23 @@ public class Room {
         return spectators.contains(player);
     }
 
-    public void teleportToSpawn(Player p) {
-        if (this.getTeam(p) != null) {
-            this.getTeam(p).teleportToSpawn();
+    public void teleportToSpawn(Player player) {
+        if (this.getTeam(player) != null) {
+            this.getTeam(player).teleportToSpawn();
             return;
         }
         if (this.startSpawn.size() > 1) {
-            if (this.getPlayerProperty(p.getName(), "spawnIndex") == null) {
+            BaseTeam team = this.getTeam(player);
+            if (team == null) {
                 Random random = new Random(System.currentTimeMillis());
                 AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
-                location.teleport(p);
+                location.teleport(player);
             } else {
-                AdvancedLocation location = this.getStartSpawn().get((Integer) this.getPlayerProperty(p.getName(), "spawnIndex"));
-                location.teleport(p);
+                team.teleportToSpawn(player);
             }
         } else if (this.getStartSpawn().size() == 1) {
             AdvancedLocation location = this.getStartSpawn().get(0);
-            location.teleport(p);
+            location.teleport(player);
         }
     }
 

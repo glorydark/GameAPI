@@ -6,10 +6,8 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import lombok.ToString;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class TextEntity extends Entity {
 

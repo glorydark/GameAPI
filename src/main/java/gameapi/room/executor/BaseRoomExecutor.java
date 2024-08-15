@@ -184,7 +184,10 @@ public class BaseRoomExecutor extends RoomExecutor {
                 }
             }
         }
-        this.room.getSpectators().forEach(player -> {
+        for (Player player : this.room.getSpectators()) {
+            if (room.getPlayLevels().contains(player.getLevel())) {
+                continue;
+            }
             if (this.room.getSpectatorSpawn().size() != 0) {
                 Random random = new Random(this.room.getSpectatorSpawn().size());
                 AdvancedLocation location = this.room.getSpectatorSpawn().get(random.nextInt(this.room.getSpectatorSpawn().size()));
@@ -198,7 +201,7 @@ public class BaseRoomExecutor extends RoomExecutor {
                     player.teleport(this.room.getPlayers().get(0).getLocation());
                 }
             }
-        });
+        }
     }
 
     @Override

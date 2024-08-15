@@ -6,31 +6,27 @@ import cn.nukkit.Server;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
-import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.network.protocol.CameraPresetsPacket;
+import cn.nukkit.utils.CameraPresetManager;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
 import gameapi.entity.TextEntity;
 import gameapi.form.AdvancedDoubleChestForm;
-import gameapi.form.AdvancedFormWindowSimple;
-import gameapi.form.element.ResponsiveElementButton;
 import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
-import gameapi.manager.data.PlayerGameDataManager;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.Ranking;
-import gameapi.ranking.RankingSortSequence;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
-import gameapi.test.Test;
 import gameapi.tools.*;
 
 import java.io.File;
@@ -51,6 +47,12 @@ public class BaseCommand extends Command {
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (strings.length > 0) {
             switch (strings[0].toLowerCase()) {
+                case "test":
+                    CameraPresetsPacket pk = new CameraPresetsPacket();
+                    pk.getPresets().add(new ArrayList<>(CameraPresetManager.getPresets().values()).get(Integer.parseInt(strings[1])));
+                    commandSender.asPlayer().dataPacket(pk);
+                    commandSender.sendMessage("成功发送" + pk);
+                    break;
                 case "addfakeplayer":
                     if (commandSender.isPlayer() && commandSender.isOp()) {
                         Player player = commandSender.asPlayer();

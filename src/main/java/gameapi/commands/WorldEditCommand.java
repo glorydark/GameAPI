@@ -344,7 +344,7 @@ public class WorldEditCommand extends Command {
                                 try {
                                     compoundTag = NBTIO.read(file);
                                 } catch (IOException e) {
-                                    GameAPI.getInstance().getLogger().error(e.toString());
+                                    GameAPI.getInstance().getLogger().error(e.getMessage());
                                     return;
                                 }
                                 List<CompoundTag> tags = compoundTag.getList("blocks", CompoundTag.class).getAll();
@@ -387,14 +387,14 @@ public class WorldEditCommand extends Command {
                                 GameAPI.getInstance().getLogger().info("Finish saving building task [" + generateSectionCount + "/ " + maxGenerateSections + "]! Time cost: " + timeDiffToString);
                             }
                         }).exceptionally(throwable -> {
-                            GameAPI.getInstance().getLogger().error(throwable.toString());
+                            GameAPI.getInstance().getLogger().error(throwable.getMessage());
                             return null;
                         }).thenRun(() -> {
                             generate = false;
                             commandSender.sendMessage("Finish all saving tasks! Section Count: " + generateSectionCount + ". Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillisForAll));
                         });
                     } catch (CompletionException e) {
-                        GameAPI.getInstance().getLogger().error(e.toString());
+                        GameAPI.getInstance().getLogger().error(e.getMessage());
                     }
                     break;
             }

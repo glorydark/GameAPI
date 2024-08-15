@@ -6,7 +6,6 @@ import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

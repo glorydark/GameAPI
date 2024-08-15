@@ -27,10 +27,8 @@ import java.util.function.BiConsumer;
 public abstract class AdvancedFakeBlockInventory extends AdvancedFakeInventory {
 
     protected Map<Integer, BiConsumer<Player, BlockInventoryResponse>> responseMap = new LinkedHashMap<>();
-
-    private List<FakeBlockCacheData> fakeBlockList = new ArrayList<>();
-
     protected boolean itemMovable;
+    private List<FakeBlockCacheData> fakeBlockList = new ArrayList<>();
 
     public AdvancedFakeBlockInventory(FakeInventoryType fakeBlockFormType) {
         this(null, fakeBlockFormType);

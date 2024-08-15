@@ -39,7 +39,10 @@ public class RoomManager {
     }
 
     public static void unloadRoom(Room room) {
-        room.getRoomTaskExecutor().shutdown();
+        if (room.getRoomTaskExecutor() != null) {
+            room.getRoomTaskExecutor().shutdownNow();
+            GameDebugManager.info("关闭线程池成功: " + room.getRoomTaskExecutor().toString());
+        }
         for (Player player : room.getPlayers()) {
             player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
         }

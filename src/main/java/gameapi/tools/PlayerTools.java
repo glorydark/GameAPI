@@ -213,6 +213,17 @@ public class PlayerTools {
         }
     }
 
+    public static boolean isPC(Player player) {
+        int deviceOs = player.getLoginChainData().getDeviceOS();
+        switch (deviceOs) {
+            case 7:
+            case 8:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public static String getOS(Player p) {
         switch (p.getLoginChainData().getDeviceOS()) {
             case 1:

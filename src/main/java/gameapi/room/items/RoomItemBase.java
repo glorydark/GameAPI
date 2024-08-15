@@ -12,11 +12,9 @@ import java.util.Map;
  */
 public abstract class RoomItemBase {
 
-    protected Item item;
-
-    protected String identifier;
-
     public static final String KEY_IDENTIFIER = "room_item";
+    protected Item item;
+    protected String identifier;
 
     public RoomItemBase(String identifier, String name, Item item) {
         this(identifier, name, item, ItemLockType.NONE);
@@ -68,15 +66,15 @@ public abstract class RoomItemBase {
 
     }
 
-    public enum ItemLockType {
-        NONE,
-        LOCK_IN_SLOT,
-        LOCK_IN_INVENTORY
-    }
-
     public void executeCoolDown(Player player, Item heldItem, long delay) {
         heldItem.getNamedTag().putLong("next_use_millis", System.currentTimeMillis() + delay);
         heldItem.setCompoundTag(heldItem.getNamedTag());
         player.getInventory().setItemInHand(heldItem);
+    }
+
+    public enum ItemLockType {
+        NONE,
+        LOCK_IN_SLOT,
+        LOCK_IN_INVENTORY
     }
 }

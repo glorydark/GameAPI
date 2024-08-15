@@ -11,8 +11,8 @@ import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.player.RoomPlayerMoveEvent;
 import gameapi.extensions.checkpoint.CheckpointData;
 import gameapi.extensions.obstacle.DynamicObstacle;
-import gameapi.extensions.supplyChest.SupplyChest;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.GameDebugManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,34 +41,38 @@ public class RoomUpdateTask implements Runnable {
 
     @Override
     public void run() {
-        for (Player player : new ArrayList<>(playerLocationHashMap.keySet())) {
-            if (!room.hasPlayer(player)) {
-                playerLocationHashMap.remove(player);
+        try {
+            for (Player player : new ArrayList<>(this.playerLocationHashMap.keySet())) {
+                if (!room.hasPlayer(player)) {
+                    playerLocationHashMap.remove(player);
+                }
             }
-        }
-        if (room.getPlayers().size() == 0) {
-            return;
-        }
-        // Internal Process
-        for (Player player : room.getPlayers()) {
-            if (player.getGamemode() != 3) {
-                this.onUpdateRoomBlockTreadEvent(player);
-                this.onUpdateRoomPlayerEnterPortalEvent(player);
-                this.onUpdateRoomPlayerMovementEvent(player);
-                // RecordPoint
-                room.getCheckpointManager().onUpdate(player);
+            if (this.room.getPlayers().size() == 0) {
+                return;
             }
-        }
-        if (room.getCheckpointManager().getCheckpointDataList().size() > 0) {
-            for (CheckpointData checkPointData : room.getCheckpointManager().getCheckpointDataList()) {
-                checkPointData.showParticleMarks(room.getPlayLevels().get(0));
+            // Internal Process
+            for (Player player : this.room.getPlayers()) {
+                if (player.getGamemode() != 3) {
+                    this.onUpdateRoomBlockTreadEvent(player);
+                    this.onUpdateRoomPlayerEnterPortalEvent(player);
+                    this.onUpdateRoomPlayerMovementEvent(player);
+                    // RecordPoint
+                    this.room.getCheckpointManager().onUpdate(player);
+                }
             }
+            if (this.room.getCheckpointManager().getCheckpointDataList().size() > 0) {
+                for (CheckpointData checkPointData : this.room.getCheckpointManager().getCheckpointDataList()) {
+                    checkPointData.showParticleMarks(this.room.getPlayLevels().get(0));
+                }
+            }
+            // Provide methods for other games to use
+            for (Consumer<Room> roomConsumer : this.customConsumerList) {
+                roomConsumer.accept(this.room);
+            }
+            this.onTickDynamicObstacles();
+        } catch (Throwable t) {
+            GameDebugManager.error(t.getMessage());
         }
-        // Provide methods for other games to use
-        for (Consumer<Room> roomConsumer : customConsumerList) {
-            roomConsumer.accept(this.room);
-        }
-        this.onTickDynamicObstacles();
     }
 
     protected Location getPlayerLastLocation(Player player) {

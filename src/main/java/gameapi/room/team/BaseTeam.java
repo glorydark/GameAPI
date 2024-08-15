@@ -8,7 +8,10 @@ import gameapi.utils.AdvancedLocation;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Setter
 @Getter
@@ -39,28 +42,30 @@ public class BaseTeam {
         this.maxPlayer = maxPlayer;
     }
 
-    public void addPlayer(Player player) {
-        if (isAvailable()) {
-            players.add(player);
+    public boolean addPlayer(Player player) {
+        if (this.isAvailable()) {
+            this.players.add(player);
+            return true;
         } else {
             player.sendMessage(GameAPI.getLanguage().getTranslation("room.team.full"));
+            return false;
         }
     }
 
     public int getSize() {
-        return players.size();
+        return this.players.size();
     }
 
     public boolean isAvailable() {
-        return players.size() < maxPlayer;
+        return this.players.size() < this.maxPlayer;
     }
 
     public void removePlayer(Player player) {
-        players.remove(player);
+        this.players.remove(player);
     }
 
     public boolean hasPlayer(Player player) {
-        return players.contains(player);
+        return this.players.contains(player);
     }
 
     public void resetAll() {
@@ -73,20 +78,20 @@ public class BaseTeam {
     }
 
     public void teleportToSpawn(Player... players) {
-        if (room.getStartSpawn().size() == 0) {
+        if (this.room.getStartSpawn().size() == 0) {
             return;
         }
-        if (room.getStartSpawn().size() < spawnIndex + 1) {
+        if (this.spawnIndex >= this.room.getStartSpawn().size()) {
             return;
         }
-        AdvancedLocation location = room.getStartSpawn().get(spawnIndex);
+        AdvancedLocation location = this.room.getStartSpawn().get(this.spawnIndex);
         for (Player player : players) {
             location.teleport(player);
         }
     }
 
     public void sendMessageToAll(String string) {
-        PlayerTools.sendMessage(players, string);
+        PlayerTools.sendMessage(this.players, string);
         GameAPI.getInstance().getLogger().info(string);
     }
 

@@ -4,7 +4,6 @@ import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
 import gameapi.ranking.RankingFormat;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

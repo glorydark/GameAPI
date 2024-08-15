@@ -22,7 +22,6 @@ import gameapi.manager.data.PlayerGameDataManager;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
-import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 import gameapi.room.Room;
 import gameapi.room.edit.EditProcess;
@@ -130,9 +129,8 @@ public class GameAPI extends PluginBase implements Listener {
                     editProcess.onTick();
                     editProcess.getCurrentStep().onTick();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                roomTaskExecutor.shutdown();
+            } catch (Throwable t) {
+                GameDebugManager.error(t.getMessage());
             }
         }, 0, 1, TimeUnit.SECONDS);
         roomTaskExecutor.scheduleAtFixedRate(() -> GameDebugManager.getPlayers().forEach(player -> {

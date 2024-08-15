@@ -20,16 +20,11 @@ public class EasyNBTItem {
     private final String identifier;
 
     private final int id;
-
-    private int meta;
-
-    private String customName = "";
-
     protected CompoundTag compoundTag = new CompoundTag();
-
     protected String[] lore = null;
-
     protected List<Enchantment> enchantments = new ArrayList<>();
+    private int meta;
+    private String customName = "";
 
     public EasyNBTItem(String identifier) {
         this(identifier, 0);

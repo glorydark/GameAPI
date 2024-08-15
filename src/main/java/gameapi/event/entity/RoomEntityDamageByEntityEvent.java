@@ -7,8 +7,8 @@ import gameapi.room.Room;
 
 public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Cancellable {
 
+    private final float finalDamage;
     protected float damage;
-
     protected int attackCoolDown;
 
     protected float knockBack;
@@ -17,9 +17,10 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
 
     protected EntityDamageEvent.DamageCause cause;
 
-    public RoomEntityDamageByEntityEvent(Room room, Entity entity, Entity damager, float damage, int attackCoolDown, float knockBack, EntityDamageEvent.DamageCause cause) {
+    public RoomEntityDamageByEntityEvent(Room room, Entity entity, Entity damager, float damage, float finalDamage, int attackCoolDown, float knockBack, EntityDamageEvent.DamageCause cause) {
         super(room, entity);
         this.damage = damage;
+        this.finalDamage = finalDamage;
         this.attackCoolDown = attackCoolDown;
         this.damager = damager;
         this.knockBack = knockBack;
@@ -44,6 +45,10 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
 
     public void setDamage(float damage) {
         this.damage = damage;
+    }
+
+    public float getFinalDamage() {
+        return finalDamage;
     }
 
     public float getKnockBack() {

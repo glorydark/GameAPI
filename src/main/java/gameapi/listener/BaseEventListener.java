@@ -17,9 +17,12 @@ import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.level.ChunkUnloadEvent;
 import cn.nukkit.event.player.*;
+import cn.nukkit.event.server.DataPacketSendEvent;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
+import cn.nukkit.network.protocol.ClientToServerHandshakePacket;
+import cn.nukkit.network.protocol.ServerToClientHandshakePacket;
 import gameapi.GameAPI;
 import gameapi.commands.WorldEditCommand;
 import gameapi.entity.GameProjectileEntity;
@@ -30,6 +33,7 @@ import gameapi.event.entity.*;
 import gameapi.event.inventory.RoomInventoryPickupItemEvent;
 import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.RoomVirtualHealthManager;
 import gameapi.room.Room;
@@ -452,7 +456,7 @@ public class BaseEventListener implements Listener {
                         room1.setPlayerProperty(damager, "last_attack_millis", System.currentTimeMillis());
                     }
                 }
-                RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, entity, damager, event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
+                RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, entity, damager, event.getDamage(), event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
                 GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
                 if (roomEntityDamageByEntityEvent.isCancelled()) {
                     event.setCancelled(true);
@@ -478,7 +482,7 @@ public class BaseEventListener implements Listener {
                     return;
                 }
                 Room room1 = room.get();
-                RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, event.getEntity(), event.getDamager(), event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
+                RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, event.getEntity(), event.getDamager(), event.getDamage(), event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
                 GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
                 if (roomEntityDamageByEntityEvent.isCancelled()) {
                     event.setCancelled(true);
@@ -880,6 +884,16 @@ public class BaseEventListener implements Listener {
                 event.setCancelled(true);
                 return;
             }
+        }
+    }
+
+    @EventHandler
+    public void DataPacketSendEvent(DataPacketSendEvent event) {
+        if (event.getPacket() instanceof ServerToClientHandshakePacket) {
+            GameDebugManager.info(event.getPacket().toString());
+        }
+        if (event.getPacket() instanceof ClientToServerHandshakePacket) {
+            GameDebugManager.info(event.getPacket().toString());
         }
     }
 }
