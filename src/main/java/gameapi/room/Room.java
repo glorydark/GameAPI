@@ -118,6 +118,10 @@ public class Room {
     private AdvancedBlockManager advancedBlockManager = new AdvancedBlockManager();
     private final long createMillis;
     private boolean autoDestroyOverTime = true; // 超过maxWaitMillis自动释放房间
+    private List<String> roomAdmins = new ArrayList<>();
+    private String creator = "";
+    private List<String> whitelists = new ArrayList<>();
+    private boolean enableWhitelist = false;
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this(gameName, roomRule, "", round);
@@ -211,7 +215,7 @@ public class Room {
             return;
         }
         if (defaultMethod) {
-            for (Player player : this.players) {
+            for (Player player : new ArrayList<>(this.players)) {
                 if (this.getTeam(player) != null) {
                     continue;
                 }
@@ -220,25 +224,39 @@ public class Room {
                         .stream()
                         .sorted(Comparator.comparing(t -> t.getValue().getSize()))
                         .collect(Collectors.toList());
-                BaseTeam team = list.get(0).getValue();
-                if (team.addPlayer(player)) {
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
+                boolean hasResult = false;
+                for (Map.Entry<String, BaseTeam> entry : list) {
+                    BaseTeam team = entry.getValue();
+                    if (team.addPlayer(player)) {
+                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
+                        hasResult = true;
+                        break;
+                    }
+                }
+                if (!hasResult) {
+                    this.removePlayer(player);
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.team.no_available"));
                 }
             }
         } else {
-            for (Player player : this.players) {
+            for (Player player : new ArrayList<>(this.players)) {
                 if (this.getTeam(player) != null) {
                     continue;
                 }
                 List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
                 Collections.shuffle(baseTeams);
+                boolean hasResult = false;
                 for (BaseTeam baseTeam : baseTeams) {
                     if (baseTeam.addPlayer(player, false)) {
                         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", baseTeam.getPrefix() + baseTeam.getRegistryName()));
+                        hasResult = true;
                         break;
                     }
                 }
-                player.sendMessage(TextFormat.RED + "Unable to find an available team for you!");
+                if (!hasResult) {
+                    this.removePlayer(player);
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.team.no_available"));
+                }
             }
         }
     }
@@ -306,7 +324,13 @@ public class Room {
         which aims to serve the server hosting some big events
      */
     public void addPlayer(Player player) {
-        if (!joinPassword.isEmpty()) {
+        if (this.enableWhitelist) {
+            if (!this.whitelists.contains(player.getName())) {
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.whitelisted"));
+                return;
+            }
+        }
+        if (!this.joinPassword.isEmpty()) {
             String rightPassword = this.getJoinPassword();
             AdvancedFormWindowCustom custom = new AdvancedFormWindowCustom(GameAPI.getLanguage().getTranslation(player, "room.window.password.title"))
                     .input(
@@ -783,12 +807,6 @@ public class Room {
 
     public LinkedHashMap<String, Object> getInheritProperties() {
         return inheritProperties;
-    }
-
-    public void setPersonal(Boolean personal, Player player) {
-        this.roomRule.setPersonal(personal);
-        this.inheritProperties.put("personal_owner", player);
-        this.isAllowedToStart = true;
     }
 
     public void addPlayLevel(Level loadLevel) {

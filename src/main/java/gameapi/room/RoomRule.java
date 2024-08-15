@@ -62,8 +62,6 @@ public class RoomRule {
 
     private int respawnCoolDownTick = 20;
 
-    private boolean personal = false;
-
     private boolean noTimeLimit = false;
 
     private boolean allowSpectators = true;

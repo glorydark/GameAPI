@@ -11,6 +11,7 @@ import cn.nukkit.level.Location;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import gameapi.commands.BaseCommand;
+import gameapi.commands.HubCommand;
 import gameapi.commands.WorldEditCommand;
 import gameapi.entity.RankingListEntity;
 import gameapi.listener.AdvancedFormListener;
@@ -29,6 +30,7 @@ import gameapi.task.RoomTask;
 import gameapi.tools.BlockTools;
 import gameapi.tools.ItemTools;
 import gameapi.utils.Language;
+import io.sentry.Hub;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -123,6 +125,7 @@ public class GameAPI extends PluginBase implements Listener {
         this.getServer().getPluginManager().registerEvents(new AdvancedFormListener(), this);
         this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
         this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
+        this.getServer().getCommandMap().register("", new HubCommand("hub"));
         // others ...
         roomTaskExecutor.scheduleAtFixedRate(() -> {
             try {

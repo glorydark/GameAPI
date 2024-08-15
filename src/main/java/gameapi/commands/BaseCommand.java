@@ -46,6 +46,7 @@ public class BaseCommand extends Command {
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (strings.length > 0) {
+            Player p = commandSender.asPlayer();
             switch (strings[0].toLowerCase()) {
                 case "test":
                     CameraPresetsPacket pk = new CameraPresetsPacket();
@@ -53,25 +54,12 @@ public class BaseCommand extends Command {
                     commandSender.asPlayer().dataPacket(pk);
                     commandSender.sendMessage("成功发送" + pk);
                     break;
-                case "addfakeplayer":
-                    if (commandSender.isPlayer() && commandSender.isOp()) {
-                        Player player = commandSender.asPlayer();
-                        Room room = RoomManager.getRoom(player);
-                        if (room != null) {
-
-                        }
-                    }
-                    break;
                 case "getchestpos":
                     SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(new Vector3(80, 125, 67), new Vector3(-75, 46, -74));
-                    Player p = commandSender.asPlayer();
                     Level l = p.getLevel();
-                    bb.forEach(new AxisAlignedBB.BBConsumer() {
-                        @Override
-                        public void accept(int i, int i1, int i2) {
-                            if (l.getBlock(i, i1, i2, true).getId() == BlockID.TRAPPED_CHEST) {
-                                System.out.println(i + ", " + i1 + ", " + i2 + "\n");
-                            }
+                    bb.forEach((i, i1, i2) -> {
+                        if (l.getBlock(i, i1, i2, true).getId() == BlockID.TRAPPED_CHEST) {
+                            System.out.println(i + ", " + i1 + ", " + i2 + "\n");
                         }
                     });
                     break;
@@ -83,6 +71,7 @@ public class BaseCommand extends Command {
                     }
                     break;
                 case "refreshrank":
+                    GameAPI.getInstance().loadAllPlayerGameData();
                     GameAPI.getInstance().loadRanking();
                     break;
                 case "test1":
@@ -114,26 +103,6 @@ public class BaseCommand extends Command {
                             );
                     form.showToPlayer((Player) commandSender);
                      */
-                    break;
-                case "kick":
-                    if (commandSender.isPlayer()) {
-                        Room room = RoomManager.getRoom((Player) commandSender);
-                        if (room != null) {
-                            Player player = Server.getInstance().getPlayer(strings[1]);
-                            if (player != null) {
-                                if (room.getPlayers().contains(player)) {
-                                    room.removePlayer(player);
-                                    commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.kick.success"));
-                                } else {
-                                    commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.error.not_in_game.others", player.getName()));
-                                }
-                            } else {
-                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_not_found", strings[1]));
-                            }
-                        } else {
-                            GameAPI.getLanguage().getTranslation("command.error.not_in_game");
-                        }
-                    }
                     break;
                 case "quit":
                     if (commandSender.isPlayer()) {
@@ -297,19 +266,50 @@ public class BaseCommand extends Command {
                     }
                     break;
                 case "roomstart":
-                    if (strings.length == 3) {
-                        Room room = RoomManager.getRoom(strings[1], strings[2]);
-                        if (room != null) {
+                    if (commandSender.isOp()) {
+                        if (strings.length == 3) {
+                            Room room = RoomManager.getRoom(strings[1], strings[2]);
+                            if (room != null) {
+                                room.setAllowedToStart(true);
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.start_pass.endowed", room.getRoomName()));
+                            } else {
+                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found", strings[2]));
+                            }
+                            return false;
+                        }
+                    }
+                    Room room = RoomManager.getRoom(p);
+                    if (room != null) {
+                        if (room.getRoomAdmins().contains(commandSender.getName()) || commandSender.isOp()) {
                             room.setAllowedToStart(true);
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.start_pass.endowed", room.getRoomName()));
-                        } else {
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found", strings[2]));
+                            commandSender.sendMessage(TextFormat.GREEN + "您已允许房间开始倒计时！");
                         }
                     }
                     break;
+                case "kick":
+                    if (commandSender.isPlayer()) {
+                        room = RoomManager.getRoom((Player) commandSender);
+                        if (commandSender.isOp() || room.getRoomAdmins().contains(commandSender.getName())) {
+                            if (room != null) {
+                                Player player = Server.getInstance().getPlayer(strings[1]);
+                                if (player != null) {
+                                    if (room.getPlayers().contains(player)) {
+                                        room.removePlayer(player);
+                                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.kick.success"));
+                                    } else {
+                                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.error.not_in_game.others", player.getName()));
+                                    }
+                                } else {
+                                    commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_not_found", strings[1]));
+                                }
+                            } else {
+                                GameAPI.getLanguage().getTranslation("command.error.not_in_game");
+                            }
+                        }
+                    }
                 case "setpwd":
                     if (strings.length == 4) {
-                        Room room = RoomManager.getRoom(strings[1], strings[2]);
+                        room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
                             if (room.isAllowedToStart()) {
                                 room.setJoinPassword(strings[3]);

@@ -65,15 +65,15 @@ public class RoomManager {
         }
     }
 
-    public static Room getRoom(String gameName, Player p) {
-        if (getRoom(p) == null) {
+    public static Room getRoom(String gameName, Player player) {
+        if (getRoom(player) == null) {
             return null;
         }
-        return getRoom(p).getGameName().equals(gameName) ? getRoom(p) : null;
+        return getRoom(player).getGameName().equals(gameName) ? getRoom(player) : null;
     }
 
-    public static Room getRoom(Player p) {
-        return RoomManager.playerRoomHashMap.getOrDefault(p, null);
+    public static Room getRoom(Player player) {
+        return RoomManager.playerRoomHashMap.getOrDefault(player, null);
     }
 
     public static Room getRoom(String gameName, String roomName) {
@@ -87,6 +87,30 @@ public class RoomManager {
 
     public static List<Room> getRooms(String gameName) {
         return new ArrayList<>(loadedRooms.getOrDefault(gameName, new ArrayList<>()));
+    }
+
+    public static List<Room> getCreatedRoom(Player player) {
+        String playerName = player.getName();
+        List<Room> rooms = new ArrayList<>();
+        for (List<Room> roomList : loadedRooms.values()) {
+            for (Room room : roomList) {
+                if (room.getCreator().equals(playerName)) {
+                    rooms.add(room);
+                }
+            }
+        }
+        return rooms;
+    }
+
+    public static List<Room> getCreatedRoom(String gameName, Player player) {
+        String playerName = player.getName();
+        List<Room> rooms = new ArrayList<>();
+        for (Room room : loadedRooms.getOrDefault(gameName, new ArrayList<>())) {
+            if (room.getCreator().equals(playerName)) {
+                rooms.add(room);
+            }
+        }
+        return rooms;
     }
 
     public static List<String> getGameNameList() {

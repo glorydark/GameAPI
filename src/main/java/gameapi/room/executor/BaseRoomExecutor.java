@@ -30,15 +30,15 @@ public class BaseRoomExecutor extends RoomExecutor {
     public void onWait() {
         List<Player> senders = new ArrayList<>(this.room.getPlayers());
         senders.addAll(this.room.getSpectators());
-        if (this.room.getPlayers().size() >= this.room.getMinPlayer()) {
-            if (!this.room.isAllowedToStart()) {
-                for (Player player : senders) {
-                    player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.need_start_pass"));
-                }
+        if (!this.room.isAllowedToStart()) {
+            for (Player player : senders) {
+                player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.need_start_pass"));
             }
         } else {
-            for (Player player : senders) {
-                player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.wait_for_players", this.room.getPlayers().size(), this.room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
+            if (this.room.getPlayers().size() < this.room.getMinPlayer()) {
+                for (Player player : senders) {
+                    player.sendActionBar(GameAPI.getLanguage().getTranslation(player, "room.actionbar.wait.wait_for_players", this.room.getPlayers().size(), this.room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
+                }
             }
         }
     }
