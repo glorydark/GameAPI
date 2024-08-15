@@ -20,6 +20,7 @@ import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.AdvancedBlockManager;
 import gameapi.manager.room.CheckpointManager;
+import gameapi.manager.room.GhostyManager;
 import gameapi.manager.room.RoomVirtualHealthManager;
 import gameapi.manager.tools.ScoreboardManager;
 import gameapi.room.executor.BaseRoomExecutor;
@@ -116,6 +117,7 @@ public class Room {
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
     private ScheduledExecutorService roomTaskExecutor = Executors.newScheduledThreadPool(4);
     private AdvancedBlockManager advancedBlockManager = new AdvancedBlockManager();
+    private GhostyManager ghostyManager = new GhostyManager();
     private final long createMillis;
     private boolean autoDestroyOverTime = true; // 超过maxWaitMillis自动释放房间
     private List<String> roomAdmins = new ArrayList<>();
