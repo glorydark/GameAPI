@@ -2,19 +2,19 @@ package gameapi.room.team;
 
 import cn.nukkit.Player;
 import gameapi.GameAPI;
+import gameapi.manager.GameDebugManager;
 import gameapi.room.Room;
 import gameapi.tools.PlayerTools;
 import gameapi.utils.AdvancedLocation;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Setter
 @Getter
+@ToString
 public class BaseTeam {
     private String registryName;
 
@@ -26,7 +26,7 @@ public class BaseTeam {
 
     private Room room;
 
-    private int spawnIndex;
+    private List<Integer> spawnIndexList;
 
     private int maxPlayer;
 
@@ -35,19 +35,29 @@ public class BaseTeam {
     private Map<String, Object> properties = new LinkedHashMap<>();
 
     public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, int spawnIndex) {
+        this(room, registryName, prefix, maxPlayer, Collections.singletonList(spawnIndex));
+    }
+
+    public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, List<Integer> spawnIndexList) {
         this.room = room;
         this.registryName = registryName;
         this.prefix = prefix;
-        this.spawnIndex = spawnIndex;
+        this.spawnIndexList = spawnIndexList;
         this.maxPlayer = maxPlayer;
     }
 
     public boolean addPlayer(Player player) {
+        return this.addPlayer(player, true);
+    }
+
+    public boolean addPlayer(Player player, boolean tips) {
         if (this.isAvailable()) {
             this.players.add(player);
             return true;
         } else {
-            player.sendMessage(GameAPI.getLanguage().getTranslation("room.team.full"));
+            if (tips) {
+                player.sendMessage(GameAPI.getLanguage().getTranslation("room.team.full"));
+            }
             return false;
         }
     }
@@ -81,12 +91,36 @@ public class BaseTeam {
         if (this.room.getStartSpawn().size() == 0) {
             return;
         }
-        if (this.spawnIndex >= this.room.getStartSpawn().size()) {
-            return;
-        }
-        AdvancedLocation location = this.room.getStartSpawn().get(this.spawnIndex);
-        for (Player player : players) {
-            location.teleport(player);
+        int spawnIndexSize = this.spawnIndexList.size();
+        if (spawnIndexSize > 0) {
+            if (spawnIndexSize == 1) {
+                int spawnIndex = this.spawnIndexList.get(0);
+                if (spawnIndex >= this.room.getStartSpawn().size()) {
+                    GameDebugManager.warning("Find spawn index bigger than the room has, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
+                    return;
+                }
+                AdvancedLocation location = this.room.getStartSpawn().get(spawnIndex);
+                for (Player player : players) {
+                    location.teleport(player);
+                }
+            } else {
+                for (Player player : players) {
+                    int playerIndex = this.players.indexOf(player);
+                    int spawnIndex;
+                    if (playerIndex >= this.spawnIndexList.size()) {
+                        spawnIndex = this.spawnIndexList.get(0);
+                        GameDebugManager.warning("Find spawns are not satisfied with real performance, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
+                    } else {
+                        spawnIndex = this.spawnIndexList.get(playerIndex);
+                    }
+                    if (spawnIndex >= this.room.getStartSpawn().size()) {
+                        GameDebugManager.warning("Find spawn index bigger than the room has, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
+                        return;
+                    }
+                    AdvancedLocation location = this.room.getStartSpawn().get(spawnIndex);
+                    location.teleport(player);
+                }
+            }
         }
     }
 
@@ -105,20 +139,5 @@ public class BaseTeam {
 
     public void sendTipToAll(String string) {
         PlayerTools.sendTip(players, string);
-    }
-
-    @Override
-    public String toString() {
-        return "BaseTeam{" +
-                "registryName='" + registryName + '\'' +
-                ", score=" + score +
-                ", prefix='" + prefix + '\'' +
-                ", players=" + players +
-                ", room=" + room +
-                ", spawnIndex=" + spawnIndex +
-                ", maxPlayer=" + maxPlayer +
-                ", isAlive=" + isAlive +
-                ", properties=" + properties +
-                '}';
     }
 }

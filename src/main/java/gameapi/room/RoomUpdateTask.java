@@ -15,6 +15,7 @@ import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.GameDebugManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
@@ -41,10 +42,13 @@ public class RoomUpdateTask implements Runnable {
 
     @Override
     public void run() {
+        if (this.room.getPlayers().size() == 0) {
+            return;
+        }
         try {
             for (Player player : new ArrayList<>(this.playerLocationHashMap.keySet())) {
-                if (!room.hasPlayer(player)) {
-                    playerLocationHashMap.remove(player);
+                if (!this.room.hasPlayer(player)) {
+                    this.playerLocationHashMap.remove(player);
                 }
             }
             if (this.room.getPlayers().size() == 0) {
@@ -70,17 +74,20 @@ public class RoomUpdateTask implements Runnable {
                 roomConsumer.accept(this.room);
             }
             this.onTickDynamicObstacles();
-        } catch (Throwable t) {
-            GameDebugManager.error(t.getMessage());
+        } catch (Exception e) {
+            GameDebugManager.error(e.getCause().getMessage() + "\n"
+                    + e + ":\n"
+                    + Arrays.toString(e.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")
+            );
         }
     }
 
     protected Location getPlayerLastLocation(Player player) {
-        return playerLocationHashMap.getOrDefault(player, null);
+        return this.playerLocationHashMap.getOrDefault(player, player.add(0, 1, 0));
     }
 
     public void setPlayerLastLocation(Player player, Location location) {
-        playerLocationHashMap.put(player, location);
+        this.playerLocationHashMap.put(player, location);
     }
 
     protected void onUpdateRoomBlockTreadEvent(Player player) {
@@ -126,7 +133,7 @@ public class RoomUpdateTask implements Runnable {
         if (player.getLocation().equals(getPlayerLastLocation(player))) {
             return;
         }
-        if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START && !room.getRoomRule().isAllowReadyStartWalk()) {
+        if (this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START && !this.room.getRoomRule().isAllowReadyStartWalk()) {
             Location from = getPlayerLastLocation(player).clone();
             Location to = player.getLocation();
             if (from.getLevel() != to.getLevel()) {
@@ -141,8 +148,8 @@ public class RoomUpdateTask implements Runnable {
             }
         }
         // MoveEvent
-        RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(room, player, getPlayerLastLocation(player), player.getLocation());
-        GameListenerRegistry.callEvent(room, roomPlayerMoveEvent);
+        RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(this.room, player, getPlayerLastLocation(player), player.getLocation());
+        GameListenerRegistry.callEvent(this.room, roomPlayerMoveEvent);
         if (roomPlayerMoveEvent.isCancelled()) {
             Location from = roomPlayerMoveEvent.getFrom();
             if (from != null) {

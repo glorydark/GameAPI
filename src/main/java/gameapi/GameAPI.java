@@ -46,6 +46,7 @@ public class GameAPI extends PluginBase implements Listener {
 
     public static final int GAME_TASK_INTERVAL = 1;
     protected static final int THREAD_POOL_SIZE = 8;
+    public static final long MAX_TEMP_ROOM_WAIT_MILLIS = 1800000L;
     protected static final Language language = new Language("GameAPI");
     public static List<Player> worldEditPlayers = new ArrayList<>();
     public static List<EditProcess> editProcessList = new ArrayList<>();
@@ -130,7 +131,7 @@ public class GameAPI extends PluginBase implements Listener {
                     editProcess.getCurrentStep().onTick();
                 }
             } catch (Throwable t) {
-                GameDebugManager.error(t.getMessage());
+                t.printStackTrace();
             }
         }, 0, 1, TimeUnit.SECONDS);
         roomTaskExecutor.scheduleAtFixedRate(() -> GameDebugManager.getPlayers().forEach(player -> {

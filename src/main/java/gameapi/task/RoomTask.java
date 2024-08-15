@@ -3,8 +3,10 @@ package gameapi.task;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.scheduler.Task;
+import gameapi.GameAPI;
 import gameapi.event.room.*;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.ScoreboardManager;
 import gameapi.room.Room;
@@ -51,6 +53,13 @@ public class RoomTask extends Task {
 
         switch (room.getRoomStatus()) {
             case ROOM_STATUS_WAIT:
+                if (room.isTemporary() && room.isAutoDestroyOverTime()) {
+                    if (room.getCreateMillis() + GameAPI.MAX_TEMP_ROOM_WAIT_MILLIS >= System.currentTimeMillis()) {
+                        GameDebugManager.info("Detect that temp room " + room.getRoomName() + " has reached the maximum of waiting time, start destroying...");
+                        room.resetAll();
+                        return true;
+                    }
+                }
                 GameListenerRegistry.callEvent(room, new RoomWaitTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.WAIT);
                 break;

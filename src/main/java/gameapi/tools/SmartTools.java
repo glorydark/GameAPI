@@ -83,7 +83,7 @@ public class SmartTools {
         try {
             date = format.parse(string);
         } catch (Exception e) {
-            GameDebugManager.error(e.getMessage());
+            GameDebugManager.error(e.toString());
         }
         return date;
     }

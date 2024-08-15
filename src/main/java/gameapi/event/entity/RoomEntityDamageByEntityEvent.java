@@ -32,7 +32,7 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
     }
 
     public int getAttackCoolDown() {
-        return attackCoolDown;
+        return this.attackCoolDown;
     }
 
     public void setAttackCoolDown(int attackCoolDown) {

@@ -6,6 +6,7 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.annotation.Future;
 import gameapi.event.player.*;
@@ -115,6 +116,8 @@ public class Room {
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
     private ScheduledExecutorService roomTaskExecutor = Executors.newScheduledThreadPool(4);
     private AdvancedBlockManager advancedBlockManager = new AdvancedBlockManager();
+    private final long createMillis;
+    private boolean autoDestroyOverTime = true; // 超过maxWaitMillis自动释放房间
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this(gameName, roomRule, "", round);
@@ -126,6 +129,7 @@ public class Room {
         this.gameName = gameName;
         this.roomUpdateTask = new RoomUpdateTask(this);
         this.roomLevelBackup = roomLevelBackup;
+        this.createMillis = System.currentTimeMillis();
     }
 
     public void registerRoomItem(RoomItemBase... roomItems) {
@@ -229,11 +233,12 @@ public class Room {
                 List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
                 Collections.shuffle(baseTeams);
                 for (BaseTeam baseTeam : baseTeams) {
-                    if (baseTeam.addPlayer(player)) {
+                    if (baseTeam.addPlayer(player, false)) {
                         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", baseTeam.getPrefix() + baseTeam.getRegistryName()));
                         break;
                     }
                 }
+                player.sendMessage(TextFormat.RED + "Unable to find an available team for you!");
             }
         }
     }
@@ -396,8 +401,6 @@ public class Room {
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
-            RoomManager.getPlayerRoomHashMap().remove(player);
-
             if (!this.getRoomRule().isSavePlayerPropertiesAfterQuit()) {
                 this.playerProperties.remove(player.getName());
             }
@@ -423,6 +426,7 @@ public class Room {
             this.updateHideStatus(player, true);
 
             this.players.remove(player);
+            RoomManager.getPlayerRoomHashMap().remove(player);
         }
     }
 
