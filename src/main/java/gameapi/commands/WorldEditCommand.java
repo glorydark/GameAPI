@@ -15,11 +15,13 @@ import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.scheduler.AsyncTask;
+import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.annotation.Experimental;
 import gameapi.tools.BlockTools;
 import gameapi.tools.SchematicConverter;
 import gameapi.tools.SmartTools;
+import gameapi.tools.WorldEditTools;
 import gameapi.utils.IntegerAxisAlignBB;
 import gameapi.utils.PosSet;
 
@@ -32,7 +34,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -41,8 +42,6 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @Experimental
 public class WorldEditCommand extends Command {
-
-    public static ForkJoinPool THREAD_POOL_EXECUTOR;
 
     public static LinkedHashMap<Player, PosSet> posSetLinkedHashMap = new LinkedHashMap<>();
 
@@ -78,91 +77,90 @@ public class WorldEditCommand extends Command {
                         posSetLinkedHashMap.put(player, new PosSet());
                     }
                     posSetLinkedHashMap.get(player).setPos1(player.getLocation());
-                    player.sendMessage("Successfully set pos1 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
+                    player.sendMessage(TextFormat.GREEN + "Successfully set pos1 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
                     break;
                 case "pos2":
                     if (!posSetLinkedHashMap.containsKey(player)) {
                         posSetLinkedHashMap.put(player, new PosSet());
                     }
                     posSetLinkedHashMap.get(player).setPos2(player.getLocation());
-                    player.sendMessage("Successfully set pos2 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
+                    player.sendMessage(TextFormat.GREEN + "Successfully set pos2 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
                     break;
-                case "fill": // fill blockId blockMeta
-                    if (!isPosSet(player)) {
+                case "circle":
+                    if (strings.length < 3) {
                         return false;
                     }
+                    double radius = Double.parseDouble(strings[2]);
+                    Block block = BlockTools.getBlockfromString(strings[1]);
+                    boolean fillInside = strings.length != 4 || Boolean.parseBoolean(strings[3]);
+                    if (block == null) {
+                        commandSender.sendMessage(TextFormat.RED + "Unable to find the block identifier: " + strings[1]);
+                        return false;
+                    } else {
+                        PosSet posSet = posSetLinkedHashMap.get(player);
+                        if (this.isFirstPosSet(player)) {
+                            WorldEditTools.createCircle(player, posSet.getPos1(), block, radius, fillInside);
+                        } else {
+                            player.sendMessage(TextFormat.RED + "Pos 1 is undefined!");
+                        }
+                    }
+                    break;
+                case "ball":
+                    if (strings.length < 3) {
+                        return false;
+                    }
+                    radius = Double.parseDouble(strings[2]);
+                    block = BlockTools.getBlockfromString(strings[1]);
+                    fillInside = strings.length != 4 || Boolean.parseBoolean(strings[3]);
+                    if (block == null) {
+                        commandSender.sendMessage(TextFormat.RED + "Unable to find the block identifier: " + strings[1]);
+                        return false;
+                    } else {
+                        PosSet posSet = posSetLinkedHashMap.get(player);
+                        if (this.isFirstPosSet(player)) {
+                            WorldEditTools.createBall(player, posSet.getPos1(), block, radius, fillInside);
+                        } else {
+                            player.sendMessage(TextFormat.RED + "Pos 1 is undefined!");
+                        }
+                    }
+                    break;
+                case "fill": // fill blockId blockMeta
+                    if (!isTwoPosAllSet(player)) {
+                        return false;
+                    }
+                    boolean fillExisted = strings.length != 3 || Boolean.parseBoolean(strings[2]);
                     PosSet posSet = posSetLinkedHashMap.get(player);
-                    if (strings.length == 2) {
-                        SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
-                        Block block = BlockTools.getBlockfromString(strings[1]);
+                    if (strings.length >= 2) {
+                        block = BlockTools.getBlockfromString(strings[1]);
                         if (block == null) {
-                            commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
+                            commandSender.sendMessage(TextFormat.RED + "Unable to find the block identifier: " + strings[1]);
                             return false;
                         }
-                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.getInstance(), new AsyncTask() {
-                            @Override
-                            public void onRun() {
-                                //List<OperationEntry> simpleOperationEntries = new ArrayList<>();
-                                bb.forEach(((i, i1, i2) -> {
-                                    //Block before = player.getLevel().getBlock(i, i1, i2);
-                                    /*
-                                    simpleOperationEntries.add(SimpleOperationEntry.builder()
-                                            .beforeBlockId(before.getId())
-                                            .beforeBlockMeta(before.getDamage())
-                                            .floorX(i)
-                                            .floorY(i1)
-                                            .floorZ(i2)
-                                            .build());
-                                     */
-                                    player.getLevel().setBlock(i, i1, i2, block, true, false);
-                                }));
-                                player.sendMessage("Finish fill task");
-                            }
-                        });
+                        WorldEditTools.fill(player, posSet.getPos1(), posSet.getPos2(), block, fillExisted);
                     }
                     break;
                 case "replace":
-                    if (!isPosSet(player)) {
+                    if (!isTwoPosAllSet(player)) {
                         return false;
                     }
+                    boolean checkDamage = strings.length != 4 || Boolean.parseBoolean(strings[3]);
                     posSet = posSetLinkedHashMap.get(player);
-                    if (strings.length == 3) {
-                        SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
-                        Level level = player.getLevel();
-                        Block block = BlockTools.getBlockfromString(strings[1]);
-                        if (block == null) {
-                            commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
+                    if (strings.length >= 3) {
+                        Block sourceBlock = BlockTools.getBlockfromString(strings[1]);
+                        Block targetBlock = BlockTools.getBlockfromString(strings[2]);
+                        if (sourceBlock == null) {
+                            commandSender.sendMessage(TextFormat.RED + "Unable to find the block identifier: " + strings[1]);
                             return false;
                         }
-                        boolean checkBlockDamage = (strings[1].split(":").length == 2);
-                        Block blockReplaced = BlockTools.getBlockfromString(strings[2]);
-                        if (blockReplaced == null) {
-                            commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
+                        if (targetBlock == null) {
+                            commandSender.sendMessage(TextFormat.RED + "Unable to find the block identifier: " + strings[2]);
                             return false;
                         }
-                        Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.getInstance(), new AsyncTask() {
-                            @Override
-                            public void onRun() {
-                                AtomicInteger count = new AtomicInteger();
-                                bb.forEach(((i, i1, i2) -> {
-                                    Block before = player.getLevel().getBlock(i, i1, i2);
-                                    if (before.getId() == block.getId()) {
-                                        if (checkBlockDamage) {
-                                            if (before.getDamage() == block.getDamage()) {
-                                                return;
-                                            }
-                                        }
-                                        level.setBlock(i, i1, i2, blockReplaced, true, true);
-                                        count.getAndIncrement();
-                                    }
-                                }));
-                                player.sendMessage("Finish fill task for " + count + " " + block.getName() + " replaced with " + blockReplaced.getName());
-                            }
-                        });
+                        WorldEditTools.replaceBlock(player, posSet.getPos1(), posSet.getPos2(), sourceBlock, targetBlock, checkDamage);
                     }
                     break;
                 case "replaceunknown":
-                    if (!isPosSet(player)) {
+                    if (!isTwoPosAllSet(player)) {
                         return false;
                     }
                     posSet = posSetLinkedHashMap.get(player);
@@ -171,7 +169,7 @@ public class WorldEditCommand extends Command {
                         Level level = player.getLevel();
                         Block blockReplaced = BlockTools.getBlockfromString(strings[1]);
                         if (blockReplaced == null) {
-                            commandSender.sendMessage("Unable to find the block identifier: " + strings[1]);
+                            commandSender.sendMessage(TextFormat.RED + "Unable to find the block identifier: " + strings[1]);
                             return false;
                         }
                         Server.getInstance().getScheduler().scheduleAsyncTask(GameAPI.getInstance(), new AsyncTask() {
@@ -185,10 +183,14 @@ public class WorldEditCommand extends Command {
                                         count.getAndIncrement();
                                     }
                                 }));
-                                player.sendMessage("Finish fill task for " + count + " unknown blocks replaced with" + blockReplaced.getName());
+                                player.sendMessage(TextFormat.GREEN + "Finish fill task for " + count + " unknown blocks replaced with" + blockReplaced.getName());
                             }
                         });
                     }
+                    break;
+                case "clearpos":
+                    posSetLinkedHashMap.remove(player);
+                    player.sendMessage(TextFormat.GREEN + "Your pos set has been cleared successfully!");
                     break;
                 case "resetc":
                     player.getLevel().regenerateChunk(player.getChunkX(), player.getChunkZ());
@@ -240,8 +242,8 @@ public class WorldEditCommand extends Command {
                                         throw new RuntimeException(e);
                                     }
                                 }
-                                Block block = player.getLevel().getBlock(position, true);
-                                if (block.getId() != Block.AIR) {
+                                Block blockAtPosition = player.getLevel().getBlock(position, true);
+                                if (blockAtPosition.getId() != Block.AIR) {
                                     int x = BigDecimal.valueOf(i).subtract(BigDecimal.valueOf(integerAxisAlignBB.getMinX())).intValue();
                                     int y = BigDecimal.valueOf(i1).subtract(BigDecimal.valueOf(integerAxisAlignBB.getMinY())).intValue();
                                     int z = BigDecimal.valueOf(i2).subtract(BigDecimal.valueOf(integerAxisAlignBB.getMinZ())).intValue();
@@ -249,8 +251,8 @@ public class WorldEditCommand extends Command {
                                             .putInt("x", x)
                                             .putInt("y", y)
                                             .putInt("z", z)
-                                            .putInt("blockId", block.getId())
-                                            .putInt("damage", block.getDamage());
+                                            .putInt("blockId", blockAtPosition.getId())
+                                            .putInt("damage", blockAtPosition.getDamage());
                                     Block blockLayer1 = player.getLevel().getBlock(position, 1, true);
                                     if (blockLayer1.getId() != BlockID.AIR) {
                                         addTag.putCompound("layer1", new CompoundTag()
@@ -302,7 +304,7 @@ public class WorldEditCommand extends Command {
                                 }
                             }));
                         }
-                    }, THREAD_POOL_EXECUTOR).thenRun(() -> {
+                    }, GameAPI.WORLDEDIT_THREAD_POOL_EXECUTOR).thenRun(() -> {
                                 StringBuilder builder = new StringBuilder();
                                 builder.append("Finish generating building task! ")
                                         .append("Section count: ").append(sectionCount.get())
@@ -359,13 +361,13 @@ public class WorldEditCommand extends Command {
                                         System.out.println("Out of world's bound!");
                                         continue;
                                     }
-                                    Block block = Block.get(blocks.getInt("blockId"), blocks.getInt("damage"));
-                                    if (block == null) {
-                                        block = new BlockUnknown(blocks.getInt("blockId"), blocks.getInt("damage"));
+                                    Block specificBlock = Block.get(blocks.getInt("blockId"), blocks.getInt("damage"));
+                                    if (specificBlock == null) {
+                                        specificBlock = new BlockUnknown(blocks.getInt("blockId"), blocks.getInt("damage"));
                                     }
-                                    if (block.getId() != BlockID.AIR) {
+                                    if (specificBlock.getId() != BlockID.AIR) {
                                         Vector3 pos = new Vector3(x, y, z);
-                                        player.getLevel().setBlock(pos, block, true, false);
+                                        player.getLevel().setBlock(pos, specificBlock, true, false);
                                         if (generated.get() >= (maxCount / 100) * (lastTipPercentage.get() + 5)) {
                                             GameAPI.getInstance().getLogger().info("[" + blockCount + "] Generating block... §e" + lastTipPercentage.get() + "%");
                                             lastTipPercentage.getAndAdd(5);
@@ -402,7 +404,7 @@ public class WorldEditCommand extends Command {
         return false;
     }
 
-    public boolean isPosSet(Player player) {
+    public boolean isTwoPosAllSet(Player player) {
         PosSet posSet = posSetLinkedHashMap.get(player);
         if (posSet == null) {
             player.sendMessage("Pos set is null");
@@ -410,6 +412,19 @@ public class WorldEditCommand extends Command {
         }
         if (posSet.getPos1() == null || posSet.getPos2() == null) {
             player.sendMessage("You haven't set pos1 or pos2");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isFirstPosSet(Player player) {
+        PosSet posSet = posSetLinkedHashMap.get(player);
+        if (posSet == null) {
+            player.sendMessage("Pos set is null");
+            return false;
+        }
+        if (posSet.getPos1() == null) {
+            player.sendMessage("You haven't set pos1");
             return false;
         }
         return true;

@@ -30,7 +30,6 @@ import gameapi.task.RoomTask;
 import gameapi.tools.BlockTools;
 import gameapi.tools.ItemTools;
 import gameapi.utils.Language;
-import io.sentry.Hub;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -52,6 +51,7 @@ public class GameAPI extends PluginBase implements Listener {
     protected static final Language language = new Language("GameAPI");
     public static List<Player> worldEditPlayers = new ArrayList<>();
     public static List<EditProcess> editProcessList = new ArrayList<>();
+    public static ForkJoinPool WORLDEDIT_THREAD_POOL_EXECUTOR;
     protected static String path;
     protected static GameAPI instance;
     protected static ScheduledExecutorService roomTaskExecutor;
@@ -164,7 +164,7 @@ public class GameAPI extends PluginBase implements Listener {
                 }
         ), 0, 200, TimeUnit.MILLISECONDS);
         roomTaskExecutor.scheduleAtFixedRate(GameEntityManager::onUpdate, 0, 2, TimeUnit.SECONDS);
-        WorldEditCommand.THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
+        WORLDEDIT_THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
         this.getLogger().info("§aDGameAPI Enabled!");
     }
 
@@ -192,8 +192,8 @@ public class GameAPI extends PluginBase implements Listener {
         PlayerGameDataManager.close();
         GameEntityManager.closeAll();
         GameListenerRegistry.clearAllRegisters();
-        roomTaskExecutor.shutdown();
-        WorldEditCommand.THREAD_POOL_EXECUTOR.shutdown();
+        roomTaskExecutor.shutdownNow();
+        WORLDEDIT_THREAD_POOL_EXECUTOR.shutdownNow();
         this.getLogger().info("DGameAPI Disabled!");
     }
 

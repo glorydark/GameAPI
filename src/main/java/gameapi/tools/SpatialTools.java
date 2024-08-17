@@ -16,6 +16,10 @@ import java.util.List;
  */
 public class SpatialTools {
 
+    public static List<Rotation> parseRotationFromStrings(List<String> str) {
+        return parseRotationFromStrings(str.toArray(new String[0]));
+    }
+
     public static List<Rotation> parseRotationFromStrings(String... str) {
         List<Rotation> vector3List = new ArrayList<>();
         for (String s : str) {
@@ -39,6 +43,10 @@ public class SpatialTools {
             vector3List.add(parseVectorFromString(s));
         }
         return vector3List;
+    }
+
+    public static List<Vector3> parseVectorsFromStrings(List<String> str) {
+        return parseVectorsFromStrings(str.toArray(new String[0]));
     }
 
     public static Vector3 parseVectorFromString(String str) {
@@ -132,5 +140,23 @@ public class SpatialTools {
         }
 
         return result.toArray(new IntegerAxisAlignBB[0]);
+    }
+
+    public static Vector3 rotateDegreesClockwise(Vector3 point, double degrees) {
+        double radians = Math.toRadians(degrees); // 将度转换为弧度
+        double cosTheta = Math.cos(radians);
+        double sinTheta = Math.sin(radians);
+        double newX = cosTheta * point.x + sinTheta * point.y;
+        double newY = -sinTheta * point.x + cosTheta * point.y;
+        return new Vector3(newX, newY, point.z);
+    }
+
+    public static Vector3 rotateDegreesCounterClockwise(Vector3 point, double degrees) {
+        double radians = Math.toRadians(degrees); // 将度转换为弧度
+        double cosTheta = Math.cos(radians);
+        double sinTheta = Math.sin(radians);
+        double newX = cosTheta * point.x - sinTheta * point.y;
+        double newY = sinTheta * point.x + cosTheta * point.y;
+        return new Vector3(newX, newY, point.z);
     }
 }

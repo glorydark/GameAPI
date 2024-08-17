@@ -2,12 +2,18 @@ package gameapi.tools;
 
 import gameapi.manager.GameDebugManager;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
 public class SmartTools {
+
+    public static float timeDiffToFloat(long m1, long m2, int scale) {
+        return BigDecimal.valueOf(Math.abs(m1 - m2) / 1000f).setScale(scale, RoundingMode.CEILING).floatValue();
+    }
 
     public static String timeDiffMillisToString(long m1, long m2) {
         long diff = Math.abs(m2 - m1);

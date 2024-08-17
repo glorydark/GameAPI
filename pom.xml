@@ -5,7 +5,7 @@
 
     <groupId>glorydark.nukkit</groupId>
     <artifactId>GameAPI</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>cn.nukkit</groupId>
             <artifactId>Nukkit</artifactId>
-            <version>MOT-java8-20240128.013629-5</version>
+            <version>MOT-java8-20240709.115146-9</version>
         </dependency>
 
         <dependency>

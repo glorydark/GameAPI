@@ -5,6 +5,7 @@ import cn.nukkit.level.Level;
 import gameapi.manager.GameDebugManager;
 import gameapi.room.Room;
 import net.easecation.ghosty.recording.LevelRecordEngine;
+import net.easecation.ghosty.recording.PlayerRecordEngine;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,7 +32,10 @@ public class GhostyManager {
      */
     public void stopRecordingPlayer(Player player) {
         for (LevelRecordEngine levelRecordEngine : this.levelRecordEngines) {
-            levelRecordEngine.getPlayerRecordEngines().get(player).stopRecord();
+            PlayerRecordEngine playerRecordEngine = levelRecordEngine.getPlayerRecordEngines().get(player);
+            if (playerRecordEngine != null) {
+                playerRecordEngine.stopRecord();
+            }
             levelRecordEngine.removePlayer(player);
         }
     }

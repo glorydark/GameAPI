@@ -1,8 +1,12 @@
 package gameapi.event.entity;
 
+import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.level.Position;
 import gameapi.event.Cancellable;
 import gameapi.room.Room;
+
+import java.util.List;
 
 /**
  * @author glorydark
@@ -10,18 +14,35 @@ import gameapi.room.Room;
  */
 public class RoomEntityExplodeEvent extends RoomEntityEvent implements Cancellable {
 
-    private double force;
+    protected final Position position;
+    protected List<Block> blocks;
+    protected double yield;
 
-    public RoomEntityExplodeEvent(Room room, Entity entity, double force) {
+    public RoomEntityExplodeEvent(Room room, Entity entity, Position position, List<Block> blocks, double yield) {
         super(room, entity);
-        this.force = force;
+        this.entity = entity;
+        this.position = position;
+        this.blocks = blocks;
+        this.yield = yield;
     }
 
-    public double getForce() {
-        return force;
+    public Position getPosition() {
+        return this.position;
     }
 
-    public void setForce(double force) {
-        this.force = force;
+    public List<Block> getBlockList() {
+        return this.blocks;
+    }
+
+    public void setBlockList(List<Block> blocks) {
+        this.blocks = blocks;
+    }
+
+    public double getYield() {
+        return this.yield;
+    }
+
+    public void setYield(double yield) {
+        this.yield = yield;
     }
 }

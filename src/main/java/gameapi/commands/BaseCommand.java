@@ -9,11 +9,8 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
-import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.network.protocol.CameraPresetsPacket;
-import cn.nukkit.utils.CameraPresetManager;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
@@ -28,6 +25,7 @@ import gameapi.ranking.Ranking;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.tools.*;
+import gameapi.utils.PosSet;
 
 import java.io.File;
 import java.util.*;
@@ -48,20 +46,36 @@ public class BaseCommand extends Command {
         if (strings.length > 0) {
             Player p = commandSender.asPlayer();
             switch (strings[0].toLowerCase()) {
-                case "test":
-                    CameraPresetsPacket pk = new CameraPresetsPacket();
-                    pk.getPresets().add(new ArrayList<>(CameraPresetManager.getPresets().values()).get(Integer.parseInt(strings[1])));
-                    commandSender.asPlayer().dataPacket(pk);
-                    commandSender.sendMessage("成功发送" + pk);
-                    break;
                 case "getchestpos":
-                    SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(new Vector3(80, 125, 67), new Vector3(-75, 46, -74));
+                    if (p == null) {
+                        return false;
+                    }
+                    PosSet posSet = WorldEditCommand.posSetLinkedHashMap.get(p);
+                    if (posSet == null) {
+                        p.sendMessage("Pos set is null");
+                        return false;
+                    }
+                    if (posSet.getPos1() == null || posSet.getPos2() == null) {
+                        p.sendMessage("You haven't set pos1 or pos2");
+                        return false;
+                    }
+                    SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(posSet.getPos1(), posSet.getPos2());
                     Level l = p.getLevel();
                     bb.forEach((i, i1, i2) -> {
-                        if (l.getBlock(i, i1, i2, true).getId() == BlockID.TRAPPED_CHEST) {
+                        if (l.getBlock(i, i1, i2, true).getId() == BlockID.CHEST) {
                             System.out.println(i + ", " + i1 + ", " + i2 + "\n");
                         }
                     });
+                    break;
+                case "addrank":
+                    if (commandSender.isPlayer()) {
+                        if (strings.length >= 6) {
+                            Player player = (Player) commandSender;
+                            GameEntityManager.addRankingList(player, strings[1], strings[2], strings[3], strings[4], Ranking.getRankingSortSequence(strings[5]));
+                        }
+                    } else {
+                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.use_in_game"));
+                    }
                     break;
                 case "checkrank":
                     for (Map.Entry<Ranking, Set<TextEntity>> entry : GameEntityManager.entityList.entrySet()) {
@@ -177,16 +191,6 @@ public class BaseCommand extends Command {
                         }
                     } else {
                         commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.save_battle.folder_created_failed", saveDic.getPath()));
-                    }
-                    break;
-                case "addrank":
-                    if (commandSender.isPlayer()) {
-                        if (strings.length >= 6) {
-                            Player player = (Player) commandSender;
-                            GameEntityManager.addRankingList(player, strings[1], strings[2], strings[3], strings[4], Ranking.getRankingSortSequence(strings[5]));
-                        }
-                    } else {
-                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.use_in_game"));
                     }
                     break;
                 case "stoproom": // todo

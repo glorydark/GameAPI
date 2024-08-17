@@ -17,12 +17,9 @@ import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.level.ChunkUnloadEvent;
 import cn.nukkit.event.player.*;
-import cn.nukkit.event.server.DataPacketSendEvent;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
-import cn.nukkit.network.protocol.ClientToServerHandshakePacket;
-import cn.nukkit.network.protocol.ServerToClientHandshakePacket;
 import gameapi.GameAPI;
 import gameapi.commands.WorldEditCommand;
 import gameapi.entity.GameProjectileEntity;
@@ -33,7 +30,6 @@ import gameapi.event.entity.*;
 import gameapi.event.inventory.RoomInventoryPickupItemEvent;
 import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
-import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.RoomVirtualHealthManager;
 import gameapi.room.Room;
@@ -42,6 +38,7 @@ import gameapi.room.RoomStatus;
 import gameapi.room.edit.EditProcess;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
+import gameapi.tools.EntityTools;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.DamageSource;
 import gameapi.utils.PosSet;
@@ -263,26 +260,78 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void ExplodePrimeEvent(ExplosionPrimeEvent event) {
         Entity entity = event.getEntity();
+        Level level = entity.getLevel();
         List<Room> roomList = new ArrayList<>();
         RoomManager.getLoadedRooms().forEach((s, rooms) -> roomList.addAll(rooms));
         for (Room room : roomList) {
             if (room != null) {
-                for (AdvancedLocation location : room.getStartSpawn()) {
-                    if (location.getLevel().getName().equals(entity.level.getName())) {
-                        return;
+                if (room.getPlayLevels().contains(level)) {
+                    if (!room.getRoomRule().isAllowExplosion()) {
+                        entity.kill();
+                        event.setCancelled(true);
+                    }
+                    RoomExplodePrimeEvent roomExplodePrimeEvent = new RoomExplodePrimeEvent(room, entity, event.getForce(), event.isBlockBreaking());
+                    GameListenerRegistry.callEvent(room, roomExplodePrimeEvent);
+                    if (!roomExplodePrimeEvent.isCancelled()) {
+                        event.setForce(roomExplodePrimeEvent.getForce());
+                        event.setBlockBreaking(roomExplodePrimeEvent.isBlockBreaking());
+                    } else {
+                        entity.kill();
+                        event.setCancelled(true);
                     }
                 }
-                if (!room.getRoomRule().isAllowExplosion()) {
-                    entity.kill();
-                    event.setCancelled(true);
-                }
-                RoomEntityExplodeEvent roomEntityExplodeEvent = new RoomEntityExplodeEvent(room, entity, event.getForce());
-                GameListenerRegistry.callEvent(room, roomEntityExplodeEvent);
-                if (!roomEntityExplodeEvent.isCancelled()) {
-                    event.setForce(roomEntityExplodeEvent.getForce());
+            }
+        }
+    }
 
-                } else {
-                    entity.kill();
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void EntityExplosionPrimeEvent(EntityExplosionPrimeEvent event) {
+        Entity entity = event.getEntity();
+        Level level = entity.getLevel();
+        List<Room> roomList = new ArrayList<>();
+        RoomManager.getLoadedRooms().forEach((s, rooms) -> roomList.addAll(rooms));
+        for (Room room : roomList) {
+            if (room != null) {
+                if (room.getPlayLevels().contains(level)) {
+                    if (!room.getRoomRule().isAllowExplosion()) {
+                        entity.kill();
+                        event.setCancelled(true);
+                    }
+                    RoomEntityExplodePrimeEvent roomExplodeEvent = new RoomEntityExplodePrimeEvent(room, entity, event.getForce(), event.isBlockBreaking());
+                    GameListenerRegistry.callEvent(room, roomExplodeEvent);
+                    if (!roomExplodeEvent.isCancelled()) {
+                        event.setForce(roomExplodeEvent.getForce());
+                        event.setBlockBreaking(roomExplodeEvent.isBlockBreaking());
+                    } else {
+                        entity.kill();
+                        event.setCancelled(true);
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void EntityExplodeEvent(EntityExplodeEvent event) {
+        Entity entity = event.getEntity();
+        Level level = entity.getLevel();
+        List<Room> roomList = new ArrayList<>();
+        RoomManager.getLoadedRooms().forEach((s, rooms) -> roomList.addAll(rooms));
+        for (Room room : roomList) {
+            if (room != null) {
+                if (room.getPlayLevels().contains(level)) {
+                    if (!room.getRoomRule().isAllowExplosion()) {
+                        entity.kill();
+                        event.setCancelled(true);
+                    }
+                    RoomEntityExplodeEvent roomExplodeEvent = new RoomEntityExplodeEvent(room, entity, event.getPosition(), event.getBlockList(), event.getYield());
+                    GameListenerRegistry.callEvent(room, roomExplodeEvent);
+                    if (!roomExplodeEvent.isCancelled()) {
+                        event.setBlockList(roomExplodeEvent.getBlockList());
+                        event.setYield(roomExplodeEvent.getYield());
+                    } else {
+                        event.setCancelled(true);
+                    }
                 }
             }
         }
@@ -675,17 +724,38 @@ public class BaseEventListener implements Listener {
                 }
             }
         } else {
-            for (EditProcess editProcess : GameAPI.editProcessList) {
-                Player editor = editProcess.getPlayer();
-                if (editor == player) {
-                    Block block = event.getBlock();
-                    if (block.getId() == BlockID.AIR) {
-                        editProcess.getCurrentStep().onInteractAir(player);
-                    } else {
-                        editProcess.getCurrentStep().onInteract(player, block);
-                    }
+            if (GameAPI.worldEditPlayers.contains(player)) {
+                Item item = player.getInventory().getItemInHand();
+                switch (item.getId()) {
+                    case Item.GOLDEN_AXE:
+                        if (!WorldEditCommand.posSetLinkedHashMap.containsKey(player)) {
+                            WorldEditCommand.posSetLinkedHashMap.put(player, new PosSet());
+                        }
+                        WorldEditCommand.posSetLinkedHashMap.get(player).setPos1(player.getLocation());
+                        player.sendMessage("Successfully set pos1 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
+                        event.setCancelled(true);
+                        return;
+                    case Item.GOLDEN_SHOVEL:
+                        if (!WorldEditCommand.posSetLinkedHashMap.containsKey(player)) {
+                            WorldEditCommand.posSetLinkedHashMap.put(player, new PosSet());
+                        }
+                        WorldEditCommand.posSetLinkedHashMap.get(player).setPos2(player.getLocation());
+                        player.sendMessage("Successfully set pos2 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
+                        event.setCancelled(true);
                 }
-                break;
+            } else {
+                for (EditProcess editProcess : GameAPI.editProcessList) {
+                    Player editor = editProcess.getPlayer();
+                    if (editor == player) {
+                        Block block = event.getBlock();
+                        if (block.getId() == BlockID.AIR) {
+                            editProcess.getCurrentStep().onInteractAir(player);
+                        } else {
+                            editProcess.getCurrentStep().onInteract(player, block);
+                        }
+                    }
+                    break;
+                }
             }
         }
     }
@@ -888,12 +958,12 @@ public class BaseEventListener implements Listener {
     }
 
     @EventHandler
-    public void DataPacketSendEvent(DataPacketSendEvent event) {
-        if (event.getPacket() instanceof ServerToClientHandshakePacket) {
-            GameDebugManager.info(event.getPacket().toString());
-        }
-        if (event.getPacket() instanceof ClientToServerHandshakePacket) {
-            GameDebugManager.info(event.getPacket().toString());
-        }
+    public void PlayerJoinEvent(PlayerJoinEvent event) {
+        event.getPlayer().setCheckMovement(false);
+    }
+
+    @EventHandler
+    public void PlayerInvalidMoveEvent(PlayerInvalidMoveEvent event) {
+        event.setCancelled(true);
     }
 }

@@ -6,7 +6,6 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.annotation.Future;
 import gameapi.event.player.*;
@@ -26,7 +25,7 @@ import gameapi.manager.tools.ScoreboardManager;
 import gameapi.room.executor.BaseRoomExecutor;
 import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
-import gameapi.room.state.GameState;
+import gameapi.room.state.StageState;
 import gameapi.room.team.BaseTeam;
 import gameapi.room.utils.HideType;
 import gameapi.room.utils.QuitRoomReason;
@@ -99,7 +98,7 @@ public class Room {
     private int id = -1;
 
     @Future
-    private List<GameState> gameStates = new ArrayList<>();
+    private List<StageState> stageStates = new ArrayList<>();
     @Future
     private int gameStateCurrentIndex = 0;
 
@@ -890,7 +889,7 @@ public class Room {
         if (includeSpectators) {
             PlayerTools.sendMessage(spectators, string);
         }
-        GameAPI.getInstance().getLogger().info(string);
+        //GameAPI.getInstance().getLogger().info(string);
     }
 
     public void sendActionbarToAll(String string) {
