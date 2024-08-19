@@ -10,14 +10,22 @@ import cn.nukkit.network.protocol.StopSoundPacket;
  * @author Glorydark
  */
 public class SoundTools {
+
+    public static void stopAllSound(Player player) {
+        StopSoundPacket pk = new StopSoundPacket();
+        pk.name = " ";
+        pk.stopAll = true;
+        player.dataPacket(pk);
+    }
+
     /**
      * @param player : 玩家
      * @description: 停止播放材质包音乐
      */
-    public static void stopResourcePackOggSound(Player player) {
+    public static void stopResourcePackOggSound(Player player, String sound) {
         StopSoundPacket pk = new StopSoundPacket();
-        pk.name = " ";
-        pk.stopAll = true;
+        pk.name = sound;
+        pk.stopAll = false;
         player.dataPacket(pk);
     }
 

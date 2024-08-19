@@ -4,9 +4,12 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityXPOrb;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.MobArmorEquipmentPacket;
+import cn.nukkit.network.protocol.MobEquipmentPacket;
 import cn.nukkit.network.protocol.SetEntityMotionPacket;
 import gameapi.utils.Animation;
 import gameapi.utils.protocol.AnimateEntityPacketV2;
@@ -160,5 +163,37 @@ public class EntityTools {
         AnimateEntityPacketV2 pk = AnimateEntityPacketV2.fromAnimation(animation);
         pk.addAnimatedEntityRuntimeIds(entity.getId());
         Server.broadcastPacket(viewers, pk);
+    }
+
+    public static void setEntityHeldItem(Entity entity, Item item) {
+        MobEquipmentPacket pk = getHeldItemPacket(entity, 0, item, true);
+        Server.broadcastPacket(entity.getViewers().values(), pk);
+    }
+
+    public static void setEntityArmorContents(Entity entity, Item helmet, Item chestplate, Item leggings, Item boots) {
+        MobArmorEquipmentPacket pk = getArmorItemPacket(entity, helmet, chestplate, leggings, boots);
+        Server.broadcastPacket(entity.getViewers().values(), pk);
+
+    }
+
+    public static MobEquipmentPacket getHeldItemPacket(Entity entity, int slot, Item item, boolean isHeld){
+        MobEquipmentPacket pk = new MobEquipmentPacket();
+        pk.eid = entity.getId();
+        pk.item = item;
+        pk.inventorySlot = slot;
+        if(isHeld){
+            pk.hotbarSlot = slot;
+        }
+        return pk;
+    }
+
+    public static MobArmorEquipmentPacket getArmorItemPacket(Entity entity, Item helmet, Item chestplate, Item leggings, Item boots){
+        MobArmorEquipmentPacket pk = new MobArmorEquipmentPacket();
+        pk.eid = entity.getId();
+        pk.slots[0] = helmet;
+        pk.slots[1] = chestplate;
+        pk.slots[2] = leggings;
+        pk.slots[3] = boots;
+        return pk;
     }
 }

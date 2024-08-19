@@ -29,7 +29,7 @@ public class RoomTask extends Task {
             for (Map.Entry<String, List<Room>> entry : RoomManager.getLoadedRooms().entrySet()) {
                 List<Room> rooms = new ArrayList<>(entry.getValue());
                 for (Room room : rooms) {
-                    if (!onUpdate(room)) {
+                    if (!this.onUpdate(room)) {
                         RoomManager.getLoadedRooms().get(entry.getKey()).remove(room);
                     }
                 }

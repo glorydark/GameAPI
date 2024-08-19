@@ -2,6 +2,9 @@ package gameapi.tools;
 
 import cn.nukkit.Server;
 import cn.nukkit.level.Location;
+import cn.nukkit.level.Position;
+import cn.nukkit.math.AxisAlignedBB;
+import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
 import gameapi.utils.AdvancedLocation;
@@ -158,5 +161,46 @@ public class SpatialTools {
         double newX = cosTheta * point.x - sinTheta * point.y;
         double newY = sinTheta * point.x + cosTheta * point.y;
         return new Vector3(newX, newY, point.z);
+    }
+
+    public static List<Vector3> getRandomRoundPosition(Position position, int needCount, double xExpand, double yExpand, double zExpand, boolean allowDuplicated) {
+        List<Vector3> allPosList = getAllPositionsAround(position, xExpand, yExpand, zExpand);
+        if (allPosList.size() <= needCount) {
+            return allPosList;
+        }
+        List<Vector3> results = new ArrayList<>();
+        for (int i = 0; i < needCount; i++) {
+            Vector3 result;
+            if (allowDuplicated) {
+                result = getRandomRoundPosition(position, xExpand, yExpand, zExpand);
+            } else {
+                result = getRandomRoundPosition(position, xExpand, yExpand, zExpand, results.toArray(new Vector3[0]));
+            }
+            results.add(result);
+        }
+        return results;
+    }
+
+    public static Vector3 getRandomRoundPosition(Position position, double xExpand, double yExpand, double zExpand, Vector3... excluded) {
+        AxisAlignedBB bb = new SimpleAxisAlignedBB(position, position);
+        bb.expand(xExpand, yExpand, zExpand);
+        double xRand = RandomTools.getRandom(bb.getMinX(), bb.getMaxX());
+        double yRand = RandomTools.getRandom(bb.getMinY(), bb.getMaxY());
+        double zRand = RandomTools.getRandom(bb.getMinZ(), bb.getMaxZ());
+        Vector3 result = new Vector3(xRand, yRand, zRand);
+        for (Vector3 vector3 : excluded) {
+            if (result.equals(vector3)) {
+                return getRandomRoundPosition(position, xExpand, yExpand, zExpand);
+            }
+        }
+        return result;
+    }
+
+    public static List<Vector3> getAllPositionsAround(Position position, double xExpand, double yExpand, double zExpand) {
+        List<Vector3> results = new ArrayList<>();
+        AxisAlignedBB bb = new SimpleAxisAlignedBB(position, position);
+        bb.expand(xExpand, yExpand, zExpand);
+        bb.forEach((i, i1, i2) -> results.add(new Vector3(i, i1, i2)));
+        return results;
     }
 }

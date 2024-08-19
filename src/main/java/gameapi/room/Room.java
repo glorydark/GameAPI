@@ -99,8 +99,6 @@ public class Room {
 
     @Future
     private List<StageState> stageStates = new ArrayList<>();
-    @Future
-    private int gameStateCurrentIndex = 0;
 
     private List<SupplyChest> supplyChests = new ArrayList<>();
     @Setter(AccessLevel.NONE)
