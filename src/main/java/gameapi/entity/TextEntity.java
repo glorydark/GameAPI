@@ -31,10 +31,15 @@ public class TextEntity extends Entity {
 
     public boolean onUpdate(int currentTick) {
         for (Player player : new ArrayList<>(this.getViewers().values())) {
-            if (!player.isOnline() && player.getLevel() != this.getLevel()) {
+            if (!player.isOnline() || player.getLevel() != this.getLevel()) {
                 this.despawnFrom(player);
             }
         }
-        return super.onUpdate(currentTick);
+        return true;
+    }
+
+    @Override
+    public boolean canBeSavedWithChunk() {
+        return false;
     }
 }

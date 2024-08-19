@@ -35,8 +35,4 @@ public class RankingListEntity extends TextEntity {
     public boolean attack(EntityDamageEvent source) {
         return false;
     }
-
-    @Override
-    public void kill() {
-    }
 }

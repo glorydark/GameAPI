@@ -78,7 +78,7 @@ public class BaseCommand extends Command {
                     }
                     break;
                 case "checkrank":
-                    for (Map.Entry<Ranking, Set<TextEntity>> entry : GameEntityManager.entityList.entrySet()) {
+                    for (Map.Entry<Ranking, Set<TextEntity>> entry : GameEntityManager.rankingListMap.entrySet()) {
                         for (TextEntity textEntity : entry.getValue()) {
                             commandSender.sendMessage(textEntity.toString());
                         }
@@ -248,26 +248,42 @@ public class BaseCommand extends Command {
                     }
                     break;
                 case "status":
-                    commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.getting"));
+                    StringBuilder builder = new StringBuilder(GameAPI.getLanguage().getTranslation(commandSender, "command.status.getting") + "\n");
                     if (RoomManager.getRoomCount() > 0) {
                         for (Map.Entry<String, List<Room>> game : RoomManager.getLoadedRooms().entrySet()) {
-                            commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.title", game));
+                            builder.append("\n")
+                                    .append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.title", game))
+                                    .append("\n");
                             List<Room> rooms = game.getValue();
                             if (rooms.size() > 0) {
                                 for (Room room : rooms) {
                                     if (!room.isAllowedToStart()) {
-                                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.need_start_pass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
+                                        builder.append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.need_start_pass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()))
+                                                .append("\n");
                                     } else {
-                                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()));
+                                        builder.append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()))
+                                                .append("\n");
                                     }
+                                    Set<String> playerNameList = new HashSet<>();
+                                    for (Player player : room.getPlayers()) {
+                                        playerNameList.add(player.getName());
+                                    }
+                                    builder.append("Players: ")
+                                            .append(playerNameList.toString().replace("[", "").replace("]", ""))
+                                            .append("\n");
                                 }
                             } else {
-                                commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.no_room_loaded"));
+                                builder.append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.no_room_loaded"))
+                                        .append("\n");
                             }
+
                         }
                     } else {
-                        commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.status.no_game_loaded"));
+                        builder.append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.no_game_loaded"))
+                                .append("\n");
                     }
+                    builder.append("\n");
+                    commandSender.sendMessage(builder.toString());
                     break;
                 case "roomstart":
                     if (commandSender.isOp()) {

@@ -11,8 +11,8 @@ import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.scheduler.Task;
 import gameapi.GameAPI;
 import gameapi.form.element.ResponsiveElementSlotItem;
-import gameapi.form.inventory.FakeInventoryType;
-import gameapi.form.inventory.block.AdvancedFakeBlockInventoryImpl;
+import gameapi.form.inventory.BlockFakeInventoryType;
+import gameapi.form.inventory.block.AdvancedBlockFakeBlockInventoryImpl;
 import gameapi.form.response.BlockInventoryResponse;
 import gameapi.utils.FakeBlockCacheData;
 
@@ -25,10 +25,10 @@ import java.util.function.Consumer;
 /**
  * @author glorydark
  */
-public class AdvancedDoubleChestForm extends AdvancedFakeBlockInventoryImpl {
+public class AdvancedDoubleChestForm extends AdvancedBlockFakeBlockInventoryImpl {
 
     public AdvancedDoubleChestForm(String title) {
-        super(title, FakeInventoryType.DOUBLE_CHEST);
+        super(title, BlockFakeInventoryType.DOUBLE_CHEST);
     }
 
     public AdvancedDoubleChestForm onClick(BiConsumer<Player, BlockInventoryResponse> consumer) {

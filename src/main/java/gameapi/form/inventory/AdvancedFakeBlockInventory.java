@@ -6,18 +6,18 @@ import cn.nukkit.inventory.BaseInventory;
 /**
  * @author glorydark
  */
-public class AdvancedFakeInventory extends BaseInventory {
+public class AdvancedFakeBlockInventory extends BaseInventory {
 
     protected String title;
 
-    protected FakeInventoryType fakeBlockFormType;
+    protected BlockFakeInventoryType fakeBlockFormType;
 
-    public AdvancedFakeInventory(FakeInventoryType fakeBlockFormType) {
+    public AdvancedFakeBlockInventory(BlockFakeInventoryType fakeBlockFormType) {
         this(null, fakeBlockFormType);
         this.fakeBlockFormType = fakeBlockFormType;
     }
 
-    public AdvancedFakeInventory(String title, FakeInventoryType fakeBlockFormType) {
+    public AdvancedFakeBlockInventory(String title, BlockFakeInventoryType fakeBlockFormType) {
         super(null, fakeBlockFormType.getInventoryType());
 
         this.title = title == null ? fakeBlockFormType.getInventoryType().getDefaultTitle() : title;
@@ -33,11 +33,11 @@ public class AdvancedFakeInventory extends BaseInventory {
         this.title = title;
     }
 
-    public FakeInventoryType getFakeBlockFormType() {
+    public BlockFakeInventoryType getFakeBlockFormType() {
         return fakeBlockFormType;
     }
 
-    public void setFakeBlockFormType(FakeInventoryType fakeBlockFormType) {
+    public void setFakeBlockFormType(BlockFakeInventoryType fakeBlockFormType) {
         this.fakeBlockFormType = fakeBlockFormType;
     }
 
@@ -51,5 +51,9 @@ public class AdvancedFakeInventory extends BaseInventory {
 
     public void showToPlayer(Player player) {
 
+    }
+
+    public BaseInventory getResultInventory() {
+        return this;
     }
 }

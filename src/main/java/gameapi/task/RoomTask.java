@@ -11,6 +11,7 @@ import gameapi.manager.RoomManager;
 import gameapi.manager.tools.ScoreboardManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
+import gameapi.room.state.StageState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,12 @@ public class RoomTask extends Task {
                 room.removePlayer(null);
             }
         }
+
+        // This is specifically designed for some special events that lasts for few seconds
+        for (StageState stageState : room.getStageStates()) {
+            stageState.onUpdate();
+        }
+        room.getStageStates().removeIf(StageState::isEnd);
 
         switch (room.getRoomStatus()) {
             case ROOM_STATUS_WAIT:

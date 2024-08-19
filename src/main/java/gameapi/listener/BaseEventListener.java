@@ -38,7 +38,6 @@ import gameapi.room.RoomStatus;
 import gameapi.room.edit.EditProcess;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
-import gameapi.tools.EntityTools;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.DamageSource;
 import gameapi.utils.PosSet;
@@ -547,7 +546,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
         String command = event.getMessage();
-        if (command.startsWith("/glorydark/nukkit/gameapi")) {
+        if (command.startsWith("gameapi") || command.startsWith("hub")) {
             return;
         }
         Player player = event.getPlayer();
@@ -570,7 +569,7 @@ public class BaseEventListener implements Listener {
         Player player = event.getPlayer();
         Level fromLevel = event.getFrom().getLevel();
         Level toLevel = event.getTo().getLevel();
-        if (player == null || fromLevel == null || toLevel == null) {
+        if (fromLevel == null || toLevel == null) {
             return;
         }
         Room room = RoomManager.getRoom(player);
@@ -635,6 +634,7 @@ public class BaseEventListener implements Listener {
                         rawMsg = rawMsg.replaceFirst("@", "");
                         String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format_team", room.getRoomName(), rawMsg);
                         team.sendMessageToAll(msg);
+
                     }
                 } else {
                     String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatData.getDefaultChatMsg());

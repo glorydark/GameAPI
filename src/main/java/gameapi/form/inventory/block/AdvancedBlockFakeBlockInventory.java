@@ -2,7 +2,6 @@ package gameapi.form.inventory.block;
 
 import cn.nukkit.Player;
 import cn.nukkit.blockentity.BlockEntity;
-import cn.nukkit.inventory.BaseInventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.GlobalBlockPalette;
 import cn.nukkit.level.Level;
@@ -13,8 +12,8 @@ import cn.nukkit.network.protocol.ContainerClosePacket;
 import cn.nukkit.network.protocol.ContainerOpenPacket;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import gameapi.form.element.ResponsiveElementSlotItem;
-import gameapi.form.inventory.AdvancedFakeInventory;
-import gameapi.form.inventory.FakeInventoryType;
+import gameapi.form.inventory.AdvancedFakeBlockInventory;
+import gameapi.form.inventory.BlockFakeInventoryType;
 import gameapi.form.response.BlockInventoryResponse;
 import gameapi.utils.FakeBlockCacheData;
 
@@ -24,17 +23,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public abstract class AdvancedFakeBlockInventory extends AdvancedFakeInventory {
+public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockInventory {
 
     protected Map<Integer, BiConsumer<Player, BlockInventoryResponse>> responseMap = new LinkedHashMap<>();
     protected boolean itemMovable;
     private List<FakeBlockCacheData> fakeBlockList = new ArrayList<>();
 
-    public AdvancedFakeBlockInventory(FakeInventoryType fakeBlockFormType) {
+    public AdvancedBlockFakeBlockInventory(BlockFakeInventoryType fakeBlockFormType) {
         this(null, fakeBlockFormType);
     }
 
-    public AdvancedFakeBlockInventory(String title, FakeInventoryType fakeBlockFormType) {
+    public AdvancedBlockFakeBlockInventory(String title, BlockFakeInventoryType fakeBlockFormType) {
         super(title, fakeBlockFormType);
     }
 
@@ -120,10 +119,6 @@ public abstract class AdvancedFakeBlockInventory extends AdvancedFakeInventory {
 
     public void setItemMovable(boolean itemMovable) {
         this.itemMovable = itemMovable;
-    }
-
-    public BaseInventory getResultInventory() {
-        return this;
     }
 
     protected CompoundTag getBlockEntityDataAt(Vector3 position, String title, boolean pair) {

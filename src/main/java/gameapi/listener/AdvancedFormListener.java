@@ -2,22 +2,24 @@ package gameapi.listener;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.passive.EntityVillagerV2;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
-import cn.nukkit.event.entity.EntityDamageByBlockEvent;
-import cn.nukkit.event.entity.EntityDamageByChildEntityEvent;
-import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.inventory.*;
 import cn.nukkit.event.player.PlayerFormRespondedEvent;
 import cn.nukkit.event.player.PlayerInteractEntityEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
+import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryHolder;
+import cn.nukkit.network.protocol.ContainerClosePacket;
+import cn.nukkit.network.protocol.ProtocolInfo;
 import gameapi.form.AdvancedForm;
-import gameapi.form.inventory.block.AdvancedFakeBlockInventory;
-import gameapi.form.inventory.block.AdvancedFakeBlockInventoryImpl;
+import gameapi.form.entity.ResponsiveTradeForm;
+import gameapi.form.inventory.block.AdvancedBlockFakeBlockInventory;
+import gameapi.form.inventory.block.AdvancedBlockFakeBlockInventoryImpl;
 import gameapi.form.response.BlockInventoryResponse;
 
 import java.util.LinkedHashMap;
@@ -25,19 +27,25 @@ import java.util.Map;
 
 public class AdvancedFormListener implements Listener {
 
-    public static final String FORM_ENTITY_TAG = "GameAPIFormEntity";
+    public static final String VILLAGER_ENTITY_TAG = "gameapi_villager_entity";
     protected static Map<Player, LinkedHashMap<Integer, FormWindow>> playerFormWindows = new LinkedHashMap<>();
-    protected static Map<Player, AdvancedFakeBlockInventory> chestFormMap = new LinkedHashMap<>();
+    protected static Map<Player, AdvancedBlockFakeBlockInventory> chestFormMap = new LinkedHashMap<>();
+    protected static Map<Player, ResponsiveTradeForm> villagerFormMap = new LinkedHashMap<>();
 
     public static void showToPlayer(Player player, FormWindow form) {
         AdvancedFormListener.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(form), form);
+    }
+
+    public static void showToPlayer(Player player, ResponsiveTradeForm form) {
+        AdvancedFormListener.villagerFormMap.put(player, form);
     }
 
     public static void removeChestMenuCache(Player player) {
         chestFormMap.remove(player);
     }
 
-    protected void execute(PlayerFormRespondedEvent event) {
+    @EventHandler
+    public void PlayerFormRespondedEvent(PlayerFormRespondedEvent event) {
         Player player = event.getPlayer();
         if (playerFormWindows.containsKey(player)) {
             FormWindow window = playerFormWindows.getOrDefault(player, new LinkedHashMap<>()).get(event.getFormID());
@@ -50,14 +58,9 @@ public class AdvancedFormListener implements Listener {
     }
 
     @EventHandler
-    public void PlayerFormRespondedEvent(PlayerFormRespondedEvent event) {
-        this.execute(event);
-    }
-
-    @EventHandler
     public void InventoryPickupItemEvent(InventoryPickupItemEvent event) {
         Inventory inventory = event.getInventory();
-        if (this.isFormInventory(inventory) || this.isChestInventory(inventory)) {
+        if (this.isChestInventory(inventory)) {
             event.setCancelled(true);
         }
     }
@@ -65,10 +68,8 @@ public class AdvancedFormListener implements Listener {
     @EventHandler
     public void InventoryMoveItemEvent(InventoryMoveItemEvent event) {
         Inventory inventory = event.getInventory();
-        if (this.isFormInventory(inventory)) {
-            event.setCancelled(true);
-        } else if (this.isChestInventory(inventory)) {
-            AdvancedFakeBlockInventoryImpl form = (AdvancedFakeBlockInventoryImpl) inventory;
+        if (this.isChestInventory(inventory)) {
+            AdvancedBlockFakeBlockInventoryImpl form = (AdvancedBlockFakeBlockInventoryImpl) inventory;
             if (!form.isItemMovable()) {
                 event.setCancelled(true);
             }
@@ -78,10 +79,8 @@ public class AdvancedFormListener implements Listener {
     @EventHandler
     public void InventoryTransactionEvent(InventoryTransactionEvent event) {
         for (Inventory inventory : event.getTransaction().getInventories()) {
-            if (this.isFormInventory(inventory)) {
-                event.setCancelled(true);
-            } else if (this.isChestInventory(inventory)) {
-                AdvancedFakeBlockInventoryImpl form = (AdvancedFakeBlockInventoryImpl) inventory;
+            if (this.isChestInventory(inventory)) {
+                AdvancedBlockFakeBlockInventoryImpl form = (AdvancedBlockFakeBlockInventoryImpl) inventory;
                 if (!form.isItemMovable()) {
                     event.setCancelled(true);
                 }
@@ -93,14 +92,8 @@ public class AdvancedFormListener implements Listener {
     public void InventoryClickEvent(InventoryClickEvent event) {
         Player player = event.getPlayer();
         Inventory inventory = event.getInventory();
-        if (isFormInventory(inventory)) {
-            if (chestFormMap.containsKey(player)) {
-                AdvancedFakeBlockInventory form = chestFormMap.get(player);
-                form.dealResponse(player, new BlockInventoryResponse(form, event.getSlot(), event.getSourceItem()));
-            }
-            event.setCancelled(true);
-        } else if (isChestInventory(inventory)) {
-            AdvancedFakeBlockInventoryImpl form = (AdvancedFakeBlockInventoryImpl) inventory;
+        if (this.isChestInventory(inventory)) {
+            AdvancedBlockFakeBlockInventoryImpl form = (AdvancedBlockFakeBlockInventoryImpl) inventory;
             form.dealResponse(player, new BlockInventoryResponse(form, event.getSlot(), event.getSourceItem()));
             if (!form.isItemMovable()) {
                 event.setCancelled(true);
@@ -117,65 +110,55 @@ public class AdvancedFormListener implements Listener {
     public void InventoryCloseEvent(InventoryCloseEvent event) {
         Player player = event.getPlayer();
         Inventory inventory = event.getInventory();
-        if (isFormInventory(inventory)) {
-            if (chestFormMap.containsKey(player)) {
-                chestFormMap.get(player).dealResponse(player, null);
-                chestFormMap.get(player).close(player);
-            }
-        } else if (isChestInventory(inventory)) {
-            AdvancedFakeBlockInventoryImpl inv = (AdvancedFakeBlockInventoryImpl) inventory;
+        if (this.isChestInventory(inventory)) {
+            AdvancedBlockFakeBlockInventoryImpl inv = (AdvancedBlockFakeBlockInventoryImpl) inventory;
             inv.dealResponse(player, null);
         }
     }
 
     @EventHandler
     public void EntityDamageEvent(EntityDamageEvent event) {
-        if (this.isFormEntity(event.getEntity())) {
+        if (this.isVillagerEntity(event.getEntity())) {
             event.getEntity().close();
-        }
-    }
-
-    @EventHandler
-    public void EntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
-        if (this.isFormEntity(event.getEntity())) {
-            event.getEntity().close();
-        }
-    }
-
-    @EventHandler
-    public void EntityDamageByBlockEvent(EntityDamageByBlockEvent event) {
-        if (this.isFormEntity(event.getEntity())) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void EntityDamageByChildEntityEvent(EntityDamageByChildEntityEvent event) {
-        if (this.isFormEntity(event.getEntity())) {
-            event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void PlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
-        if (this.isFormEntity(event.getEntity())) {
+        if (this.isVillagerEntity(event.getEntity())) {
             event.setCancelled(true);
         }
     }
 
-    public boolean isFormInventory(Inventory inventory) {
-        InventoryHolder holder = inventory.getHolder();
-        if (holder instanceof Entity) {
-            return isFormEntity((Entity) holder);
-        }
-        return false;
-    }
-
     public boolean isChestInventory(Inventory inventory) {
-        return inventory instanceof AdvancedFakeBlockInventoryImpl;
+        return inventory instanceof AdvancedBlockFakeBlockInventoryImpl;
     }
 
-    public boolean isFormEntity(Entity entity) {
-        return entity.namedTag.contains(AdvancedFormListener.FORM_ENTITY_TAG);
+    public boolean isVillagerEntity(InventoryHolder holder) {
+        if (holder instanceof EntityVillagerV2) {
+            return this.isVillagerEntity(holder);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isVillagerEntity(Entity entity) {
+        return entity.namedTag.contains(AdvancedFormListener.VILLAGER_ENTITY_TAG);
+    }
+
+    @EventHandler
+    public void DataPacketReceiveEvent(DataPacketReceiveEvent event) {
+        Player player = event.getPlayer();
+        if (event.getPacket().packetId() == ProtocolInfo.CONTAINER_CLOSE_PACKET) {
+            ContainerClosePacket pk = (ContainerClosePacket) event.getPacket();
+            if (pk.windowId == -1) {
+                if (villagerFormMap.containsKey(player)) {
+                    ResponsiveTradeForm form = villagerFormMap.get(player);
+                    if (form != null) {
+                        form.onClose(player);
+                    }
+                }
+            }
+        }
     }
 }

@@ -13,7 +13,6 @@ import gameapi.extensions.checkpoint.CheckpointData;
 import gameapi.extensions.obstacle.DynamicObstacle;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.GameDebugManager;
-import gameapi.room.state.StageState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,8 +31,6 @@ public class RoomUpdateTask implements Runnable {
     private final List<Consumer<Room>> customTickListenerList = new ArrayList<>();
 
     private final HashMap<Player, Location> playerLocationHashMap = new HashMap<>();
-
-    private final List<StageState> stageStates = new ArrayList<>();
 
     public RoomUpdateTask(Room room) {
         this.room = room;
@@ -76,12 +73,6 @@ public class RoomUpdateTask implements Runnable {
             for (Consumer<Room> roomConsumer : this.customTickListenerList) {
                 roomConsumer.accept(this.room);
             }
-
-            // This is specifically designed for some special events that lasts for few seconds
-            for (StageState stageState : this.stageStates) {
-                stageState.onUpdate();
-            }
-            this.stageStates.removeIf(StageState::isEnd);
 
             this.onTickDynamicObstacles();
         } catch (Exception e) {

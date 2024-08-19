@@ -3,8 +3,8 @@ package gameapi.form;
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import gameapi.form.element.ResponsiveElementSlotItem;
-import gameapi.form.inventory.FakeInventoryType;
-import gameapi.form.inventory.block.AdvancedFakeBlockInventoryImpl;
+import gameapi.form.inventory.BlockFakeInventoryType;
+import gameapi.form.inventory.block.AdvancedBlockFakeBlockInventoryImpl;
 import gameapi.form.response.BlockInventoryResponse;
 
 import java.util.function.BiConsumer;
@@ -13,10 +13,10 @@ import java.util.function.Consumer;
 /**
  * @author glorydark
  */
-public class AdvancedChestForm extends AdvancedFakeBlockInventoryImpl {
+public class AdvancedChestForm extends AdvancedBlockFakeBlockInventoryImpl {
 
     public AdvancedChestForm(String title) {
-        super(title, FakeInventoryType.CHEST);
+        super(title, BlockFakeInventoryType.CHEST);
     }
 
     public AdvancedChestForm onClick(BiConsumer<Player, BlockInventoryResponse> consumer) {

@@ -23,6 +23,7 @@ public class HubCommand extends Command {
             Room room = RoomManager.getRoom(player);
             if (room != null) {
                 room.removePlayer(player);
+                room.removeSpectator(player);
             }
         }
         return false;

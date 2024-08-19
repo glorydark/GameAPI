@@ -393,7 +393,6 @@ public class Room {
                 RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
                 GameListenerRegistry.callEvent(this, ev);
                 if (!ev.isCancelled()) {
-                    this.addPlayerToRoom(player);
                     this.roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
                     this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
                     this.players.add(player);
@@ -407,15 +406,12 @@ public class Room {
                     }
                     this.hidePlayer(player, this.getRoomRule().getHideType());
                     this.updateHideStatus(player, false);
+                    RoomManager.getPlayerRoomHashMap().put(player, this);
+                    this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
                     GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
                 }
             }
         }
-    }
-
-    public void addPlayerToRoom(Player player) {
-        RoomManager.getPlayerRoomHashMap().put(player, this);
-        this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
     }
 
     public void removePlayer(Player player) {
@@ -423,6 +419,9 @@ public class Room {
     }
 
     public void removePlayer(Player player, QuitRoomReason reason) {
+        if (!this.getPlayers().contains(player)) {
+            return;
+        }
         RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
@@ -610,6 +609,9 @@ public class Room {
     }
 
     public void removeSpectator(Player player) {
+        if (!this.getSpectators().contains(player)) {
+            return;
+        }
         RoomSpectatorLeaveEvent roomSpectatorLeaveEvent = new RoomSpectatorLeaveEvent(this, player, Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation());
         GameListenerRegistry.callEvent(this, roomSpectatorLeaveEvent);
         if (roomSpectatorLeaveEvent.isCancelled()) {
@@ -627,8 +629,8 @@ public class Room {
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
         ScoreboardManager.removeScoreboard(player);
         player.sendMessage(GameAPI.getLanguage().getTranslation("room.spectator.quit"));
+        this.spectators.remove(player);
         RoomManager.getPlayerRoomHashMap().remove(player);
-        spectators.remove(player);
     }
 
     public void processJoinSpectator(Player player) {
@@ -676,10 +678,10 @@ public class Room {
                 }
                 break;
         }
-        this.spectators.add(player);
         for (Player p : this.getPlayers()) {
             GameAPI.getLanguage().getTranslation(p, "room.game.broadcast.join_spectator", player.getName());
         }
+        this.spectators.add(player);
         RoomManager.getPlayerRoomHashMap().put(player, this);
         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
     }
@@ -885,9 +887,9 @@ public class Room {
     }
 
     public void sendMessageToAll(String string, boolean includeSpectators) {
-        PlayerTools.sendMessage(players, string);
+        PlayerTools.sendMessage(this.players, string);
         if (includeSpectators) {
-            PlayerTools.sendMessage(spectators, string);
+            PlayerTools.sendMessage(this.spectators, string);
         }
         //GameAPI.getInstance().getLogger().info(string);
     }
@@ -897,9 +899,9 @@ public class Room {
     }
 
     public void sendActionbarToAll(String string, boolean includeSpectators) {
-        PlayerTools.sendActionbar(players, string);
+        PlayerTools.sendActionbar(this.players, string);
         if (includeSpectators) {
-            PlayerTools.sendActionbar(spectators, string);
+            PlayerTools.sendActionbar(this.spectators, string);
         }
     }
 
@@ -912,9 +914,9 @@ public class Room {
     }
 
     public void sendTitleToAll(String string, String subtitle, boolean includeSpectators) {
-        PlayerTools.sendTitle(players, string, subtitle);
+        PlayerTools.sendTitle(this.players, string, subtitle);
         if (includeSpectators) {
-            PlayerTools.sendTitle(spectators, string, subtitle);
+            PlayerTools.sendTitle(this.spectators, string, subtitle);
         }
     }
 
@@ -923,9 +925,9 @@ public class Room {
     }
 
     public void sendTipToAll(String string, boolean includeSpectators) {
-        PlayerTools.sendTip(players, string);
+        PlayerTools.sendTip(this.players, string);
         if (includeSpectators) {
-            PlayerTools.sendTip(spectators, string);
+            PlayerTools.sendTip(this.spectators, string);
         }
     }
 
@@ -934,9 +936,9 @@ public class Room {
     }
 
     public void sendMessageToAll(Language language, String string, boolean includeSpectators, Object... params) {
-        PlayerTools.sendMessage(players, language, string, params);
+        PlayerTools.sendMessage(this.players, language, string, params);
         if (includeSpectators) {
-            PlayerTools.sendMessage(spectators, language, string, params);
+            PlayerTools.sendMessage(this.spectators, language, string, params);
         }
     }
 
@@ -945,9 +947,9 @@ public class Room {
     }
 
     public void sendActionbarToAll(Language language, String string, boolean includeSpectators, Object... params) {
-        PlayerTools.sendActionbar(players, language, string, params);
+        PlayerTools.sendActionbar(this.players, language, string, params);
         if (includeSpectators) {
-            PlayerTools.sendActionbar(spectators, language, string, params);
+            PlayerTools.sendActionbar(this.spectators, language, string, params);
         }
     }
 
@@ -956,9 +958,9 @@ public class Room {
     }
 
     public void sendTitleToAll(Language language, String string, boolean includeSpectators, Object... params) {
-        PlayerTools.sendTitle(players, language, string, params);
+        PlayerTools.sendTitle(this.players, language, string, params);
         if (includeSpectators) {
-            PlayerTools.sendTitle(spectators, language, string, params);
+            PlayerTools.sendTitle(this.spectators, language, string, params);
         }
     }
 
@@ -967,9 +969,9 @@ public class Room {
     }
 
     public void sendTipToAll(Language language, String string, boolean includeSpectators, Object... params) {
-        PlayerTools.sendTip(players, language, string, params);
+        PlayerTools.sendTip(this.players, language, string, params);
         if (includeSpectators) {
-            PlayerTools.sendTip(spectators, language, string, params);
+            PlayerTools.sendTip(this.spectators, language, string, params);
         }
     }
 }

@@ -58,11 +58,14 @@ public class RoomManager {
     }
 
     public static Optional<Room> getRoom(Level level) {
-        if (RoomManager.playerRoomHashMap.size() > 0) {
-            return RoomManager.playerRoomHashMap.values().stream().filter(room -> room != null && room.getPlayLevels().stream().anyMatch(l -> l == level)).findFirst();
-        } else {
-            return Optional.empty();
+        for (List<Room> roomList : RoomManager.loadedRooms.values()) {
+            for (Room room : roomList) {
+                if (room.getPlayLevels().contains(level)) {
+                    return Optional.of(room);
+                }
+            }
         }
+        return Optional.empty();
     }
 
     public static Room getRoom(String gameName, Player player) {

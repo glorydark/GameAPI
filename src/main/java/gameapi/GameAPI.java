@@ -212,7 +212,7 @@ public class GameAPI extends PluginBase implements Listener {
                 PlayerGameDataManager.setRankingFormat(rankingFormat);
             }
         }
-        loadAllRankingListEntities();
+        this.loadAllRankingListEntities();
     }
 
     public void loadAllPlayerGameData() {
@@ -239,6 +239,7 @@ public class GameAPI extends PluginBase implements Listener {
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof RankingListEntity) {
+                    GameEntityManager.rankingListMap.clear();
                     entity.close();
                 }
             }

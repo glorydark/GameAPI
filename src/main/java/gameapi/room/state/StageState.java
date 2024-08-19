@@ -1,6 +1,5 @@
 package gameapi.room.state;
 
-import gameapi.annotation.Future;
 import gameapi.room.Room;
 import lombok.Data;
 
@@ -10,21 +9,14 @@ import lombok.Data;
 @Data
 public class StageState {
 
-    public int timer;
-    public int maxTime;
-    public Room room = null;
-    private String name;
-    private String description = "";
+    // StageState will be executed per second. Here 1 tick equals to 1 seconds
+    public int currentTick;
+    public int maxTick;
+    public Room room;
 
-    public StageState(String name, int maxTime) {
-        this.name = name;
-        this.maxTime = maxTime;
-    }
-
-    public StageState(String name, String description, int maxTime) {
-        this.name = name;
-        this.description = description;
-        this.maxTime = maxTime;
+    public StageState(Room room, int maxTick) {
+        this.maxTick = maxTick;
+        this.room = room;
     }
 
     public void onStart() {
@@ -40,7 +32,7 @@ public class StageState {
     }
 
     public void onUpdate() {
-        this.timer++;
+        this.currentTick++;
         if (this.isEnd()) {
             this.onEnd();
         } else {
@@ -49,6 +41,6 @@ public class StageState {
     }
 
     public boolean isEnd() {
-        return this.timer > this.maxTime;
+        return this.currentTick > this.maxTick;
     }
 }

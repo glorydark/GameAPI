@@ -1,7 +1,7 @@
 package gameapi.form.response;
 
 import cn.nukkit.item.Item;
-import gameapi.form.inventory.block.AdvancedFakeBlockInventory;
+import gameapi.form.inventory.block.AdvancedBlockFakeBlockInventory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -12,7 +12,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class BlockInventoryResponse {
 
-    private AdvancedFakeBlockInventory inventory;
+    private AdvancedBlockFakeBlockInventory inventory;
 
     private int slot;
 

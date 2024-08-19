@@ -6,7 +6,7 @@ import cn.nukkit.level.Position;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.network.protocol.BlockEntityDataPacket;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
-import gameapi.form.inventory.FakeInventoryType;
+import gameapi.form.inventory.BlockFakeInventoryType;
 import gameapi.form.response.BlockInventoryResponse;
 import gameapi.utils.FakeBlockCacheData;
 
@@ -21,16 +21,16 @@ import java.util.function.Consumer;
  * Reference:
  * https://github.com/CloudburstMC/FakeInventories/blob/master/src/main/java/com/nukkitx/fakeinventories/inventory/FakeInventory.java
  */
-public abstract class AdvancedFakeBlockInventoryImpl extends AdvancedFakeBlockInventory {
+public abstract class AdvancedBlockFakeBlockInventoryImpl extends AdvancedBlockFakeBlockInventory {
     protected BiConsumer<Player, BlockInventoryResponse> clickBiConsumer = null;
 
     protected Consumer<Player> closeConsumer = null;
 
-    public AdvancedFakeBlockInventoryImpl(FakeInventoryType fakeBlockFormType) {
+    public AdvancedBlockFakeBlockInventoryImpl(BlockFakeInventoryType fakeBlockFormType) {
         super(null, fakeBlockFormType);
     }
 
-    public AdvancedFakeBlockInventoryImpl(String title, FakeInventoryType fakeBlockFormType) {
+    public AdvancedBlockFakeBlockInventoryImpl(String title, BlockFakeInventoryType fakeBlockFormType) {
         super(title, fakeBlockFormType);
     }
 

@@ -7,7 +7,7 @@ import cn.nukkit.inventory.InventoryType;
 /**
  * @author glorydark
  */
-public enum FakeInventoryType {
+public enum BlockFakeInventoryType {
 
     /**
      * These are interactive ui based on client-side fake block
@@ -33,7 +33,7 @@ public enum FakeInventoryType {
 
     final InventoryType inventoryType;
 
-    FakeInventoryType(String blockEntityIdentifier, int blockId, InventoryType inventoryType) {
+    BlockFakeInventoryType(String blockEntityIdentifier, int blockId, InventoryType inventoryType) {
         this.blockEntityIdentifier = blockEntityIdentifier;
         this.blockId = blockId;
         this.inventoryType = inventoryType;
