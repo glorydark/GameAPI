@@ -53,9 +53,9 @@ public class EntityTools {
         motion.x /= 2.0d;
         motion.y /= 2.0d;
         motion.z /= 2.0d;
-        motion.x += (xDiff < 0? -1: 1) * base * XzKB;
+        motion.x += (xDiff < 0 ? -1 : 1) * base * XzKB;
         motion.y += base * yKB;
-        motion.z += (zDiff < 0? -1: 1) * base * XzKB;
+        motion.z += (zDiff < 0 ? -1 : 1) * base * XzKB;
 
         victim.motionX = motion.x;
         victim.motionY = motion.y;
@@ -70,9 +70,9 @@ public class EntityTools {
                 victim.addMotion(victimPlayer.motionX, victimPlayer.motionY, victimPlayer.motionZ);
                 SetEntityMotionPacket pk = new SetEntityMotionPacket();
                 pk.eid = victimPlayer.getId();
-                pk.motionX = (float)motion.x;
-                pk.motionY = (float)motion.y;
-                pk.motionZ = (float)motion.z;
+                pk.motionX = (float) motion.x;
+                pk.motionY = (float) motion.y;
+                pk.motionZ = (float) motion.z;
                 victimPlayer.dataPacket(pk);
             }
 
@@ -113,9 +113,9 @@ public class EntityTools {
                 entity.addMotion(victimPlayer.motionX, victimPlayer.motionY, victimPlayer.motionZ);
                 SetEntityMotionPacket pk = new SetEntityMotionPacket();
                 pk.eid = victimPlayer.getId();
-                pk.motionX = (float)motion.x;
-                pk.motionY = (float)motion.y;
-                pk.motionZ = (float)motion.z;
+                pk.motionX = (float) motion.x;
+                pk.motionY = (float) motion.y;
+                pk.motionZ = (float) motion.z;
                 victimPlayer.dataPacket(pk);
             }
 
@@ -129,6 +129,7 @@ public class EntityTools {
         knockBackV2(attacker, victim, base, XzKB, yKB, false);
 
     }
+
     public static void knockBackV2(Entity attacker, Entity victim, double base, double XzKB, double yKB, boolean directionReverse) {
         double x = victim.getX() - attacker.getX();
         double z = victim.getZ() - attacker.getZ();
@@ -176,18 +177,18 @@ public class EntityTools {
 
     }
 
-    public static MobEquipmentPacket getHeldItemPacket(Entity entity, int slot, Item item, boolean isHeld){
+    public static MobEquipmentPacket getHeldItemPacket(Entity entity, int slot, Item item, boolean isHeld) {
         MobEquipmentPacket pk = new MobEquipmentPacket();
         pk.eid = entity.getId();
         pk.item = item;
         pk.inventorySlot = slot;
-        if(isHeld){
+        if (isHeld) {
             pk.hotbarSlot = slot;
         }
         return pk;
     }
 
-    public static MobArmorEquipmentPacket getArmorItemPacket(Entity entity, Item helmet, Item chestplate, Item leggings, Item boots){
+    public static MobArmorEquipmentPacket getArmorItemPacket(Entity entity, Item helmet, Item chestplate, Item leggings, Item boots) {
         MobArmorEquipmentPacket pk = new MobArmorEquipmentPacket();
         pk.eid = entity.getId();
         pk.slots[0] = helmet;

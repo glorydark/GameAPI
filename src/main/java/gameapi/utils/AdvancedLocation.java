@@ -84,8 +84,8 @@ public class AdvancedLocation {
             case POS_AND_ROT:
                 out = new Location(this.location.getX(), this.location.getY(), this.location.getZ(), this.yaw, this.pitch, this.headYaw);
                 break;
-            default:
             case POS:
+            default:
                 out = new Location(this.location.getX(), this.location.getY(), this.location.getZ(), player.getYaw(), player.getPitch(), player.getHeadYaw());
                 break;
         }
@@ -94,7 +94,7 @@ public class AdvancedLocation {
     }
 
     public boolean isValid() {
-        return location != null && location.isValid() && this.location.getLevel() != null;
+        return this.location != null && this.location.isValid() && this.location.getLevel() != null;
     }
 
     public enum LocationType {

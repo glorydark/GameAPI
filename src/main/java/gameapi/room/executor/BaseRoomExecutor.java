@@ -9,6 +9,7 @@ import gameapi.tools.FireworkTools;
 import gameapi.tools.SoundTools;
 import gameapi.tools.TipsTools;
 import gameapi.utils.AdvancedLocation;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Random;
  * This class is meant to design the basic operations,
  * including teleporting players to spawns, sending tips.
  */
+@Getter
 public class BaseRoomExecutor extends RoomExecutor {
 
     protected Room room;
@@ -138,10 +140,6 @@ public class BaseRoomExecutor extends RoomExecutor {
     }
 
     @Override
-    public void beginReadyStart() {
-    }
-
-    @Override
     public void beginGameStart() {
         if (GameAPI.getInstance().isTipsEnabled()) {
             for (Level playLevel : this.room.getPlayLevels()) {
@@ -169,7 +167,7 @@ public class BaseRoomExecutor extends RoomExecutor {
             return;
         }
         List<AdvancedLocation> startSpawns = this.room.getStartSpawn();
-        if (this.room.getTeams().size() > 0) {
+        if (!this.room.getTeams().isEmpty()) {
             if (this.room.getRoomRule().isAutoAllocatePlayerToTeam()) {
                 this.room.allocatePlayerToTeams();
             }
@@ -188,12 +186,12 @@ public class BaseRoomExecutor extends RoomExecutor {
             if (room.getPlayLevels().contains(player.getLevel())) {
                 continue;
             }
-            if (this.room.getSpectatorSpawn().size() != 0) {
+            if (!this.room.getSpectatorSpawn().isEmpty()) {
                 Random random = new Random(this.room.getSpectatorSpawn().size());
                 AdvancedLocation location = this.room.getSpectatorSpawn().get(random.nextInt(this.room.getSpectatorSpawn().size()));
                 location.teleport(player);
             } else {
-                if (this.room.getStartSpawn().size() != 0) {
+                if (!this.room.getStartSpawn().isEmpty()) {
                     Random random = new Random(this.room.getStartSpawn().size());
                     AdvancedLocation location = this.room.getStartSpawn().get(random.nextInt(this.room.getStartSpawn().size()));
                     location.teleport(player);
@@ -202,13 +200,5 @@ public class BaseRoomExecutor extends RoomExecutor {
                 }
             }
         }
-    }
-
-    @Override
-    public void beginGameEnd() {
-    }
-
-    public Room getRoom() {
-        return this.room;
     }
 }

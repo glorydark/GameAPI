@@ -124,7 +124,7 @@ public class RoomManager {
         for (Map.Entry<String, List<Room>> entry : loadedRooms.entrySet()) {
             for (Room room : entry.getValue()) {
                 room.getRoomTaskExecutor().shutdownNow();
-                
+
                 String prefix = room.getGameName() + "_";
                 if (!room.getTempWorldPrefixOverride().isEmpty()) {
                     prefix = room.getTempWorldPrefixOverride();

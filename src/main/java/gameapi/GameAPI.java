@@ -46,8 +46,8 @@ import java.util.concurrent.*;
 public class GameAPI extends PluginBase implements Listener {
 
     public static final int GAME_TASK_INTERVAL = 1;
-    protected static final int THREAD_POOL_SIZE = 8;
     public static final long MAX_TEMP_ROOM_WAIT_MILLIS = 1800000L;
+    protected static final int THREAD_POOL_SIZE = 8;
     protected static final Language language = new Language("GameAPI");
     public static List<Player> worldEditPlayers = new ArrayList<>();
     public static List<EditProcess> editProcessList = new ArrayList<>();

@@ -7,7 +7,6 @@ import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import gameapi.GameAPI;
-import gameapi.annotation.Future;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.extensions.obstacle.DynamicObstacle;
@@ -44,7 +43,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @author Glorydark
@@ -52,6 +50,7 @@ import java.util.stream.Collectors;
 @Data
 public class Room {
 
+    private final long createMillis;
     @Setter(AccessLevel.NONE)
     protected ConcurrentHashMap<String, BaseTeam> teamCache = new ConcurrentHashMap<>();
     @Setter(AccessLevel.NONE)
@@ -85,7 +84,7 @@ public class Room {
     private List<Level> playLevels = new ArrayList<>();
     private AdvancedLocation waitSpawn = new AdvancedLocation();
     private List<AdvancedLocation> startSpawn = new ArrayList<>();
-    private AdvancedLocation endSpawn;
+    private AdvancedLocation endSpawn = new AdvancedLocation();
     private List<AdvancedLocation> spectatorSpawn = new ArrayList<>();
     private String roomLevelBackup;
     private String gameName;
@@ -96,26 +95,24 @@ public class Room {
     private long startMillis;
     private String tempWorldPrefixOverride = "";
     private int id = -1;
-
-    @Future
     private List<StageState> stageStates = new ArrayList<>();
-
     private List<SupplyChest> supplyChests = new ArrayList<>();
     @Setter(AccessLevel.NONE)
     private RoomUpdateTask roomUpdateTask;
     @Setter(AccessLevel.NONE)
     private LinkedHashMap<String, RoomItemBase> roomItems = new LinkedHashMap<>();
-
+    @Setter(AccessLevel.NONE)
     private CheckpointManager checkpointManager = new CheckpointManager();
-
     @Setter(AccessLevel.NONE)
     private List<DynamicObstacle> dynamicObstacles = new ArrayList<>();
     @Setter(AccessLevel.NONE)
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
+    @Setter(AccessLevel.NONE)
     private ScheduledExecutorService roomTaskExecutor = Executors.newScheduledThreadPool(4);
+    @Setter(AccessLevel.NONE)
     private AdvancedBlockManager advancedBlockManager = new AdvancedBlockManager();
+    @Setter(AccessLevel.NONE)
     private GhostyManager ghostyManager = new GhostyManager();
-    private final long createMillis;
     private boolean autoDestroyOverTime = true; // 超过maxWaitMillis自动释放房间
     private List<String> roomAdmins = new ArrayList<>();
     private String creator = "";
@@ -206,56 +203,26 @@ public class Room {
     }
 
     public void allocatePlayerToTeams() {
-        allocatePlayerToTeams(true);
-    }
-
-    public void allocatePlayerToTeams(boolean defaultMethod) {
-        if (this.teamCache.keySet().size() == 0) {
+        if (this.teamCache.keySet().isEmpty()) {
             return;
         }
-        if (defaultMethod) {
-            for (Player player : new ArrayList<>(this.players)) {
-                if (this.getTeam(player) != null) {
-                    continue;
-                }
-                Map<String, BaseTeam> map = new ConcurrentHashMap<>(this.teamCache);
-                List<Map.Entry<String, BaseTeam>> list = map.entrySet()
-                        .stream()
-                        .sorted(Comparator.comparing(t -> t.getValue().getSize()))
-                        .collect(Collectors.toList());
-                boolean hasResult = false;
-                for (Map.Entry<String, BaseTeam> entry : list) {
-                    BaseTeam team = entry.getValue();
-                    if (team.addPlayer(player)) {
-                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
-                        hasResult = true;
-                        break;
-                    }
-                }
-                if (!hasResult) {
-                    this.removePlayer(player);
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.team.no_available"));
+        for (Player player : new ArrayList<>(this.players)) {
+            if (this.getTeam(player) != null) {
+                continue;
+            }
+            List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
+            Collections.shuffle(baseTeams);
+            boolean hasResult = false;
+            for (BaseTeam baseTeam : baseTeams) {
+                if (baseTeam.addPlayer(player, false)) {
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", baseTeam.getPrefix() + baseTeam.getRegistryName()));
+                    hasResult = true;
+                    break;
                 }
             }
-        } else {
-            for (Player player : new ArrayList<>(this.players)) {
-                if (this.getTeam(player) != null) {
-                    continue;
-                }
-                List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
-                Collections.shuffle(baseTeams);
-                boolean hasResult = false;
-                for (BaseTeam baseTeam : baseTeams) {
-                    if (baseTeam.addPlayer(player, false)) {
-                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", baseTeam.getPrefix() + baseTeam.getRegistryName()));
-                        hasResult = true;
-                        break;
-                    }
-                }
-                if (!hasResult) {
-                    this.removePlayer(player);
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.team.no_available"));
-                }
+            if (!hasResult) {
+                this.removePlayer(player);
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.team.no_available"));
             }
         }
     }
@@ -300,7 +267,7 @@ public class Room {
 
     public List<BaseTeam> getAvailableTeams() {
         List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
-        baseTeams.removeIf(baseTeam -> baseTeam.getPlayers().size() == 0);
+        baseTeams.removeIf(baseTeam -> baseTeam.getPlayers().isEmpty());
         return baseTeams;
     }
 
@@ -354,7 +321,7 @@ public class Room {
             return;
         }
         List<String> whitelists = this.getRoomRule().getAllowJoinPlayers();
-        if (whitelists.size() > 0) {
+        if (!whitelists.isEmpty()) {
             if (!whitelists.contains(player.getName())) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation("room.game.no_access"));
                 return;
@@ -655,12 +622,12 @@ public class Room {
                 for (Level playLevel : this.getPlayLevels()) {
                     TipsTools.closeTipsShow(playLevel.getName(), player);
                 }
-                if (this.getSpectatorSpawn().size() != 0) {
+                if (!this.getSpectatorSpawn().isEmpty()) {
                     Random random = new Random(this.getSpectatorSpawn().size());
                     AdvancedLocation location = this.getSpectatorSpawn().get(random.nextInt(this.getSpectatorSpawn().size()));
                     location.teleport(player);
                 } else {
-                    if (this.getStartSpawn().size() != 0) {
+                    if (!this.getStartSpawn().isEmpty()) {
                         Random random = new Random(this.getStartSpawn().size());
                         AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
                         location.teleport(player);
@@ -711,7 +678,7 @@ public class Room {
     }
 
     public void addRespawnTask(Player player, int tick) {
-        if (this.spectatorSpawn.size() != 0) {
+        if (!this.spectatorSpawn.isEmpty()) {
             Random random = new Random();
             this.spectatorSpawn.get(random.nextInt(spectatorSpawn.size())).teleport(player);
             this.teleportToSpawn(player);
@@ -804,10 +771,6 @@ public class Room {
                 ", \"winConsoleCommands\":" + winConsoleCommands +
                 ", \"loseConsoleCommands\":" + loseConsoleCommands +
                 '}';
-    }
-
-    public LinkedHashMap<String, Object> getInheritProperties() {
-        return inheritProperties;
     }
 
     public void addPlayLevel(Level loadLevel) {

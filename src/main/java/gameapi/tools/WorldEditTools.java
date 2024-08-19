@@ -92,7 +92,7 @@ public class WorldEditTools {
     public static void createBall(Player player, Vector3 centerPos, Block block, double radius, boolean fillInside) {
         createBall(player, centerPos, player.getLevel(), block, radius, fillInside);
     }
-    
+
     public static void createBall(CommandSender sender, Vector3 centerPos, Level level, Block block, double radius, boolean fillInside) {
         AxisAlignedBB bb = new SimpleAxisAlignedBB(centerPos, centerPos);
         bb = bb.expand(radius, radius, radius);

@@ -14,14 +14,14 @@ import java.util.stream.Collectors;
  */
 public class BlockReplaceTask extends RecursiveTask<Long> {
 
+    private static final int THRESHOLD = 1000; // This is the threshold of executing task counts
     private final Block sourceBlock;
     private final Block targetBlock;
     private final Level level;
     private final Set<Vector3> posList;
-    private static final int THRESHOLD = 1000; // This is the threshold of executing task counts
+    private final boolean checkDamage;
     private long proceedBlockCount = 0L;
     private long endMillis = 0L;
-    private final boolean checkDamage;
 
     public BlockReplaceTask(Level level, Block sourceBlock, Block targetBlock, boolean checkDamage) {
         this(level, sourceBlock, targetBlock, new HashSet<>(), checkDamage);
@@ -33,6 +33,16 @@ public class BlockReplaceTask extends RecursiveTask<Long> {
         this.targetBlock = targetBlock;
         this.posList = posList;
         this.checkDamage = checkDamage;
+    }
+
+    public static <T> List<Set<T>> splitSet(Set<T> originalSet) {
+        List<T> list = new ArrayList<>(originalSet);
+        int halfSize = list.size() / 2;
+
+        Set<T> set1 = list.stream().limit(halfSize).collect(Collectors.toSet());
+        Set<T> set2 = list.stream().skip(halfSize).collect(Collectors.toSet());
+
+        return Arrays.asList(set1, set2);
     }
 
     public void addPos(Vector3 vector3) {
@@ -75,16 +85,6 @@ public class BlockReplaceTask extends RecursiveTask<Long> {
         }
         this.endMillis = System.currentTimeMillis();
         return this.proceedBlockCount;
-    }
-
-    public static <T> List<Set<T>> splitSet(Set<T> originalSet) {
-        List<T> list = new ArrayList<>(originalSet);
-        int halfSize = list.size() / 2;
-
-        Set<T> set1 = list.stream().limit(halfSize).collect(Collectors.toSet());
-        Set<T> set2 = list.stream().skip(halfSize).collect(Collectors.toSet());
-
-        return Arrays.asList(set1, set2);
     }
 
     public long getEndMillis() {
