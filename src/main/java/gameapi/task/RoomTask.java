@@ -25,7 +25,7 @@ public class RoomTask extends Task {
 
     @Override
     public void onRun(int i) {
-        if (RoomManager.getLoadedRooms().size() > 0) {
+        if (!RoomManager.getLoadedRooms().isEmpty()) {
             for (Map.Entry<String, List<Room>> entry : RoomManager.getLoadedRooms().entrySet()) {
                 List<Room> rooms = new ArrayList<>(entry.getValue());
                 for (Room room : rooms) {
@@ -73,7 +73,7 @@ public class RoomTask extends Task {
             case ROOM_STATUS_PRESTART:
                 if (room.getPlayers().size() < room.getMinPlayer()) {
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
-                    if (room.getPlayers().size() == 0) {
+                    if (room.getPlayers().isEmpty()) {
                         if (room.isTemporary()) {
                             room.resetAll();
                         }
@@ -92,7 +92,7 @@ public class RoomTask extends Task {
                 this.onStateUpdate(room, ListenerStatusType.READY_START);
                 break;
             case ROOM_STATUS_START:
-                if (room.getPlayers().size() < 1) {
+                if (room.getPlayers().isEmpty()) {
                     room.resetAll();
                     return true;
                 } else {
@@ -118,7 +118,7 @@ public class RoomTask extends Task {
                 this.onStateUpdate(room, ListenerStatusType.START);
                 break;
             case ROOM_STATUS_GAME_END:
-                if (room.getPlayers().size() < 1) {
+                if (room.getPlayers().isEmpty()) {
                     room.resetAll();
                     return true;
                 }
@@ -126,21 +126,21 @@ public class RoomTask extends Task {
                 this.onStateUpdate(room, ListenerStatusType.GAME_END);
                 break;
             case ROOM_STATUS_CEREMONY:
-                if (room.getPlayers().size() < 1) {
+                if (room.getPlayers().isEmpty()) {
                     room.resetAll();
                 }
                 GameListenerRegistry.callEvent(room, new RoomCeremonyTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.CEREMONY);
                 break;
             case ROOM_STATUS_NEXT_ROUND_PRESTART:
-                if (room.getPlayers().size() < 1) {
+                if (room.getPlayers().isEmpty()) {
                     room.resetAll();
                     return true;
                 } else {
                     if (room.getTeams().size() > 1) {
                         AtomicInteger hasPlayer = new AtomicInteger(0);
                         room.getTeams().forEach(team -> {
-                            if (team.getPlayers().size() > 0) {
+                            if (!team.getPlayers().isEmpty()) {
                                 hasPlayer.addAndGet(1);
                             }
                         });

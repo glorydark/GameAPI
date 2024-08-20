@@ -42,7 +42,7 @@ public class RoomUpdateTask implements Runnable {
 
     @Override
     public void run() {
-        if (this.room.getPlayers().size() == 0) {
+        if (this.room.getPlayers().isEmpty()) {
             return;
         }
         try {
@@ -51,7 +51,7 @@ public class RoomUpdateTask implements Runnable {
                     this.playerLocationHashMap.remove(player);
                 }
             }
-            if (this.room.getPlayers().size() == 0) {
+            if (this.room.getPlayers().isEmpty()) {
                 return;
             }
             // Internal Process
@@ -64,7 +64,7 @@ public class RoomUpdateTask implements Runnable {
                     this.room.getCheckpointManager().onUpdate(player);
                 }
             }
-            if (this.room.getCheckpointManager().getCheckpointDataList().size() > 0) {
+            if (!this.room.getCheckpointManager().getCheckpointDataList().isEmpty()) {
                 for (CheckpointData checkPointData : this.room.getCheckpointManager().getCheckpointDataList()) {
                     checkPointData.showParticleMarks(this.room.getPlayLevels().get(0));
                 }

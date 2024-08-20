@@ -88,7 +88,7 @@ public class BaseTeam {
     }
 
     public void teleportToSpawn(Player... players) {
-        if (this.room.getStartSpawn().size() == 0) {
+        if (this.room.getStartSpawn().isEmpty()) {
             return;
         }
         int spawnIndexSize = this.spawnIndexList.size();

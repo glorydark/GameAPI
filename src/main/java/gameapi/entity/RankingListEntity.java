@@ -20,7 +20,7 @@ public class RankingListEntity extends TextEntity {
     }
 
     public boolean onUpdate(int currentTick) {
-        if (this.getLevel().getPlayers().size() == 0) {
+        if (this.getLevel().getPlayers().isEmpty()) {
             return super.onUpdate(currentTick);
         }
         if (System.currentTimeMillis() - this.lastUpdateMillis >= GameAPI.getInstance().getEntityRefreshIntervals()) {

@@ -3,6 +3,8 @@ package gameapi.manager.data;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
 import gameapi.ranking.RankingFormat;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,15 +19,9 @@ public class PlayerGameDataManager {
 
     protected static Map<String, Map<String, Object>> playerData = new LinkedHashMap<>();
 
+    @Setter
+    @Getter
     protected static RankingFormat rankingFormat = new RankingFormat();
-
-    public static RankingFormat getRankingFormat() {
-        return rankingFormat;
-    }
-
-    public static void setRankingFormat(RankingFormat rf) {
-        rankingFormat = rf;
-    }
 
     public static Map<String, Object> getPlayerAllGameData(String gameName, String fileName) {
         return playerData.getOrDefault(gameName + "/" + fileName, new LinkedHashMap<>());

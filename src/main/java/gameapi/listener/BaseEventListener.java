@@ -30,6 +30,7 @@ import gameapi.event.entity.*;
 import gameapi.event.inventory.RoomInventoryPickupItemEvent;
 import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.RoomVirtualHealthManager;
 import gameapi.room.Room;
@@ -453,7 +454,7 @@ public class BaseEventListener implements Listener {
                     event.setCancelled(true);
                     return;
                 }
-                if (room1.getTeams().size() > 0) {
+                if (!room1.getTeams().isEmpty()) {
                     if (room1.getTeam(victim) != null && room1.getTeam(victim) == room2.getTeam(damager)) {
                         victim.sendMessage(GameAPI.getLanguage().getTranslation(victim, "baseEvent.team_damage.not_allowed"));
                         event.setCancelled(true);
@@ -628,27 +629,30 @@ public class BaseEventListener implements Listener {
             RoomChatData chatData = chatEvent.getRoomChatData();
             String rawMsg = chatData.getMessage();
             if (rawMsg.startsWith("@") && !rawMsg.equals("@")) {
-                if (room.getTeams().size() > 0) {
+                if (!room.getTeams().isEmpty()) {
                     BaseTeam team = room.getTeam(player);
                     if (team != null) {
                         rawMsg = rawMsg.replaceFirst("@", "");
                         String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format_team", room.getRoomName(), rawMsg);
                         team.sendMessageToAll(msg);
-
+                        GameDebugManager.info(msg);
                     }
                 } else {
                     String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatData.getDefaultChatMsg());
                     room.sendMessageToAll(msg);
+                    GameDebugManager.info(msg);
                 }
             } else if (rawMsg.startsWith("!") && !rawMsg.equals("!")) {
                 chatData.setMessage(rawMsg.replaceFirst("!", ""));
                 for (Player value : Server.getInstance().getOnlinePlayers().values()) {
                     String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format.global", room.getRoomName(), chatData.getDefaultChatMsg());
                     value.sendMessage(msg);
+                    GameDebugManager.info(msg);
                 }
             } else {
                 String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatData.getDefaultChatMsg());
                 room.sendMessageToAll(msg);
+                GameDebugManager.info(msg);
             }
         }
         event.setCancelled(true);

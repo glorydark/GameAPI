@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.level.Level;
 import gameapi.manager.GameDebugManager;
 import gameapi.room.Room;
+import lombok.Getter;
 import net.easecation.ghosty.recording.LevelRecordEngine;
 import net.easecation.ghosty.recording.PlayerRecordEngine;
 
@@ -17,6 +18,7 @@ import java.util.List;
  * @author glorydark
  * Thanks for Easecation's marvelous Ghosty
  */
+@Getter
 public class GhostyManager {
 
     protected List<LevelRecordEngine> levelRecordEngines;
@@ -88,7 +90,4 @@ public class GhostyManager {
         }
     }
 
-    public List<LevelRecordEngine> getLevelRecordEngines() {
-        return levelRecordEngines;
-    }
 }

@@ -64,7 +64,7 @@ public class Ranking {
     public String getDisplayContent() {
         RankingFormat format = this.getRankingFormat();
         StringBuilder builder = new StringBuilder().append(this.getTitle().replace("\\n", "\n"));
-        if (this.rankingData.size() > 0) {
+        if (!this.rankingData.isEmpty()) {
             int i = 1;
             for (Map.Entry<String, ?> entry : this.rankingData.entrySet()) {
                 String text = format.getScoreShowFormat().replace("%rank%", String.valueOf(i)).replace("%player%", entry.getKey()).replace("\\n", "\n");

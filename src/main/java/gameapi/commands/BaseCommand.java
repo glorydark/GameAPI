@@ -255,7 +255,7 @@ public class BaseCommand extends Command {
                                     .append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.title", game))
                                     .append("\n");
                             List<Room> rooms = game.getValue();
-                            if (rooms.size() > 0) {
+                            if (!rooms.isEmpty()) {
                                 for (Room room : rooms) {
                                     if (!room.isAllowedToStart()) {
                                         builder.append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.need_start_pass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()))

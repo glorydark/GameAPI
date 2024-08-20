@@ -101,7 +101,7 @@ public class CheckpointManager {
         List<CheckpointData> data = this.checkpointDataList.stream()
                 .filter(checkpointData -> checkpointData.isInRange(player))
                 .collect(Collectors.toList());
-        if (data.size() > 0) {
+        if (!data.isEmpty()) {
             CheckpointData newData = data.get(0);
             this.updatePlayerRecordPoint(player, newData);
         }

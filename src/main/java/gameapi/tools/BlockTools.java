@@ -67,7 +67,9 @@ public class BlockTools {
         bb.forEach((i, i1, i2) -> {
             Block originalBlock = level.getBlock(i, i1, i2);
             level.setBlock(i, i1, i2, new BlockAir(), false, false);
-            level.addParticle(new DestroyBlockParticle(new Vector3(i, i1, i2), originalBlock));
+            if (blockBreakEffect) {
+                level.addParticle(new DestroyBlockParticle(new Vector3(i, i1, i2), originalBlock));
+            }
         });
     }
 

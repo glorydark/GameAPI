@@ -7,14 +7,19 @@ import cn.nukkit.utils.EventException;
 import gameapi.annotation.Experimental;
 import gameapi.event.RoomEvent;
 import gameapi.listener.base.interfaces.GameListener;
+import lombok.Getter;
 
 @Experimental
 public class RoomListener implements GameListener {
+    @Getter
     private final GameListener listener;
+    @Getter
     private final EventPriority priority;
+    @Getter
     private final Plugin plugin;
     private final MethodGameEventExecutor executor;
     private final boolean ignoreCancelled;
+    @Getter
     private final String gameName;
 
     public RoomListener(String gameName, GameListener listener, MethodGameEventExecutor executor, EventPriority priority, Plugin plugin, boolean ignoreCancelled) {
@@ -26,18 +31,6 @@ public class RoomListener implements GameListener {
         this.gameName = gameName;
     }
 
-    public GameListener getListener() {
-        return this.listener;
-    }
-
-    public Plugin getPlugin() {
-        return this.plugin;
-    }
-
-    public EventPriority getPriority() {
-        return this.priority;
-    }
-
     public void callEvent(String gameName, RoomEvent event) throws EventException {
         if (!gameName.equals(getGameName())) {
             return;
@@ -45,10 +38,6 @@ public class RoomListener implements GameListener {
         if (!(event instanceof Cancellable) || !event.isCancelled() || !this.isIgnoringCancelled()) {
             this.executor.execute(this.listener, event);
         }
-    }
-
-    public String getGameName() {
-        return gameName;
     }
 
     public boolean isIgnoringCancelled() {

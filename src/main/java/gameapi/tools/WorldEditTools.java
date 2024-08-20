@@ -132,9 +132,7 @@ public class WorldEditTools {
             sender.sendMessage(TextFormat.RED + "Block is undefined!");
         } else {
             BlockReplaceTask replaceTask = new BlockReplaceTask(level, sourceBlock, targetBlock, checkDamage);
-            bb.forEach((i, i1, i2) -> {
-                replaceTask.addPos(new Vector3(i, i1, i2));
-            });
+            bb.forEach((i, i1, i2) -> replaceTask.addPos(new Vector3(i, i1, i2)));
             GameAPI.WORLDEDIT_THREAD_POOL_EXECUTOR.invoke(replaceTask);
             if (sender != null) {
                 sender.sendMessage(TextFormat.GREEN + "Already replace " + replaceTask.getImmutablePosList().size() + " blocks from " + sourceBlock.getName() + " to " + targetBlock.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), replaceTask.getEndMillis())));

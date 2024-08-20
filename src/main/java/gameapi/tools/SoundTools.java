@@ -20,7 +20,7 @@ public class SoundTools {
 
     /**
      * @param player : 玩家
-     * @description: 停止播放材质包音乐
+     * @description 停止播放材质包音乐
      */
     public static void stopResourcePackOggSound(Player player, String sound) {
         StopSoundPacket pk = new StopSoundPacket();
@@ -36,7 +36,7 @@ public class SoundTools {
     /**
      * @param player    : 玩家
      * @param filename: 材质包中sound_definition的项的名称
-     * @description: 播放材质包音乐
+     * @description 播放材质包音乐
      */
     public static void addSoundToPlayer(Player player, String filename, float volume, float pitch) {
         PlaySoundPacket pk = new PlaySoundPacket();

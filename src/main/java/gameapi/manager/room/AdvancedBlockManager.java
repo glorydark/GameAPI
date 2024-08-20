@@ -6,14 +6,12 @@ import gameapi.event.block.RoomBlockEvent;
 import gameapi.event.player.RoomPlayerInteractEvent;
 import gameapi.extensions.block.AbstractAdvancedBlock;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Experimental
 public class AdvancedBlockManager {
 
-    protected Map<String, AbstractAdvancedBlock> blockHashmap = new HashMap<>();
+    protected Map<String, AbstractAdvancedBlock> blockHashmap;
 
     public AdvancedBlockManager() {
         this.blockHashmap = new LinkedHashMap<>();

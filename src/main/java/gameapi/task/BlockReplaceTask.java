@@ -4,6 +4,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 import com.google.common.collect.ImmutableList;
+import lombok.Getter;
 
 import java.util.*;
 import java.util.concurrent.RecursiveTask;
@@ -21,6 +22,7 @@ public class BlockReplaceTask extends RecursiveTask<Long> {
     private final Set<Vector3> posList;
     private final boolean checkDamage;
     private long proceedBlockCount = 0L;
+    @Getter
     private long endMillis = 0L;
 
     public BlockReplaceTask(Level level, Block sourceBlock, Block targetBlock, boolean checkDamage) {
@@ -85,9 +87,5 @@ public class BlockReplaceTask extends RecursiveTask<Long> {
         }
         this.endMillis = System.currentTimeMillis();
         return this.proceedBlockCount;
-    }
-
-    public long getEndMillis() {
-        return endMillis;
     }
 }

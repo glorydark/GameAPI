@@ -122,14 +122,14 @@ public class SchematicConverter {
 
     @Data
     @AllArgsConstructor
-    static class BlockData {
+    public static class BlockData {
         private final int id;
         private final int data;
     }
 
     @Data
     @AllArgsConstructor
-    static class BlockDataWithPos {
+    public static class BlockDataWithPos {
         private final int id;
         private final int data;
         private final int x;

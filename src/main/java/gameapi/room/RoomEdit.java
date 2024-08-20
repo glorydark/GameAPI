@@ -75,5 +75,4 @@ public class RoomEdit {
     public int getStep() {
         return step;
     }
-
 }

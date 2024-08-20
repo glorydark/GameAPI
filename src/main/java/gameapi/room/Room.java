@@ -97,21 +97,13 @@ public class Room {
     private int id = -1;
     private List<StageState> stageStates = new ArrayList<>();
     private List<SupplyChest> supplyChests = new ArrayList<>();
-    @Setter(AccessLevel.NONE)
     private RoomUpdateTask roomUpdateTask;
-    @Setter(AccessLevel.NONE)
-    private LinkedHashMap<String, RoomItemBase> roomItems = new LinkedHashMap<>();
-    @Setter(AccessLevel.NONE)
+    private Map<String, RoomItemBase> roomItems = new LinkedHashMap<>();
     private CheckpointManager checkpointManager = new CheckpointManager();
-    @Setter(AccessLevel.NONE)
     private List<DynamicObstacle> dynamicObstacles = new ArrayList<>();
-    @Setter(AccessLevel.NONE)
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
-    @Setter(AccessLevel.NONE)
     private ScheduledExecutorService roomTaskExecutor = Executors.newScheduledThreadPool(4);
-    @Setter(AccessLevel.NONE)
     private AdvancedBlockManager advancedBlockManager = new AdvancedBlockManager();
-    @Setter(AccessLevel.NONE)
     private GhostyManager ghostyManager = new GhostyManager();
     private boolean autoDestroyOverTime = true; // 超过maxWaitMillis自动释放房间
     private List<String> roomAdmins = new ArrayList<>();
