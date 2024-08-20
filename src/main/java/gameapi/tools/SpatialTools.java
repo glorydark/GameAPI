@@ -10,7 +10,6 @@ import gameapi.GameAPI;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.IntegerAxisAlignBB;
 import gameapi.utils.Rotation;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,43 +70,52 @@ public class SpatialTools {
     }
 
     public static AdvancedLocation parseLocation(String locationString) {
-        String[] rorationStrings = locationString.split(":");
-        if (rorationStrings.length < 4) {
-            if (rorationStrings.length == 3) {
+        String[] positions = locationString.split(":");
+        if (positions.length < 4) {
+            if (positions.length == 3) {
                 AdvancedLocation loc = new AdvancedLocation();
-                loc.setLocation(new Location(Double.parseDouble(rorationStrings[0]), Double.parseDouble(rorationStrings[1]), Double.parseDouble(rorationStrings[2])));
+                loc.setLocation(new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2])));
                 loc.setVersion(AdvancedLocation.LocationType.POS);
                 return loc;
             }
             GameAPI.getInstance().getLogger().warning("Wrong Location Format! Please check it again, text: " + locationString);
             return null;
         }
-        if (!Server.getInstance().isLevelLoaded(rorationStrings[3])) {
-            if (Server.getInstance().loadLevel(rorationStrings[3])) {
-                return getAdvancedLocation(new Location(Double.parseDouble(rorationStrings[0]), Double.parseDouble(rorationStrings[1]), Double.parseDouble(rorationStrings[2]), Server.getInstance().getLevelByName(rorationStrings[3])), rorationStrings);
+        if (!Server.getInstance().isLevelLoaded(positions[3])) {
+            if (Server.getInstance().loadLevel(positions[3])) {
+                Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
+                AdvancedLocation advancedLocation = new AdvancedLocation();
+                advancedLocation.setLocation(location);
+                advancedLocation.setVersion(AdvancedLocation.LocationType.POS);
+                if (positions.length >= 6) {
+                    advancedLocation.setYaw(Double.parseDouble(positions[4]));
+                    advancedLocation.setPitch(Double.parseDouble(positions[5]));
+                    advancedLocation.setVersion(AdvancedLocation.LocationType.POS_AND_ROT_EXCEPT_HEADYAW);
+                    if (positions.length == 7) {
+                        advancedLocation.setHeadYaw(Double.parseDouble(positions[6]));
+                        advancedLocation.setVersion(AdvancedLocation.LocationType.POS_AND_ROT);
+                    }
+                }
+                return advancedLocation;
             } else {
                 return null;
             }
         } else {
-            return getAdvancedLocation(new Location(Double.parseDouble(rorationStrings[0]), Double.parseDouble(rorationStrings[1]), Double.parseDouble(rorationStrings[2]), null), rorationStrings);
-        }
-    }
-
-    @NotNull
-    private static AdvancedLocation getAdvancedLocation(Location positions, String[] rotationStrings) {
-        AdvancedLocation advancedLocation = new AdvancedLocation();
-        advancedLocation.setLocation(positions);
-        advancedLocation.setVersion(AdvancedLocation.LocationType.POS);
-        if (rotationStrings.length >= 6) {
-            advancedLocation.setYaw(Double.parseDouble(rotationStrings[4]));
-            advancedLocation.setPitch(Double.parseDouble(rotationStrings[5]));
-            advancedLocation.setVersion(AdvancedLocation.LocationType.POS_AND_ROT_EXCEPT_HEADYAW);
-            if (rotationStrings.length == 7) {
-                advancedLocation.setHeadYaw(Double.parseDouble(rotationStrings[6]));
-                advancedLocation.setVersion(AdvancedLocation.LocationType.POS_AND_ROT);
+            Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
+            AdvancedLocation advancedLocation = new AdvancedLocation();
+            advancedLocation.setLocation(location);
+            advancedLocation.setVersion(AdvancedLocation.LocationType.POS);
+            if (positions.length >= 6) {
+                advancedLocation.setYaw(Double.parseDouble(positions[4]));
+                advancedLocation.setPitch(Double.parseDouble(positions[5]));
+                advancedLocation.setVersion(AdvancedLocation.LocationType.POS_AND_ROT_EXCEPT_HEADYAW);
+                if (positions.length == 7) {
+                    advancedLocation.setHeadYaw(Double.parseDouble(positions[6]));
+                    advancedLocation.setVersion(AdvancedLocation.LocationType.POS_AND_ROT);
+                }
             }
+            return advancedLocation;
         }
-        return advancedLocation;
     }
 
     public static IntegerAxisAlignBB[] splitSimpleAxisAlignedBB(IntegerAxisAlignBB original, int maxBlockSizeX, int maxBlockSizeY, int maxBlockSizeZ) {

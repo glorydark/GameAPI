@@ -5,19 +5,22 @@ import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
+import gameapi.manager.GameDebugManager;
 import gameapi.tools.SpatialTools;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * @author glorydark
  */
 @Data
+@ToString
 public class AdvancedLocation {
     private Location location = null;
     private double yaw;
     private double pitch;
     private double headYaw;
-    private LocationType version = LocationType.POS_AND_ROT;
+    private LocationType version = LocationType.POS;
 
     private String inputString = "";
 
@@ -38,6 +41,7 @@ public class AdvancedLocation {
         this.headYaw = location.getHeadYaw();
         this.yaw = location.getYaw();
         this.headYaw = location.getHeadYaw();
+        this.version = LocationType.POS_AND_ROT;
     }
 
     public AdvancedLocation(String string) {
@@ -69,11 +73,12 @@ public class AdvancedLocation {
     }
 
     public void teleport(Player player) {
-        teleport(player, null);
+        teleport(player, PlayerTeleportEvent.TeleportCause.PLUGIN);
     }
 
     public void teleport(Player player, PlayerTeleportEvent.TeleportCause cause) {
         if (!this.isValid()) {
+            GameDebugManager.info("Find an invalid advanced location: " + this);
             return;
         }
         Location out;
@@ -94,7 +99,7 @@ public class AdvancedLocation {
     }
 
     public boolean isValid() {
-        return this.location != null && this.location.isValid() && this.location.getLevel() != null;
+        return this.location != null && this.location.isValid();
     }
 
     public enum LocationType {
