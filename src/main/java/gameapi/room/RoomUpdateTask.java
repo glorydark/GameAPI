@@ -6,6 +6,7 @@ import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
+import gameapi.GameAPI;
 import gameapi.event.block.RoomBlockTreadEvent;
 import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.player.RoomPlayerMoveEvent;
@@ -76,7 +77,7 @@ public class RoomUpdateTask implements Runnable {
 
             this.onTickDynamicObstacles();
         } catch (Exception e) {
-            GameDebugManager.error(e.getCause().getMessage() + "\n"
+            GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
                     + e + ":\n"
                     + Arrays.toString(e.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")
             );

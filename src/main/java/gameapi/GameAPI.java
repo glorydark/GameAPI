@@ -65,9 +65,10 @@ public class GameAPI extends PluginBase implements Listener {
             return thread;
         }
     };
-    protected int entityRefreshIntervals = 100;
+    protected int entityRefreshIntervals;
     protected boolean tipsEnabled;
     protected boolean saveTempStates = false;
+    protected static GameDebugManager gameDebugManager;
 
     public static void addRoomEdit(EditProcess editProcess) {
         editProcessList.add(editProcess);
@@ -97,12 +98,14 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onEnable() {
-        roomTaskExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE, threadFactory);
         path = this.getDataFolder().getPath();
         instance = this;
+        roomTaskExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE, threadFactory);
+        gameDebugManager = new GameDebugManager("gameapi_log", new File(path + "/logs/"));
         this.getDataFolder().mkdir();
         this.saveDefaultConfig();
         this.saveResource("rankings.yml", false);
+        new File(path + "/logs/").mkdirs();
         new File(path + "/worlds/").mkdirs();
         new File(path + "/gameRecords/").mkdirs();
         new File(path + "/task_caches/").mkdirs();
@@ -110,6 +113,7 @@ public class GameAPI extends PluginBase implements Listener {
         new File(path + "/schematics/").mkdirs();
         new File(path + "/buildings/").mkdirs();
         Config config = new Config(path + "/config.yml", Config.YAML);
+        gameDebugManager.setEnableConsoleDebug(config.getBoolean("log_show_in_console", true));
         this.saveTempStates = config.getBoolean("save-temp-state", true);
         this.entityRefreshIntervals = config.getInt("entity-refresh-intervals", 100);
         // load lang data
@@ -137,7 +141,7 @@ public class GameAPI extends PluginBase implements Listener {
                 t.printStackTrace();
             }
         }, 0, 1, TimeUnit.SECONDS);
-        roomTaskExecutor.scheduleAtFixedRate(() -> GameDebugManager.getPlayers().forEach(player -> {
+        roomTaskExecutor.scheduleAtFixedRate(() -> gameDebugManager.getPlayers().forEach(player -> {
                     DecimalFormat df = new DecimalFormat("#0.00");
                     String out = "GameAPI Debug\n";
                     out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
@@ -285,5 +289,9 @@ public class GameAPI extends PluginBase implements Listener {
 
     public boolean isSaveTempStates() {
         return saveTempStates;
+    }
+
+    public static GameDebugManager getGameDebugManager() {
+        return gameDebugManager;
     }
 }

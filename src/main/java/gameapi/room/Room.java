@@ -14,7 +14,6 @@ import gameapi.extensions.supplyChest.SupplyChest;
 import gameapi.form.AdvancedFormWindowCustom;
 import gameapi.form.element.ResponsiveElementInput;
 import gameapi.listener.base.GameListenerRegistry;
-import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.AdvancedBlockManager;
 import gameapi.manager.room.CheckpointManager;
@@ -356,6 +355,7 @@ public class Room {
                     this.waitSpawn.teleport(player);
                     player.setGamemode(2);
                     player.getFoodData().reset();
+                    this.resetSpeed(player);
                     player.setFoodEnabled(this.getRoomRule().isAllowFoodLevelChange());
                     player.setHealth(player.getMaxHealth());
                     for (Player p : this.players) {
@@ -368,6 +368,8 @@ public class Room {
                     GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
                 }
             }
+        } else {
+            player.sendMessage(GameAPI.getLanguage().getTranslation("room.team.full"));
         }
     }
 
@@ -395,9 +397,8 @@ public class Room {
             }
             player.getFoodData().reset();
             player.setFoodEnabled(true);
-            player.removeAllEffects();
+            this.resetSpeed(player);
             player.setHealth(player.getMaxHealth());
-            player.getEffects().clear();
             player.setGamemode(Server.getInstance().getDefaultGamemode());
             this.showAllPlayers(player);
             this.roomVirtualHealthManager.removePlayer(player);
@@ -443,7 +444,7 @@ public class Room {
         this.setRoomStatus(RoomStatus.ROOM_MAP_INITIALIZING);
         if (this.getRoomTaskExecutor() != null) {
             this.getRoomTaskExecutor().shutdownNow();
-            GameDebugManager.info("关闭线程池成功: " + this.getRoomTaskExecutor().toString());
+            GameAPI.getGameDebugManager().info("关闭线程池成功: " + this.getRoomTaskExecutor().toString());
         }
         GameListenerRegistry.callEvent(this, new RoomResetEvent(this));
         for (Player player : new ArrayList<>(this.spectators)) {
@@ -484,9 +485,9 @@ public class Room {
                     if (playLevel != null && playLevel.getProvider() != null) {
                         String levelName = playLevel.getName();
                         if (WorldTools.unloadLevel(playLevel, true)) {
-                            GameDebugManager.info("Successfully delete map: " + levelName);
+                            GameAPI.getGameDebugManager().info("Successfully delete map: " + levelName);
                         } else {
-                            GameDebugManager.error("Fail to delete map: " + levelName);
+                            GameAPI.getGameDebugManager().error("Fail to delete map: " + levelName);
                         }
                     }
                 }
@@ -581,7 +582,7 @@ public class Room {
         }
         player.setNameTagVisible(true);
         player.setNameTagAlwaysVisible(true);
-        player.getEffects().clear();
+        player.removeAllEffects();
         player.setGamemode(Server.getInstance().getDefaultGamemode());
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
         ScoreboardManager.removeScoreboard(player);
@@ -606,6 +607,7 @@ public class Room {
             return;
         }
         player.setGamemode(3);
+        player.removeAllEffects();
         player.setNameTagVisible(false);
         player.setNameTagAlwaysVisible(false);
         switch (this.getRoomStatus()) {
@@ -926,5 +928,14 @@ public class Room {
         if (includeSpectators) {
             PlayerTools.sendTip(this.spectators, language, string, params);
         }
+    }
+
+    public void resetSpeed(Player player) {
+        player.removeAllEffects();
+        player.setSprinting(false);
+        player.setSneaking(false);
+        player.setCrawling(false);
+        player.setSwimming(false);
+        player.setMovementSpeed(0.1f);
     }
 }

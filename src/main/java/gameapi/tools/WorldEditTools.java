@@ -21,7 +21,7 @@ public class WorldEditTools {
 
     public static void fill(Location pos1, Location pos2, Block block, boolean isReplacedExistedBlock) {
         if (!pos1.isValid() || !pos2.isValid()) {
-            GameDebugManager.error(TextFormat.RED + "Center pos hasn't defined the level yet!");
+            GameAPI.getGameDebugManager().error(TextFormat.RED + "Center pos hasn't defined the level yet!");
             return;
         }
         fill(null, pos1, pos2, pos1.getLevel(), block, isReplacedExistedBlock);
@@ -50,7 +50,7 @@ public class WorldEditTools {
 
     public static void createCircle(Location centerPos, Block block, double radius, boolean fillInside) {
         if (!centerPos.isValid()) {
-            GameDebugManager.error(TextFormat.RED + "Center pos hasn't defined the level yet!");
+            GameAPI.getGameDebugManager().error(TextFormat.RED + "Center pos hasn't defined the level yet!");
             return;
         }
         createCircle(null, centerPos, centerPos.getLevel(), block, radius, fillInside);
@@ -77,13 +77,13 @@ public class WorldEditTools {
         if (sender != null) {
             sender.sendMessage(TextFormat.GREEN + "Already create a ball with " + fillTask.join() + "/" + fillTask.getImmutablePosList().size() + " blocks with " + block.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), fillTask.getEndMillis())));
         } else {
-            GameDebugManager.info(TextFormat.GREEN + "Already create a ball with " + fillTask.join() + "/" + fillTask.getImmutablePosList().size() + " blocks with " + block.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), fillTask.getEndMillis())));
+            GameAPI.getGameDebugManager().info(TextFormat.GREEN + "Already create a ball with " + fillTask.join() + "/" + fillTask.getImmutablePosList().size() + " blocks with " + block.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), fillTask.getEndMillis())));
         }
     }
 
     public static void createBall(Location centerPos, Block block, double radius, boolean fillInside) {
         if (!centerPos.isValid()) {
-            GameDebugManager.error(TextFormat.RED + "Center pos hasn't defined the level yet!");
+            GameAPI.getGameDebugManager().error(TextFormat.RED + "Center pos hasn't defined the level yet!");
             return;
         }
         createCircle(null, centerPos, centerPos.getLevel(), block, radius, fillInside);
@@ -110,13 +110,13 @@ public class WorldEditTools {
         if (sender != null) {
             sender.sendMessage(TextFormat.GREEN + "Already fill " + fillTask.join() + "/" + fillTask.getImmutablePosList().size() + " blocks with " + block.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), fillTask.getEndMillis())));
         } else {
-            GameDebugManager.info(TextFormat.GREEN + "Already fill " + fillTask.join() + "/" + fillTask.getImmutablePosList().size() + " blocks with " + block.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), fillTask.getEndMillis())));
+            GameAPI.getGameDebugManager().info(TextFormat.GREEN + "Already fill " + fillTask.join() + "/" + fillTask.getImmutablePosList().size() + " blocks with " + block.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), fillTask.getEndMillis())));
         }
     }
 
     public static void replaceBlock(Location pos1, Location pos2, Block sourceBlock, Block targetBlock, boolean checkDamage) {
         if (!pos1.isValid() || !pos2.isValid()) {
-            GameDebugManager.info(TextFormat.RED + "Center pos hasn't defined the level yet!");
+            GameAPI.getGameDebugManager().info(TextFormat.RED + "Center pos hasn't defined the level yet!");
             return;
         }
         replaceBlock(null, pos1, pos2, pos1.getLevel(), sourceBlock, targetBlock, checkDamage);
@@ -137,7 +137,7 @@ public class WorldEditTools {
             if (sender != null) {
                 sender.sendMessage(TextFormat.GREEN + "Already replace " + replaceTask.getImmutablePosList().size() + " blocks from " + sourceBlock.getName() + " to " + targetBlock.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), replaceTask.getEndMillis())));
             } else {
-                GameDebugManager.info(TextFormat.GREEN + "Already replace " + replaceTask.getImmutablePosList().size() + " blocks from " + sourceBlock.getName() + " to " + targetBlock.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), replaceTask.getEndMillis())));
+                GameAPI.getGameDebugManager().info(TextFormat.GREEN + "Already replace " + replaceTask.getImmutablePosList().size() + " blocks from " + sourceBlock.getName() + " to " + targetBlock.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), replaceTask.getEndMillis())));
             }
         }
     }

@@ -635,24 +635,24 @@ public class BaseEventListener implements Listener {
                         rawMsg = rawMsg.replaceFirst("@", "");
                         String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format_team", room.getRoomName(), rawMsg);
                         team.sendMessageToAll(msg);
-                        GameDebugManager.info(msg);
+                        GameAPI.getGameDebugManager().info(msg);
                     }
                 } else {
                     String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatData.getDefaultChatMsg());
                     room.sendMessageToAll(msg);
-                    GameDebugManager.info(msg);
+                    GameAPI.getGameDebugManager().info(msg);
                 }
             } else if (rawMsg.startsWith("!") && !rawMsg.equals("!")) {
                 chatData.setMessage(rawMsg.replaceFirst("!", ""));
                 for (Player value : Server.getInstance().getOnlinePlayers().values()) {
                     String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format.global", room.getRoomName(), chatData.getDefaultChatMsg());
                     value.sendMessage(msg);
-                    GameDebugManager.info(msg);
+                    GameAPI.getGameDebugManager().info(msg);
                 }
             } else {
                 String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), chatData.getDefaultChatMsg());
                 room.sendMessageToAll(msg);
-                GameDebugManager.info(msg);
+                GameAPI.getGameDebugManager().info(msg);
             }
         }
         event.setCancelled(true);

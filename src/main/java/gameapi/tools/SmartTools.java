@@ -1,5 +1,6 @@
 package gameapi.tools;
 
+import gameapi.GameAPI;
 import gameapi.manager.GameDebugManager;
 
 import java.math.BigDecimal;
@@ -89,7 +90,7 @@ public class SmartTools {
         try {
             date = format.parse(string);
         } catch (Exception e) {
-            GameDebugManager.error(e.toString());
+            GameAPI.getGameDebugManager().error(e.toString());
         }
         return date;
     }
@@ -139,5 +140,17 @@ public class SmartTools {
 
     public <T> List<T> buildList(Supplier<List<T>> supplier) {
         return supplier.get();
+    }
+
+    public static String getDate(long millis) {
+        Date date = new Date(millis);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日 HH时mm分ss秒");
+        return format.format(date);
+    }
+
+    public static String getDateWithoutDetails(long millis) {
+        Date date = new Date(millis);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日");
+        return format.format(date);
     }
 }

@@ -1,6 +1,8 @@
 package gameapi.tools;
 
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.AxisAlignedBB;
@@ -18,6 +20,10 @@ import java.util.List;
  * @author glorydark
  */
 public class SpatialTools {
+
+    public static SimpleAxisAlignedBB toAxisAlignedBB(int x1, int y1, int z1, int x2, int y2, int z2) {
+        return new SimpleAxisAlignedBB(new Vector3(x1, y1, z1), new Vector3(x2, y2, z2));
+    }
 
     public static List<Rotation> parseRotationFromStrings(List<String> str) {
         return parseRotationFromStrings(str.toArray(new String[0]));
@@ -202,5 +208,66 @@ public class SpatialTools {
         bb.expand(xExpand, yExpand, zExpand);
         bb.forEach((i, i1, i2) -> results.add(new Vector3(i, i1, i2)));
         return results;
+    }
+
+    public static boolean compareTwoBuilds(SimpleAxisAlignedBB bb, SimpleAxisAlignedBB bb1, Level level) {
+        // 获取两个区域的尺寸
+        int width1 = (int) (bb.getMaxX() - bb.getMinX() + 1);
+        int height1 = (int) (bb.getMaxY() - bb.getMinY() + 1);
+        int length1 = (int) (bb.getMaxZ() - bb.getMinZ() + 1);
+
+        int width2 = (int) (bb1.getMaxX() - bb1.getMinX() + 1);
+        int height2 = (int) (bb1.getMaxY() - bb1.getMinY() + 1);
+        int length2 = (int) (bb1.getMaxZ() - bb1.getMinZ() + 1);
+
+        // 如果尺寸不同，直接返回false
+        if (width1 != width2 || height1 != height2 || length1 != length2) {
+            return false;
+        }
+
+        // 获取两个区域的起始坐标
+        int startX1 = (int) bb.getMinX();
+        int startY1 = (int) bb.getMinY();
+        int startZ1 = (int) bb.getMinZ();
+        int startX2 = (int) bb1.getMinX();
+        int startY2 = (int) bb1.getMinY();
+        int startZ2 = (int) bb1.getMinZ();
+
+        // 创建两个数组来存储区域的方块信息
+        Block[][][] blocksRegion1 = new Block[width1][height1][length1];
+        Block[][][] blocksRegion2 = new Block[width2][height2][length2];
+
+        // 填充第一个区域的方块信息
+        for (int x = 0; x < width1; x++) {
+            for (int y = 0; y < height1; y++) {
+                for (int z = 0; z < length1; z++) {
+                    blocksRegion1[x][y][z] = level.getBlock(startX1 + x, startY1 + y, startZ1 + z);
+                }
+            }
+        }
+
+        // 填充第二个区域的方块信息
+        for (int x = 0; x < width2; x++) {
+            for (int y = 0; y < height2; y++) {
+                for (int z = 0; z < length2; z++) {
+                    blocksRegion2[x][y][z] = level.getBlock(startX2 + x, startY2 + y, startZ2 + z);
+                }
+            }
+        }
+
+        // 比较两个区域的方块信息
+        for (int x = 0; x < width1; x++) {
+            for (int y = 0; y < height1; y++) {
+                for (int z = 0; z < length1; z++) {
+                    Block block1 = blocksRegion1[x][y][z];
+                    Block block2 = blocksRegion2[x][y][z];
+                    if (block1.getId() != block2.getId() || block1.getDamage() != block2.getDamage()) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true; // 所有方块都一致
     }
 }

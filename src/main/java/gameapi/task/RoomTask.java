@@ -62,7 +62,7 @@ public class RoomTask extends Task {
             case ROOM_STATUS_WAIT:
                 if (room.isTemporary() && room.isAutoDestroyOverTime()) {
                     if (System.currentTimeMillis() >= room.getCreateMillis() + GameAPI.MAX_TEMP_ROOM_WAIT_MILLIS) {
-                        GameDebugManager.info("Detect that temp room " + room.getRoomName() + " has reached the maximum of waiting time, start destroying...");
+                        GameAPI.getGameDebugManager().info("Detect that temp room " + room.getRoomName() + " has reached the maximum of waiting time, start destroying...");
                         room.resetAll();
                         return true;
                     }

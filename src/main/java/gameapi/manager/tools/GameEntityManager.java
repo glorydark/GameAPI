@@ -33,7 +33,7 @@ public class GameEntityManager {
                     textEntity.close();
                     rankingListMap.get(entry.getKey()).remove(textEntity);
                     if (textEntity instanceof RankingListEntity) {
-                        GameDebugManager.info("Respawn ranking: " + entry.getKey().getTitle() + " at " + textEntity.getPosition().asVector3f());
+                        GameAPI.getGameDebugManager().info("Respawn ranking: " + entry.getKey().getTitle() + " at " + textEntity.getPosition().asVector3f());
                         GameEntityManager.spawnRankingListEntity(textEntity.getPosition(), entry.getKey());
                     } else {
                         GameEntityManager.spawnTextEntity(textEntity.getPosition(), entry.getKey());

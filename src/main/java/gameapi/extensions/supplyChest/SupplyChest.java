@@ -4,6 +4,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.blockentity.BlockEntityChest;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
+import gameapi.GameAPI;
 import gameapi.annotation.Experimental;
 import gameapi.event.room.RoomSupplyChestRefreshEvent;
 import gameapi.extensions.supplyChest.item.SupplyItem;
@@ -85,7 +86,7 @@ public class SupplyChest {
                 }
             }
         } else {
-            GameDebugManager.error("Cannot find the chest at " + location.asBlockVector3().asVector3().toString());
+            GameAPI.getGameDebugManager().error("Cannot find the chest at " + location.asBlockVector3().asVector3().toString());
         }
     }
 

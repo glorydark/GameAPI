@@ -157,11 +157,11 @@ public class BaseCommand extends Command {
                     if (commandSender.isPlayer()) {
                         switch (strings[1]) {
                             case "true":
-                                GameDebugManager.addPlayer((Player) commandSender);
+                                GameAPI.getGameDebugManager().addPlayer((Player) commandSender);
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.debug.on"));
                                 break;
                             case "false":
-                                GameDebugManager.removePlayer((Player) commandSender);
+                                GameAPI.getGameDebugManager().removePlayer((Player) commandSender);
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.debug.off"));
                         }
                     } else {

@@ -2,6 +2,7 @@ package gameapi.manager.room;
 
 import cn.nukkit.Player;
 import cn.nukkit.level.Level;
+import gameapi.GameAPI;
 import gameapi.manager.GameDebugManager;
 import gameapi.room.Room;
 import lombok.Getter;
@@ -65,7 +66,7 @@ public class GhostyManager {
      */
     public void startWorldRecord(Level level) {
         if (this.levelRecordEngines.stream().anyMatch(levelRecordEngine -> levelRecordEngine.getLevel() == level)) {
-            GameDebugManager.info("Already find a recoding in the same room records the same map.");
+            GameAPI.getGameDebugManager().info("Already find a recoding in the same room records the same map.");
             return;
         }
         this.levelRecordEngines.add(new LevelRecordEngine(level));

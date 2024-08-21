@@ -5,7 +5,6 @@ import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
-import gameapi.manager.GameDebugManager;
 import gameapi.tools.SpatialTools;
 import lombok.Data;
 import lombok.ToString;
@@ -78,7 +77,7 @@ public class AdvancedLocation {
 
     public void teleport(Player player, PlayerTeleportEvent.TeleportCause cause) {
         if (!this.isValid()) {
-            GameDebugManager.info("Find an invalid advanced location: " + this);
+            // GameAPI.getGameDebugManager().info("Find an invalid advanced location: " + this);
             return;
         }
         Location out;

@@ -83,7 +83,7 @@ public class WorldTools {
     public static boolean unloadLevel(Level level, boolean delete) {
 
         if (level == null || level.getProvider() == null) {
-            GameDebugManager.error(GameAPI.getLanguage().getTranslation("world.load.not_found"));
+            GameAPI.getGameDebugManager().error(GameAPI.getLanguage().getTranslation("world.load.not_found"));
             return false;
         }
 

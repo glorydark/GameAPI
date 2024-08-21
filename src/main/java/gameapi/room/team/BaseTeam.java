@@ -96,7 +96,7 @@ public class BaseTeam {
             if (spawnIndexSize == 1) {
                 int spawnIndex = this.spawnIndexList.get(0);
                 if (spawnIndex >= this.room.getStartSpawn().size()) {
-                    GameDebugManager.warning("Find spawn index bigger than the room has, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
+                    GameAPI.getGameDebugManager().warning("Find spawn index bigger than the room has, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
                     return;
                 }
                 AdvancedLocation location = this.room.getStartSpawn().get(spawnIndex);
@@ -109,12 +109,12 @@ public class BaseTeam {
                     int spawnIndex;
                     if (playerIndex >= this.spawnIndexList.size()) {
                         spawnIndex = this.spawnIndexList.get(0);
-                        GameDebugManager.warning("Find spawns are not satisfied with real performance, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
+                        GameAPI.getGameDebugManager().warning("Find spawns are not satisfied with real performance, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
                     } else {
                         spawnIndex = this.spawnIndexList.get(playerIndex);
                     }
                     if (spawnIndex >= this.room.getStartSpawn().size()) {
-                        GameDebugManager.warning("Find spawn index bigger than the room has, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
+                        GameAPI.getGameDebugManager().warning("Find spawn index bigger than the room has, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
                         return;
                     }
                     AdvancedLocation location = this.room.getStartSpawn().get(spawnIndex);
