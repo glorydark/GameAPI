@@ -240,9 +240,9 @@ public class RoomTask extends Task {
                 break;
             case NEXT_ROUND_PRE_START:
                 if (room.getTime() >= room.getNextRoundPreStartTime()) {
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_START);
                     room.setRound(room.getRound() + 1);
                     room.getStatusExecutor().beginGameStart();
+                    room.setRoomStatus(RoomStatus.ROOM_STATUS_START);
                 } else {
                     room.getStatusExecutor().onNextRoundPreStart();
                     room.setTime(room.getTime() + 1);

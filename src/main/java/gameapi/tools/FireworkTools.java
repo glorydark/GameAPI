@@ -2,18 +2,14 @@ package gameapi.tools;
 
 import cn.nukkit.Server;
 import cn.nukkit.entity.item.EntityFirework;
+import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemFirework;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
-import cn.nukkit.nbt.NBTIO;
-import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.nbt.tag.DoubleTag;
-import cn.nukkit.nbt.tag.FloatTag;
-import cn.nukkit.nbt.tag.ListTag;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.EntityEventPacket;
 import cn.nukkit.utils.DyeColor;
 
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -42,37 +38,17 @@ public class FireworkTools {
             return;
         }
         Level level = location.getLevel();
-        ItemFirework item = new ItemFirework();
-        CompoundTag tag = new CompoundTag();
-        Random random = new Random();
-        CompoundTag compoundTag = new CompoundTag();
-        compoundTag.putByteArray("FireworkFade", new byte[0]);
-        compoundTag.putBoolean("FireworkFlicker", random.nextBoolean());
-        compoundTag.putBoolean("FireworkTrail", random.nextBoolean());
-        tag.putCompound("Fireworks", (new CompoundTag("Fireworks")).putList(new ListTag<CompoundTag>("Explosions").add(compoundTag)).putByte("Flight", 1));
-        item.setNamedTag(tag);
-        CompoundTag nbt = new CompoundTag();
-        nbt.putList(new ListTag<DoubleTag>("Pos")
-                .add(new DoubleTag("", location.x + 1.0D))
-                .add(new DoubleTag("", location.y + 1.0D))
-                .add(new DoubleTag("", location.z + 1.0D))
+        EntityFirework entity = new EntityFirework(level.getChunk((int) location.x >> 4, (int) location.z >> 4), EntityFirework.getDefaultNBT(location));
+        ItemFirework item = ((ItemFirework) Item.get(ItemFirework.FIREWORKS));
+        item.clearExplosions();
+        item.setFlight(1);
+        item.addExplosion(
+                new ItemFirework.FireworkExplosion()
+                        .addColor(color)
+                        .type(type)
         );
-        nbt.putList(new ListTag<DoubleTag>("Motion")
-                .add(new DoubleTag("", 0.0D))
-                .add(new DoubleTag("", 0.0D))
-                .add(new DoubleTag("", 0.0D))
-        );
-        nbt.putList(new ListTag<FloatTag>("Rotation")
-                .add(new FloatTag("", 0.0F))
-                .add(new FloatTag("", 0.0F))
-
-        );
-        nbt.putCompound("FireworkItem", NBTIO.putItemHelper(item));
-        compoundTag.putByteArray("FireworkColor", new byte[]{
-                (byte) color.getDyeData()
-        });
-        compoundTag.putByte("FireworkType", type.ordinal());
-        EntityFirework entity = new EntityFirework(level.getChunk((int) location.x >> 4, (int) location.z >> 4), nbt);
+        entity.setFirework(item);
+        entity.setMotion(new Vector3(0, 0.3, 0));
         entity.spawnToAll();
         if (isImmediateBomb) {
             EntityEventPacket pk = new EntityEventPacket();
@@ -101,18 +77,11 @@ public class FireworkTools {
     }
 
     public static ItemFirework.FireworkExplosion.ExplosionType getExplosionTypeByInt(int enumNumber) {
-        switch (enumNumber) {
-            case 2:
-                return ItemFirework.FireworkExplosion.ExplosionType.LARGE_BALL;
-            case 3:
-                return ItemFirework.FireworkExplosion.ExplosionType.SMALL_BALL;
-            case 4:
-                return ItemFirework.FireworkExplosion.ExplosionType.STAR_SHAPED;
-            case 5:
-                return ItemFirework.FireworkExplosion.ExplosionType.CREEPER_SHAPED;
-            default:
-                return ItemFirework.FireworkExplosion.ExplosionType.BURST;
+        ItemFirework.FireworkExplosion.ExplosionType type = ItemFirework.FireworkExplosion.ExplosionType.values()[enumNumber];
+        if (type == null) {
+            return ItemFirework.FireworkExplosion.ExplosionType.BURST;
         }
+        return type;
     }
 
     public static DyeColor getColorByString(String s) {
@@ -153,39 +122,10 @@ public class FireworkTools {
     }
 
     public static DyeColor getColorByInt(Integer integer) {
-        switch (integer) {
-            case 1:
-                return DyeColor.RED;
-            case 2:
-                return DyeColor.BLACK;
-            case 3:
-                return DyeColor.BLUE;
-            case 4:
-                return DyeColor.BROWN;
-            case 5:
-                return DyeColor.CYAN;
-            case 6:
-                return DyeColor.GRAY;
-            case 7:
-                return DyeColor.GREEN;
-            case 8:
-                return DyeColor.LIGHT_BLUE;
-            case 9:
-                return DyeColor.LIGHT_GRAY;
-            case 10:
-                return DyeColor.LIME;
-            case 11:
-                return DyeColor.MAGENTA;
-            case 12:
-                return DyeColor.ORANGE;
-            case 13:
-                return DyeColor.PINK;
-            case 14:
-                return DyeColor.PURPLE;
-            case 16:
-                return DyeColor.YELLOW;
-            default:
-                return DyeColor.WHITE;
+        DyeColor result = DyeColor.getByDyeData(integer);
+        if (result == null) {
+            return DyeColor.WHITE;
         }
+        return result;
     }
 }

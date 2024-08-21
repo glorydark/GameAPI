@@ -30,7 +30,6 @@ import gameapi.event.entity.*;
 import gameapi.event.inventory.RoomInventoryPickupItemEvent;
 import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
-import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.room.RoomVirtualHealthManager;
 import gameapi.room.Room;
@@ -52,7 +51,7 @@ import java.util.stream.Collectors;
  */
 public class BaseEventListener implements Listener {
 
-    public static HashMap<String, List<DamageSource>> damageSources = new HashMap<>();
+    public static Map<String, List<DamageSource>> damageSources = new LinkedHashMap<>();
 
     public static void addPlayerDamageSource(String player, String damager) {
         List<DamageSource> temp = new ArrayList<>(damageSources.getOrDefault(player, new ArrayList<>()));

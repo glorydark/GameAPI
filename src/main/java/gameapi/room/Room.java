@@ -38,10 +38,7 @@ import lombok.Data;
 import lombok.Setter;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Glorydark
@@ -607,7 +604,7 @@ public class Room {
         if (roomSpectatorJoinEvent.isCancelled()) {
             return;
         }
-        player.setGamemode(3);
+        player.setGamemode(this.roomRule.getSpectatorGameMode());
         player.removeAllEffects();
         player.setNameTagVisible(false);
         player.setNameTagAlwaysVisible(false);
@@ -618,8 +615,8 @@ public class Room {
                     TipsTools.closeTipsShow(playLevel.getName(), player);
                 }
                 if (!this.getSpectatorSpawn().isEmpty()) {
-                    Random random = new Random(this.getSpectatorSpawn().size());
-                    AdvancedLocation location = this.getSpectatorSpawn().get(random.nextInt(this.getSpectatorSpawn().size()));
+                    int randomInt = ThreadLocalRandom.current().nextInt(this.getSpectatorSpawn().size());
+                    AdvancedLocation location = this.getSpectatorSpawn().get(randomInt);
                     location.teleport(player);
                 } else {
                     if (!this.getStartSpawn().isEmpty()) {
@@ -647,10 +644,10 @@ public class Room {
     }
 
     public void setDeath(Player player) {
-        this.setDeath(player, true, GameAPI.getLanguage().getTranslation(player, "room.died.title"),  GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"));
+        this.setDeath(player, true, true, GameAPI.getLanguage().getTranslation(player, "room.died.title"),  GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"));
     }
 
-    public void setDeath(Player player, boolean sendTitle, String title, String subtitle) {
+    public void setDeath(Player player, boolean teleport, boolean sendTitle, String title, String subtitle) {
         RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(this, player, sendTitle, EntityDamageEvent.DamageCause.VOID);
         ev.setTitle(title);
         ev.setSubtitle(subtitle);
@@ -668,11 +665,26 @@ public class Room {
             if (ev.isSendTitle()) {
                 player.sendTitle(ev.getTitle(), ev.getSubtitle(), 5, 10, 5);
             }
+            if (teleport) {
+                if (!this.getSpectatorSpawn().isEmpty()) {
+                    int randomInt = ThreadLocalRandom.current().nextInt(this.getSpectatorSpawn().size());
+                    AdvancedLocation location = this.getSpectatorSpawn().get(randomInt);
+                    location.teleport(player);
+                } else {
+                    if (!this.getStartSpawn().isEmpty()) {
+                        Random random = new Random(this.getStartSpawn().size());
+                        AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
+                        location.teleport(player);
+                    } else {
+                        player.teleport(this.players.get(0).getLocation(), null);
+                    }
+                }
+            }
             player.setHealth(player.getMaxHealth());
             player.getFoodData().reset();
             player.extinguish();
             this.resetSpeed(player);
-            player.setGamemode(3);
+            player.setGamemode(this.roomRule.getSpectatorGameMode());
         }
     }
 

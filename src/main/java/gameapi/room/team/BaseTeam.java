@@ -2,7 +2,6 @@ package gameapi.room.team;
 
 import cn.nukkit.Player;
 import gameapi.GameAPI;
-import gameapi.manager.GameDebugManager;
 import gameapi.room.Room;
 import gameapi.tools.PlayerTools;
 import gameapi.utils.AdvancedLocation;
@@ -133,11 +132,19 @@ public class BaseTeam {
         PlayerTools.sendActionbar(players, string);
     }
 
-    public void sendTitleToAll(String string) {
-        PlayerTools.sendTitle(players, string);
+    public void sendTitleToAll(String title) {
+        PlayerTools.sendTitle(players, title);
+    }
+
+    public void sendTitleToAll(String title, String subtitle) {
+        PlayerTools.sendTitle(players, title, subtitle);
     }
 
     public void sendTipToAll(String string) {
         PlayerTools.sendTip(players, string);
+    }
+
+    public <T> T getProperty(String key, T value) {
+        return (T) this.getProperties().getOrDefault(key, value);
     }
 }

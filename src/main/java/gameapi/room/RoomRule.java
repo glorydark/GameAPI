@@ -88,6 +88,8 @@ public class RoomRule {
 
     private boolean autoAllocatePlayerToTeam = true;
 
+    private int spectatorGameMode = 3;
+
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
     }
