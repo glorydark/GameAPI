@@ -210,7 +210,7 @@ public class SpatialTools {
         return results;
     }
 
-    public static boolean compareTwoBuilds(SimpleAxisAlignedBB bb, SimpleAxisAlignedBB bb1, Level level) {
+    public static double compareTwoBuilds(SimpleAxisAlignedBB bb, SimpleAxisAlignedBB bb1, Level level) {
         // 获取两个区域的尺寸
         int width1 = (int) (bb.getMaxX() - bb.getMinX() + 1);
         int height1 = (int) (bb.getMaxY() - bb.getMinY() + 1);
@@ -220,12 +220,12 @@ public class SpatialTools {
         int height2 = (int) (bb1.getMaxY() - bb1.getMinY() + 1);
         int length2 = (int) (bb1.getMaxZ() - bb1.getMinZ() + 1);
 
-        // 如果尺寸不同，直接返回false
+        // 如果尺寸不同，则返回0，因为它们不可能完全相同
         if (width1 != width2 || height1 != height2 || length1 != length2) {
-            return false;
+            return 0.0;
         }
 
-        // 获取两个区域的起始坐标
+        int totalBlocks1 = width1 * height1 * length1;
         int startX1 = (int) bb.getMinX();
         int startY1 = (int) bb.getMinY();
         int startZ1 = (int) bb.getMinZ();
@@ -233,11 +233,9 @@ public class SpatialTools {
         int startY2 = (int) bb1.getMinY();
         int startZ2 = (int) bb1.getMinZ();
 
-        // 创建两个数组来存储区域的方块信息
         Block[][][] blocksRegion1 = new Block[width1][height1][length1];
         Block[][][] blocksRegion2 = new Block[width2][height2][length2];
 
-        // 填充第一个区域的方块信息
         for (int x = 0; x < width1; x++) {
             for (int y = 0; y < height1; y++) {
                 for (int z = 0; z < length1; z++) {
@@ -245,8 +243,6 @@ public class SpatialTools {
                 }
             }
         }
-
-        // 填充第二个区域的方块信息
         for (int x = 0; x < width2; x++) {
             for (int y = 0; y < height2; y++) {
                 for (int z = 0; z < length2; z++) {
@@ -255,19 +251,18 @@ public class SpatialTools {
             }
         }
 
-        // 比较两个区域的方块信息
+        int matchingBlocks = 0;
         for (int x = 0; x < width1; x++) {
             for (int y = 0; y < height1; y++) {
                 for (int z = 0; z < length1; z++) {
                     Block block1 = blocksRegion1[x][y][z];
                     Block block2 = blocksRegion2[x][y][z];
-                    if (block1.getId() != block2.getId() || block1.getDamage() != block2.getDamage()) {
-                        return false;
+                    if (block1.getId() == block2.getId() && block1.getDamage() == block2.getDamage()) {
+                        matchingBlocks++;
                     }
                 }
             }
         }
-
-        return true; // 所有方块都一致
+        return (double) matchingBlocks / totalBlocks1;
     }
 }

@@ -7,7 +7,6 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
 import cn.nukkit.scheduler.NukkitRunnable;
 import gameapi.GameAPI;
-import gameapi.manager.GameDebugManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.utils.AdvancedLocation;

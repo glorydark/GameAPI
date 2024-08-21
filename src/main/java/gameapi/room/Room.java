@@ -334,7 +334,7 @@ public class Room {
         if (this.roomStatus != RoomStatus.ROOM_STATUS_WAIT && this.roomStatus != RoomStatus.ROOM_STATUS_PRESTART) {
             if (!this.roomRule.isAllowJoinAfterStart()) {
                 if (this.getRoomRule().isAllowSpectators()) {
-                    this.processJoinSpectator(player);
+                    this.processSpectatorJoin(player);
                 } else {
                     player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
                 }
@@ -580,18 +580,19 @@ public class Room {
                 TipsTools.removeTipsConfig(playLevel.getName(), player);
             }
         }
+        ScoreboardManager.removeScoreboard(player);
         player.setNameTagVisible(true);
         player.setNameTagAlwaysVisible(true);
         player.removeAllEffects();
         player.setGamemode(Server.getInstance().getDefaultGamemode());
+        this.resetSpeed(player);
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
-        ScoreboardManager.removeScoreboard(player);
         player.sendMessage(GameAPI.getLanguage().getTranslation("room.spectator.quit"));
         this.spectators.remove(player);
         RoomManager.getPlayerRoomHashMap().remove(player);
     }
 
-    public void processJoinSpectator(Player player) {
+    public void processSpectatorJoin(Player player) {
         if (RoomManager.getRoom(player) != null) {
             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_other_room"));
             return;
@@ -646,7 +647,13 @@ public class Room {
     }
 
     public void setDeath(Player player) {
-        RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(this, player, EntityDamageEvent.DamageCause.VOID);
+        this.setDeath(player, true, GameAPI.getLanguage().getTranslation(player, "room.died.title"),  GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"));
+    }
+
+    public void setDeath(Player player, boolean sendTitle, String title, String subtitle) {
+        RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(this, player, sendTitle, EntityDamageEvent.DamageCause.VOID);
+        ev.setTitle(title);
+        ev.setSubtitle(subtitle);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
             if (!ev.isKeepExp()) {
@@ -658,12 +665,14 @@ public class Room {
             if (this.roomRule.isVirtualHealth()) {
                 this.roomVirtualHealthManager.setHealth(player, this.roomVirtualHealthManager.getMaxHealth());
             }
-            player.extinguish();
-            player.removeAllEffects();
-            player.setGamemode(3);
+            if (ev.isSendTitle()) {
+                player.sendTitle(ev.getTitle(), ev.getSubtitle(), 5, 10, 5);
+            }
             player.setHealth(player.getMaxHealth());
             player.getFoodData().reset();
-            player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"), 5, 10, 5);
+            player.extinguish();
+            this.resetSpeed(player);
+            player.setGamemode(3);
         }
     }
 

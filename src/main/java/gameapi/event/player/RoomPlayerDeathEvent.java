@@ -23,11 +23,17 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     protected boolean keepExp = true;
 
-    public RoomPlayerDeathEvent(Room room, Player player, EntityDamageEvent.DamageCause cause) {
+    protected boolean sendTitle;
+
+    protected String title = "";
+
+    protected String subtitle = "";
+
+    public RoomPlayerDeathEvent(Room room, Player player, boolean sendTitle, EntityDamageEvent.DamageCause cause) {
         super(room, player);
         //导入的伤害来源
         List<DamageSource> sources = BaseEventListener.damageSources.getOrDefault(player.getName(), new ArrayList<>());
-        if (sources.size() > 0) {
+        if (!sources.isEmpty()) {
             this.lastDamageSource = sources.get(sources.size() - 1);
             sources.remove(lastDamageSource);
         } else {
@@ -35,6 +41,7 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
         }
         this.assistingDamageSource = sources;
         this.cause = cause;
+        this.sendTitle = sendTitle;
     }
 
     public Player getLastDamageSource() {
@@ -63,5 +70,29 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     public void setKeepInventory(boolean keepInventory) {
         this.keepInventory = keepInventory;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    public boolean isSendTitle() {
+        return sendTitle;
+    }
+
+    public void setSendTitle(boolean sendTitle) {
+        this.sendTitle = sendTitle;
     }
 }
