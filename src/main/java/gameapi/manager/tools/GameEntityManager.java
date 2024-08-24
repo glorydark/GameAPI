@@ -10,7 +10,8 @@ import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
 import gameapi.entity.RankingListEntity;
 import gameapi.entity.TextEntity;
-import gameapi.manager.GameDebugManager;
+import gameapi.entity.data.RankingEntityData;
+import gameapi.entity.data.TextEntityData;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
@@ -20,27 +21,43 @@ import java.util.*;
 
 public class GameEntityManager {
 
-    public static Map<Ranking, Set<TextEntity>> rankingListMap = new LinkedHashMap<>();
+    public static List<TextEntityData> rankingList = new ArrayList<>();
 
     public static void onUpdate() {
-        if (Server.getInstance().getOnlinePlayers().size() == 0) {
+        if (Server.getInstance().getOnlinePlayers().isEmpty()) {
             return;
         }
-        for (Map.Entry<Ranking, Set<TextEntity>> entry : new ArrayList<>(rankingListMap.entrySet())) {
-            for (TextEntity textEntity : entry.getValue()) {
-                if (!textEntity.isAlive() || textEntity.isClosed()) {
-                    textEntity.despawnFromAll();
-                    textEntity.close();
-                    rankingListMap.get(entry.getKey()).remove(textEntity);
-                    if (textEntity instanceof RankingListEntity) {
-                        GameAPI.getGameDebugManager().info("Respawn ranking: " + entry.getKey().getTitle() + " at " + textEntity.getPosition().asVector3f());
-                        GameEntityManager.spawnRankingListEntity(textEntity.getPosition(), entry.getKey());
-                    } else {
-                        GameEntityManager.spawnTextEntity(textEntity.getPosition(), entry.getKey());
+        for (TextEntityData textEntityData : new ArrayList<>(rankingList)) {
+            Entity textEntity = textEntityData.getEntity();
+            switch (textEntityData.getEntityType()) {
+                case TextEntityData.TYPE_NORMAL:
+                    if (textEntity == null) {
+                        GameEntityManager.spawnTextEntity(textEntityData.getPosition(), textEntityData.getDefaultText());
+                        GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
+                    } else if (!textEntity.isAlive() || textEntity.isClosed()) {
+                        rankingList.remove(textEntityData);
+                        textEntity.despawnFromAll();
+                        textEntity.close();
+                        GameEntityManager.spawnTextEntity(textEntity.getPosition(), textEntityData.getDefaultText());
+                        GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
                     }
-                }
+                    break;
+                case TextEntityData.TYPE_RANKING:
+                    Ranking ranking = ((RankingEntityData) textEntityData).getRanking();
+                    if (textEntity == null) {
+                        GameEntityManager.spawnRankingListEntity(textEntityData.getPosition(), ranking);
+                        GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
+                    } else if (!textEntity.isAlive() || textEntity.isClosed()) {
+                        rankingList.remove(textEntityData);
+                        textEntity.despawnFromAll();
+                        textEntity.close();
+                        GameEntityManager.spawnRankingListEntity(textEntity.getPosition(), ranking);
+                        GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
+                    }
+                    break;
             }
         }
+        rankingList.remove(null);
     }
 
     public static void closeAll() {
@@ -51,20 +68,19 @@ public class GameEntityManager {
                 }
             }
         }
-        for (Map.Entry<Ranking, Set<TextEntity>> entry : rankingListMap.entrySet()) {
-            for (TextEntity textEntity : entry.getValue()) {
-                textEntity.despawnFromAll();
-                textEntity.close();
-            }
+        for (TextEntityData data : rankingList) {
+            Entity textEntity = data.getEntity();
+            textEntity.despawnFromAll();
+            textEntity.close();
         }
     }
 
-    public static void spawnTextEntity(Position position, Ranking ranking) {
-        ranking.refreshRankingData();
-        TextEntity entity = new TextEntity(position.getChunk(), position, ranking.getDisplayContent(), Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
+    public static void spawnTextEntity(Position position, String content) {
+        TextEntity entity = new TextEntity(position.getChunk(), position, content, Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
         entity.setImmobile(true);
         entity.scheduleUpdate();
         entity.spawnToAll();
+        rankingList.add(new TextEntityData(entity, position, content));
     }
 
     public static void spawnRankingListEntity(Position position, Ranking ranking) {
@@ -73,7 +89,7 @@ public class GameEntityManager {
         entity.setImmobile(true);
         entity.scheduleUpdate();
         entity.spawnToAll();
-        rankingListMap.computeIfAbsent(ranking, ranking1 -> new HashSet<>()).add(entity);
+        rankingList.add(new RankingEntityData(ranking, entity, position));
     }
 
     public static void addRankingList(Player player, String valueType, String gameName, String dataName, String title, RankingSortSequence rankingSortSequence) {

@@ -39,6 +39,7 @@ import lombok.Setter;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Glorydark
@@ -191,26 +192,57 @@ public class Room {
     }
 
     public void allocatePlayerToTeams() {
+        this.allocatePlayerToTeams(false);
+    }
+
+    public void allocatePlayerToTeams(boolean balance) {
         if (this.teamCache.keySet().isEmpty()) {
             return;
         }
-        for (Player player : new ArrayList<>(this.players)) {
-            if (this.getTeam(player) != null) {
-                continue;
-            }
-            List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
-            Collections.shuffle(baseTeams);
-            boolean hasResult = false;
-            for (BaseTeam baseTeam : baseTeams) {
-                if (baseTeam.addPlayer(player, false)) {
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", baseTeam.getPrefix() + baseTeam.getRegistryName()));
-                    hasResult = true;
-                    break;
+        if (balance) {
+            for (Player player : new ArrayList<>(this.players)) {
+                if (this.getTeam(player) != null) {
+                    continue;
+                }
+                Map<String, BaseTeam> map = new ConcurrentHashMap<>(this.teamCache);
+                List<Map.Entry<String, BaseTeam>> list = map.entrySet()
+                        .stream()
+                        .filter(entry -> entry.getValue().isAvailable())
+                        .sorted(Comparator.comparing(t -> t.getValue().getSize()))
+                        .collect(Collectors.toList());
+                boolean hasResult = false;
+                for (Map.Entry<String, BaseTeam> entry : list) {
+                    BaseTeam team = entry.getValue();
+                    if (team.addPlayer(player)) {
+                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
+                        hasResult = true;
+                        break;
+                    }
+                }
+                if (!hasResult) {
+                    this.removePlayer(player);
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.team.no_available"));
                 }
             }
-            if (!hasResult) {
-                this.removePlayer(player);
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.team.no_available"));
+        } else {
+            for (Player player : new ArrayList<>(this.players)) {
+                if (this.getTeam(player) != null) {
+                    continue;
+                }
+                List<BaseTeam> baseTeams = new ArrayList<>(this.teamCache.values());
+                Collections.shuffle(baseTeams);
+                boolean hasResult = false;
+                for (BaseTeam baseTeam : baseTeams) {
+                    if (baseTeam.addPlayer(player, false)) {
+                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", baseTeam.getPrefix() + baseTeam.getRegistryName()));
+                        hasResult = true;
+                        break;
+                    }
+                }
+                if (!hasResult) {
+                    this.removePlayer(player);
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.team.no_available"));
+                }
             }
         }
     }

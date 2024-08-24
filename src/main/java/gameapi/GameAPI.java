@@ -47,6 +47,7 @@ public class GameAPI extends PluginBase implements Listener {
 
     public static final int GAME_TASK_INTERVAL = 1;
     public static final long MAX_TEMP_ROOM_WAIT_MILLIS = 1800000L;
+    public static final int TEXT_ENTITY_UPDATE_TICK_INTERVAL = 20;
     protected static final int THREAD_POOL_SIZE = 8;
     protected static final Language language = new Language("GameAPI");
     public static List<Player> worldEditPlayers = new ArrayList<>();
@@ -243,7 +244,7 @@ public class GameAPI extends PluginBase implements Listener {
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof RankingListEntity) {
-                    GameEntityManager.rankingListMap.clear();
+                    GameEntityManager.rankingList.clear();
                     entity.close();
                 }
             }

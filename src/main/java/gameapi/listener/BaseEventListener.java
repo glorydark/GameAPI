@@ -15,15 +15,17 @@ import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.*;
 import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
-import cn.nukkit.event.level.ChunkUnloadEvent;
 import cn.nukkit.event.player.*;
+import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Location;
+import cn.nukkit.math.Vector3;
+import cn.nukkit.network.protocol.MovePlayerPacket;
 import gameapi.GameAPI;
 import gameapi.commands.WorldEditCommand;
 import gameapi.entity.GameProjectileEntity;
-import gameapi.entity.TextEntity;
 import gameapi.event.block.RoomBlockBreakEvent;
 import gameapi.event.block.RoomBlockPlaceEvent;
 import gameapi.event.entity.*;
@@ -951,16 +953,6 @@ public class BaseEventListener implements Listener {
     }
 
     @EventHandler
-    public void ChunkUnloadEvent(ChunkUnloadEvent event) {
-        for (Entity entity : event.getChunk().getEntities().values()) {
-            if (entity instanceof TextEntity) {
-                event.setCancelled(true);
-                return;
-            }
-        }
-    }
-
-    @EventHandler
     public void PlayerJoinEvent(PlayerJoinEvent event) {
         event.getPlayer().setCheckMovement(false);
     }
@@ -968,5 +960,29 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void PlayerInvalidMoveEvent(PlayerInvalidMoveEvent event) {
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void DataPacketReceiveEvent(DataPacketReceiveEvent event) {
+        Player player = event.getPlayer();
+        Room room = RoomManager.getRoom(player);
+        if (room != null) {
+            if ((room.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START
+                    || room.getRoomStatus() == RoomStatus.ROOM_STATUS_NEXT_ROUND_PRESTART)
+                    && !room.getRoomRule().isAllowReadyStartWalk()) {
+                if (event.getPacket() instanceof MovePlayerPacket) {
+                    MovePlayerPacket pk = (MovePlayerPacket) event.getPacket();
+                    if (new Vector3(pk.x, player.y, pk.z).distance(player) == 0d) {
+                        return;
+                    }
+                    Location location = player.getLocation();
+                    location.setYaw(pk.yaw);
+                    location.setPitch(pk.pitch);
+                    location.setHeadYaw(pk.headYaw);
+                    player.teleport(location);
+                    event.setCancelled(true);
+                }
+            }
+        }
     }
 }

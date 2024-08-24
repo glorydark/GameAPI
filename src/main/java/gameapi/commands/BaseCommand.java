@@ -6,6 +6,7 @@ import cn.nukkit.Server;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
@@ -15,7 +16,7 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
-import gameapi.entity.TextEntity;
+import gameapi.entity.data.TextEntityData;
 import gameapi.form.AdvancedDoubleChestForm;
 import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.manager.RoomManager;
@@ -77,10 +78,9 @@ public class BaseCommand extends Command {
                     }
                     break;
                 case "checkrank":
-                    for (Map.Entry<Ranking, Set<TextEntity>> entry : GameEntityManager.rankingListMap.entrySet()) {
-                        for (TextEntity textEntity : entry.getValue()) {
-                            commandSender.sendMessage(textEntity.toString());
-                        }
+                    for (TextEntityData entry : GameEntityManager.rankingList) {
+                        Entity textEntity = entry.getEntity();
+                        commandSender.sendMessage(textEntity.toString());
                     }
                     break;
                 case "refreshrank":

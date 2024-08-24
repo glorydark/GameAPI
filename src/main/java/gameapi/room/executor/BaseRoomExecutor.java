@@ -152,6 +152,7 @@ public class BaseRoomExecutor extends RoomExecutor {
             }
         }
         for (Player p : this.room.getPlayers()) {
+            p.setImmobile(false);
             p.removeAllEffects();
             p.getFoodData().reset();
             p.setGamemode(this.room.getRoomRule().getGameMode());

@@ -20,6 +20,9 @@ public class RankingListEntity extends TextEntity {
     }
 
     public boolean onUpdate(int currentTick) {
+        if (currentTick % GameAPI.TEXT_ENTITY_UPDATE_TICK_INTERVAL != 0) {
+            return super.onUpdate(currentTick);
+        }
         if (this.getLevel().getPlayers().isEmpty()) {
             return super.onUpdate(currentTick);
         }
@@ -29,10 +32,5 @@ public class RankingListEntity extends TextEntity {
             this.lastUpdateMillis = System.currentTimeMillis();
         }
         return super.onUpdate(currentTick);
-    }
-
-    @Override
-    public boolean attack(EntityDamageEvent source) {
-        return false;
     }
 }
