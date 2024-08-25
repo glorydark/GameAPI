@@ -33,26 +33,26 @@ public class GameEntityManager {
                 case TextEntityData.TYPE_NORMAL:
                     if (textEntity == null) {
                         GameEntityManager.spawnTextEntity(textEntityData.getPosition(), textEntityData.getDefaultText());
-                        GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
+                        // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
                     } else if (!textEntity.isAlive() || textEntity.isClosed()) {
                         rankingList.remove(textEntityData);
                         textEntity.despawnFromAll();
                         textEntity.close();
                         GameEntityManager.spawnTextEntity(textEntity.getPosition(), textEntityData.getDefaultText());
-                        GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
+                        // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
                     }
                     break;
                 case TextEntityData.TYPE_RANKING:
                     Ranking ranking = ((RankingEntityData) textEntityData).getRanking();
                     if (textEntity == null) {
                         GameEntityManager.spawnRankingListEntity(textEntityData.getPosition(), ranking);
-                        GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
+                        // GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
                     } else if (!textEntity.isAlive() || textEntity.isClosed()) {
                         rankingList.remove(textEntityData);
                         textEntity.despawnFromAll();
                         textEntity.close();
                         GameEntityManager.spawnRankingListEntity(textEntity.getPosition(), ranking);
-                        GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
+                        // GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
                     }
                     break;
             }
@@ -106,9 +106,10 @@ public class GameEntityManager {
         add.put("format", "[%rank%] %player%: %score%");
         add.put("sort_sequence", "descend");
         add.put("value_type", valueType);
+        add.put("max_display_count", 15);
         maps.add(add);
         config.set("list", maps);
         config.save();
-        new SimpleRanking(player.getLocation(), Ranking.getRankingValueType(valueType), gameName, dataName, title, "No data", new RankingFormat(), rankingSortSequence).spawnEntity();
+        new SimpleRanking(player.getLocation(), Ranking.getRankingValueType(valueType), gameName, dataName, title, "No data", new RankingFormat(), rankingSortSequence, 15).spawnEntity();
     }
 }

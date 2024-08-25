@@ -275,7 +275,16 @@ public class GameAPI extends PluginBase implements Listener {
             } else {
                 this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
             }
-            Ranking ranking = new SimpleRanking(location, Ranking.getRankingValueType((String) map.getOrDefault("value_type", "")), (String) map.getOrDefault("game_name", ""), (String) map.getOrDefault("data_name", ""), (String) map.getOrDefault("title", "Undefined"), "暂无数据", new RankingFormat(), Ranking.getRankingSortSequence((String) map.getOrDefault("sort_sequence", "descend")));
+            Ranking ranking = new SimpleRanking(location,
+                    Ranking.getRankingValueType((String) map.getOrDefault("value_type", "")),
+                    (String) map.getOrDefault("game_name", ""),
+                    (String) map.getOrDefault("data_name", ""),
+                    (String) map.getOrDefault("title", "Undefined"),
+                    "暂无数据",
+                    new RankingFormat(),
+                    Ranking.getRankingSortSequence((String) map.getOrDefault("sort_sequence", "descend")),
+                    (Integer) map.getOrDefault("max_show_count", 15)
+            );
             ranking.spawnEntity();
         }
     }

@@ -6,7 +6,6 @@ import cn.nukkit.scheduler.Task;
 import gameapi.GameAPI;
 import gameapi.event.room.*;
 import gameapi.listener.base.GameListenerRegistry;
-import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.ScoreboardManager;
 import gameapi.room.Room;
@@ -42,7 +41,7 @@ public class RoomTask extends Task {
         if (room == null) {
             return false;
         }
-        if (room.getRoomStatus() == RoomStatus.ROOM_MAP_LOAD_FAILED) {
+        if (room.getRoomStatus().ordinal() >= 8) {
             return false;
         }
         room.getPlayers().remove(null);
@@ -66,6 +65,12 @@ public class RoomTask extends Task {
                         room.resetAll();
                         return true;
                     }
+                }
+                int leftWaitTime = room.getWaitTime() - room.getTime();
+                if (leftWaitTime >= 15
+                        && room.getPlayers().size() >= room.getAccelerateWaitCountDownPlayerCount()) {
+                    room.sendMessageToAll(GameAPI.getLanguage().getTranslation("room.game.wait.time_accelerated"));
+                    room.setTime(room.getWaitTime() - 15);
                 }
                 GameListenerRegistry.callEvent(room, new RoomWaitTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.WAIT);

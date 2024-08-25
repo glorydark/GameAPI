@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class RoomManager {
 
-    protected static final LinkedHashMap<String, List<Room>> loadedRooms = new LinkedHashMap<>(); //房间状态
+    protected static final Map<String, List<Room>> loadedRooms = new LinkedHashMap<>(); //房间状态
 
-    protected static final LinkedHashMap<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
+    protected static final Map<Player, Room> playerRoomHashMap = new LinkedHashMap<>(); //防止过多次反复检索房间
 
     public static void loadRoom(Room room, RoomStatus baseStatus) {
         RoomNameUtils.initializeRoomNameAndId(room);
@@ -152,12 +152,12 @@ public class RoomManager {
     }
 
     @Internal
-    public static LinkedHashMap<Player, Room> getPlayerRoomHashMap() {
+    public static Map<Player, Room> getPlayerRoomHashMap() {
         return playerRoomHashMap;
     }
 
     @Internal
-    public static LinkedHashMap<String, List<Room>> getLoadedRooms() {
+    public static Map<String, List<Room>> getLoadedRooms() {
         return loadedRooms;
     }
 }

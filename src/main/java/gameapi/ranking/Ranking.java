@@ -27,8 +27,9 @@ public class Ranking {
     @Setter(AccessLevel.NONE)
     private RankingListEntity entity;
     private Location location;
+    private int maxDisplayCount;
 
-    public Ranking(Location location, RankingValueType valueType, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence) {
+    public Ranking(Location location, RankingValueType valueType, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence, int maxDisplayCount) {
         this.location = location;
         this.title = title;
         this.noDataContent = noDataContent;
@@ -36,6 +37,7 @@ public class Ranking {
         this.rankingData = new LinkedHashMap<>();
         this.rankingSortSequence = rankingSortSequence;
         this.type = valueType;
+        this.maxDisplayCount = maxDisplayCount;
     }
 
     public static RankingSortSequence getRankingSortSequence(String s) {
@@ -66,29 +68,31 @@ public class Ranking {
         StringBuilder builder = new StringBuilder().append(this.getTitle().replace("\\n", "\n"));
         if (!this.rankingData.isEmpty()) {
             int i = 1;
-            for (Map.Entry<String, ?> entry : this.rankingData.entrySet()) {
-                String text = format.getScoreShowFormat().replace("%rank%", String.valueOf(i)).replace("%player%", entry.getKey()).replace("\\n", "\n");
-                if (this.getType() == RankingValueType.LONG_T0_TIME) {
-                    text = text.replace("%score%", SmartTools.timeMillisToString(Long.parseLong(entry.getValue().toString())));
-                } else {
-                    text = text.replace("%score%", entry.getValue().toString());
+            if (i <= this.getMaxDisplayCount()) {
+                for (Map.Entry<String, ?> entry : this.rankingData.entrySet()) {
+                    String text = format.getScoreShowFormat().replace("%rank%", String.valueOf(i)).replace("%player%", entry.getKey()).replace("\\n", "\n");
+                    if (this.getType() == RankingValueType.LONG_T0_TIME) {
+                        text = text.replace("%score%", SmartTools.timeMillisToString(Long.parseLong(entry.getValue().toString())));
+                    } else {
+                        text = text.replace("%score%", entry.getValue().toString());
+                    }
+                    switch (i) {
+                        case 0:
+                            builder.append("§f\n").append(format.getChampionPrefix());
+                            break;
+                        case 1:
+                            builder.append("§f\n").append(format.getRunnerUpPrefix());
+                            break;
+                        case 2:
+                            builder.append("§f\n").append(format.getSecondRunnerUpPrefix());
+                            break;
+                        default:
+                            builder.append("§f\n");
+                            break;
+                    }
+                    builder.append(text);
+                    i++;
                 }
-                switch (i) {
-                    case 0:
-                        builder.append("§f\n").append(format.getChampionPrefix());
-                        break;
-                    case 1:
-                        builder.append("§f\n").append(format.getRunnerUpPrefix());
-                        break;
-                    case 2:
-                        builder.append("§f\n").append(format.getSecondRunnerUpPrefix());
-                        break;
-                    default:
-                        builder.append("§f\n");
-                        break;
-                }
-                builder.append(text);
-                i++;
             }
         } else {
             builder.append("\n").append(this.getNoDataContent().replace("\\n", "\n"));

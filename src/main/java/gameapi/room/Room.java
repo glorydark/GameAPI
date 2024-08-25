@@ -107,6 +107,7 @@ public class Room {
     private String creator = "";
     private List<String> whitelists = new ArrayList<>();
     private boolean enableWhitelist = false;
+    private int accelerateWaitCountDownPlayerCount = 2;
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this(gameName, roomRule, "", round);
@@ -347,28 +348,30 @@ public class Room {
                 return;
             }
         }
-        if (this.roomStatus == RoomStatus.ROOM_MAP_LOAD_FAILED) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
-            return;
-        }
-        if (this.roomStatus == RoomStatus.ROOM_MAP_INITIALIZING) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.resetting"));
-            return;
-        }
-        if (this.roomStatus == RoomStatus.ROOM_HALTED) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
-            return;
-        }
-
-        if (this.roomStatus != RoomStatus.ROOM_STATUS_WAIT && this.roomStatus != RoomStatus.ROOM_STATUS_PRESTART) {
-            if (!this.roomRule.isAllowJoinAfterStart()) {
-                if (this.getRoomRule().isAllowSpectators()) {
-                    this.processSpectatorJoin(player);
-                } else {
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
-                }
+        switch (this.roomStatus) {
+            case ROOM_MAP_LOAD_FAILED:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
                 return;
-            }
+            case ROOM_MAP_INITIALIZING:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.resetting"));
+                return;
+            case ROOM_HALTED:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
+                return;
+            case ROOM_STATUS_START:
+                if (!this.roomRule.isAllowJoinAfterStart()) {
+                    if (this.getRoomRule().isAllowSpectators()) {
+                        this.processSpectatorJoin(player);
+                    } else {
+                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                    }
+                    return;
+                }
+            case ROOM_STATUS_GAME_END:
+            case ROOM_STATUS_CEREMONY:
+            case ROOM_STATUS_END:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                return;
         }
 
         if (this.players.size() < this.maxPlayer) {
@@ -387,13 +390,12 @@ public class Room {
                     this.resetSpeed(player);
                     player.setFoodEnabled(this.getRoomRule().isAllowFoodLevelChange());
                     player.setHealth(player.getMaxHealth());
-                    for (Player p : this.players) {
-                        p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
-                    }
                     this.hidePlayer(player, this.getRoomRule().getHideType());
                     this.updateHideStatus(player, false);
                     RoomManager.getPlayerRoomHashMap().put(player, this);
-                    this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
+                    for (Player p : this.players) {
+                        p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
+                    }
                     GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
                 }
             }

@@ -89,7 +89,7 @@ public class WorldTools {
         String levelName = level.getName();
 
         // 移除玩家
-        if (level.getPlayers().values().size() > 0) {
+        if (!level.getPlayers().values().isEmpty()) {
             for (Player p : level.getPlayers().values()) {
                 p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             }
@@ -179,12 +179,13 @@ public class WorldTools {
         if (level != null) {
             unloadLevel(level, true);
         }
-        String savePath = GameAPI.getPath() + "/worlds/" + backupName;
-        String worldPath = Server.getInstance().getDataPath() + "/worlds/" + loadName;
+        String savePath = GameAPI.getPath() + File.separator + "worlds" + File.separator + backupName + File.separator;
+        String worldPath = Server.getInstance().getDataPath() + File.separator + "worlds" + File.separator + loadName + File.separator;
         if (new File(savePath).exists()) {
             if (FileTools.copy(savePath, worldPath)) {
                 return Server.getInstance().loadLevel(loadName);
             }
+            return false;
         }
         return false;
     }
