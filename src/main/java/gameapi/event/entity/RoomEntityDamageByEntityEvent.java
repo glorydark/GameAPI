@@ -1,13 +1,17 @@
 package gameapi.event.entity;
 
 import cn.nukkit.entity.Entity;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import gameapi.event.Cancellable;
 import gameapi.room.Room;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Cancellable {
 
-    private final float finalDamage;
+    private float finalDamage; // only used in query instead of modifying damage
     protected float damage;
     protected int attackCoolDown;
 
@@ -17,6 +21,8 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
 
     protected EntityDamageEvent.DamageCause cause;
 
+    protected Map<EntityDamageByEntityEvent.DamageModifier, Float> damageModifierFloatMap = new LinkedHashMap<>();
+
     public RoomEntityDamageByEntityEvent(Room room, Entity entity, Entity damager, float damage, float finalDamage, int attackCoolDown, float knockBack, EntityDamageEvent.DamageCause cause) {
         super(room, entity);
         this.damage = damage;
@@ -25,6 +31,13 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
         this.damager = damager;
         this.knockBack = knockBack;
         this.cause = cause;
+    }
+
+    public void parseDamageModifierFloatMap(EntityDamageByEntityEvent entityDamageByEntityEvent) {
+        this.damageModifierFloatMap.clear();
+        for (EntityDamageByEntityEvent.DamageModifier value : EntityDamageEvent.DamageModifier.values()) {
+            this.damageModifierFloatMap.put(value, entityDamageByEntityEvent.getDamage(value));
+        }
     }
 
     public Entity getDamager() {
@@ -43,8 +56,16 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
         return damage;
     }
 
+    public float getDamage(EntityDamageEvent.DamageModifier damageModifier) {
+        return this.damageModifierFloatMap.getOrDefault(damageModifier, 0f);
+    }
+
     public void setDamage(float damage) {
         this.damage = damage;
+    }
+
+    public void setDamage(EntityDamageEvent.DamageModifier damageModifier, float value) {
+        this.damageModifierFloatMap.put(damageModifier, value);
     }
 
     public float getFinalDamage() {
@@ -61,5 +82,9 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
 
     public EntityDamageEvent.DamageCause getCause() {
         return cause;
+    }
+
+    public void setFinalDamage(float finalDamage) {
+        this.finalDamage = finalDamage;
     }
 }

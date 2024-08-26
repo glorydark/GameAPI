@@ -1,5 +1,7 @@
 package gameapi.utils;
 
+import cn.nukkit.Player;
+import cn.nukkit.entity.Entity;
 import lombok.Data;
 import lombok.ToString;
 
@@ -8,12 +10,12 @@ import lombok.ToString;
  */
 @Data
 @ToString
-public class DamageSource {
+public class PlayerDamageSource {
 
-    private String damager;
+    private Player damager;
     private long milliseconds;
 
-    public DamageSource(String damager, long milliseconds) {
+    public PlayerDamageSource(Player damager, long milliseconds) {
         this.damager = damager;
         this.milliseconds = milliseconds;
     }

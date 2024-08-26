@@ -40,9 +40,8 @@ import gameapi.room.RoomStatus;
 import gameapi.room.edit.EditProcess;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
-import gameapi.utils.AdvancedLocation;
-import gameapi.utils.DamageSource;
-import gameapi.utils.PosSet;
+import gameapi.utils.*;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -54,6 +53,10 @@ import java.util.stream.Collectors;
 public class BaseEventListener implements Listener {
 
     public static Map<String, List<DamageSource>> damageSources = new LinkedHashMap<>();
+
+    public static Map<Long, EntityDamageSource> lastLivingEntityDamagedByEntitySources = new Long2ObjectOpenHashMap<>();
+
+    public static Map<Long, PlayerDamageSource> lastLivingEntityDamagedByPlayerSources = new Long2ObjectOpenHashMap<>();
 
     public static void addPlayerDamageSource(String player, String damager) {
         List<DamageSource> temp = new ArrayList<>(damageSources.getOrDefault(player, new ArrayList<>()));
@@ -507,20 +510,22 @@ public class BaseEventListener implements Listener {
                     }
                 }
                 RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, entity, damager, event.getDamage(), event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
+                roomEntityDamageByEntityEvent.parseDamageModifierFloatMap(event);
                 GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
                 if (roomEntityDamageByEntityEvent.isCancelled()) {
                     event.setCancelled(true);
                 } else {
                     if (event.getEntity() instanceof Player && room1.getRoomRule().isVirtualHealth()) {
-                        event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
-                        event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
                         room1.getRoomVirtualHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getDamage()).doubleValue());
                         event.setDamage(0);
                     } else {
+                        for (EntityDamageEvent.DamageModifier value : EntityDamageEvent.DamageModifier.values()) {
+                            event.setDamage(roomEntityDamageByEntityEvent.getDamage(value), value);
+                        }
                         event.setDamage(roomEntityDamageByEntityEvent.getDamage());
-                        event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
-                        event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
                     }
+                    event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
+                    event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
                     addPlayerDamageSource(victim.getName(), damager.getName());
                 }
             }
@@ -533,6 +538,7 @@ public class BaseEventListener implements Listener {
                 }
                 Room room1 = room.get();
                 RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, event.getEntity(), event.getDamager(), event.getDamage(), event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
+                roomEntityDamageByEntityEvent.parseDamageModifierFloatMap(event);
                 GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
                 if (roomEntityDamageByEntityEvent.isCancelled()) {
                     event.setCancelled(true);
@@ -540,6 +546,11 @@ public class BaseEventListener implements Listener {
                     event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
                     event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
                     event.setDamage(roomEntityDamageByEntityEvent.getDamage());
+                    if (event.getDamager() instanceof Player) {
+                        lastLivingEntityDamagedByPlayerSources.put(entity.getId(), new PlayerDamageSource((Player) event.getDamager(), System.currentTimeMillis()));
+                    } else {
+                        lastLivingEntityDamagedByEntitySources.put(entity.getId(), new EntityDamageSource(event.getDamager(), System.currentTimeMillis()));
+                    }
                 }
             }
         }
