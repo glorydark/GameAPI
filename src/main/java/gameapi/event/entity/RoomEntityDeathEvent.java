@@ -38,5 +38,4 @@ public class RoomEntityDeathEvent extends RoomEntityEvent {
 
         this.drops = drops;
     }
-
 }

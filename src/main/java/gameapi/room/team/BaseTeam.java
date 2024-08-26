@@ -33,6 +33,8 @@ public class BaseTeam {
 
     private Map<String, Object> properties = new LinkedHashMap<>();
 
+    protected Map<Player, Map<String, Object>> playerProperties = new LinkedHashMap<>();
+
     public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, int spawnIndex) {
         this(room, registryName, prefix, maxPlayer, Collections.singletonList(spawnIndex));
     }
@@ -144,7 +146,15 @@ public class BaseTeam {
         PlayerTools.sendTip(players, string);
     }
 
-    public <T> T getProperty(String key, T value) {
+    public <T> T getTeamProperty(String key, T value) {
         return (T) this.getProperties().getOrDefault(key, value);
+    }
+
+    public <T> T getPlayerProperty(Player player, String key, T value) {
+        return (T) this.getPlayerProperties().getOrDefault(player, new LinkedHashMap<>()).getOrDefault(key, value);
+    }
+
+    public void setPlayerProperty(Player player, String key, Object value) {
+        this.getPlayerProperties().computeIfAbsent(player, player1 -> new LinkedHashMap<>()).put(key, value);
     }
 }

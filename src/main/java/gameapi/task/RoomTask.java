@@ -52,7 +52,7 @@ public class RoomTask extends Task {
         }
 
         // This is specifically designed for some special events that lasts for few seconds
-        for (StageState stageState : room.getStageStates()) {
+        for (StageState stageState : new ArrayList<>(room.getStageStates())) {
             stageState.onUpdate();
         }
         room.getStageStates().removeIf(StageState::isEnd);
@@ -65,12 +65,6 @@ public class RoomTask extends Task {
                         room.resetAll();
                         return true;
                     }
-                }
-                int leftWaitTime = room.getWaitTime() - room.getTime();
-                if (leftWaitTime >= 15
-                        && room.getPlayers().size() >= room.getAccelerateWaitCountDownPlayerCount()) {
-                    room.sendMessageToAll(GameAPI.getLanguage().getTranslation("room.game.wait.time_accelerated"));
-                    room.setTime(room.getWaitTime() - 15);
                 }
                 GameListenerRegistry.callEvent(room, new RoomWaitTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.WAIT);
@@ -187,6 +181,12 @@ public class RoomTask extends Task {
                     room.getStatusExecutor().beginReadyStart();
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_READY_START);
                 } else {
+                    int leftWaitTime = room.getWaitTime() - room.getTime();
+                    if (leftWaitTime >= 15
+                            && room.getPlayers().size() >= room.getAccelerateWaitCountDownPlayerCount()) {
+                        room.sendMessageToAll(GameAPI.getLanguage().getTranslation("room.game.wait.time_accelerated"));
+                        room.setTime(room.getWaitTime() - 15);
+                    }
                     room.getStatusExecutor().onPreStart();
                     room.setTime(room.getTime() + 1);
                 }
@@ -203,7 +203,7 @@ public class RoomTask extends Task {
                 }
                 break;
             case START:
-                if (room.getTime() >= room.getGameTime()) {
+                if (!room.getRoomRule().isNoTimeLimit() && room.getTime() >= room.getGameTime()) {
                     if (room.getRound() >= room.getMaxRound()) {
                         room.getStatusExecutor().beginGameEnd();
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
@@ -213,9 +213,7 @@ public class RoomTask extends Task {
                     }
                 } else {
                     room.getStatusExecutor().onGameStart();
-                    if (!room.getRoomRule().isNoTimeLimit()) {
-                        room.setTime(room.getTime() + 1);
-                    }
+                    room.setTime(room.getTime() + 1);
                 }
                 break;
             case GAME_END:

@@ -32,6 +32,9 @@ public class StageState {
     }
 
     public void onUpdate() {
+        if (this.currentTick == 0) {
+            this.onStart();
+        }
         this.currentTick++;
         if (this.isEnd()) {
             this.onEnd();

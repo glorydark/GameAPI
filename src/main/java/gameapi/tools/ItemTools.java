@@ -5,6 +5,7 @@ import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
 import gameapi.utils.NukkitTypeUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +116,16 @@ public class ItemTools {
             }
         }
         return item;
+    }
+
+    public static List<Enchantment> parseEnchantments(List<Map<String, Object>> mapList) {
+        List<Enchantment> enchantments = new ArrayList<>();
+        for (Map<String, Object> enchantmentDataEntry : mapList) {
+            Enchantment enchantment = Enchantment.getEnchantment((Integer) enchantmentDataEntry.get("id"));
+            enchantment.setLevel((Integer) enchantmentDataEntry.getOrDefault("level", 1));
+            enchantments.add(enchantment);
+        }
+        return enchantments;
     }
 
     public static String getIdentifierAndMetaString(Item item) {

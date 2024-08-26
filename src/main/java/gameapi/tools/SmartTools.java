@@ -1,7 +1,6 @@
 package gameapi.tools;
 
 import gameapi.GameAPI;
-import gameapi.manager.GameDebugManager;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,11 +16,19 @@ public class SmartTools {
     }
 
     public static String timeDiffMillisToString(long m1, long m2) {
+        return timeDiffMillisToString(m1, m2, true);
+    }
+
+    public static String timeDiffMillisToString(long m1, long m2, boolean saveMillis) {
         long diff = Math.abs(m2 - m1);
-        return timeMillisToString(diff);
+        return timeMillisToString(diff, saveMillis);
     }
 
     public static String timeMillisToString(long diff) {
+        return timeMillisToString(diff, true);
+    }
+
+    public static String timeMillisToString(long diff, boolean saveMillis) {
         long hour = diff / 3600000;
         long minute = diff / 60000 - hour * 60;
         long second = (diff - hour * 3600000 - minute * 60000) / 1000;
@@ -50,7 +57,12 @@ public class SmartTools {
                 sb.append(second).append(":");
             }
         } else if (second == 0) {
-            sb.append("00:");
+            if (saveMillis) {
+                sb.append("00:");
+            } else {
+                sb.append("00");
+                return sb.toString();
+            }
         }
         if (millis > 0) {
             if (millis > 100) {

@@ -548,7 +548,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
         String command = event.getMessage();
-        if (command.startsWith("gameapi") || command.startsWith("hub")) {
+        if (command.startsWith("/gameapi") || command.startsWith("/hub")) {
             return;
         }
         Player player = event.getPlayer();
@@ -919,14 +919,13 @@ public class BaseEventListener implements Listener {
     public void EntityDeathEvent(EntityDeathEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof EntityLiving) {
-            EntityLiving entityLiving = (EntityLiving) entity;
             Room room;
             Optional<Room> roomOptional = RoomManager.getRoom(entity.getLevel());
             if (!roomOptional.isPresent()) {
                 return;
             }
             room = roomOptional.get();
-            RoomEntityDeathEvent entityDeathEvent = new RoomEntityDeathEvent(room, entityLiving, event.getDrops());
+            RoomEntityDeathEvent entityDeathEvent = new RoomEntityDeathEvent(room, (EntityLiving) entity, event.getDrops());
             GameListenerRegistry.callEvent(room, entityDeathEvent);
             if (entityDeathEvent.isCancelled()) {
                 event.setCancelled(true);
@@ -966,7 +965,7 @@ public class BaseEventListener implements Listener {
     public void DataPacketReceiveEvent(DataPacketReceiveEvent event) {
         Player player = event.getPlayer();
         Room room = RoomManager.getRoom(player);
-        if (room != null) {
+        if (room != null && room.getPlayers().contains(player)) {
             if ((room.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START
                     || room.getRoomStatus() == RoomStatus.ROOM_STATUS_NEXT_ROUND_PRESTART)
                     && !room.getRoomRule().isAllowReadyStartWalk()) {
