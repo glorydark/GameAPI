@@ -68,8 +68,8 @@ public class Ranking {
         StringBuilder builder = new StringBuilder().append(this.getTitle().replace("\\n", "\n"));
         if (!this.rankingData.isEmpty()) {
             int i = 1;
-            if (i <= this.getMaxDisplayCount()) {
-                for (Map.Entry<String, ?> entry : this.rankingData.entrySet()) {
+            for (Map.Entry<String, ?> entry : this.rankingData.entrySet()) {
+                if (i <= this.getMaxDisplayCount()) {
                     String text = format.getScoreShowFormat().replace("%rank%", String.valueOf(i)).replace("%player%", entry.getKey()).replace("\\n", "\n");
                     if (this.getType() == RankingValueType.LONG_T0_TIME) {
                         text = text.replace("%score%", SmartTools.timeMillisToString(Long.parseLong(entry.getValue().toString())));
@@ -92,6 +92,8 @@ public class Ranking {
                     }
                     builder.append(text);
                     i++;
+                } else {
+                    break;
                 }
             }
         } else {

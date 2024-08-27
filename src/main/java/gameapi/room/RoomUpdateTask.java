@@ -13,7 +13,7 @@ import gameapi.event.player.RoomPlayerMoveEvent;
 import gameapi.extensions.checkpoint.CheckpointData;
 import gameapi.extensions.obstacle.DynamicObstacle;
 import gameapi.listener.base.GameListenerRegistry;
-import gameapi.manager.GameDebugManager;
+import gameapi.room.task.RoomAdvancedUpdateTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ public class RoomUpdateTask implements Runnable {
 
     private final Room room;
 
-    private final List<Consumer<Room>> customTickListenerList = new ArrayList<>();
+    private final List<RoomAdvancedUpdateTask> customTickListenerList = new ArrayList<>();
 
     private final HashMap<Player, Location> playerLocationHashMap = new HashMap<>();
 
@@ -38,7 +38,16 @@ public class RoomUpdateTask implements Runnable {
     }
 
     public void addListener(Consumer<Room> roomConsumer) {
-        customTickListenerList.add(roomConsumer);
+        customTickListenerList.add(new RoomAdvancedUpdateTask() {
+            @Override
+            public void onUpdate(Room room) {
+                roomConsumer.accept(room);
+            }
+        });
+    }
+
+    public void addListener(RoomAdvancedUpdateTask roomAdvancedUpdateTask) {
+        customTickListenerList.add(roomAdvancedUpdateTask);
     }
 
     @Override
@@ -71,8 +80,12 @@ public class RoomUpdateTask implements Runnable {
                 }
             }
 
-            for (Consumer<Room> roomConsumer : this.customTickListenerList) {
-                roomConsumer.accept(this.room);
+            for (RoomAdvancedUpdateTask customRoomUpdateTask : new ArrayList<>(this.customTickListenerList)) {
+                if (customRoomUpdateTask.isCancelled()) {
+                    this.customTickListenerList.remove(customRoomUpdateTask);
+                }
+                customRoomUpdateTask.setTick(customRoomUpdateTask.getTick() + 1);
+                customRoomUpdateTask.onUpdate(this.room);
             }
 
             this.onTickDynamicObstacles();

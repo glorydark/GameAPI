@@ -99,7 +99,7 @@ public class BaseEventListener implements Listener {
                 event.setCancelled(true);
             }
             if (!room.getRoomRule().isAllowBreakBlock()) {
-                if (!room.getRoomRule().getAllowBreakBlocks().contains(event.getBlock().getId() + ":" + event.getBlock().getDamage())) {
+                if (!room.getRoomRule().getAllowBreakBlocks().contains(event.getBlock().getId() + ":" + event.getBlock().getDamage()) && !room.getRoomRule().getAllowBreakBlocks().contains(event.getBlock().getId() + "")) {
                     event.setCancelled(true);
                 } else {
                     RoomBlockBreakEvent roomBlockBreakEvent = new RoomBlockBreakEvent(room, event.getBlock(), player, event.getItem(), event.getInstaBreak(), event.getDrops(), event.getDropExp(), event.getFace());
@@ -164,7 +164,7 @@ public class BaseEventListener implements Listener {
                 event.setCancelled(true);
             } else {
                 if (!room.getRoomRule().isAllowPlaceBlock()) {
-                    if (!room.getRoomRule().getAllowPlaceBlocks().contains(event.getBlock().getId() + ":" + event.getBlock().getDamage())) {
+                    if (!room.getRoomRule().getAllowPlaceBlocks().contains(event.getBlock().getId() + ":" + event.getBlock().getDamage()) && !room.getRoomRule().getAllowPlaceBlocks().contains(event.getBlock().getId() + "")) {
                         event.setCancelled(true);
                     } else {
                         RoomBlockPlaceEvent roomBlockPlaceEvent = new RoomBlockPlaceEvent(room, event.getBlock(), player, event.getItem(), event.getBlockAgainst(), event.getBlockReplace());
