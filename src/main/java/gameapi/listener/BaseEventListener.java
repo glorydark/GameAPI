@@ -70,9 +70,7 @@ public class BaseEventListener implements Listener {
         Player player = event.getPlayer();
         Room room = RoomManager.getRoom(player);
         if (room != null) {
-            for (Player p : room.getPlayers()) {
-                p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.success", player.getName()));
-            }
+                room.sendMessageToAll(GameAPI.getLanguage().getTranslation("baseEvent.quit.success", player.getName()));
             if (room.getPlayers().contains(player)) {
                 room.removePlayer(player);
             } else {

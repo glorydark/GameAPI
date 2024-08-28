@@ -39,7 +39,7 @@ public class Language {
     }
 
     public String getTranslationWithDefaultValue(String language, String key, String defaultValue, Object... param) {
-        String processedText = (String) lang.getOrDefault(language, new HashMap<>()).getOrDefault(key, defaultValue == null ? "§c" + key : defaultValue);
+        String processedText = (String) lang.getOrDefault(language, new HashMap<>()).getOrDefault(key, defaultValue == null ? key : defaultValue);
         if (param.length > 0) {
             for (int i = 1; i <= param.length; i++) {
                 processedText = processedText.replaceAll("%" + i + "%", String.valueOf(param[i - 1]));

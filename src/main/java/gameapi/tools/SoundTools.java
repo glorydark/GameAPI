@@ -6,6 +6,9 @@ import cn.nukkit.level.Sound;
 import cn.nukkit.network.protocol.PlaySoundPacket;
 import cn.nukkit.network.protocol.StopSoundPacket;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 /**
  * @author Glorydark
  */
@@ -31,6 +34,16 @@ public class SoundTools {
 
     public static void addSoundToPlayer(Player player, Sound sound, float volume, float pitch) {
         addSoundToPlayer(player, sound.getSound(), volume, pitch);
+    }
+
+    public static void addSoundToPlayer(Player[] players, Sound sound, float volume, float pitch) {
+        addSoundToPlayer(Arrays.asList(players), sound, volume, pitch);
+    }
+
+    public static void addSoundToPlayer(Collection<Player> players, Sound sound, float volume, float pitch) {
+        for (Player player : players) {
+            addSoundToPlayer(player, sound.getSound(), volume, pitch);
+        }
     }
 
     /**

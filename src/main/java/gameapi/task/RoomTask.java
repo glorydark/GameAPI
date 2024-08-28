@@ -11,6 +11,7 @@ import gameapi.manager.tools.ScoreboardManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.room.state.StageState;
+import gameapi.utils.text.GameTranslationContainer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -177,14 +178,14 @@ public class RoomTask extends Task {
                 }
                 break;
             case PRESTART:
-                if (room.getTime() >= room.getWaitTime()) {
+                if (room.getTime() > room.getWaitTime()) {
                     room.getStatusExecutor().beginReadyStart();
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_READY_START);
                 } else {
                     int leftWaitTime = room.getWaitTime() - room.getTime();
                     if (leftWaitTime >= 15
                             && room.getPlayers().size() >= room.getAccelerateWaitCountDownPlayerCount()) {
-                        room.sendMessageToAll(GameAPI.getLanguage().getTranslation("room.game.wait.time_accelerated"));
+                        room.sendMessageToAll(new GameTranslationContainer("room.game.wait.time_accelerated"));
                         room.setTime(room.getWaitTime() - 15);
                     }
                     room.getStatusExecutor().onPreStart();
@@ -192,7 +193,7 @@ public class RoomTask extends Task {
                 }
                 break;
             case READY_START:
-                if (room.getTime() >= room.getGameWaitTime()) {
+                if (room.getTime() > room.getGameWaitTime()) {
                     room.setRound(room.getRound() + 1);
                     room.getStatusExecutor().beginGameStart();
                     room.setStartMillis(System.currentTimeMillis());
@@ -203,7 +204,7 @@ public class RoomTask extends Task {
                 }
                 break;
             case START:
-                if (!room.getRoomRule().isNoTimeLimit() && room.getTime() >= room.getGameTime()) {
+                if (!room.getRoomRule().isNoTimeLimit() && room.getTime() > room.getGameTime()) {
                     if (room.getRound() >= room.getMaxRound()) {
                         room.getStatusExecutor().beginGameEnd();
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
@@ -217,7 +218,7 @@ public class RoomTask extends Task {
                 }
                 break;
             case GAME_END:
-                if (room.getTime() >= room.getGameEndTime()) {
+                if (room.getTime() > room.getGameEndTime()) {
                     room.getStatusExecutor().beginCeremony();
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_CEREMONY);
                 } else {
@@ -226,7 +227,7 @@ public class RoomTask extends Task {
                 }
                 break;
             case CEREMONY:
-                if (room.getTime() >= room.getCeremonyTime()) {
+                if (room.getTime() > room.getCeremonyTime()) {
                     for (Player p : room.getPlayers()) {
                         p.setGamemode(2);
                         ScoreboardManager.removeScoreboard(p);
@@ -242,7 +243,7 @@ public class RoomTask extends Task {
                 }
                 break;
             case NEXT_ROUND_PRE_START:
-                if (room.getTime() >= room.getNextRoundPreStartTime()) {
+                if (room.getTime() > room.getNextRoundPreStartTime()) {
                     room.setRound(room.getRound() + 1);
                     room.getStatusExecutor().beginGameStart();
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_START);

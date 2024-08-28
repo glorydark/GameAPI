@@ -9,7 +9,6 @@ import gameapi.annotation.Experimental;
 import gameapi.event.room.RoomSupplyChestRefreshEvent;
 import gameapi.extensions.supplyChest.item.SupplyItem;
 import gameapi.listener.base.GameListenerRegistry;
-import gameapi.manager.GameDebugManager;
 import gameapi.room.Room;
 import lombok.Data;
 

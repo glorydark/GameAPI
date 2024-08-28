@@ -29,9 +29,10 @@ import gameapi.room.utils.HideType;
 import gameapi.room.utils.QuitRoomReason;
 import gameapi.tools.PlayerTools;
 import gameapi.tools.TipsTools;
+import gameapi.tools.TitleData;
 import gameapi.tools.WorldTools;
 import gameapi.utils.AdvancedLocation;
-import gameapi.utils.Language;
+import gameapi.utils.text.GameTextContainer;
 import it.unimi.dsi.fastutil.Function;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -358,6 +359,7 @@ public class Room {
             case ROOM_HALTED:
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
                 return;
+            case ROOM_STATUS_READY_START:
             case ROOM_STATUS_START:
                 if (!this.roomRule.isAllowJoinAfterStart()) {
                     if (this.getRoomRule().isAllowSpectators()) {
@@ -670,7 +672,7 @@ public class Room {
                 break;
         }
         for (Player p : this.getPlayers()) {
-            GameAPI.getLanguage().getTranslation(p, "room.game.broadcast.join_spectator", player.getName());
+            p.sendMessage(GameAPI.getLanguage().getTranslation(p, "room.game.broadcast.join_spectator", player.getName()));
         }
         this.spectators.add(player);
         RoomManager.getPlayerRoomHashMap().put(player, this);
@@ -904,6 +906,21 @@ public class Room {
         //GameAPI.getInstance().getLogger().info(string);
     }
 
+    public void sendMessageToAll(GameTextContainer text) {
+        this.sendMessageToAll(text, true);
+    }
+
+    public void sendMessageToAll(GameTextContainer text, boolean includeSpectators) {
+        for (Player player : this.players) {
+            player.sendMessage(text.getText(player));
+        }
+        if (includeSpectators) {
+            for (Player spectator : this.spectators) {
+                spectator.sendMessage(text.getText(spectator));
+            }
+        }
+    }
+
     public void sendActionbarToAll(String string) {
         this.sendActionbarToAll(string, true);
     }
@@ -912,6 +929,21 @@ public class Room {
         PlayerTools.sendActionbar(this.players, string);
         if (includeSpectators) {
             PlayerTools.sendActionbar(this.spectators, string);
+        }
+    }
+
+    public void sendActionbarToAll(GameTextContainer text) {
+        this.sendActionbarToAll(text, true);
+    }
+
+    public void sendActionbarToAll(GameTextContainer text, boolean includeSpectators) {
+        for (Player player : this.players) {
+            player.sendActionBar(text.getText(player));
+        }
+        if (includeSpectators) {
+            for (Player spectator : this.spectators) {
+                spectator.sendActionBar(text.getText(spectator));
+            }
         }
     }
 
@@ -930,6 +962,17 @@ public class Room {
         }
     }
 
+    public void sendTitleToAll(TitleData titleData) {
+        this.sendTitleToAll(titleData, true);
+    }
+
+    public void sendTitleToAll(TitleData titleData, boolean includeSpectators) {
+        PlayerTools.sendTitle(this.players, titleData);
+        if (includeSpectators) {
+            PlayerTools.sendTitle(this.spectators, titleData);
+        }
+    }
+
     public void sendTipToAll(String string) {
         this.sendTipToAll(string, true);
     }
@@ -941,47 +984,18 @@ public class Room {
         }
     }
 
-    public void sendMessageToAll(Language language, String string, Object... params) {
-        this.sendMessageToAll(language, string, true, params);
+    public void sendTipToAll(GameTextContainer text) {
+        this.sendTipToAll(text, true);
     }
 
-    public void sendMessageToAll(Language language, String string, boolean includeSpectators, Object... params) {
-        PlayerTools.sendMessage(this.players, language, string, params);
-        if (includeSpectators) {
-            PlayerTools.sendMessage(this.spectators, language, string, params);
+    public void sendTipToAll(GameTextContainer text, boolean includeSpectators) {
+        for (Player player : this.players) {
+            player.sendTip(text.getText(player));
         }
-    }
-
-    public void sendActionbarToAll(Language language, String string, Object... params) {
-        this.sendActionbarToAll(language, string, true, params);
-    }
-
-    public void sendActionbarToAll(Language language, String string, boolean includeSpectators, Object... params) {
-        PlayerTools.sendActionbar(this.players, language, string, params);
         if (includeSpectators) {
-            PlayerTools.sendActionbar(this.spectators, language, string, params);
-        }
-    }
-
-    public void sendTitleToAll(Language language, String string, Object... params) {
-        this.sendTitleToAll(language, string, true, params);
-    }
-
-    public void sendTitleToAll(Language language, String string, boolean includeSpectators, Object... params) {
-        PlayerTools.sendTitle(this.players, language, string, params);
-        if (includeSpectators) {
-            PlayerTools.sendTitle(this.spectators, language, string, params);
-        }
-    }
-
-    public void sendTipToAll(Language language, String string, Object... params) {
-        this.sendTipToAll(language, string, true, params);
-    }
-
-    public void sendTipToAll(Language language, String string, boolean includeSpectators, Object... params) {
-        PlayerTools.sendTip(this.players, language, string, params);
-        if (includeSpectators) {
-            PlayerTools.sendTip(this.spectators, language, string, params);
+            for (Player spectator : this.spectators) {
+                spectator.sendTip(text.getText(spectator));
+            }
         }
     }
 

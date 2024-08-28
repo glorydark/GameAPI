@@ -1,7 +1,6 @@
 package gameapi.entity;
 
 
-import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;

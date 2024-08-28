@@ -1,7 +1,6 @@
 package gameapi.manager;
 
 import cn.nukkit.Player;
-import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.logger.CustomFormatter;

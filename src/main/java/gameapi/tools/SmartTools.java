@@ -1,6 +1,8 @@
 package gameapi.tools;
 
+import cn.nukkit.Player;
 import gameapi.GameAPI;
+import gameapi.room.Room;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -164,5 +166,35 @@ public class SmartTools {
         Date date = new Date(millis);
         SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日");
         return format.format(date);
+    }
+
+    public static String getCountdownText(Room room, Player player) {
+        String beforeSign = GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.sign.before");
+        String afterSign = GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.sign.after");
+        int currentTime = room.getTime();
+        int totalTime = room.getGameWaitTime();
+        if (currentTime == totalTime) {
+            StringBuilder signResult = new StringBuilder();
+            for (int i = 0; i < totalTime; i++) {
+                signResult.append(beforeSign);
+            }
+            return GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.format", signResult, totalTime);
+        } else if (currentTime > 0) {
+            StringBuilder signResult = new StringBuilder();
+            for (int i = 1; i <= totalTime; i++) {
+                if (i <= currentTime) {
+                    signResult.append(afterSign);
+                } else {
+                    signResult.append(beforeSign);
+                }
+            }
+            return GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.format", signResult, totalTime);
+        } else {
+            StringBuilder signResult = new StringBuilder();
+            for (int i = 0; i < totalTime; i++) {
+                signResult.append(afterSign);
+            }
+            return GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.format", signResult, totalTime);
+        }
     }
 }

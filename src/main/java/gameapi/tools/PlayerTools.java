@@ -83,11 +83,17 @@ public class PlayerTools {
 
     public static void sendTitle(Player[] players, String title, String subtitle, int fadeIn, int stay, int fadeOut) {
         setTitleAnimationTimes(players, fadeIn, stay, fadeOut);
-        if (!subtitle.equals("")) {
+        if (!subtitle.isEmpty()) {
             setSubtitle(players, subtitle);
         }
 
         setTitle(players, title);
+    }
+
+    public static void sendTitle(Collection<Player> players, TitleData titleData) {
+        for (Player player : players) {
+            player.sendTitle(titleData.getTitle().getText(player), titleData.getSubtitle().getText(player), titleData.getFadeIn(), titleData.getDuration(), titleData.getFadeOut());
+        }
     }
 
     public static void setTitleAnimationTimes(Player[] players, int fadein, int duration, int fadeout) {

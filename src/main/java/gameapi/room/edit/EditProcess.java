@@ -6,7 +6,6 @@ import cn.nukkit.level.Position;
 import cn.nukkit.utils.ConfigSection;
 import gameapi.GameAPI;
 import gameapi.entity.TextEntity;
-import lombok.Getter;
 
 import java.util.*;
 

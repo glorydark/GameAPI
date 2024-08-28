@@ -1,7 +1,6 @@
 package gameapi.utils;
 
 import cn.nukkit.Player;
-import cn.nukkit.entity.Entity;
 import lombok.Data;
 import lombok.ToString;
 
