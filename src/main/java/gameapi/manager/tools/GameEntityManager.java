@@ -17,6 +17,7 @@ import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,6 +44,8 @@ public class GameEntityManager {
                         textEntity.close();
                         GameEntityManager.spawnTextEntity(textEntity.getPosition(), textEntityData.getDefaultText());
                         // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
+                    } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
+                        textEntity.close();
                     }
                     break;
                 case TextEntityData.TYPE_RANKING:
@@ -56,6 +59,8 @@ public class GameEntityManager {
                         textEntity.close();
                         GameEntityManager.spawnRankingListEntity(textEntity.getPosition(), ranking);
                         // GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
+                    } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
+                        textEntity.close();
                     }
                     break;
             }
@@ -79,19 +84,26 @@ public class GameEntityManager {
     }
 
     public static void spawnTextEntity(Position position, String content) {
-        TextEntity entity = new TextEntity(position.getChunk(), position, content, Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
+        if (position.isValid() && !position.getChunk().isLoaded()) {
+            try {
+                position.getChunk().load(true);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        TextEntity entity = new TextEntity(position.getChunk(), content, Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
         entity.setImmobile(true);
-        entity.scheduleUpdate();
         entity.spawnToAll();
+        entity.scheduleUpdate();
         rankingList.add(new TextEntityData(entity, position, content));
     }
 
     public static void spawnRankingListEntity(Position position, Ranking ranking) {
         ranking.refreshRankingData();
-        RankingListEntity entity = new RankingListEntity(ranking, position.getChunk(), position, Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
+        RankingListEntity entity = new RankingListEntity(ranking, position.getChunk(), Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
         entity.setImmobile(true);
-        entity.scheduleUpdate();
         entity.spawnToAll();
+        entity.scheduleUpdate();
         rankingList.add(new RankingEntityData(ranking, entity, position));
     }
 

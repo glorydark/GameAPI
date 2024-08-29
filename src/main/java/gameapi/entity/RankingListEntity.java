@@ -1,7 +1,6 @@
 package gameapi.entity;
 
 
-import cn.nukkit.level.Position;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 import gameapi.GameAPI;
@@ -13,8 +12,8 @@ public class RankingListEntity extends TextEntity {
 
     protected long lastUpdateMillis = 0L;
 
-    public RankingListEntity(Ranking ranking, FullChunk chunk, Position position, CompoundTag nbt) {
-        super(chunk, position, ranking.getDisplayContent(), nbt);
+    public RankingListEntity(Ranking ranking, FullChunk chunk, CompoundTag nbt) {
+        super(chunk, ranking.getDisplayContent(), nbt);
         this.ranking = ranking;
     }
 

@@ -55,15 +55,12 @@ public class RoomUpdateTask implements Runnable {
         if (this.room.getPlayers().isEmpty()) {
             return;
         }
+        for (Player player : new ArrayList<>(this.playerLocationHashMap.keySet())) {
+            if (!this.room.hasPlayer(player)) {
+                this.playerLocationHashMap.remove(player);
+            }
+        }
         try {
-            for (Player player : new ArrayList<>(this.playerLocationHashMap.keySet())) {
-                if (!this.room.hasPlayer(player)) {
-                    this.playerLocationHashMap.remove(player);
-                }
-            }
-            if (this.room.getPlayers().isEmpty()) {
-                return;
-            }
             // Internal Process
             for (Player player : this.room.getPlayers()) {
                 if (player.getGamemode() != 3) {
@@ -74,6 +71,7 @@ public class RoomUpdateTask implements Runnable {
                     this.room.getCheckpointManager().onUpdate(player);
                 }
             }
+
             if (!this.room.getCheckpointManager().getCheckpointDataList().isEmpty()) {
                 for (CheckpointData checkPointData : this.room.getCheckpointManager().getCheckpointDataList()) {
                     checkPointData.showParticleMarks(this.room.getPlayLevels().get(0));

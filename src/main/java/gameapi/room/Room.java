@@ -97,7 +97,7 @@ public class Room {
     private List<SupplyChest> supplyChests = new ArrayList<>();
     private RoomUpdateTask roomUpdateTask;
     private Map<String, RoomItemBase> roomItems = new LinkedHashMap<>();
-    private CheckpointManager checkpointManager = new CheckpointManager();
+    private CheckpointManager checkpointManager;
     private List<DynamicObstacle> dynamicObstacles = new ArrayList<>();
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
     private ScheduledExecutorService roomTaskExecutor = Executors.newScheduledThreadPool(4);
@@ -121,6 +121,7 @@ public class Room {
         this.roomUpdateTask = new RoomUpdateTask(this);
         this.roomLevelBackup = roomLevelBackup;
         this.createMillis = System.currentTimeMillis();
+        this.checkpointManager = new CheckpointManager(this);
     }
 
     public void registerRoomItem(RoomItemBase... roomItems) {

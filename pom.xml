@@ -63,23 +63,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.smallaswater.easysql</groupId>
-            <artifactId>EasyMySQL</artifactId>
-            <version>3.0.6</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>net.easecation</groupId>
             <artifactId>Ghosty</artifactId>
             <version>B20240115-MOT-C1-JAVA8</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.IWareQ</groupId>
-            <artifactId>FakeInventories</artifactId>
-            <version>v1.1.5</version>
         </dependency>
     </dependencies>
 

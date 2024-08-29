@@ -17,10 +17,13 @@ public class TextEntityData {
 
     private String defaultText;
 
+    private final long startMillis;
+
     public TextEntityData(Entity entity, Position position, String defaultText) {
         this.entity = entity;
         this.position = position;
         this.defaultText = defaultText;
+        this.startMillis = System.currentTimeMillis();
     }
 
     public void setEntity(Entity entity) {
@@ -49,5 +52,9 @@ public class TextEntityData {
 
     public String getDefaultText() {
         return defaultText;
+    }
+
+    public long getStartMillis() {
+        return startMillis;
     }
 }

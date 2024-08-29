@@ -223,11 +223,11 @@ public class GameAPI extends PluginBase implements Listener {
     public void loadAllPlayerGameData() {
         File[] files = new File(path + "/gameRecords/").listFiles();
         LinkedHashMap<String, Map<String, Object>> playerGameData = new LinkedHashMap<>();
-        if (files != null && files.length > 0) {
+        if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
                     File[] subFiles = file.listFiles();
-                    if (subFiles != null && subFiles.length > 0) {
+                    if (subFiles != null) {
                         for (File subFile : subFiles) {
                             String name = file.getName() + "/" + subFile.getName().split("\\.")[0];
                             playerGameData.put(name, new Config(subFile, Config.YAML).getAll());

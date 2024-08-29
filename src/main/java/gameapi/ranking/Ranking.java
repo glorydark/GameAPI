@@ -28,6 +28,7 @@ public class Ranking {
     private RankingListEntity entity;
     private Location location;
     private int maxDisplayCount;
+    private long lastUpdateMillis = 0L;
 
     public Ranking(Location location, RankingValueType valueType, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence, int maxDisplayCount) {
         this.location = location;
@@ -103,6 +104,9 @@ public class Ranking {
     }
 
     public void refreshRankingData() {
+        if (System.currentTimeMillis() - this.lastUpdateMillis <= 5000L) {
+            return;
+        }
         Map<String, Object> oldRankingData = new LinkedHashMap<>(this.getLatestRankingData());
         Map<String, Object> output = new LinkedHashMap<>();
         // 先转换成Map.Entry进行排序

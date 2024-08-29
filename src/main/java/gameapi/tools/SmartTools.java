@@ -2,6 +2,7 @@ package gameapi.tools;
 
 import cn.nukkit.Player;
 import gameapi.GameAPI;
+import gameapi.annotation.Internal;
 import gameapi.room.Room;
 
 import java.math.BigDecimal;
@@ -168,33 +169,79 @@ public class SmartTools {
         return format.format(date);
     }
 
+    public static String getCountdownText(int current, int max, int maxBlockCount, String occupied, String unoccupied, boolean reverse) {
+        int replacedBlockCount = new BigDecimal(current).divide(new BigDecimal(max), 2, RoundingMode.CEILING).multiply(new BigDecimal(maxBlockCount)).intValue();
+        if (replacedBlockCount > maxBlockCount) {
+            replacedBlockCount = maxBlockCount;
+        } else if (replacedBlockCount < 0) {
+            replacedBlockCount = 0;
+        }
+        if (replacedBlockCount == maxBlockCount) {
+            StringBuilder signResult = new StringBuilder();
+            for (int i = 0; i < maxBlockCount; i++) {
+                signResult.append(occupied);
+            }
+            return signResult.toString();
+        } else if (replacedBlockCount > 0) {
+            StringBuilder signResult = new StringBuilder();
+            for (int i = 1; i <= maxBlockCount; i++) {
+                if (reverse) {
+                    if (i <= replacedBlockCount) {
+                        signResult.insert(0, occupied);
+                    } else {
+                        signResult.insert(0, unoccupied);
+                    }
+                } else {
+                    if (i <= replacedBlockCount) {
+                        signResult.append(occupied);
+                    } else {
+                        signResult.append(unoccupied);
+                    }
+                }
+            }
+            return signResult.toString();
+        } else {
+            StringBuilder signResult = new StringBuilder();
+            for (int i = 0; i < maxBlockCount; i++) {
+                signResult.append(unoccupied);
+            }
+            return signResult.toString();
+        }
+    }
+
+    @Internal
     public static String getCountdownText(Room room, Player player) {
-        String beforeSign = GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.sign.before");
-        String afterSign = GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.sign.after");
+        String yellow = GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.sign.before");
+        String red = GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.sign.after.ready");
+        String grey = GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.sign.after");
         int currentTime = room.getTime();
         int totalTime = room.getGameWaitTime();
         if (currentTime == totalTime) {
             StringBuilder signResult = new StringBuilder();
             for (int i = 0; i < totalTime; i++) {
-                signResult.append(beforeSign);
+                signResult.append(grey);
             }
-            return GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.format", signResult, totalTime);
+            return GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.format", signResult, 0);
         } else if (currentTime > 0) {
             StringBuilder signResult = new StringBuilder();
             for (int i = 1; i <= totalTime; i++) {
                 if (i <= currentTime) {
-                    signResult.append(afterSign);
+                    signResult.insert(0, grey);
                 } else {
-                    signResult.append(beforeSign);
+                    if (totalTime - currentTime <= 3) {
+                        signResult.insert(0, red);
+                    } else {
+                        signResult.insert(0, yellow);
+                    }
                 }
             }
-            return GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.format", signResult, totalTime);
+            return GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.format", signResult, totalTime - currentTime);
         } else {
             StringBuilder signResult = new StringBuilder();
             for (int i = 0; i < totalTime; i++) {
-                signResult.append(afterSign);
+                signResult.append(yellow);
             }
-            return GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.format", signResult, totalTime);
+            return GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.format", signResult, totalTime - currentTime);
         }
     }
 }
