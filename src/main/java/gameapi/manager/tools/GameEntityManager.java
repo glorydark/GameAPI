@@ -36,31 +36,35 @@ public class GameEntityManager {
             switch (textEntityData.getEntityType()) {
                 case TextEntityData.TYPE_NORMAL:
                     if (textEntity == null) {
+                        rankingList.remove(textEntityData);
                         GameEntityManager.spawnTextEntity(textEntityData.getPosition(), textEntityData.getDefaultText());
                         // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
                     } else if (!textEntity.isAlive() || textEntity.isClosed()) {
                         rankingList.remove(textEntityData);
-                        textEntity.despawnFromAll();
-                        textEntity.close();
                         GameEntityManager.spawnTextEntity(textEntity.getPosition(), textEntityData.getDefaultText());
+                        textEntity.close();
                         // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
                     } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
+                        rankingList.remove(textEntityData);
+                        GameEntityManager.spawnTextEntity(textEntity.getPosition(), textEntityData.getDefaultText());
                         textEntity.close();
                     }
                     break;
                 case TextEntityData.TYPE_RANKING:
                     Ranking ranking = ((RankingEntityData) textEntityData).getRanking();
                     if (textEntity == null) {
-                        GameEntityManager.spawnRankingListEntity(textEntityData.getPosition(), ranking);
+                        rankingList.remove(textEntityData);
+                        ranking.spawnEntity();
                         // GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
                     } else if (!textEntity.isAlive() || textEntity.isClosed()) {
                         rankingList.remove(textEntityData);
-                        textEntity.despawnFromAll();
                         textEntity.close();
-                        GameEntityManager.spawnRankingListEntity(textEntity.getPosition(), ranking);
+                        ranking.spawnEntity();
                         // GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
                     } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
+                        rankingList.remove(textEntityData);
                         textEntity.close();
+                        ranking.spawnEntity();
                     }
                     break;
             }
@@ -91,7 +95,7 @@ public class GameEntityManager {
                 throw new RuntimeException(e);
             }
         }
-        TextEntity entity = new TextEntity(position.getChunk(), content, Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
+        TextEntity entity = new TextEntity(position.getChunk(), content, RankingListEntity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
         entity.setImmobile(true);
         entity.spawnToAll();
         entity.scheduleUpdate();
@@ -100,7 +104,7 @@ public class GameEntityManager {
 
     public static void spawnRankingListEntity(Position position, Ranking ranking) {
         ranking.refreshRankingData();
-        RankingListEntity entity = new RankingListEntity(ranking, position.getChunk(), Entity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
+        RankingListEntity entity = new RankingListEntity(ranking, position.getChunk(), RankingListEntity.getDefaultNBT(new Vector3(position.x, position.y, position.z)));
         entity.setImmobile(true);
         entity.spawnToAll();
         entity.scheduleUpdate();

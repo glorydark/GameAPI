@@ -7,6 +7,7 @@ import gameapi.GameAPI;
 import gameapi.room.Room;
 import gameapi.tools.*;
 import gameapi.utils.AdvancedLocation;
+import gameapi.utils.TitleData;
 import gameapi.utils.text.GameTranslationContainer;
 import lombok.Getter;
 

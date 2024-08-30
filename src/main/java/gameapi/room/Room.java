@@ -15,6 +15,7 @@ import gameapi.form.AdvancedFormWindowCustom;
 import gameapi.form.element.ResponsiveElementInput;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
+import gameapi.manager.music.NBSMusicManager;
 import gameapi.manager.room.AdvancedBlockManager;
 import gameapi.manager.room.CheckpointManager;
 import gameapi.manager.room.GhostyManager;
@@ -29,7 +30,7 @@ import gameapi.room.utils.HideType;
 import gameapi.room.utils.QuitRoomReason;
 import gameapi.tools.PlayerTools;
 import gameapi.tools.TipsTools;
-import gameapi.tools.TitleData;
+import gameapi.utils.TitleData;
 import gameapi.tools.WorldTools;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.text.GameTextContainer;
@@ -95,14 +96,15 @@ public class Room {
     private int id = -1;
     private List<StageState> stageStates = new ArrayList<>();
     private List<SupplyChest> supplyChests = new ArrayList<>();
-    private RoomUpdateTask roomUpdateTask;
-    private Map<String, RoomItemBase> roomItems = new LinkedHashMap<>();
-    private CheckpointManager checkpointManager;
     private List<DynamicObstacle> dynamicObstacles = new ArrayList<>();
-    private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
+    private Map<String, RoomItemBase> roomItems = new LinkedHashMap<>();
     private ScheduledExecutorService roomTaskExecutor = Executors.newScheduledThreadPool(4);
+    private RoomUpdateTask roomUpdateTask;
+    private CheckpointManager checkpointManager;
+    private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
     private AdvancedBlockManager advancedBlockManager = new AdvancedBlockManager();
     private GhostyManager ghostyManager = new GhostyManager();
+    private NBSMusicManager nbsMusicManager;
     private boolean autoDestroyOverTime = true; // 超过maxWaitMillis自动释放房间
     private List<String> roomAdmins = new ArrayList<>();
     private String creator = "";
@@ -122,6 +124,7 @@ public class Room {
         this.roomLevelBackup = roomLevelBackup;
         this.createMillis = System.currentTimeMillis();
         this.checkpointManager = new CheckpointManager(this);
+        this.nbsMusicManager = new NBSMusicManager(this, NBSMusicManager.PlayType.LIST);
     }
 
     public void registerRoomItem(RoomItemBase... roomItems) {
@@ -438,11 +441,12 @@ public class Room {
             this.roomVirtualHealthManager.removePlayer(player);
             this.removePlayerFromTeam(player);
             ScoreboardManager.removeScoreboard(player);
-            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
             this.updateHideStatus(player, true);
 
             this.players.remove(player);
             RoomManager.getPlayerRoomHashMap().remove(player);
+
+            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
         }
     }
 
@@ -620,10 +624,11 @@ public class Room {
         player.removeAllEffects();
         player.setGamemode(Server.getInstance().getDefaultGamemode());
         this.resetSpeed(player);
-        player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
         player.sendMessage(GameAPI.getLanguage().getTranslation("room.spectator.quit"));
         this.spectators.remove(player);
         RoomManager.getPlayerRoomHashMap().remove(player);
+
+        player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
     }
 
     public void processSpectatorJoin(Player player) {

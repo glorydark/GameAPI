@@ -18,8 +18,6 @@ import java.util.logging.Logger;
  */
 public class GameDebugManager {
 
-    private static GameDebugManager instance;
-
     private final Logger logger;
 
     private boolean enableConsoleDebug = true;
@@ -27,7 +25,6 @@ public class GameDebugManager {
     private final List<Player> players = new ArrayList<>();
 
     public GameDebugManager(String name, File saveDir) {
-        instance = this;
         try {
             String date = SmartTools.getDateWithoutDetails(System.currentTimeMillis());
             File dic = new File(saveDir.getPath() + File.separator + date + File.separator);
@@ -87,10 +84,6 @@ public class GameDebugManager {
 
     public List<Player> getPlayers() {
         return players;
-    }
-
-    public static GameDebugManager getInstance() {
-        return instance;
     }
 
     public void setEnableConsoleDebug(boolean enableConsoleDebug) {

@@ -534,7 +534,16 @@ public class BaseEventListener implements Listener {
                     event.setCancelled(true);
                     return;
                 }
+
                 Room room1 = room.get();
+                if (entity instanceof Player) {
+                    long diff = System.currentTimeMillis() - room1.getPlayerProperty(entity.getName(), "last_receive_entity_damage_millis", 0L);
+                    if (diff <= room1.getRoomRule().getPlayerReceiveEntityDamageCoolDownMillis()) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+
                 RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, event.getEntity(), event.getDamager(), event.getDamage(), event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
                 roomEntityDamageByEntityEvent.parseDamageModifierFloatMap(event);
                 GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
@@ -549,6 +558,7 @@ public class BaseEventListener implements Listener {
                     } else {
                         lastLivingEntityDamagedByEntitySources.put(entity.getId(), new EntityDamageSource(event.getDamager(), System.currentTimeMillis()));
                     }
+                    room1.setPlayerProperty(entity.getName(), "last_receive_entity_damage_millis", System.currentTimeMillis());
                 }
             }
         }
@@ -584,8 +594,8 @@ public class BaseEventListener implements Listener {
             return;
         }
         Room room = RoomManager.getRoom(player);
-        if (room != null) {
-            if (!fromLevel.equals(toLevel)) {
+        if (!fromLevel.equals(toLevel)) {
+            if (room != null) {
                 Set<Level> arenas = new HashSet<>();
                 if (room.getWaitSpawn() != null && room.getWaitSpawn().isValid()) {
                     arenas.add(room.getWaitSpawn().getLevel());
@@ -598,10 +608,19 @@ public class BaseEventListener implements Listener {
                         arenas.add(location.getLevel());
                     }
                 }
-                if (!player.isOp() && !arenas.contains(fromLevel) && !arenas.contains(toLevel)) {
-                    event.setCancelled(true);
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.level_change.not_allowed"));
+                if (!arenas.contains(toLevel)) {
+                    if (arenas.contains(fromLevel)) {
+                        if (room.getRoomRule().isAllowQuitByTeleport()) {
+                            room.removePlayer(player);
+                        } else {
+                            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.level_change.not_allowed"));
+                            event.setCancelled(true);
+                        }
+                    }
                 }
+            } else {
+                Optional<Room> roomOptional = RoomManager.getRoom(toLevel);
+                roomOptional.ifPresent(value -> value.addPlayer(player));
             }
         }
     }

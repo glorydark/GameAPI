@@ -70,6 +70,8 @@ public class RoomRule {
 
     private long attackCoolDownMillis = 0;
 
+    private long playerReceiveEntityDamageCoolDownMillis = 500;
+
     private boolean experimentalFeature = false;
 
     private List<String> allowJoinPlayers = new ArrayList<>();
@@ -89,6 +91,8 @@ public class RoomRule {
     private boolean autoAllocatePlayerToTeam = true;
 
     private int spectatorGameMode = 3;
+
+    private boolean allowQuitByTeleport = true;
 
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;

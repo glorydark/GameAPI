@@ -1,4 +1,4 @@
-package gameapi.tools;
+package gameapi.utils;
 
 import gameapi.utils.text.GameTextContainer;
 import gameapi.utils.text.GameTranslationContainer;

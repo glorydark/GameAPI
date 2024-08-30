@@ -107,6 +107,7 @@ public class Ranking {
         if (System.currentTimeMillis() - this.lastUpdateMillis <= 5000L) {
             return;
         }
+        this.lastUpdateMillis = System.currentTimeMillis();
         Map<String, Object> oldRankingData = new LinkedHashMap<>(this.getLatestRankingData());
         Map<String, Object> output = new LinkedHashMap<>();
         // 先转换成Map.Entry进行排序

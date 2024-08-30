@@ -4,6 +4,8 @@ import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.level.Location;
+import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
@@ -38,7 +40,7 @@ public class RoomUpdateTask implements Runnable {
     }
 
     public void addListener(Consumer<Room> roomConsumer) {
-        customTickListenerList.add(new RoomAdvancedUpdateTask() {
+        this.customTickListenerList.add(new RoomAdvancedUpdateTask() {
             @Override
             public void onUpdate(Room room) {
                 roomConsumer.accept(room);
@@ -47,7 +49,7 @@ public class RoomUpdateTask implements Runnable {
     }
 
     public void addListener(RoomAdvancedUpdateTask roomAdvancedUpdateTask) {
-        customTickListenerList.add(roomAdvancedUpdateTask);
+        this.customTickListenerList.add(roomAdvancedUpdateTask);
     }
 
     @Override
@@ -61,6 +63,7 @@ public class RoomUpdateTask implements Runnable {
             }
         }
         try {
+            List<FullChunk> updateLightChunks = new ArrayList<>();
             // Internal Process
             for (Player player : this.room.getPlayers()) {
                 if (player.getGamemode() != 3) {
@@ -69,6 +72,12 @@ public class RoomUpdateTask implements Runnable {
                     this.onUpdateRoomPlayerMovementEvent(player);
                     // RecordPoint
                     this.room.getCheckpointManager().onUpdate(player);
+                }
+
+                FullChunk chunk = player.getChunk();
+                if (!updateLightChunks.contains(chunk)) {
+                    chunk.populateSkyLight();
+                    updateLightChunks.add(chunk);
                 }
             }
 
@@ -87,7 +96,11 @@ public class RoomUpdateTask implements Runnable {
             }
 
             this.onTickDynamicObstacles();
+            if (!this.room.getNbsMusicManager().isStopped()) {
+                this.room.getNbsMusicManager().onTick();
+            }
         } catch (Exception e) {
+            e.printStackTrace();
             GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
                     + e + ":\n"
                     + Arrays.toString(e.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")

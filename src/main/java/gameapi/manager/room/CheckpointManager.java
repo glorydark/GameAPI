@@ -89,7 +89,6 @@ public class CheckpointManager {
     public void onUpdate(Player player) {
         if (this.room != null && this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
             if (!this.room.getPlayLevels().contains(player.getLevel())) {
-                GameDebugManager.getInstance().info("Found that " + player.getName() + " reached the checkpoint in another level, invalidating the record...");
                 return;
             }
             List<CheckpointData> data = this.checkpointDataList.stream()

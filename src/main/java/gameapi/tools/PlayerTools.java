@@ -8,6 +8,7 @@ import cn.nukkit.network.protocol.OnScreenTextureAnimationPacket;
 import cn.nukkit.network.protocol.SetTitlePacket;
 import cn.nukkit.network.protocol.TextPacket;
 import gameapi.utils.Language;
+import gameapi.utils.TitleData;
 
 import java.util.Collection;
 
