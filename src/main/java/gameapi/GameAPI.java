@@ -10,6 +10,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
+import cn.nukkit.utils.TextFormat;
 import gameapi.commands.BaseCommand;
 import gameapi.commands.HubCommand;
 import gameapi.commands.WorldEditCommand;
@@ -47,8 +48,12 @@ public class GameAPI extends PluginBase implements Listener {
 
     public static final int GAME_TASK_INTERVAL = 1; // this value should not be modified for the roomUpdateTask
     public static final long MAX_TEMP_ROOM_WAIT_MILLIS = 1800000L;
-    public static final int TEXT_ENTITY_UPDATE_TICK_INTERVAL = 20;
     protected static final int THREAD_POOL_SIZE = 8;
+
+    protected int rankingTextEntityRefreshIntervals;
+    protected boolean tipsEnabled;
+    protected boolean saveTempStates = false;
+    protected static GameDebugManager gameDebugManager;
     protected static final Language language = new Language("GameAPI");
     public static List<Player> worldEditPlayers = new ArrayList<>();
     public static List<EditProcess> editProcessList = new ArrayList<>();
@@ -66,10 +71,6 @@ public class GameAPI extends PluginBase implements Listener {
             return thread;
         }
     };
-    protected int entityRefreshIntervals;
-    protected boolean tipsEnabled;
-    protected boolean saveTempStates = false;
-    protected static GameDebugManager gameDebugManager;
 
     public static void addRoomEdit(EditProcess editProcess) {
         editProcessList.add(editProcess);
@@ -99,6 +100,17 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onEnable() {
+        this.getLogger().info(TextFormat.YELLOW + "\n" +
+                "------------------------------------------------------------------------\n" +
+                "  _______      ___      .___  ___.  _______     ___      .______    __  \n" +
+                " /  _____|    /   \\     |   \\/   | |   ____|   /   \\     |   _  \\  |  | \n" +
+                "|  |  __     /  ^  \\    |  \\  /  | |  |__     /  ^  \\    |  |_)  | |  | \n" +
+                "|  | |_ |   /  /_\\  \\   |  |\\/|  | |   __|   /  /_\\  \\   |   ___/  |  | \n" +
+                "|  |__| |  /  _____  \\  |  |  |  | |  |____ /  _____  \\  |  |      |  | \n" +
+                " \\______| /__/     \\__\\ |__|  |__| |_______/__/     \\__\\ | _|      |__| \n" +
+                "                                                                        \n" +
+                "                            Author: Glorydark                           \n" +
+                "------------------------------------------------------------------------");
         path = this.getDataFolder().getPath();
         instance = this;
         roomTaskExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE, threadFactory);
@@ -116,7 +128,7 @@ public class GameAPI extends PluginBase implements Listener {
         Config config = new Config(path + "/config.yml", Config.YAML);
         gameDebugManager.setEnableConsoleDebug(config.getBoolean("log_show_in_console", true));
         this.saveTempStates = config.getBoolean("save-temp-state", true);
-        this.entityRefreshIntervals = config.getInt("entity-refresh-intervals", 100);
+        this.rankingTextEntityRefreshIntervals = config.getInt("ranking-text-entity-refresh-intervals", 100);
         // load lang data
         this.loadLanguage();
         language.setDefaultLanguage(config.getString("default-language", "zh_CN"));
@@ -244,13 +256,13 @@ public class GameAPI extends PluginBase implements Listener {
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof RankingListEntity) {
-                    GameEntityManager.rankingList.clear();
+                    GameEntityManager.textEntityDataList.clear();
                     entity.close();
                 }
             }
         }
         Config config = new Config(path + "/rankings.yml");
-        entityRefreshIntervals = config.getInt("refresh_interval", 100);
+        this.rankingTextEntityRefreshIntervals = config.getInt("ranking-text-entity-refresh-intervals", 100);
         List<Map<String, Object>> maps = config.get("list", new ArrayList<>());
         for (Map<String, Object> map : maps) {
             String level = (String) map.get("level");
@@ -275,22 +287,27 @@ public class GameAPI extends PluginBase implements Listener {
             } else {
                 this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
             }
-            Ranking ranking = new SimpleRanking(location,
-                    Ranking.getRankingValueType((String) map.getOrDefault("value_type", "")),
-                    (String) map.getOrDefault("game_name", ""),
-                    (String) map.getOrDefault("data_name", ""),
-                    (String) map.getOrDefault("title", "Undefined"),
-                    "暂无数据",
-                    new RankingFormat(),
-                    Ranking.getRankingSortSequence((String) map.getOrDefault("sort_sequence", "descend")),
-                    (Integer) map.getOrDefault("max_show_count", 15)
-            );
-            ranking.spawnEntity();
+            String rankingIdentifier = map.getOrDefault("game_name", "") + "_" + map.getOrDefault("data_name", "");
+            if (!GameEntityManager.rankingFactory.containsKey(rankingIdentifier)) {
+                GameEntityManager.rankingFactory.put(
+                        rankingIdentifier,
+                        new SimpleRanking(Ranking.getRankingValueType((String) map.getOrDefault("value_type", "")),
+                                (String) map.getOrDefault("game_name", ""),
+                                (String) map.getOrDefault("data_name", ""),
+                                (String) map.getOrDefault("title", "Undefined"),
+                                "暂无数据",
+                                new RankingFormat(),
+                                Ranking.getRankingSortSequence((String) map.getOrDefault("sort_sequence", "descend")),
+                                (Integer) map.getOrDefault("max_show_count", 15)
+                        )
+                );
+            }
+            GameEntityManager.spawnRankingListEntity(location, GameEntityManager.rankingFactory.get(rankingIdentifier));
         }
     }
 
-    public int getEntityRefreshIntervals() {
-        return entityRefreshIntervals;
+    public int getRankingTextEntityRefreshIntervals() {
+        return rankingTextEntityRefreshIntervals;
     }
 
     public boolean isTipsEnabled() {

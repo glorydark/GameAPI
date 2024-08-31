@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 public class SmartTools {
 
     public static float timeDiffToFloat(long m1, long m2, int scale) {
-        return BigDecimal.valueOf(Math.abs(m1 - m2) / 1000f).setScale(scale, RoundingMode.CEILING).floatValue();
+        return BigDecimal.valueOf(Math.abs(m1 - m2) / 1000f).setScale(scale, RoundingMode.FLOOR).floatValue();
     }
 
     public static String timeDiffMillisToString(long m1, long m2) {
@@ -79,6 +79,41 @@ public class SmartTools {
             }
         } else {
             sb.append("000");
+        }
+        return sb.toString();
+    }
+
+    public static String secToTime(int seconds) {
+        int hour = seconds / 3600;
+        int minute = (seconds - hour * 3600) / 60;
+        int second = (seconds - hour * 3600 - minute * 60);
+
+        StringBuilder sb = new StringBuilder();
+        if (hour > 0) {
+            if (hour < 10) {
+                sb.append("0").append(hour).append(":");
+            } else {
+                sb.append(hour).append(":");
+            }
+        }
+        if (minute > 0) {
+            if (minute < 10) {
+                sb.append("0").append(minute).append(":");
+            } else {
+                sb.append(minute).append(":");
+            }
+        } else {
+            sb.append("00:");
+        }
+        if (second > 0) {
+            if (second < 10) {
+                sb.append("0").append(second);
+            } else {
+                sb.append(second);
+            }
+        }
+        if (second <= 0) {
+            sb.append("00");
         }
         return sb.toString();
     }
@@ -155,18 +190,6 @@ public class SmartTools {
 
     public <T> List<T> buildList(Supplier<List<T>> supplier) {
         return supplier.get();
-    }
-
-    public static String getDate(long millis) {
-        Date date = new Date(millis);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日 HH时mm分ss秒");
-        return format.format(date);
-    }
-
-    public static String getDateWithoutDetails(long millis) {
-        Date date = new Date(millis);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日");
-        return format.format(date);
     }
 
     public static String getCountdownText(int current, int max, int maxBlockCount, String occupied, String unoccupied, boolean reverse) {

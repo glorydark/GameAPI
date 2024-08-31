@@ -16,6 +16,7 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import com.google.gson.Gson;
 import gameapi.GameAPI;
+import gameapi.entity.data.RankingEntityData;
 import gameapi.entity.data.TextEntityData;
 import gameapi.form.AdvancedDoubleChestForm;
 import gameapi.form.element.ResponsiveElementSlotItem;
@@ -46,6 +47,11 @@ public class BaseCommand extends Command {
         if (strings.length > 0) {
             Player p = commandSender.asPlayer();
             switch (strings[0].toLowerCase()) {
+                case "rankinfo":
+                    for (Ranking ranking : GameEntityManager.rankingFactory.values()) {
+                        commandSender.sendMessage(ranking.getDisplayContent() + "\n");
+                    }
+                    break;
                 case "getchestpos":
                     if (p == null) {
                         return false;
@@ -78,7 +84,7 @@ public class BaseCommand extends Command {
                     }
                     break;
                 case "checkrank":
-                    for (TextEntityData entry : GameEntityManager.rankingList) {
+                    for (TextEntityData entry : GameEntityManager.textEntityDataList) {
                         Entity textEntity = entry.getEntity();
                         commandSender.sendMessage(textEntity.toString());
                     }

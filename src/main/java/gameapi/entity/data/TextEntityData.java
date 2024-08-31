@@ -1,7 +1,7 @@
 package gameapi.entity.data;
 
-import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Position;
+import gameapi.entity.TextEntity;
 
 /**
  * @author glorydark
@@ -11,7 +11,7 @@ public class TextEntityData {
     public static final String TYPE_NORMAL = "TextEntity";
     public static final String TYPE_RANKING = "RankingEntity";
 
-    private Entity entity;
+    private TextEntity entity;
 
     private Position position;
 
@@ -19,14 +19,14 @@ public class TextEntityData {
 
     private final long startMillis;
 
-    public TextEntityData(Entity entity, Position position, String defaultText) {
+    public TextEntityData(TextEntity entity, Position position, String defaultText) {
         this.entity = entity;
         this.position = position;
         this.defaultText = defaultText;
         this.startMillis = System.currentTimeMillis();
     }
 
-    public void setEntity(Entity entity) {
+    public void setEntity(TextEntity entity) {
         this.entity = entity;
     }
 
@@ -34,7 +34,7 @@ public class TextEntityData {
         this.position = position;
     }
 
-    public Entity getEntity() {
+    public TextEntity getEntity() {
         return entity;
     }
 

@@ -65,7 +65,7 @@ public class RoomUpdateTask implements Runnable {
         try {
             List<FullChunk> updateLightChunks = new ArrayList<>();
             // Internal Process
-            for (Player player : this.room.getPlayers()) {
+            for (Player player : new ArrayList<>(this.room.getPlayers())) {
                 if (player.getGamemode() != 3) {
                     this.onUpdateRoomBlockTreadEvent(player);
                     this.onUpdateRoomPlayerEnterPortalEvent(player);

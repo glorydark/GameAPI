@@ -1,9 +1,7 @@
 package gameapi.ranking;
 
-import cn.nukkit.level.Location;
 import gameapi.GameAPI;
 import gameapi.entity.RankingListEntity;
-import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.simple.RankingValueType;
 import gameapi.tools.SmartTools;
 import lombok.AccessLevel;
@@ -26,12 +24,10 @@ public class Ranking {
     private RankingFormat rankingFormat;
     @Setter(AccessLevel.NONE)
     private RankingListEntity entity;
-    private Location location;
     private int maxDisplayCount;
     private long lastUpdateMillis = 0L;
 
-    public Ranking(Location location, RankingValueType valueType, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence, int maxDisplayCount) {
-        this.location = location;
+    public Ranking(RankingValueType valueType, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence, int maxDisplayCount) {
         this.title = title;
         this.noDataContent = noDataContent;
         this.rankingFormat = rankingFormat;
@@ -161,10 +157,6 @@ public class Ranking {
         }
         // 导出为Map
         this.rankingData = output;
-    }
-
-    public void spawnEntity() {
-        GameEntityManager.spawnRankingListEntity(this.location, this);
     }
 
     public <T> Map<String, T> getMapByType(Map<String, Object> map, Class<T> clazz) {

@@ -4,7 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.logger.CustomFormatter;
-import gameapi.tools.SmartTools;
+import gameapi.tools.CalendarTools;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,12 +26,12 @@ public class GameDebugManager {
 
     public GameDebugManager(String name, File saveDir) {
         try {
-            String date = SmartTools.getDateWithoutDetails(System.currentTimeMillis());
+            String date = CalendarTools.getDateStringWithoutDetailsByDefault(System.currentTimeMillis());
             File dic = new File(saveDir.getPath() + File.separator + date + File.separator);
             dic.mkdirs();
             logger = Logger.getLogger(name);
             logger.setUseParentHandlers(false);
-            FileHandler fileHandler = new FileHandler(dic.getPath() + File.separator + SmartTools.getDate(System.currentTimeMillis()).replace(" ", "_") + ".log");
+            FileHandler fileHandler = new FileHandler(dic.getPath() + File.separator + CalendarTools.getDateStringByDefault(System.currentTimeMillis()).replace(" ", "_") + ".log");
             // Set a formatter to format log records
             CustomFormatter formatter = new CustomFormatter();
             fileHandler.setFormatter(formatter);

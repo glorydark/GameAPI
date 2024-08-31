@@ -16,8 +16,8 @@ public class SimpleRanking extends Ranking {
 
     private final String dataName;
 
-    public SimpleRanking(Location location, RankingValueType valueType, String gameName, String dataName, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence, int maxDisplayCount) {
-        super(location, valueType, title, noDataContent, rankingFormat, rankingSortSequence, maxDisplayCount);
+    public SimpleRanking(RankingValueType valueType, String gameName, String dataName, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence, int maxDisplayCount) {
+        super(valueType, title, noDataContent, rankingFormat, rankingSortSequence, maxDisplayCount);
         this.rankingData = new LinkedHashMap<>();
         this.gameName = gameName;
         this.dataName = dataName;

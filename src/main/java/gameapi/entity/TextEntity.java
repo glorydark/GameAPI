@@ -6,7 +6,6 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
-import gameapi.GameAPI;
 
 import java.util.ArrayList;
 
@@ -32,9 +31,6 @@ public class TextEntity extends Entity {
     public boolean onUpdate(int currentTick) {
         if (this.isClosed()) {
             return false;
-        }
-        if (currentTick % GameAPI.TEXT_ENTITY_UPDATE_TICK_INTERVAL != 0) {
-            return super.onUpdate(currentTick);
         }
         for (Player player : new ArrayList<>(this.getViewers().values())) {
             if (!player.isOnline() || player.getLevel() != this.getLevel()) {

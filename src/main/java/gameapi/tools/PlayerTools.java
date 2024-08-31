@@ -267,4 +267,12 @@ public class PlayerTools {
                 return "Unknown";
         }
     }
+
+    public static String getTrimmedPlayerName(Player player, int maxLength) {
+        if (player.getName().length() <= maxLength) {
+            return player.getName();
+        } else {
+            return player.getName().substring(0, maxLength - 4) + "...";
+        }
+    }
 }
