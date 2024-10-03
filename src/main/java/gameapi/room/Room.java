@@ -68,8 +68,8 @@ public class Room {
     private RoomStatus roomStatus = RoomStatus.ROOM_STATUS_WAIT;
     private List<Player> players = new ArrayList<>();
     private List<Player> spectators = new ArrayList<>();
-    private int maxPlayer = 2;
-    private int minPlayer = 16;
+    private int maxPlayer = 16;
+    private int minPlayer = 1;
     private int waitTime = 10;
     private int gameWaitTime = 10;
     private int gameTime = 10;
@@ -103,7 +103,7 @@ public class Room {
     private CheckpointManager checkpointManager;
     private RoomVirtualHealthManager roomVirtualHealthManager = new RoomVirtualHealthManager(this);
     private AdvancedBlockManager advancedBlockManager = new AdvancedBlockManager();
-    private GhostyManager ghostyManager = new GhostyManager();
+    private GhostyManager ghostyManager = new GhostyManager(this);
     private NBSMusicManager nbsMusicManager;
     private boolean autoDestroyOverTime = true; // 超过maxWaitMillis自动释放房间
     private List<String> roomAdmins = new ArrayList<>();
@@ -134,6 +134,9 @@ public class Room {
     }
 
     public RoomItemBase getRoomItem(String identifier) {
+        if (identifier.isEmpty()) {
+            return null;
+        }
         return this.roomItems.get(identifier);
     }
 
@@ -432,6 +435,7 @@ public class Room {
                     TipsTools.removeTipsConfig(playLevel.getName(), player);
                 }
             }
+            this.getGhostyManager().stopRecordingPlayer(player);
             player.getFoodData().reset();
             player.setFoodEnabled(true);
             this.resetSpeed(player);
@@ -499,6 +503,7 @@ public class Room {
         this.teamCache.forEach((s, team) -> team.resetAll());
         this.chatDataList = new ArrayList<>();
         this.getCheckpointManager().clearAllPlayerCheckPointData();
+        this.getGhostyManager().clearAll();
         this.roomVirtualHealthManager.clearAll();
         if (this.playLevels == null) {
             GameAPI.getInstance().getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());

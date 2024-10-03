@@ -13,9 +13,13 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class SmartTools {
-
+    
     public static float timeDiffToFloat(long m1, long m2, int scale) {
         return BigDecimal.valueOf(Math.abs(m1 - m2) / 1000f).setScale(scale, RoundingMode.FLOOR).floatValue();
+    }
+
+    public static double timeDiffToDouble(long m1, long m2, int scale) {
+        return BigDecimal.valueOf(Math.abs(m1 - m2) / 1000f).setScale(scale, RoundingMode.FLOOR).doubleValue();
     }
 
     public static String timeDiffMillisToString(long m1, long m2) {

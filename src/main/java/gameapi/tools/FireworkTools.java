@@ -1,5 +1,6 @@
 package gameapi.tools;
 
+import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.item.EntityFirework;
 import cn.nukkit.item.Item;
@@ -19,21 +20,37 @@ import java.util.concurrent.ThreadLocalRandom;
 public class FireworkTools {
 
     public static void spawnRandomFirework(Location location) {
-        spawnRandomFirework(location, false);
+        spawnRandomFirework(location, null);
+    }
+
+    public static void spawnRandomFirework(Location location, Player[] players) {
+        spawnRandomFirework(location, false, players);
     }
 
     public static void spawnRandomFirework(Location location, boolean isImmediateBomb) {
+        spawnRandomFirework(location, isImmediateBomb, null);
+    }
+
+    public static void spawnRandomFirework(Location location, boolean isImmediateBomb, Player[] players) {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         int i1 = random.nextInt(14);
         int i2 = random.nextInt(4);
-        FireworkTools.spawnFirework(location, FireworkTools.getColorByInt(i1), FireworkTools.getExplosionTypeByInt(i2), isImmediateBomb);
+        FireworkTools.spawnFirework(location, FireworkTools.getColorByInt(i1), FireworkTools.getExplosionTypeByInt(i2), isImmediateBomb, players);
     }
 
     public static void spawnFirework(Location location, DyeColor color, ItemFirework.FireworkExplosion.ExplosionType type) {
-        spawnFirework(location, color, type, false);
+        spawnFirework(location, color, type, null);
+    }
+
+    public static void spawnFirework(Location location, DyeColor color, ItemFirework.FireworkExplosion.ExplosionType type, Player[] players) {
+        spawnFirework(location, color, type, false, players);
     }
 
     public static void spawnFirework(Location location, DyeColor color, ItemFirework.FireworkExplosion.ExplosionType type, boolean isImmediateBomb) {
+        spawnFirework(location, color, type, isImmediateBomb, null);
+    }
+
+    public static void spawnFirework(Location location, DyeColor color, ItemFirework.FireworkExplosion.ExplosionType type, boolean isImmediateBomb, Player[] players) {
         if (location.getChunk() == null || location.getChunk().getProvider() == null) {
             return;
         }
@@ -49,15 +66,33 @@ public class FireworkTools {
         );
         entity.setFirework(item);
         entity.setMotion(new Vector3(0, 0.3, 0));
-        entity.spawnToAll();
-        if (isImmediateBomb) {
-            EntityEventPacket pk = new EntityEventPacket();
-            pk.data = 0;
-            pk.event = 25;
-            pk.eid = entity.getId();
-            entity.level.addLevelSoundEvent(location, 58, -1, 72);
-            Server.broadcastPacket(entity.getViewers().values(), pk);
-            entity.kill();
+        if (players == null) {
+            entity.spawnToAll();
+            if (isImmediateBomb) {
+                EntityEventPacket pk = new EntityEventPacket();
+                pk.data = 0;
+                pk.event = 25;
+                pk.eid = entity.getId();
+                entity.level.addLevelSoundEvent(location, 58, -1, 72);
+                Server.broadcastPacket(entity.getViewers().values(), pk);
+                entity.kill();
+            }
+        } else {
+            for (Player player : players) {
+                if (player == null) {
+                    continue;
+                }
+                entity.spawnTo(player);
+                if (isImmediateBomb) {
+                    EntityEventPacket pk = new EntityEventPacket();
+                    pk.data = 0;
+                    pk.event = 25;
+                    pk.eid = entity.getId();
+                    entity.level.addLevelSoundEvent(location, 58, -1, 72);
+                    player.dataPacket(pk);
+                    entity.kill();
+                }
+            }
         }
     }
 

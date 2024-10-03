@@ -5,7 +5,6 @@ import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.format.FullChunk;
-import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
@@ -17,10 +16,7 @@ import gameapi.extensions.obstacle.DynamicObstacle;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.task.RoomAdvancedUpdateTask;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -99,7 +95,7 @@ public class RoomUpdateTask implements Runnable {
             if (!this.room.getNbsMusicManager().isStopped()) {
                 this.room.getNbsMusicManager().onTick();
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
                     + e + ":\n"
@@ -139,19 +135,24 @@ public class RoomUpdateTask implements Runnable {
     }
 
     protected void onUpdateRoomPlayerEnterPortalEvent(Player player) {
-        if (player.blocksAround == null) {
-            player.blocksAround = new ArrayList<>();
-        }
-        if (player.collisionBlocks == null) {
-            player.collisionBlocks = new ArrayList<>();
-        }
-        for (Block collisionBlock : new ArrayList<>(player.getCollisionBlocks())) {
-            if (collisionBlock.getId() == 90) {
-                RoomPlayerEnterPortalEvent roomPlayerEnterPortalEvent = new RoomPlayerEnterPortalEvent(room, player);
-                GameListenerRegistry.callEvent(room, roomPlayerEnterPortalEvent);
-                player.inPortalTicks = 0;
-                break;
+        try {
+            if (player.blocksAround == null) {
+                player.blocksAround = new ArrayList<>();
             }
+            if (player.collisionBlocks == null) {
+                player.collisionBlocks = new ArrayList<>();
+            }
+            List<Block> collisionBlocks = new ArrayList<>(player.collisionBlocks);
+            collisionBlocks.removeIf(Objects::isNull);
+            for (Block collisionBlock : collisionBlocks) {
+                if (collisionBlock.getId() == 90) {
+                    RoomPlayerEnterPortalEvent roomPlayerEnterPortalEvent = new RoomPlayerEnterPortalEvent(this.room, player);
+                    GameListenerRegistry.callEvent(this.room, roomPlayerEnterPortalEvent);
+                    player.inPortalTicks = 0;
+                    break;
+                }
+            }
+        } catch (Throwable ignored) {
         }
     }
 

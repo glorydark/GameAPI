@@ -74,4 +74,13 @@ public class Language {
         this.defaultLanguage = defaultLanguage;
     }
 
+    public String getTranslationByFormat(String key, Object... param) {
+        String processedText = key;
+        if (param.length > 0) {
+            for (int i = 1; i <= param.length; i++) {
+                processedText = processedText.replaceAll("%" + i + "%", String.valueOf(param[i - 1]));
+            }
+        }
+        return processedText;
+    }
 }

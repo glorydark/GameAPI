@@ -1,6 +1,6 @@
 package gameapi.entity.data;
 
-import cn.nukkit.level.Position;
+import cn.nukkit.level.Location;
 import gameapi.entity.TextEntity;
 
 /**
@@ -13,15 +13,15 @@ public class TextEntityData {
 
     private TextEntity entity;
 
-    private Position position;
+    private Location location;
 
     private String defaultText;
 
     private final long startMillis;
 
-    public TextEntityData(TextEntity entity, Position position, String defaultText) {
+    public TextEntityData(TextEntity entity, Location location, String defaultText) {
         this.entity = entity;
-        this.position = position;
+        this.location = location;
         this.defaultText = defaultText;
         this.startMillis = System.currentTimeMillis();
     }
@@ -30,16 +30,16 @@ public class TextEntityData {
         this.entity = entity;
     }
 
-    public void setPosition(Position position) {
-        this.position = position;
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     public TextEntity getEntity() {
         return entity;
     }
 
-    public Position getPosition() {
-        return position;
+    public Location getLocation() {
+        return location;
     }
 
     public String getEntityType() {

@@ -105,7 +105,7 @@ public class WorldEditTools {
             GameAPI.getGameDebugManager().error(TextFormat.RED + "Center pos hasn't defined the level yet!");
             return;
         }
-        createCircle(null, centerPos, centerPos.getLevel(), block, radius, fillInside);
+        createBall(null, centerPos, centerPos.getLevel(), block, radius, fillInside);
     }
 
     public static void createBall(Player player, Vector3 centerPos, Block block, double radius, boolean fillInside) {

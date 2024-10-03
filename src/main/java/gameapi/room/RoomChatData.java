@@ -11,11 +11,18 @@ public class RoomChatData {
 
     String message;
 
+    String prefix;
+
+    String rawMessage = "";
+
+    String suffix = "";
+
     long timeMillis;
 
     public RoomChatData(String playerName, String message) {
         this.playerName = playerName;
         this.message = message;
+        this.rawMessage = message;
         this.timeMillis = System.currentTimeMillis();
     }
 
@@ -26,7 +33,27 @@ public class RoomChatData {
     }
 
     public String getDefaultChatMsg() {
-        return playerName + ": " + message;
+        return prefix + playerName + ": " + message + suffix;
+    }
+
+    public String getRawMessage() {
+        return rawMessage;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public String getSuffix() {
+        return suffix;
+    }
+
+    public void setSuffix(String suffix) {
+        this.suffix = suffix;
     }
 
     @Override

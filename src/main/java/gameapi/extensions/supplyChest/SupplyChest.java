@@ -43,8 +43,8 @@ public class SupplyChest {
         return this;
     }
 
-    public SupplyChest boundItem(SupplyItem... supplyItems) {
-        this.supplyItemList.addAll(Arrays.asList(supplyItems));
+    public SupplyChest boundItem(SupplyItem... boundItems) {
+        this.boundItemList.addAll(Arrays.asList(boundItems));
         return this;
     }
 
@@ -76,7 +76,7 @@ public class SupplyChest {
                     count++;
                 }
             }
-            RoomSupplyChestRefreshEvent event = new RoomSupplyChestRefreshEvent(room, this, supplyItemList);
+            RoomSupplyChestRefreshEvent event = new RoomSupplyChestRefreshEvent(this.room, this, this.supplyItemList);
             GameListenerRegistry.callEvent(this.room, event);
             if (!event.isCancelled()) {
                 entityChest.getInventory().clearAll();

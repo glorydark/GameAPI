@@ -83,6 +83,7 @@ public class NBSMusicManager {
         }
         this.currentTick++;
         this.currentSong.playTick(this.room.getPlayers().stream().filter(player -> !this.stopMusicPlayers.contains(player)).distinct().toArray(Player[]::new), this.currentTick);
+        this.currentSong.playTick(this.room.getSpectators().stream().filter(player -> !this.stopMusicPlayers.contains(player)).distinct().toArray(Player[]::new), this.currentTick);
         this.lastPlayed = System.currentTimeMillis();
     }
 

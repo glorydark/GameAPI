@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 
 @Experimental
 public class GameListenerRegistry {
+
+    public static String KEY_GLOBAL_LISTENER = "global";
+
     private static ConcurrentHashMap<String, List<RoomListener>> listeners = new ConcurrentHashMap<>();
 
     public static void clearAllRegisters() {
@@ -60,6 +63,7 @@ public class GameListenerRegistry {
     public static void callEvent(Room room, RoomEvent event) {
         String gameName = room.getGameName();
         List<RoomListener> find = new ArrayList<>(listeners.getOrDefault(gameName, new ArrayList<>()));
+        find.addAll(listeners.getOrDefault(KEY_GLOBAL_LISTENER, new ArrayList<>()));
         find = find.stream().sorted(Comparator.comparingInt(o -> o.getPriority().getSlot())).collect(Collectors.toList());
         for (RoomListener listener : find) {
             listener.callEvent(gameName, event);

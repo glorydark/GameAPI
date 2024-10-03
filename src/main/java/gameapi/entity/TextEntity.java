@@ -1,6 +1,5 @@
 package gameapi.entity;
 
-
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageEvent;
@@ -8,6 +7,7 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class TextEntity extends Entity {
 
@@ -28,16 +28,29 @@ public class TextEntity extends Entity {
         return 64;
     }
 
-    public boolean onUpdate(int currentTick) {
+    public void onAsyncUpdate(int currentTick) {
         if (this.isClosed()) {
-            return false;
+            return;
+        }
+        if (Arrays.stream(this.level.getEntities()).noneMatch(entity -> entity == this)) {
+            this.getLevel().addEntity(this);
         }
         for (Player player : new ArrayList<>(this.getViewers().values())) {
-            if (!player.isOnline() || player.getLevel() != this.getLevel()) {
-                this.despawnFrom(player);
+            if (this.getViewers().containsKey(player.getLoaderId())) {
+                if (!player.isOnline() || player.getLevel() != this.getLevel()) {
+                    this.despawnFrom(player);
+                }
+            } else {
+                if (player.getLevel() == this.getLevel()) {
+                    this.spawnTo(player);
+                }
             }
         }
-        return super.onUpdate(currentTick);
+    }
+
+    @Override
+    public boolean onUpdate(int currentTick) {
+        return true;
     }
 
     @Override

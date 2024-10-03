@@ -7,13 +7,17 @@ import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.MobArmorEquipmentPacket;
 import cn.nukkit.network.protocol.MobEquipmentPacket;
 import cn.nukkit.network.protocol.SetEntityMotionPacket;
 import gameapi.utils.Animation;
 import gameapi.utils.protocol.AnimateEntityPacketV2;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -214,5 +218,32 @@ public class EntityTools {
         pk.slots[2] = leggings;
         pk.slots[3] = boots;
         return pk;
+    }
+
+    public static Map<Integer, Item> getEntityArmorInventory(Entity entity) {
+        Map<Integer, Item> inventory = new Int2ObjectOpenHashMap<>();
+        if (entity.namedTag.contains("Armor")) {
+            ListTag<CompoundTag> listTag = entity.namedTag.getList("Armor", CompoundTag.class);
+            int count = 0;
+            for (CompoundTag item : listTag.getAll()) {
+                int slot = item.getByte("Slot");
+                if (slot < 0 || slot > 3) {
+                    continue;
+                }
+                if (slot < count) {
+                    continue;
+                }
+                inventory.put(slot, NBTIO.getItemHelper(item));
+                count++;
+            }
+        }
+        return inventory;
+    }
+
+    public static Item getEntityItemInHand(Entity entity) {
+        if (entity.namedTag.contains("Item")) {
+            return NBTIO.getItemHelper(entity.namedTag.getCompound("Item"));
+        }
+        return Item.AIR_ITEM;
     }
 }

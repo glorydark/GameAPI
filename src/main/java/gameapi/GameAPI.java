@@ -11,7 +11,8 @@ import cn.nukkit.level.Location;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
-import gameapi.commands.BaseCommand;
+import gameapi.achievement.AchievementManager;
+import gameapi.commands.GameAPICommandMain;
 import gameapi.commands.HubCommand;
 import gameapi.commands.WorldEditCommand;
 import gameapi.entity.RankingListEntity;
@@ -71,6 +72,7 @@ public class GameAPI extends PluginBase implements Listener {
             return thread;
         }
     };
+    protected static boolean experimentalFeature = false;
 
     public static void addRoomEdit(EditProcess editProcess) {
         editProcessList.add(editProcess);
@@ -137,10 +139,13 @@ public class GameAPI extends PluginBase implements Listener {
         this.loadAllPlayerGameData();
         this.loadRanking();
 
+        AchievementManager.load();
+
         this.getServer().getScheduler().scheduleRepeatingTask(instance, new RoomTask(), 20);
         this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
         this.getServer().getPluginManager().registerEvents(new AdvancedFormListener(), this);
-        this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
+        // this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
+        this.getServer().getCommandMap().register("", new GameAPICommandMain("gameapi"));
         this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
         this.getServer().getCommandMap().register("", new HubCommand("hub"));
         // others ...
@@ -320,5 +325,9 @@ public class GameAPI extends PluginBase implements Listener {
 
     public static GameDebugManager getGameDebugManager() {
         return gameDebugManager;
+    }
+
+    public static boolean isExperimentalFeature() {
+        return experimentalFeature;
     }
 }
