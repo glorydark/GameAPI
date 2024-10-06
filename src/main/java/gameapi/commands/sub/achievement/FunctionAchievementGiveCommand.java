@@ -1,24 +1,24 @@
-package gameapi.commands.sub.ranking;
+package gameapi.commands.sub.achievement;
 
 import cn.nukkit.command.CommandSender;
-import gameapi.GameAPI;
+import gameapi.achievement.AchievementManager;
 import gameapi.commands.base.EasySubCommand;
-import gameapi.manager.tools.GameEntityManager;
 
 /**
  * @author glorydark
  */
-public class FunctionRankingRefreshCommand extends EasySubCommand {
+public class FunctionAchievementGiveCommand extends EasySubCommand {
 
-    public FunctionRankingRefreshCommand(String name) {
+    public FunctionAchievementGiveCommand(String name) {
         super(name);
     }
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
-        GameEntityManager.closeAll();
-        GameAPI.getInstance().loadAllPlayerGameData();
-        GameAPI.getInstance().loadRanking();
+        if (args.length != 4) {
+            return false;
+        }
+        AchievementManager.endowAchievement(args[0], args[1], args[2], args[3]);
         return false;
     }
 

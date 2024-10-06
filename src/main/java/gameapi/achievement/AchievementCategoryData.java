@@ -12,8 +12,14 @@ public class AchievementCategoryData {
 
     public String displayName;
 
-    public AchievementCategoryData(String id, String displayName) {
+    private String iconPathType;
+
+    private String iconPath;
+
+    public AchievementCategoryData(String id, String displayName, String iconPathType, String iconPath) {
         this.id = id;
         this.displayName = displayName;
+        this.iconPathType = iconPathType;
+        this.iconPath = iconPath;
     }
 }

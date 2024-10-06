@@ -29,7 +29,7 @@ public class RoomUpdateTask implements Runnable {
 
     private final List<RoomAdvancedUpdateTask> customTickListenerList = new ArrayList<>();
 
-    private final HashMap<Player, Location> playerLocationHashMap = new HashMap<>();
+    private final Map<Player, Location> playerLocationHashMap = new HashMap<>();
 
     public RoomUpdateTask(Room room) {
         this.room = room;

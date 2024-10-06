@@ -28,12 +28,24 @@ public class AchievementManager {
         for (File file : Objects.requireNonNull(categoryDir.listFiles())) {
             Config config = new Config(file, Config.JSON);
             String categoryId = file.getName().substring(0, file.getName().lastIndexOf("."));
-            AchievementCategoryData achievementCategoryData = new AchievementCategoryData(categoryId, config.getString("display_name"));
+            AchievementCategoryData achievementCategoryData = new AchievementCategoryData(
+                    categoryId,
+                    config.getString("display_name"),
+                    config.getString("icon_path_type"),
+                    config.getString("icon_path")
+            );
             List<Map<String, Object>> achievementList = config.get("list", new ArrayList<>());
             for (Map<String, Object> map : achievementList) {
                 String achievementId = (String) map.getOrDefault("id", "null");
                 achievements.computeIfAbsent(achievementCategoryData, s -> new LinkedHashMap<>())
-                        .put(achievementId, new AchievementData(categoryId, achievementId, (String) map.getOrDefault("display_name", "null"), (String) map.getOrDefault("description", "null")));
+                        .put(achievementId, new AchievementData(
+                                categoryId,
+                                achievementId,
+                                (String) map.getOrDefault("display_name", "null"),
+                                (String) map.getOrDefault("description", "null"),
+                                (String) map.getOrDefault("icon_path_type", ""),
+                                (String) map.getOrDefault("icon_path", "")
+                        ));
             }
         }
         for (File file : Objects.requireNonNull(playerDataDir.listFiles())) {
@@ -55,13 +67,15 @@ public class AchievementManager {
     public static void endowAchievement(String player, String category, String achievementId, String reason) {
         long endowMillis = System.currentTimeMillis();
         ConfigSection section = ownedAchievementCaches.computeIfAbsent(player, s -> new ConfigSection());
-        section.getSection(category).set(achievementId, new ConfigSection() {
+        ConfigSection categorySection = section.getSection(category);
+        categorySection.set(achievementId, new ConfigSection() {
             {
                 this.put("time_millis", endowMillis);
                 this.put("reason", reason);
             }
         });
-        Config config = new Config(GameAPI.getPath() + "/achievements/player_data/" + player + ".yml");
+        section.set(category, categorySection);
+        Config config = new Config(GameAPI.getPath() + "/achievements/player_data/" + player + ".yml", Config.YAML);
         config.setAll(section);
         config.save();
     }
@@ -69,7 +83,7 @@ public class AchievementManager {
     public static void removeAchievement(String player, String category, String achievementId) {
         ConfigSection section = ownedAchievementCaches.computeIfAbsent(player, s -> new ConfigSection());
         section.getSection(category).remove(achievementId);
-        Config config = new Config(GameAPI.getPath() + "/achievements/player_data/" + player + ".yml");
+        Config config = new Config(GameAPI.getPath() + "/achievements/player_data/" + player + ".yml", Config.YAML);
         config.setAll(section);
         config.save();
     }

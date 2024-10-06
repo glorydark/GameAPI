@@ -48,8 +48,11 @@ public class RoomVirtualHealthManager {
                 .doubleValue();
         if (newHealth >= this.maxHealth) {
             newHealth = this.maxHealth;
-        } else if (newHealth < 0) {
+        } else if (newHealth < 0d) {
             newHealth = 0;
+        }
+        if (newHealth == 0d) {
+            this.room.setDeath(player);
         }
         this.healthMap.put(player, newHealth);
         resetHealthBar(player, newHealth);

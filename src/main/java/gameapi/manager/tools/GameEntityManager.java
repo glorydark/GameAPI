@@ -92,15 +92,18 @@ public class GameEntityManager {
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof TextEntity) {
-                    entity.kill();
+                    entity.close();
                 }
             }
         }
-        for (TextEntityData data : textEntityDataList) {
+        List<TextEntityData> cacheList = new ArrayList<>(textEntityDataList);
+        textEntityDataList.clear();
+        for (TextEntityData data : cacheList) {
             Entity textEntity = data.getEntity();
             textEntity.despawnFromAll();
             textEntity.close();
         }
+        rankingFactory.clear();
     }
 
     public static void spawnTextEntity(Location location, String content) {

@@ -36,7 +36,7 @@ import gameapi.utils.AdvancedLocation;
 import gameapi.utils.text.GameTextContainer;
 import it.unimi.dsi.fastutil.Function;
 import lombok.AccessLevel;
-import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
@@ -46,7 +46,8 @@ import java.util.stream.Collectors;
 /**
  * @author Glorydark
  */
-@Data
+@Getter
+@Setter
 public class Room {
 
     private final long createMillis;
@@ -700,6 +701,7 @@ public class Room {
         ev.setSubtitle(subtitle);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
+            player.setGamemode(this.roomRule.getSpectatorGameMode());
             if (!ev.isKeepExp()) {
                 player.setExperience(0, 0);
             }
@@ -731,7 +733,6 @@ public class Room {
             player.getFoodData().reset();
             player.extinguish();
             this.resetSpeed(player);
-            player.setGamemode(this.roomRule.getSpectatorGameMode());
         }
     }
 

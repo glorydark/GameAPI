@@ -3,8 +3,11 @@ package gameapi.commands;
 import gameapi.commands.base.EasyCommand;
 import gameapi.commands.sub.*;
 import gameapi.commands.sub.achievement.FunctionAchievementCommand;
+import gameapi.commands.sub.achievement.FunctionAchievementGiveCommand;
+import gameapi.commands.sub.achievement.FunctionAchievementReloadCommand;
 import gameapi.commands.sub.ranking.FunctionRankingAddCommand;
 import gameapi.commands.sub.ranking.FunctionRankingCheckCommand;
+import gameapi.commands.sub.ranking.FunctionRankingInfoCommand;
 import gameapi.commands.sub.ranking.FunctionRankingRefreshCommand;
 
 /**
@@ -35,11 +38,13 @@ public class GameAPICommandMain extends EasyCommand {
         // ranking system
         this.registerCommand(new FunctionRankingAddCommand("addrank"));
         this.registerCommand(new FunctionRankingCheckCommand("checkrank"));
-        this.registerCommand(new RankInfoCommand("rankinfo"));
+        this.registerCommand(new FunctionRankingInfoCommand("rankinfo"));
         this.registerCommand(new FunctionRankingRefreshCommand("refreshrank"));
 
         // other functions
         this.registerCommand(new FunctionActivityCommand("activity"));
         this.registerCommand(new FunctionAchievementCommand("achievement"));
+        this.registerCommand(new FunctionAchievementReloadCommand("reloadachievement"));
+        this.registerCommand(new FunctionAchievementGiveCommand("giveachievement"));
     }
 }

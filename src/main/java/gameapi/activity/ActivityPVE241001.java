@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.form.element.ElementButton;
+import cn.nukkit.utils.TextFormat;
 import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.form.element.ResponsiveElementButton;
 import gameapi.manager.data.PlayerGameDataManager;
@@ -21,11 +22,11 @@ public class ActivityPVE241001 {
         boolean goldClaimed = PlayerGameDataManager.getPlayerGameData(activityId, "gold_award", player.getName(), 0L) != 0L;
         boolean silverClaimed = PlayerGameDataManager.getPlayerGameData(activityId, "silver_award", player.getName(), 0L) != 0L;
         boolean bronzeClaimed = PlayerGameDataManager.getPlayerGameData(activityId, "bronze_award", player.getName(), 0L) != 0L;
-        AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("丧尸围城限时挑战", "您已通关第 " + finishedRound + " 关");
+        AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("丧尸围城限时挑战", "您已通关第 " + finishedRound + " 关\n" + TextFormat.YELLOW + "* 完成A市足球场遗址的对应场次可得限定称号哦！");
         if (epicClaimed) {
             simple.addButton(new ElementButton("§g§l前三名通关20关\n" + ActivityMain.STATUS_CLAIMED));
         } else {
-            if (player.getName().equals("pxx3694072") || player.getName().equals("walk3257")) {
+            if (player.getName().equals("pxx3694072") || player.getName().equals("walk3257") || player.getName().equals("Wissacy")) {
                 simple.addButton(
                         new ResponsiveElementButton("§g§l前三名通关20关\n" + ActivityMain.STATUS_UNCLAIMED)
                                 .onRespond(player1 -> {

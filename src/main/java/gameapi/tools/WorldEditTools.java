@@ -82,13 +82,14 @@ public class WorldEditTools {
     }
 
     public static void createCircle(CommandSender sender, Vector3 centerPos, Level level, Block block, double radius, boolean fillInside) {
+        final Vector3 centerPosFloored = centerPos.floor();
         AxisAlignedBB bb = new SimpleAxisAlignedBB(centerPos, centerPos);
         bb = bb.expand(radius, 0, radius);
         BlockFillTask fillTask = new BlockFillTask(level, block);
         bb.forEach((i, i1, i2) -> {
             Vector3 pos = new Vector3(i, i1, i2);
-            if (pos.distance(centerPos) <= radius) {
-                if (!fillInside && pos.distance(centerPos) <= radius - 1) {
+            if (pos.distance(centerPosFloored) <= radius) {
+                if (!fillInside && pos.distance(centerPosFloored) <= radius - 1) {
                     return;
                 }
                 fillTask.addPos(pos);
@@ -113,13 +114,14 @@ public class WorldEditTools {
     }
 
     public static void createBall(CommandSender sender, Vector3 centerPos, Level level, Block block, double radius, boolean fillInside) {
+        final Vector3 centerPosFloored = centerPos.floor();
         AxisAlignedBB bb = new SimpleAxisAlignedBB(centerPos, centerPos);
         bb = bb.expand(radius, radius, radius);
         BlockFillTask fillTask = new BlockFillTask(level, block);
         bb.forEach((i, i1, i2) -> {
             Vector3 pos = new Vector3(i, i1, i2);
-            if (pos.distance(centerPos) <= radius) {
-                if (!fillInside && pos.distance(centerPos) <= radius - 1) {
+            if (pos.distance(centerPosFloored) <= radius) {
+                if (!fillInside && pos.distance(centerPosFloored) <= radius - 1) {
                     return;
                 }
                 fillTask.addPos(pos);

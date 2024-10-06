@@ -2,6 +2,7 @@ package gameapi.achievement;
 
 import cn.nukkit.Player;
 import cn.nukkit.form.element.ElementButton;
+import cn.nukkit.form.element.ElementButtonImageData;
 import cn.nukkit.utils.TextFormat;
 import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.form.element.ResponsiveElementButton;
@@ -23,10 +24,27 @@ public class AchievementUIFactory {
             simple.setContent("\n\n\n     暂时没有任何成就哦！");
         } else {
             for (Map.Entry<AchievementCategoryData, Map<String, AchievementData>> entry : AchievementManager.getAchievements().entrySet()) {
-                simple.addButton(
-                        new ResponsiveElementButton(entry.getKey().getDisplayName())
-                                .onRespond(player1 -> showCategoryEntriesList(player1, entry.getKey()))
-                );
+                AchievementCategoryData achievementCategoryData = entry.getKey();
+                switch (achievementCategoryData.getIconPathType()) {
+                    case "url":
+                        simple.addButton(
+                                new ResponsiveElementButton(achievementCategoryData.getDisplayName(), new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_URL, achievementCategoryData.getIconPath()))
+                                        .onRespond(player1 -> showCategoryEntriesList(player1, achievementCategoryData))
+                        );
+                        break;
+                    case "path":
+                        simple.addButton(
+                                new ResponsiveElementButton(achievementCategoryData.getDisplayName(), new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_PATH, achievementCategoryData.getIconPath()))
+                                        .onRespond(player1 -> showCategoryEntriesList(player1, achievementCategoryData))
+                        );
+                        break;
+                    default:
+                        simple.addButton(
+                                new ResponsiveElementButton(achievementCategoryData.getDisplayName())
+                                        .onRespond(player1 -> showCategoryEntriesList(player1, achievementCategoryData))
+                        );
+                        break;
+                }
             }
         }
         simple.showToPlayer(player);
@@ -55,12 +73,31 @@ public class AchievementUIFactory {
                 }
                 return 0;
             }).forEach(entry -> {
+                AchievementData achievementData = entry.getValue();
                 boolean hasAchievement = AchievementManager.hasAchievement(player.getName(), achievementCategoryData.id, entry.getKey());
-                String achievementName = entry.getValue().getDisplayName();
-                if (hasAchievement) {
-                    simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_HAS_ACHIEVEMENT));
-                } else {
-                    simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_UNCLAIMED_ACHIEVEMENT));
+                String achievementName = achievementData.getDisplayName();
+                switch (achievementData.getIconPathType()) {
+                    case "url":
+                        if (hasAchievement) {
+                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_HAS_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_URL, achievementData.getIconPath())));
+                        } else {
+                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_UNCLAIMED_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_URL, achievementData.getIconPath())));
+                        }
+                        break;
+                    case "path":
+                        if (hasAchievement) {
+                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_HAS_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_PATH, achievementData.getIconPath())));
+                        } else {
+                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_UNCLAIMED_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_PATH, achievementData.getIconPath())));
+                        }
+                        break;
+                    default:
+                        if (hasAchievement) {
+                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_HAS_ACHIEVEMENT));
+                        } else {
+                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_UNCLAIMED_ACHIEVEMENT));
+                        }
+                        break;
                 }
             });
         }

@@ -6,13 +6,13 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import gameapi.event.Cancellable;
 import gameapi.room.Room;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Cancellable {
 
-    private float finalDamage; // only used in query instead of modifying damage
-    protected float damage;
+    // only used in query instead of modifying damage
     protected int attackCoolDown;
 
     protected float knockBack;
@@ -23,10 +23,8 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
 
     protected Map<EntityDamageByEntityEvent.DamageModifier, Float> damageModifierFloatMap = new LinkedHashMap<>();
 
-    public RoomEntityDamageByEntityEvent(Room room, Entity entity, Entity damager, float damage, float finalDamage, int attackCoolDown, float knockBack, EntityDamageEvent.DamageCause cause) {
+    public RoomEntityDamageByEntityEvent(Room room, Entity entity, Entity damager, int attackCoolDown, float knockBack, EntityDamageEvent.DamageCause cause) {
         super(room, entity);
-        this.damage = damage;
-        this.finalDamage = finalDamage;
         this.attackCoolDown = attackCoolDown;
         this.damager = damager;
         this.knockBack = knockBack;
@@ -53,7 +51,7 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
     }
 
     public float getDamage() {
-        return damage;
+        return this.getDamage(EntityDamageEvent.DamageModifier.BASE);
     }
 
     public float getDamage(EntityDamageEvent.DamageModifier damageModifier) {
@@ -61,7 +59,7 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
     }
 
     public void setDamage(float damage) {
-        this.damage = damage;
+        this.setDamage(EntityDamageEvent.DamageModifier.BASE, damage);
     }
 
     public void setDamage(EntityDamageEvent.DamageModifier damageModifier, float value) {
@@ -69,7 +67,13 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
     }
 
     public float getFinalDamage() {
-        return finalDamage;
+        float damage = 0.0F;
+        for (Float d : this.damageModifierFloatMap.values()) {
+            if (d != null) {
+                damage += d;
+            }
+        }
+        return damage;
     }
 
     public float getKnockBack() {
@@ -84,7 +88,7 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
         return cause;
     }
 
-    public void setFinalDamage(float finalDamage) {
-        this.finalDamage = finalDamage;
+    public Map<EntityDamageByEntityEvent.DamageModifier, Float> getDamageModifierFloatMap() {
+        return damageModifierFloatMap;
     }
 }

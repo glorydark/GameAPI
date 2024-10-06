@@ -1,4 +1,4 @@
-package gameapi.commands.sub;
+package gameapi.commands.sub.ranking;
 
 import cn.nukkit.command.CommandSender;
 import gameapi.commands.base.EasySubCommand;
@@ -8,9 +8,9 @@ import gameapi.ranking.Ranking;
 /**
  * @author glorydark
  */
-public class RankInfoCommand extends EasySubCommand {
+public class FunctionRankingInfoCommand extends EasySubCommand {
 
-    public RankInfoCommand(String name) {
+    public FunctionRankingInfoCommand(String name) {
         super(name);
     }
 

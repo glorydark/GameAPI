@@ -23,7 +23,9 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.MovePlayerPacket;
+import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
+import gameapi.activity.ActivityLobbyTask;
 import gameapi.commands.WorldEditCommand;
 import gameapi.entity.GameProjectileEntity;
 import gameapi.event.block.RoomBlockBreakEvent;
@@ -33,14 +35,15 @@ import gameapi.event.inventory.RoomInventoryPickupItemEvent;
 import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
-import gameapi.manager.room.RoomVirtualHealthManager;
+import gameapi.manager.data.PlayerGameDataManager;
+import gameapi.room.DefaultPropertyKey;
 import gameapi.room.Room;
 import gameapi.room.RoomChatData;
 import gameapi.room.RoomStatus;
 import gameapi.room.edit.EditProcess;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
-import gameapi.tools.GameAPIComponentParser;
+import gameapi.tools.FireworkTools;
 import gameapi.utils.*;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
@@ -379,7 +382,7 @@ public class BaseEventListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        long diff = System.currentTimeMillis() - room.getPlayerProperty(player.getName(), "last_receive_entity_damage_millis", 0L);
+        long diff = System.currentTimeMillis() - room.getPlayerProperty(player.getName(), DefaultPropertyKey.KEY_LAST_RECEIVE_ENTITY_DAMAGE_MILLIS, 0L);
         if (diff <= room.getRoomRule().getPlayerReceiveEntityDamageCoolDownMillis()) {
             event.setCancelled(true);
             return;
@@ -404,20 +407,7 @@ public class BaseEventListener implements Listener {
                 }
                 break;
         }
-        if (room.getRoomRule().isVirtualHealth()) {
-            RoomVirtualHealthManager manager = room.getRoomVirtualHealthManager();
-            if (manager.getHealth(player) - event.getFinalDamage() <= 0d) {
-                manager.setHealth(player, manager.getMaxHealth());
-                damageSources.remove(entity.getName());
-                room.setDeath(player);
-                if (room.getRoomRule().isAllowRespawn()) {
-                    int respawnTicks = room.getRoomRule().getRespawnCoolDownTick();
-                    room.addRespawnTask(player, respawnTicks);
-                    event.setCancelled(true);
-                }
-                return;
-            }
-        } else {
+        if (!room.getRoomRule().isVirtualHealth()) {
             if (entity.getHealth() - event.getFinalDamage() <= 0f) {
                 room.setDeath(player); // 设置死亡
                 if (event.getCause() != EntityDamageEvent.DamageCause.VOID) {
@@ -445,7 +435,7 @@ public class BaseEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void EntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
         Entity entity = event.getEntity();
         Entity entity2 = event.getDamager();
@@ -470,20 +460,7 @@ public class BaseEventListener implements Listener {
                         return;
                     }
                 }
-                if (room1.getRoomRule().isVirtualHealth()) {
-                    RoomVirtualHealthManager manager = room1.getRoomVirtualHealthManager();
-                    if (manager.getHealth(victim) - event.getFinalDamage() <= 0d) {
-                        addPlayerDamageSource(victim.getName(), damager.getName());
-                        room1.setDeath(victim); // 设置死亡
-                        manager.setHealth(victim, manager.getMaxHealth());
-                        damageSources.remove(entity.getName());
-                        if (room1.getRoomRule().isAllowRespawn()) {
-                            int respawnTicks = room1.getRoomRule().getRespawnCoolDownTick();
-                            room1.addRespawnTask(victim, respawnTicks);
-                        }
-                        return;
-                    }
-                } else {
+                if (!room1.getRoomRule().isVirtualHealth()) {
                     if (entity.getHealth() - event.getFinalDamage() <= 0f) {
                         addPlayerDamageSource(victim.getName(), damager.getName());
                         room1.setDeath(victim); // 设置死亡
@@ -506,29 +483,28 @@ public class BaseEventListener implements Listener {
                 if (!room1.getRoomRule().isUseDefaultAttackCooldown()) {
                     long cd = room1.getRoomRule().getAttackCoolDownMillis();
                     if (cd > 0) {
-                        long diff = System.currentTimeMillis() - room1.getPlayerProperty(damager, "last_attack_millis", 0L);
+                        long diff = System.currentTimeMillis() - room1.getPlayerProperty(damager, DefaultPropertyKey.KEY_LAST_ATTACK_MILLIS, 0L);
                         if (diff < cd) {
                             event.setCancelled(true);
                             return;
                         }
-                        room1.setPlayerProperty(damager, "last_attack_millis", System.currentTimeMillis());
+                        room1.setPlayerProperty(damager, DefaultPropertyKey.KEY_LAST_ATTACK_MILLIS, System.currentTimeMillis());
                     }
                 }
 
-                RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, entity, damager, event.getDamage(), event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
+                RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, entity, damager, event.getAttackCooldown(), event.getKnockBack(), event.getCause());
                 roomEntityDamageByEntityEvent.parseDamageModifierFloatMap(event);
                 GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
                 if (roomEntityDamageByEntityEvent.isCancelled()) {
                     event.setCancelled(true);
                 } else {
                     if (event.getEntity() instanceof Player && room1.getRoomRule().isVirtualHealth()) {
-                        room1.getRoomVirtualHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getDamage()).doubleValue());
+                        room1.getRoomVirtualHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getFinalDamage()).doubleValue());
                         event.setDamage(0);
                     } else {
                         for (EntityDamageEvent.DamageModifier value : EntityDamageEvent.DamageModifier.values()) {
                             event.setDamage(roomEntityDamageByEntityEvent.getDamage(value), value);
                         }
-                        event.setDamage(roomEntityDamageByEntityEvent.getDamage());
                     }
                     event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
                     event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
@@ -545,14 +521,14 @@ public class BaseEventListener implements Listener {
 
                 Room room1 = room.get();
                 if (entity instanceof Player) {
-                    long diff = System.currentTimeMillis() - room1.getPlayerProperty(entity.getName(), "last_receive_entity_damage_millis", 0L);
+                    long diff = System.currentTimeMillis() - room1.getPlayerProperty(entity.getName(), DefaultPropertyKey.KEY_LAST_RECEIVE_ENTITY_DAMAGE_MILLIS, 0L);
                     if (diff <= room1.getRoomRule().getPlayerReceiveEntityDamageCoolDownMillis()) {
                         event.setCancelled(true);
                         return;
                     }
                 }
 
-                RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, event.getEntity(), event.getDamager(), event.getDamage(), event.getFinalDamage(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
+                RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, event.getEntity(), event.getDamager(), event.getAttackCooldown(), event.getKnockBack(), event.getCause());
                 roomEntityDamageByEntityEvent.parseDamageModifierFloatMap(event);
                 GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
                 if (roomEntityDamageByEntityEvent.isCancelled()) {
@@ -566,7 +542,11 @@ public class BaseEventListener implements Listener {
                     } else {
                         lastLivingEntityDamagedByEntitySources.put(entity.getId(), new EntityDamageSource(event.getDamager(), System.currentTimeMillis()));
                     }
-                    room1.setPlayerProperty(entity.getName(), "last_receive_entity_damage_millis", System.currentTimeMillis());
+                    if (event.getEntity() instanceof Player && room1.getRoomRule().isVirtualHealth()) {
+                        room1.getRoomVirtualHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getFinalDamage()).doubleValue());
+                        event.setDamage(0);
+                    }
+                    room1.setPlayerProperty(entity.getName(), DefaultPropertyKey.KEY_LAST_RECEIVE_ENTITY_DAMAGE_MILLIS, System.currentTimeMillis());
                 }
             }
         }
@@ -802,7 +782,14 @@ public class BaseEventListener implements Listener {
                             editProcess.getCurrentStep().onInteract(player, block);
                         }
                     }
-                    break;
+                }
+            }
+            if (player.getLevelName().equals("world") && event.getBlock() != null && event.getBlock().getId() == Block.LIGHT_WEIGHTED_PRESSURE_PLATE && event.getBlock().distance(new Vector3(84, 45, -42)) <= 1) {
+                boolean parkourFinishStatus = PlayerGameDataManager.getPlayerGameData(ActivityLobbyTask.activityId, "parkkour_finished", player.getName(), false);
+                if (!parkourFinishStatus) {
+                    FireworkTools.spawnRandomFirework(player);
+                    player.sendMessage(TextFormat.GREEN + "恭喜你完成了主城跑酷，请前往福利姬的主城活动界面领取奖励吧！");
+                    PlayerGameDataManager.setPlayerGameData(ActivityLobbyTask.activityId, "parkkour_finished", player.getName(), true);
                 }
             }
         }
@@ -943,8 +930,8 @@ public class BaseEventListener implements Listener {
         Room room = RoomManager.getRoom(player);
         if (room != null) {
             if (room.getRoomRule().isVirtualHealth()) {
-                if (room.getRoomVirtualHealthManager().getHealth(player) > 0) {
-                    player.setHealth(player.getMaxHealth());
+                if (room.getRoomVirtualHealthManager().getHealth(player) > 0d) {
+                    player.setHealth(1);
                     event.setCancelled(true);
                     return;
                 }
