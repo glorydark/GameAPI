@@ -172,7 +172,7 @@ public class WorldEditTools {
             GameAPI.getInstance().getLogger().info("You have started a task of creating or saving build. Please wait...");
             return;
         }
-        File[] files = new File(GameAPI.getPath() + "/buildings/" + fileName + "/").listFiles();
+        File[] files = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + fileName + File.separator).listFiles();
         if (files == null) {
             sender.sendMessage("Cannot find folder");
             return;
@@ -248,7 +248,7 @@ public class WorldEditTools {
     }
 
     public static void generateBuild(String fileName, Vector3 startPos, Level level) {
-        File[] files = new File(GameAPI.getPath() + "/buildings/" + fileName + "/").listFiles();
+        File[] files = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + fileName + File.separator).listFiles();
         if (files == null) {
             GameAPI.getInstance().getLogger().error("Cannot find folder");
             return;
@@ -392,8 +392,8 @@ public class WorldEditTools {
                     }
                     if (queryBlockTimes.get() >= newBB.getSize()) {
                         if (readBlockCountForSection.get() != 0) {
-                            new File(GameAPI.getPath() + "/buildings/" + name + "/").mkdirs();
-                            File file = new File(GameAPI.getPath() + "/buildings/" + name + "/" + System.currentTimeMillis() + "_" + UUID.randomUUID() + ".nbt");
+                            new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + "/").mkdirs();
+                            File file = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + File.separator + System.currentTimeMillis() + "_" + UUID.randomUUID() + ".nbt");
                             if (file.exists()) {
                                 try {
                                     file.createNewFile();

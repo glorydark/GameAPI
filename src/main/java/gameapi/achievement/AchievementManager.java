@@ -75,7 +75,7 @@ public class AchievementManager {
             }
         });
         section.set(category, categorySection);
-        Config config = new Config(GameAPI.getPath() + "/achievements/player_data/" + player + ".yml", Config.YAML);
+        Config config = new Config(GameAPI.getPath() + File.separator + "achievements" + File.separator + "player_data" + File.separator + player + ".yml", Config.YAML);
         config.setAll(section);
         config.save();
     }
@@ -83,7 +83,7 @@ public class AchievementManager {
     public static void removeAchievement(String player, String category, String achievementId) {
         ConfigSection section = ownedAchievementCaches.computeIfAbsent(player, s -> new ConfigSection());
         section.getSection(category).remove(achievementId);
-        Config config = new Config(GameAPI.getPath() + "/achievements/player_data/" + player + ".yml", Config.YAML);
+        Config config = new Config(GameAPI.getPath() + File.separator + "achievements" + File.separator + "player_data" + File.separator + player + ".yml", Config.YAML);
         config.setAll(section);
         config.save();
     }

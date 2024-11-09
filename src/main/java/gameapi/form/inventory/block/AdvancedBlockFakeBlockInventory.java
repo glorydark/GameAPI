@@ -27,6 +27,8 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
 
     protected Map<Integer, BiConsumer<Player, BlockInventoryResponse>> responseMap = new LinkedHashMap<>();
     protected boolean itemMovable;
+    @Deprecated
+    protected boolean itemCanPick;
     private List<FakeBlockCacheData> fakeBlockList = new ArrayList<>();
 
     public AdvancedBlockFakeBlockInventory(BlockFakeInventoryType fakeBlockFormType) {
@@ -37,7 +39,7 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
         super(title, fakeBlockFormType);
     }
 
-    public void dealResponse(Player player, BlockInventoryResponse blockInventoryResponse) {
+    public void dealOnClickResponse(Player player, BlockInventoryResponse blockInventoryResponse) {
 
     }
 
@@ -55,7 +57,7 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
 
     @Override
     public void onOpen(Player player) {
-        if (this.getFakeBlockList().size() != 0) {
+        if (!this.getFakeBlockList().isEmpty()) {
             FakeBlockCacheData fakeBlock = this.getFakeBlockList().get(0);
             ContainerOpenPacket packet = new ContainerOpenPacket();
             packet.windowId = player.getWindowId(this);
@@ -86,7 +88,7 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
         Map<Integer, Item> itemMap = this.getContents();
         itemMap.put(slot, item);
         this.setContents(itemMap);
-        if (this.getViewers().size() > 0) {
+        if (!this.getViewers().isEmpty()) {
             this.sendContents(this.getViewers());
         }
     }
@@ -96,7 +98,7 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
         itemMap.put(slot, item.getItem());
         this.responseMap.put(slot, item.getResponse());
         this.setContents(itemMap);
-        if (this.getViewers().size() > 0) {
+        if (!this.getViewers().isEmpty()) {
             this.sendContents(this.getViewers());
         }
     }
@@ -117,8 +119,16 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
         return itemMovable;
     }
 
+    public boolean isItemCanPick() {
+        return itemCanPick;
+    }
+
     public void setItemMovable(boolean itemMovable) {
         this.itemMovable = itemMovable;
+    }
+
+    public void setItemCanPick(boolean itemCanPick) {
+        this.itemCanPick = itemCanPick;
     }
 
     protected CompoundTag getBlockEntityDataAt(Vector3 position, String title, boolean pair) {
@@ -146,7 +156,7 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
     }
 
     protected void removeFakeBlock(Player player) {
-        if (this.getFakeBlockList().size() > 0) {
+        if (!this.getFakeBlockList().isEmpty()) {
             List<FakeBlockCacheData> cacheDataList = this.getFakeBlockList();
             for (FakeBlockCacheData cacheData : cacheDataList) {
                 UpdateBlockPacket pk = new UpdateBlockPacket();

@@ -1,6 +1,7 @@
 package gameapi.room.team;
 
 import cn.nukkit.Player;
+import cn.nukkit.utils.DyeColor;
 import gameapi.GameAPI;
 import gameapi.room.Room;
 import gameapi.tools.PlayerTools;
@@ -30,6 +31,8 @@ public class BaseTeam {
     private int maxPlayer;
 
     private boolean isAlive = true;
+
+    private DyeColor dyeColor = DyeColor.WHITE;
 
     private Map<String, Object> properties = new LinkedHashMap<>();
 
@@ -148,6 +151,10 @@ public class BaseTeam {
 
     public <T> T getTeamProperty(String key, T value) {
         return (T) this.getProperties().getOrDefault(key, value);
+    }
+
+    public void setTeamProperty(String key, Object value) {
+        this.getProperties().put(key, value);
     }
 
     public <T> T getPlayerProperty(Player player, String key, T value) {

@@ -17,6 +17,7 @@ import gameapi.ranking.RankingFormat;
 import gameapi.ranking.RankingSortSequence;
 import gameapi.ranking.simple.SimpleRanking;
 
+import java.io.File;
 import java.util.*;
 
 public class GameEntityManager {
@@ -129,7 +130,10 @@ public class GameEntityManager {
 
     public static void spawnRankingListEntity(Location location, Ranking ranking) {
         FullChunk chunk = location.getChunk();
-        if (!chunk.isLoaded()) {
+        if (chunk == null) {
+            return;
+        }
+        if (!chunk.isLoaded() || chunk.getProvider() == null) {
             try {
                 location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ());
                 chunk = location.getLevel().getChunk(location.getChunkX(), location.getChunkZ());
@@ -150,7 +154,7 @@ public class GameEntityManager {
     }
 
     public static void addRankingList(Location location, String valueType, String gameName, String dataName, String title, RankingSortSequence rankingSortSequence) {
-        Config config = new Config(GameAPI.getPath() + "/rankings.yml");
+        Config config = new Config(GameAPI.getPath() + File.separator + "rankings.yml");
         List<Map<String, Object>> maps = (List<Map<String, Object>>) config.get("list");
         Map<String, Object> add = new LinkedHashMap<>();
         add.put("game_name", gameName);

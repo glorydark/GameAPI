@@ -1,6 +1,7 @@
 package gameapi.form.inventory.block;
 
 import cn.nukkit.Player;
+import cn.nukkit.event.inventory.InventoryMoveItemEvent;
 import cn.nukkit.level.GlobalBlockPalette;
 import cn.nukkit.level.Position;
 import cn.nukkit.nbt.NBTIO;
@@ -8,6 +9,7 @@ import cn.nukkit.network.protocol.BlockEntityDataPacket;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import gameapi.form.inventory.BlockFakeInventoryType;
 import gameapi.form.response.BlockInventoryResponse;
+import gameapi.listener.AdvancedFormListener;
 import gameapi.utils.FakeBlockCacheData;
 
 import java.io.IOException;
@@ -25,6 +27,8 @@ public abstract class AdvancedBlockFakeBlockInventoryImpl extends AdvancedBlockF
     protected BiConsumer<Player, BlockInventoryResponse> clickBiConsumer = null;
 
     protected Consumer<Player> closeConsumer = null;
+
+    protected BiConsumer<Player, InventoryMoveItemEvent> onSlotChangeConsumer = null;
 
     public AdvancedBlockFakeBlockInventoryImpl(BlockFakeInventoryType fakeBlockFormType) {
         super(null, fakeBlockFormType);
@@ -65,12 +69,13 @@ public abstract class AdvancedBlockFakeBlockInventoryImpl extends AdvancedBlockF
         FakeBlockCacheData fakeBlockCacheData = new FakeBlockCacheData(pk.x, pk.y, pk.z, player.getLevel(), position.getLevelBlock());
         this.getFakeBlockList().add(fakeBlockCacheData);
 
+        AdvancedFormListener.addChestMenuCache(player, this);
         // 向玩家展示窗口
         player.addWindow(getResultInventory());
     }
 
     @Override
-    public void dealResponse(Player player, BlockInventoryResponse blockInventoryResponse) {
+    public void dealOnClickResponse(Player player, BlockInventoryResponse blockInventoryResponse) {
         if (blockInventoryResponse == null) {
             Consumer<Player> consumer = this.getCloseConsumer();
             if (consumer != null) {
@@ -89,6 +94,12 @@ public abstract class AdvancedBlockFakeBlockInventoryImpl extends AdvancedBlockF
         }
     }
 
+    public void dealOnSlotChangeResponse(InventoryMoveItemEvent event) {
+        for (Player player : event.getViewers()) {
+            this.getOnSlotChangeConsumer().accept(player, event);
+        }
+    }
+
     @Override
     public void closeForPlayer(Player player) {
         this.postCloseExecute(player);
@@ -97,6 +108,7 @@ public abstract class AdvancedBlockFakeBlockInventoryImpl extends AdvancedBlockF
     @Override
     protected void postCloseExecute(Player player) {
         this.removeFakeBlock(player);
+        AdvancedFormListener.removeChestMenuCache(player);
     }
 
     public BiConsumer<Player, BlockInventoryResponse> getClickBiConsumer() {
@@ -105,5 +117,13 @@ public abstract class AdvancedBlockFakeBlockInventoryImpl extends AdvancedBlockF
 
     public Consumer<Player> getCloseConsumer() {
         return closeConsumer;
+    }
+
+    public void onSlotChange(BiConsumer<Player, InventoryMoveItemEvent> onMoveConsumer) {
+        this.onSlotChangeConsumer = onMoveConsumer;
+    }
+
+    public BiConsumer<Player, InventoryMoveItemEvent> getOnSlotChangeConsumer() {
+        return onSlotChangeConsumer;
     }
 }

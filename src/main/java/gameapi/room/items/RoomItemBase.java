@@ -1,7 +1,10 @@
 package gameapi.room.items;
 
 import cn.nukkit.Player;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.item.Item;
+import gameapi.event.entity.RoomEntityDamageEvent;
 import gameapi.room.Room;
 import gameapi.tools.ItemTools;
 
@@ -54,7 +57,15 @@ public abstract class RoomItemBase {
         return this.identifier;
     }
 
-    public void onInteract(Room room, Player player, Item item) {
+    public void onInteract(Room room, Player player, Item item, PlayerInteractEvent.Action action) {
+
+    }
+
+    public void onHurt(Item item, RoomEntityDamageEvent event) {
+
+    }
+
+    public void onEntityDamageByEntity(Item item, EntityDamageByEntityEvent event) {
 
     }
 
@@ -63,6 +74,10 @@ public abstract class RoomItemBase {
     }
 
     public void onItemHeld(Room room, Player player, Item item) {
+
+    }
+
+    public void onUpdate(Room room, Player player, Item item) {
 
     }
 

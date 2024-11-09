@@ -9,6 +9,7 @@ import gameapi.commands.sub.ranking.FunctionRankingAddCommand;
 import gameapi.commands.sub.ranking.FunctionRankingCheckCommand;
 import gameapi.commands.sub.ranking.FunctionRankingInfoCommand;
 import gameapi.commands.sub.ranking.FunctionRankingRefreshCommand;
+import gameapi.commands.sub.test.FunctionNewActivityCommand;
 
 /**
  * @author glorydark
@@ -24,6 +25,7 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new RoomSetPwdCommand("setpwd"));
         this.registerCommand(new RoomStartCommand("roomstart"));
         this.registerCommand(new StatusCommand("status"));
+        this.registerCommand(new ResetSpeedCommand("resetspeed"));
 
         // player tools
         this.registerCommand(new PlayerEverCommand("playerever"));
@@ -46,5 +48,7 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new FunctionAchievementCommand("achievement"));
         this.registerCommand(new FunctionAchievementReloadCommand("reloadachievement"));
         this.registerCommand(new FunctionAchievementGiveCommand("giveachievement"));
+
+        this.registerCommand(new FunctionNewActivityCommand("newac"));
     }
 }

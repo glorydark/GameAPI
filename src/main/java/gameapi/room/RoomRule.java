@@ -94,6 +94,10 @@ public class RoomRule {
 
     private boolean allowQuitByTeleport = true;
 
+    private boolean testStatus = false;
+
+    private BasicAttackSetting basicAttackSetting = null;
+
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
     }

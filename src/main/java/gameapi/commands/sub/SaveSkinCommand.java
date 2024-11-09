@@ -28,10 +28,10 @@ public class SaveSkinCommand extends EasySubCommand {
             if (player != null) {
                 Skin skin = player.getSkin();
                 String fileName = System.currentTimeMillis() + "";
-                new File(GameAPI.getPath() + "/skin_exports/" + pn + "/").mkdirs();
-                SkinTools.savePlayerJson(skin.getGeometryData(), new File(GameAPI.getPath() + "/skin_exports/" + pn + "/" + fileName + ".json"));
-                SkinTools.parseSerializedImage(skin.getSkinData(), new File(GameAPI.getPath() + "/skin_exports/" + pn + "/" + fileName + "_skin.png"));
-                SkinTools.parseSerializedImage(skin.getCapeData(), new File(GameAPI.getPath() + "/skin_exports/" + pn + "/" + fileName + "_cape.png"));
+                new File(GameAPI.getPath() + File.separator + "skin_exports" + File.separator + pn + File.separator).mkdirs();
+                SkinTools.savePlayerJson(skin.getGeometryData(), new File(GameAPI.getPath() + File.separator + "skin_exports" + File.separator + pn + File.separator + fileName + ".json"));
+                SkinTools.parseSerializedImage(skin.getSkinData(), new File(GameAPI.getPath() + File.separator + "skin_exports" + File.separator + pn + File.separator + fileName + "_skin.png"));
+                SkinTools.parseSerializedImage(skin.getCapeData(), new File(GameAPI.getPath() + File.separator + "skin_exports" + File.separator + pn + File.separator + fileName + "_cape.png"));
                 commandSender.sendMessage(TextFormat.GREEN + "Saved in /skin_exports/" + fileName);
             } else {
                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_offline", args[0]));

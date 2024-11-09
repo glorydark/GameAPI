@@ -43,8 +43,13 @@ public class RoomManager {
             room.getRoomTaskExecutor().shutdownNow();
             GameAPI.getGameDebugManager().info("关闭线程池成功: " + room.getRoomTaskExecutor().toString());
         }
-        for (Player player : room.getPlayers()) {
-            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+
+        for (Player player : new ArrayList<>(room.getPlayers())) {
+            room.removePlayer(player);
+        }
+
+        for (Player player : new ArrayList<>(room.getSpectators())) {
+            room.removeSpectator(player);
         }
 
         if (!room.getPlayers().isEmpty()) {
@@ -52,6 +57,7 @@ public class RoomManager {
                 player.kick("Teleport Error...");
             }
         }
+
         List<Room> rooms = new ArrayList<>(loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
         rooms.remove(room);
         loadedRooms.put(room.getGameName(), rooms);

@@ -1,9 +1,12 @@
 package gameapi.utils;
 
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemArmor;
+import cn.nukkit.item.ItemColorArmor;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
+import cn.nukkit.utils.DyeColor;
 import gameapi.room.items.RoomItemBase;
 import lombok.Data;
 
@@ -25,6 +28,7 @@ public class EasyNBTItem {
     protected List<Enchantment> enchantments = new ArrayList<>();
     private int meta;
     private String customName = "";
+    private DyeColor dyeColor = null;
 
     public EasyNBTItem(String identifier) {
         this(identifier, 0);
@@ -116,6 +120,11 @@ public class EasyNBTItem {
         return this;
     }
 
+    public EasyNBTItem dyeColor(DyeColor dyeColor) {
+        this.dyeColor = dyeColor;
+        return this;
+    }
+
     public Item toItem() {
         Item item;
         if (this.id == 255) {
@@ -135,8 +144,13 @@ public class EasyNBTItem {
         if (this.lore != null) {
             item.setLore(this.lore);
         }
-        if (this.enchantments.size() > 0) {
+        if (!this.enchantments.isEmpty()) {
             item.addEnchantment(this.enchantments.toArray(new Enchantment[0]));
+        }
+        if (this.dyeColor != null) {
+            if (item.isArmor() && item.getTier() == ItemArmor.TIER_LEATHER) {
+                ((ItemColorArmor) item).setColor(dyeColor);
+            }
         }
         return item;
     }

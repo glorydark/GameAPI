@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SchematicConverter {
 
     public static void createBuildFromSchematic(Player player, String fileName) {
-        File file = new File(GameAPI.getPath() + "/schematics/" + fileName + ".schematic");
+        File file = new File(GameAPI.getPath() + File.separator + "schematics" + File.separator + fileName + ".schematic");
         if (!file.exists()) {
             player.sendMessage("File not found: " + file);
         }

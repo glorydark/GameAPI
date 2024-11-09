@@ -16,13 +16,10 @@ import cn.nukkit.event.entity.*;
 import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.player.*;
-import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
-import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.network.protocol.MovePlayerPacket;
 import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.activity.ActivityLobbyTask;
@@ -35,11 +32,9 @@ import gameapi.event.inventory.RoomInventoryPickupItemEvent;
 import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
+import gameapi.manager.data.GlobalSettingsManager;
 import gameapi.manager.data.PlayerGameDataManager;
-import gameapi.room.DefaultPropertyKey;
-import gameapi.room.Room;
-import gameapi.room.RoomChatData;
-import gameapi.room.RoomStatus;
+import gameapi.room.*;
 import gameapi.room.edit.EditProcess;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
@@ -72,6 +67,7 @@ public class BaseEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerQuitEvent(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        GlobalSettingsManager.removeCacheAndSaveData(player);
         Room room = RoomManager.getRoom(player);
         if (room != null) {
                 room.sendMessageToAll(GameAPI.getLanguage().getTranslation("baseEvent.quit.success", player.getName()));
@@ -390,19 +386,19 @@ public class BaseEventListener implements Listener {
         switch (event.getCause()) {
             case FALL:
                 if (!room.getRoomRule().isAllowFallDamage()) {
-                    event.setDamage(0f);
+                    event.setCancelled(true);
                     return;
                 }
                 break;
             case ENTITY_EXPLOSION:
                 if (!room.getRoomRule().isAllowEntityExplosionDamage()) {
-                    event.setDamage(0f);
+                    event.setCancelled(true);
                     return;
                 }
                 break;
             case BLOCK_EXPLOSION:
                 if (!room.getRoomRule().isAllowBlockExplosionDamage()) {
-                    event.setDamage(0f);
+                    event.setCancelled(true);
                     return;
                 }
                 break;
@@ -423,7 +419,20 @@ public class BaseEventListener implements Listener {
         }
 
         RoomEntityDamageEvent roomEntityDamageEvent = new RoomEntityDamageEvent(room, entity, event.getCause(), event.getFinalDamage());
-        GameListenerRegistry.callEvent(room, roomEntityDamageEvent);
+
+        Item item = player.getInventory().getItemInHand();
+        RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(item));
+        if (roomItemBase != null) {
+            long nextUseMillis = item.getNamedTag().getLong("next_use_millis");
+            if (System.currentTimeMillis() >= nextUseMillis) {
+                roomItemBase.onHurt(item, roomEntityDamageEvent);
+            }
+        }
+
+        if (!roomEntityDamageEvent.isCancelled()) {
+            GameListenerRegistry.callEvent(room, roomEntityDamageEvent);
+        }
+
         if (roomEntityDamageEvent.isCancelled()) {
             event.setCancelled(true);
         } else {
@@ -493,8 +502,26 @@ public class BaseEventListener implements Listener {
                 }
 
                 RoomEntityDamageByEntityEvent roomEntityDamageByEntityEvent = new RoomEntityDamageByEntityEvent(room1, entity, damager, event.getAttackCooldown(), event.getKnockBack(), event.getCause());
+                BasicAttackSetting basicAttackSetting = room1.getRoomRule().getBasicAttackSetting();
+                if (basicAttackSetting != null) {
+                    roomEntityDamageByEntityEvent.setKnockBack(basicAttackSetting.getBaseKnockBack());
+                    roomEntityDamageByEntityEvent.setAttackCoolDown(basicAttackSetting.getAttackCoolDown());
+                }
                 roomEntityDamageByEntityEvent.parseDamageModifierFloatMap(event);
-                GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
+
+                Item item = damager.getInventory().getItemInHand();
+                RoomItemBase roomItemBase = room2.getRoomItem(RoomItemBase.getRoomItemIdentifier(item));
+                if (roomItemBase != null) {
+                    long nextUseMillis = item.getNamedTag().getLong("next_use_millis");
+                    if (System.currentTimeMillis() >= nextUseMillis) {
+                        roomItemBase.onEntityDamageByEntity(item, event);
+                    }
+                }
+
+                if (!roomEntityDamageByEntityEvent.isCancelled()) {
+                    GameListenerRegistry.callEvent(room1, roomEntityDamageByEntityEvent);
+                }
+
                 if (roomEntityDamageByEntityEvent.isCancelled()) {
                     event.setCancelled(true);
                 } else {
@@ -538,6 +565,15 @@ public class BaseEventListener implements Listener {
                     event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
                     event.setDamage(roomEntityDamageByEntityEvent.getDamage());
                     if (event.getDamager() instanceof Player) {
+                        Player damager = (Player) event.getDamager();
+                        Item item = damager.getInventory().getItemInHand();
+                        RoomItemBase roomItemBase = room1.getRoomItem(RoomItemBase.getRoomItemIdentifier(item));
+                        if (roomItemBase != null) {
+                            long nextUseMillis = item.getNamedTag().getLong("next_use_millis");
+                            if (System.currentTimeMillis() >= nextUseMillis) {
+                                roomItemBase.onEntityDamageByEntity(item, event);
+                            }
+                        }
                         lastLivingEntityDamagedByPlayerSources.put(entity.getId(), new PlayerDamageSource((Player) event.getDamager(), System.currentTimeMillis()));
                     } else {
                         lastLivingEntityDamagedByEntitySources.put(entity.getId(), new EntityDamageSource(event.getDamager(), System.currentTimeMillis()));
@@ -549,6 +585,27 @@ public class BaseEventListener implements Listener {
                     room1.setPlayerProperty(entity.getName(), DefaultPropertyKey.KEY_LAST_RECEIVE_ENTITY_DAMAGE_MILLIS, System.currentTimeMillis());
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onMotion(EntityMotionEvent event) {
+        Entity entity = event.getEntity();
+        Level level = entity.getLevel();
+        Optional<Room> room = RoomManager.getRoom(level);
+        if (room.isPresent()) {
+            BasicAttackSetting basicAttackSetting = room.get().getRoomRule().getBasicAttackSetting();
+            Vector3 v = event.getMotion();
+            v.x *= basicAttackSetting.getMotionXZ();
+            v = event.getMotion();
+            if (entity.isOnGround()) {
+                v.y *= basicAttackSetting.getMotionY();
+            } else {
+                v.y *= basicAttackSetting.getAirMotionY();
+            }
+
+            v = event.getMotion();
+            v.z *= basicAttackSetting.getMotionXZ();
         }
     }
 
@@ -606,6 +663,13 @@ public class BaseEventListener implements Listener {
                         }
                     }
                 }
+                Optional<Room> roomOptional = RoomManager.getRoom(toLevel);
+                roomOptional.ifPresent(value -> {
+                    if (value != room) {
+                        room.removePlayer(player);
+                        value.addPlayer(player);
+                    }
+                });
             } else {
                 Optional<Room> roomOptional = RoomManager.getRoom(toLevel);
                 roomOptional.ifPresent(value -> value.addPlayer(player));
@@ -645,6 +709,7 @@ public class BaseEventListener implements Listener {
         RoomPlayerChatEvent chatEvent = new RoomPlayerChatEvent(room, player, roomChatData);
         GameListenerRegistry.callEvent(room, chatEvent);
         if (!chatEvent.isCancelled()) {
+            event.setCancelled(true);
             String rawMsg = roomChatData.getRawMessage();
             if (rawMsg.startsWith("@")) {
                 if (!room.getTeams().isEmpty()) {
@@ -654,16 +719,16 @@ public class BaseEventListener implements Listener {
                         roomChatData.setMessage(rawMsg);
                         String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format_team", room.getRoomName(), roomChatData.getDefaultChatMsg());
                         team.sendMessageToAll(msg);
-                        GameAPI.getGameDebugManager().info(msg);
+                        GameAPI.getGameDebugManager().info(msg, false);
                     } else {
                         String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), roomChatData.getDefaultChatMsg());
                         room.sendMessageToAll(msg);
-                        GameAPI.getGameDebugManager().info(msg);
+                        GameAPI.getGameDebugManager().info(msg, false);
                     }
                 } else {
                     String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), roomChatData.getDefaultChatMsg());
                     room.sendMessageToAll(msg);
-                    GameAPI.getGameDebugManager().info(msg);
+                    GameAPI.getGameDebugManager().info(msg, false);
                 }
             } else if (rawMsg.startsWith("!") && rawMsg.length() > 1) {
                 rawMsg = roomChatData.getRawMessage().replaceFirst("!", "");
@@ -672,14 +737,13 @@ public class BaseEventListener implements Listener {
                     String msg = GameAPI.getLanguage().getTranslation(value, "baseEvent.chat.message_format.global", room.getRoomName(), roomChatData.getDefaultChatMsg());
                     value.sendMessage(msg);
                 }
-                GameAPI.getGameDebugManager().info(GameAPI.getLanguage().getTranslation("baseEvent.chat.message_format.global", room.getRoomName(), roomChatData.getDefaultChatMsg()));
+                GameAPI.getGameDebugManager().info(GameAPI.getLanguage().getTranslation("baseEvent.chat.message_format.global", room.getRoomName(), roomChatData.getDefaultChatMsg()), false);
             } else {
                 String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), roomChatData.getDefaultChatMsg());
                 room.sendMessageToAll(msg);
-                GameAPI.getGameDebugManager().info(msg);
+                GameAPI.getGameDebugManager().info(msg, false);
             }
         }
-        event.setCancelled(true);
     }
 
     // Extra listener for GameListeners
@@ -738,18 +802,20 @@ public class BaseEventListener implements Listener {
         Room room = RoomManager.getRoom(player);
         if (room != null) {
             Item item = player.getInventory().getItemInHand();
-            RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(item));
-            if (roomItemBase != null) {
-                long nextUseMillis = item.getNamedTag().getLong("next_use_millis");
-                if (System.currentTimeMillis() >= nextUseMillis) {
-                    roomItemBase.onInteract(room, player, item);
+            if (event.getAction() != PlayerInteractEvent.Action.PHYSICAL) {
+                RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(item));
+                if (roomItemBase != null) {
+                    long nextUseMillis = item.getNamedTag().getLong("next_use_millis");
+                    if (System.currentTimeMillis() >= nextUseMillis) {
+                        roomItemBase.onInteract(room, player, item, event.getAction());
+                        return;
+                    }
                 }
-            } else {
-                RoomPlayerInteractEvent roomPlayerInteractEvent = new RoomPlayerInteractEvent(room, player, event.getBlock(), event.getTouchVector(), event.getFace(), event.getItem(), event.getAction());
-                GameListenerRegistry.callEvent(room, roomPlayerInteractEvent);
-                if (roomPlayerInteractEvent.isCancelled()) {
-                    event.setCancelled(true);
-                }
+            }
+            RoomPlayerInteractEvent roomPlayerInteractEvent = new RoomPlayerInteractEvent(room, player, event.getBlock(), event.getTouchVector(), event.getFace(), event.getItem(), event.getAction());
+            GameListenerRegistry.callEvent(room, roomPlayerInteractEvent);
+            if (roomPlayerInteractEvent.isCancelled()) {
+                event.setCancelled(true);
             }
         } else {
             if (GameAPI.worldEditPlayers.contains(player)) {
@@ -785,11 +851,11 @@ public class BaseEventListener implements Listener {
                 }
             }
             if (player.getLevelName().equals("world") && event.getBlock() != null && event.getBlock().getId() == Block.LIGHT_WEIGHTED_PRESSURE_PLATE && event.getBlock().distance(new Vector3(84, 45, -42)) <= 1) {
-                boolean parkourFinishStatus = PlayerGameDataManager.getPlayerGameData(ActivityLobbyTask.activityId, "parkkour_finished", player.getName(), false);
+                boolean parkourFinishStatus = PlayerGameDataManager.getPlayerGameData(ActivityLobbyTask.activityId, "parkour_finished", player.getName(), false);
                 if (!parkourFinishStatus) {
                     FireworkTools.spawnRandomFirework(player);
                     player.sendMessage(TextFormat.GREEN + "恭喜你完成了主城跑酷，请前往福利姬的主城活动界面领取奖励吧！");
-                    PlayerGameDataManager.setPlayerGameData(ActivityLobbyTask.activityId, "parkkour_finished", player.getName(), true);
+                    PlayerGameDataManager.setPlayerGameData(ActivityLobbyTask.activityId, "parkour_finished", player.getName(), true);
                 }
             }
         }
@@ -983,7 +1049,9 @@ public class BaseEventListener implements Listener {
 
     @EventHandler
     public void PlayerJoinEvent(PlayerJoinEvent event) {
-        event.getPlayer().setCheckMovement(false);
+        Player player = event.getPlayer();
+        GlobalSettingsManager.loadPlayerData(player);
+        player.setCheckMovement(false);
     }
 
     @EventHandler
@@ -991,6 +1059,7 @@ public class BaseEventListener implements Listener {
         event.setCancelled(true);
     }
 
+    /*
     @EventHandler
     public void DataPacketReceiveEvent(DataPacketReceiveEvent event) {
         Player player = event.getPlayer();
@@ -1014,4 +1083,5 @@ public class BaseEventListener implements Listener {
             }
         }
     }
+     */
 }

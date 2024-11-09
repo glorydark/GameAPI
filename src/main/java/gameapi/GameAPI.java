@@ -12,6 +12,7 @@ import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import gameapi.achievement.AchievementManager;
+import gameapi.activity.ActivityMain;
 import gameapi.commands.GameAPICommandMain;
 import gameapi.commands.HubCommand;
 import gameapi.commands.WorldEditCommand;
@@ -21,6 +22,8 @@ import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
+import gameapi.manager.data.GameActivityManager;
+import gameapi.manager.data.GlobalSettingsManager;
 import gameapi.manager.data.PlayerGameDataManager;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.Ranking;
@@ -116,18 +119,22 @@ public class GameAPI extends PluginBase implements Listener {
         path = this.getDataFolder().getPath();
         instance = this;
         roomTaskExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE, threadFactory);
-        gameDebugManager = new GameDebugManager("gameapi_log", new File(path + "/logs/"));
+        gameDebugManager = new GameDebugManager("gameapi_log", new File(path + File.separator + "logs" + File.separator));
         this.getDataFolder().mkdir();
         this.saveDefaultConfig();
         this.saveResource("rankings.yml", false);
-        new File(path + "/logs/").mkdirs();
-        new File(path + "/worlds/").mkdirs();
-        new File(path + "/gameRecords/").mkdirs();
-        new File(path + "/task_caches/").mkdirs();
-        new File(path + "/skin_exports/").mkdirs();
-        new File(path + "/schematics/").mkdirs();
-        new File(path + "/buildings/").mkdirs();
-        Config config = new Config(path + "/config.yml", Config.YAML);
+
+        new File(path + File.separator + "logs" + File.separator).mkdirs();
+        new File(path + File.separator + "worlds" + File.separator).mkdirs();
+        new File(path + File.separator + "gameRecords" + File.separator).mkdirs();
+        new File(path + File.separator + "task_caches" + File.separator).mkdirs();
+        new File(path + File.separator + "skin_exports" + File.separator).mkdirs();
+        new File(path + File.separator + "schematics" + File.separator).mkdirs();
+        new File(path + File.separator + "buildings" + File.separator).mkdirs();
+        new File(path + File.separator + "activities" + File.separator).mkdirs();
+        new File(path + File.separator + "global_settings" + File.separator).mkdirs();
+
+        Config config = new Config(path + File.separator + "config.yml", Config.YAML);
         gameDebugManager.setEnableConsoleDebug(config.getBoolean("log_show_in_console", true));
         this.saveTempStates = config.getBoolean("save-temp-state", true);
         this.rankingTextEntityRefreshIntervals = config.getInt("ranking-text-entity-refresh-intervals", 100);
@@ -139,6 +146,8 @@ public class GameAPI extends PluginBase implements Listener {
         this.loadAllPlayerGameData();
         this.loadRanking();
 
+        GlobalSettingsManager.init();
+        GameActivityManager.init();
         AchievementManager.load();
 
         this.getServer().getScheduler().scheduleRepeatingTask(instance, new RoomTask(), 20);
@@ -158,6 +167,7 @@ public class GameAPI extends PluginBase implements Listener {
             } catch (Throwable t) {
                 t.printStackTrace();
             }
+            GameActivityManager.updateTempDataCleaning();
         }, 0, 1, TimeUnit.SECONDS);
         roomTaskExecutor.scheduleAtFixedRate(() -> gameDebugManager.getPlayers().forEach(player -> {
                     DecimalFormat df = new DecimalFormat("#0.00");

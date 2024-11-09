@@ -14,6 +14,7 @@ import gameapi.form.element.ResponsiveElementSlotItem;
 import gameapi.form.inventory.BlockFakeInventoryType;
 import gameapi.form.inventory.block.AdvancedBlockFakeBlockInventoryImpl;
 import gameapi.form.response.BlockInventoryResponse;
+import gameapi.listener.AdvancedFormListener;
 import gameapi.utils.FakeBlockCacheData;
 
 import java.io.IOException;
@@ -87,6 +88,8 @@ public class AdvancedDoubleChestForm extends AdvancedBlockFakeBlockInventoryImpl
 
         FakeBlockCacheData fakeBlockCacheData1 = new FakeBlockCacheData(pk1.x, pk1.y, pk1.z, player.getLevel(), position.add(-1, 0, 1).getLevelBlock());
         this.getFakeBlockList().addAll(Arrays.asList(fakeBlockCacheData, fakeBlockCacheData1));
+
+        AdvancedFormListener.addChestMenuCache(player, this);
 
         Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), new Task() {
             @Override

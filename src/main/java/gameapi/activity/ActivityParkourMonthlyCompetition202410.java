@@ -13,7 +13,7 @@ import gameapi.tools.SmartTools;
 /**
  * @author glorydark
  */
-public class ActivityParkourMonthlyCompetition {
+public class ActivityParkourMonthlyCompetition202410 {
 
     public static final String activityId = "Activity_Parkour_241001";
 
@@ -68,7 +68,7 @@ public class ActivityParkourMonthlyCompetition {
             } else {
                 simple.addButton(
                         new ResponsiveElementButton("立即开始挑战\n" + TextFormat.GREEN + "[您还有" + TextFormat.YELLOW + (3 - joinTimes) + TextFormat.GREEN + "次挑战机会]")
-                                .onRespond(ActivityParkourMonthlyCompetition::showCompetitionCheckBox)
+                                .onRespond(ActivityParkourMonthlyCompetition202410::showCompetitionCheckBox)
                 );
                 }
         } else {

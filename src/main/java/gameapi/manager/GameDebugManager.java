@@ -22,7 +22,7 @@ public class GameDebugManager {
 
     private boolean enableConsoleDebug = true;
 
-    private final List<Player> players = new ArrayList<>();
+    protected List<Player> players = new ArrayList<>();
 
     public GameDebugManager(String name, File saveDir) {
         try {
@@ -42,11 +42,15 @@ public class GameDebugManager {
         }
     }
 
-
-
     public void info(String message) {
-        for (Player player : players) {
-            player.sendMessage(message);
+        this.info(message, false);
+    }
+
+    public void info(String message, boolean sendPlayer) {
+        if (sendPlayer) {
+            for (Player player : players) {
+                player.sendMessage(message);
+            }
         }
         logger.info(TextFormat.clean(message));
         if (enableConsoleDebug) {

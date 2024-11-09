@@ -38,12 +38,12 @@ public class BaseCommand extends Command {
                 case "savebattles":
                     if (commandSender.isOp()) {
                         // todo: For Tournament Restart Procedures
-                        File saveDic = new File(GameAPI.getPath() + "/saves/" + SmartTools.dateToString(Calendar.getInstance().getTime(), "yyyyMMdd_HHmmss") + "/");
+                        File saveDic = new File(GameAPI.getPath() + File.separator + "saves" + File.separator + SmartTools.dateToString(Calendar.getInstance().getTime(), "yyyyMMdd_HHmmss") + "/");
                         if (saveDic.exists() || saveDic.mkdirs()) {
                             for (Map.Entry<String, List<Room>> entry : RoomManager.getLoadedRooms().entrySet()) {
                                 for (Room room : entry.getValue()) {
                                     if (room.getRoomStatus().equals(RoomStatus.ROOM_STATUS_START)) {
-                                        File file = new File(saveDic.getPath() + "/" + entry.getKey() + "_" + room.getRoomName() + ".json");
+                                        File file = new File(saveDic.getPath() + File.separator + entry.getKey() + "_" + room.getRoomName() + ".json");
                                         Config config = new Config(file, Config.JSON);
                                         LinkedHashMap<String, Object> players = new LinkedHashMap<>();
                                         room.getPlayers().forEach(player -> players.put(player.getName(), getPlayerData(player)));

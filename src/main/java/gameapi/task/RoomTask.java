@@ -96,21 +96,23 @@ public class RoomTask extends Task {
                     room.resetAll();
                     return true;
                 } else {
-                    if (room.getTeams().size() > 1) {
-                        AtomicInteger hasPlayer = new AtomicInteger(0);
-                        room.getTeams().forEach(team -> {
-                            if (team.getSize() > 0) {
-                                hasPlayer.addAndGet(1);
+                    if (!room.getRoomRule().isTestStatus()) {
+                        if (room.getTeams().size() > 1) {
+                            AtomicInteger hasPlayer = new AtomicInteger(0);
+                            room.getTeams().forEach(team -> {
+                                if (team.getSize() > 0) {
+                                    hasPlayer.addAndGet(1);
+                                }
+                            });
+                            if (hasPlayer.get() <= 1) {
+                                room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
+                                return true;
                             }
-                        });
-                        if (hasPlayer.get() <= 1) {
-                            room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
-                            return true;
-                        }
-                    } else {
-                        if (room.getPlayers().size() < room.getMinPlayer()) {
-                            room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
-                            return true;
+                        } else {
+                            if (room.getPlayers().size() < room.getMinPlayer()) {
+                                room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END);
+                                return true;
+                            }
                         }
                     }
                 }

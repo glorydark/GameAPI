@@ -14,6 +14,7 @@ import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryHolder;
+import cn.nukkit.inventory.PlayerUIInventory;
 import cn.nukkit.network.protocol.ContainerClosePacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import gameapi.form.AdvancedForm;
@@ -38,6 +39,10 @@ public class AdvancedFormListener implements Listener {
 
     public static void showToPlayer(Player player, ResponsiveTradeForm form) {
         AdvancedFormListener.villagerFormMap.put(player, form);
+    }
+
+    public static void addChestMenuCache(Player player, AdvancedBlockFakeBlockInventory inventory) {
+        chestFormMap.put(player, inventory);
     }
 
     public static void removeChestMenuCache(Player player) {
@@ -72,6 +77,8 @@ public class AdvancedFormListener implements Listener {
             AdvancedBlockFakeBlockInventoryImpl form = (AdvancedBlockFakeBlockInventoryImpl) inventory;
             if (!form.isItemMovable()) {
                 event.setCancelled(true);
+            } else {
+                form.dealOnSlotChangeResponse(event);
             }
         }
     }
@@ -92,10 +99,14 @@ public class AdvancedFormListener implements Listener {
     public void InventoryClickEvent(InventoryClickEvent event) {
         Player player = event.getPlayer();
         Inventory inventory = event.getInventory();
+        // System.out.println(inventory.getClass() + ":" + inventory.getName() + ":" + inventory.getTitle() + ":" + inventory.getType());
         if (this.isChestInventory(inventory)) {
             AdvancedBlockFakeBlockInventoryImpl form = (AdvancedBlockFakeBlockInventoryImpl) inventory;
-            form.dealResponse(player, new BlockInventoryResponse(form, event.getSlot(), event.getSourceItem()));
+            BlockInventoryResponse response = new BlockInventoryResponse(form, event.getSlot(), event.getSourceItem());
+            form.dealOnClickResponse(player, response);
             if (!form.isItemMovable()) {
+                event.setCancelled(true);
+            } else if (response.isCancelled()) {
                 event.setCancelled(true);
             }
         }
@@ -112,7 +123,8 @@ public class AdvancedFormListener implements Listener {
         Inventory inventory = event.getInventory();
         if (this.isChestInventory(inventory)) {
             AdvancedBlockFakeBlockInventoryImpl inv = (AdvancedBlockFakeBlockInventoryImpl) inventory;
-            inv.dealResponse(player, null);
+            inv.dealOnClickResponse(player, null);
+            inv.closeForPlayer(player);
         }
     }
 

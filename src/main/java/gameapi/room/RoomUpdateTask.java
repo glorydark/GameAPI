@@ -3,6 +3,7 @@ package gameapi.room;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockLiquid;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.SimpleAxisAlignedBB;
@@ -14,6 +15,7 @@ import gameapi.event.player.RoomPlayerMoveEvent;
 import gameapi.extensions.checkpoint.CheckpointData;
 import gameapi.extensions.obstacle.DynamicObstacle;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.room.items.RoomItemBase;
 import gameapi.room.task.RoomAdvancedUpdateTask;
 
 import java.util.*;
@@ -95,6 +97,7 @@ public class RoomUpdateTask implements Runnable {
             if (!this.room.getNbsMusicManager().isStopped()) {
                 this.room.getNbsMusicManager().onTick();
             }
+            this.onUpdateRoomItemHeld();
         } catch (Throwable e) {
             e.printStackTrace();
             GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
@@ -157,14 +160,18 @@ public class RoomUpdateTask implements Runnable {
     }
 
     protected void onUpdateRoomPlayerMovementEvent(Player player) {
-        if (player.getLocation().equals(getPlayerLastLocation(player))) {
+        Location lastPosition = getPlayerLastLocation(player);
+        if (player.getLocation().equals(lastPosition)) {
             return;
         }
         if ((this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START || this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_NEXT_ROUND_PRESTART) && !this.room.getRoomRule().isAllowReadyStartWalk()) {
+            if (lastPosition != null) {
+                player.teleport(lastPosition, null);
+            }
             return;
         }
         // MoveEvent
-        RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(this.room, player, getPlayerLastLocation(player), player.getLocation());
+        RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(this.room, player, lastPosition, player.getLocation());
         GameListenerRegistry.callEvent(this.room, roomPlayerMoveEvent);
         if (roomPlayerMoveEvent.isCancelled()) {
             Location from = roomPlayerMoveEvent.getFrom();
@@ -179,6 +186,19 @@ public class RoomUpdateTask implements Runnable {
     protected void onTickDynamicObstacles() {
         for (DynamicObstacle dynamicObstacle : new ArrayList<>(room.getDynamicObstacles())) {
             dynamicObstacle.onTick();
+        }
+    }
+
+    protected void onUpdateRoomItemHeld() {
+        for (Player player : this.room.getPlayers()) {
+            Item item = player.getInventory().getItemInHand();
+            RoomItemBase roomItemBase = this.room.getRoomItem(RoomItemBase.getRoomItemIdentifier(item));
+            if (roomItemBase != null) {
+                long nextUseMillis = item.getNamedTag().getLong("next_use_millis");
+                if (System.currentTimeMillis() >= nextUseMillis) {
+                    roomItemBase.onUpdate(this.room, player, item);
+                }
+            }
         }
     }
 }

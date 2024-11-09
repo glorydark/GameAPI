@@ -87,6 +87,9 @@ public class CheckpointManager {
     }
 
     public void onUpdate(Player player) {
+        if (this.getCheckpointDataList().isEmpty() && this.getEndPoint() == null) {
+            return;
+        }
         if (this.room != null && this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
             if (!this.room.getPlayLevels().contains(player.getLevel())) {
                 return;

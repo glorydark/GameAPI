@@ -13,12 +13,12 @@ import gameapi.manager.data.PlayerGameDataManager;
  */
 public class ActivityLobbyTask {
 
-    public static final String activityId = "Activity_Lobby_Task_202410";
+    public static final String activityId = "Activity_Lobby_Task_202411";
 
     public static void showActivityForm(Player player) {
         AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("常规任务");
         boolean parkourClaimed = PlayerGameDataManager.getPlayerGameData(activityId, "parkour_claimed", player.getName(), 0L) != 0L;
-        boolean parkourFinishStatus = PlayerGameDataManager.getPlayerGameData(activityId, "parkkour_finished", player.getName(), false);
+        boolean parkourFinishStatus = PlayerGameDataManager.getPlayerGameData(activityId, "parkour_finished", player.getName(), false);
         if (parkourClaimed) {
             simple.addButton(new ElementButton("§g§l完成主城跑酷\n" + ActivityMain.STATUS_CLAIMED));
         } else {

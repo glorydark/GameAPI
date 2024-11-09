@@ -7,6 +7,7 @@ import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
 import gameapi.tools.ItemTools;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,18 +135,18 @@ public class PlayerTempStateManager {
     }
 
     protected static <T> T getPlayerConfig(Player player, String key, T defaultValue) {
-        Config config = new Config(GameAPI.getPath() + "/player_caches/" + player.getName() + ".yml", Config.YAML);
+        Config config = new Config(GameAPI.getPath() + File.separator + "player_caches" + File.separator + player.getName() + ".yml", Config.YAML);
         return config.get(key, defaultValue);
     }
 
     protected static void setPlayerTempDataConfig(Player player, String key, Object value) {
-        Config config = new Config(GameAPI.getPath() + "/player_caches/" + player.getName() + ".yml", Config.YAML);
+        Config config = new Config(GameAPI.getPath() + File.separator + "player_caches" + File.separator + player.getName() + ".yml", Config.YAML);
         config.set(key, value);
         config.save();
     }
 
     protected static void removePlayerTempDataConfig(Player player, String key) {
-        Config config = new Config(GameAPI.getPath() + "/player_caches/" + player.getName() + ".yml", Config.YAML);
+        Config config = new Config(GameAPI.getPath() + File.separator + "player_caches" + File.separator + player.getName() + ".yml", Config.YAML);
         config.remove(key);
         config.save();
     }

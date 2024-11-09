@@ -376,6 +376,8 @@ public class Room {
                         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
                     }
                     return;
+                } else if (this.getRoomRule().isAllowSpectators()) {
+                    this.processSpectatorJoin(player);
                 }
             case ROOM_STATUS_GAME_END:
             case ROOM_STATUS_CEREMONY:
@@ -422,7 +424,7 @@ public class Room {
         if (!this.getPlayers().contains(player)) {
             return;
         }
-        RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player);
+        RoomPlayerLeaveEvent ev = new RoomPlayerLeaveEvent(this, player, reason);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
             if (!this.getRoomRule().isSavePlayerPropertiesAfterQuit()) {
@@ -712,7 +714,7 @@ public class Room {
                 this.roomVirtualHealthManager.setHealth(player, this.roomVirtualHealthManager.getMaxHealth());
             }
             if (ev.isSendTitle()) {
-                player.sendTitle(ev.getTitle(), ev.getSubtitle(), 5, 10, 5);
+                player.sendTitle(ev.getTitle(), ev.getSubtitle(), 10, 20, 10);
             }
             if (teleport) {
                 if (!this.getSpectatorSpawn().isEmpty()) {
@@ -877,6 +879,16 @@ public class Room {
                         if (player.canSee(target)) {
                             player.hidePlayer(target);
                         }
+                    }
+                }
+                break;
+            default:
+                for (Player value : Server.getInstance().getOnlinePlayers().values()) {
+                    if (!value.canSee(player)) {
+                        value.showPlayer(player);
+                    }
+                    if (!player.canSee(value)) {
+                        player.showPlayer(value);
                     }
                 }
                 break;

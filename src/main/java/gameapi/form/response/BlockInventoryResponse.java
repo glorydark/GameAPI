@@ -9,7 +9,6 @@ import lombok.Data;
  * @author glorydark
  */
 @Data
-@AllArgsConstructor
 public class BlockInventoryResponse {
 
     private AdvancedBlockFakeBlockInventory inventory;
@@ -17,4 +16,12 @@ public class BlockInventoryResponse {
     private int slot;
 
     private Item item;
+
+    private boolean cancelled;
+
+    public BlockInventoryResponse(AdvancedBlockFakeBlockInventory inventory, int slot, Item item) {
+        this.inventory = inventory;
+        this.slot = slot;
+        this.item = item;
+    }
 }
