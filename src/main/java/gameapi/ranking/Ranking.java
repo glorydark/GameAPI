@@ -74,13 +74,13 @@ public class Ranking {
                         text = text.replace("%score%", entry.getValue().toString());
                     }
                     switch (i) {
-                        case 0:
+                        case 1:
                             builder.append("§f\n").append(format.getChampionPrefix());
                             break;
-                        case 1:
+                        case 2:
                             builder.append("§f\n").append(format.getRunnerUpPrefix());
                             break;
-                        case 2:
+                        case 3:
                             builder.append("§f\n").append(format.getSecondRunnerUpPrefix());
                             break;
                         default:

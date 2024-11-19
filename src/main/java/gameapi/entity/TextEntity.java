@@ -8,8 +8,12 @@ import cn.nukkit.nbt.tag.CompoundTag;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class TextEntity extends Entity {
+
+    private final Map<String, Object> extraProperties = new LinkedHashMap<>();
 
     public TextEntity(FullChunk chunk, String text, CompoundTag nbt) {
         super(chunk, nbt);
@@ -48,6 +52,10 @@ public class TextEntity extends Entity {
         }
     }
 
+    public boolean respawn() {
+        return false;
+    }
+
     @Override
     public boolean onUpdate(int currentTick) {
         return true;
@@ -71,5 +79,9 @@ public class TextEntity extends Entity {
     @Override
     public void spawnTo(Player player) {
         super.spawnTo(player);
+    }
+
+    public Map<String, Object> getExtraProperties() {
+        return extraProperties;
     }
 }

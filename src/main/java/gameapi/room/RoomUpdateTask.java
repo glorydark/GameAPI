@@ -1,6 +1,7 @@
 package gameapi.room;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.item.Item;
@@ -9,6 +10,7 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
+import gameapi.entity.TextEntity;
 import gameapi.event.block.RoomBlockTreadEvent;
 import gameapi.event.player.RoomPlayerEnterPortalEvent;
 import gameapi.event.player.RoomPlayerMoveEvent;
@@ -98,6 +100,15 @@ public class RoomUpdateTask implements Runnable {
                 this.room.getNbsMusicManager().onTick();
             }
             this.onUpdateRoomItemHeld();
+
+            for (TextEntity textEntity : new ArrayList<>(this.room.getTextEntities())) {
+                if (!textEntity.isAlive() || textEntity.isClosed()) {
+                    textEntity.respawn();
+                    this.room.getTextEntities().remove(textEntity);
+                } else {
+                    textEntity.onAsyncUpdate(Server.getInstance().getTick());
+                }
+            }
         } catch (Throwable e) {
             e.printStackTrace();
             GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"

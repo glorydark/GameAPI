@@ -82,21 +82,25 @@ public class RoomRule {
 
     private List<String> allowCommands = new ArrayList<>();
 
+    private boolean autoAllocatePlayerToTeam = true;
+
+    private boolean allowQuitByTeleport = true;
+
     private HideType hideType = HideType.NONE;
+
+    private int spectatorGameMode = 3;
 
     private boolean allowJoinAfterStart = false;
 
     private boolean savePlayerPropertiesAfterQuit = false;
 
-    private boolean autoAllocatePlayerToTeam = true;
-
-    private int spectatorGameMode = 3;
-
-    private boolean allowQuitByTeleport = true;
-
     private boolean testStatus = false;
 
     private BasicAttackSetting basicAttackSetting = null;
+
+    private boolean protectMapBlock = false;
+
+    private List<String> allowBreakProtectedMapBlocks = new ArrayList<>();
 
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;

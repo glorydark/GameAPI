@@ -1,5 +1,6 @@
 package gameapi.manager.data;
 
+import cn.nukkit.Player;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
 import gameapi.manager.GameDebugManager;
@@ -29,6 +30,10 @@ public class PlayerGameDataManager {
         return playerData.getOrDefault(gameName + "/" + fileName, new LinkedHashMap<>());
     }
 
+    public static void addPlayerGameData(String gameName, String fileName, Player player, Integer add) {
+        addPlayerGameData(gameName, fileName, player.getName(), add);
+    }
+
     public static void addPlayerGameData(String gameName, String fileName, String player, Integer add) {
         if (add == 0) {
             return;
@@ -40,6 +45,10 @@ public class PlayerGameDataManager {
         Config config = new Config(GameAPI.getPath() + File.separator + "gameRecords" + File.separator + gameName + File.separator + fileName + ".yml", Config.YAML);
         config.set(player, value);
         config.save();
+    }
+
+    public static void reducePlayerGameData(String gameName, String fileName, Player player, Integer reduce) {
+        reducePlayerGameData(gameName, fileName, player.getName(), reduce);
     }
 
     public static void reducePlayerGameData(String gameName, String fileName, String player, Integer reduce) {
@@ -55,8 +64,16 @@ public class PlayerGameDataManager {
         config.save();
     }
 
+    public static int getPlayerGameData(String gameName, String fileName, Player player) {
+        return getPlayerGameData(gameName, fileName, player.getName());
+    }
+
     public static int getPlayerGameData(String gameName, String fileName, String player) {
         return getPlayerGameData(gameName, fileName, player, 0);
+    }
+
+    public static <T> T getPlayerGameData(String gameName, String fileName, Player player, T defaultValue) {
+        return getPlayerGameData(gameName, fileName, player.getName(), defaultValue);
     }
 
     public static <T> T getPlayerGameData(String gameName, String fileName, String player, T defaultValue) {
@@ -90,6 +107,10 @@ public class PlayerGameDataManager {
         } else {
             return defaultValue;
         }
+    }
+
+    public static void setPlayerGameData(String gameName, String fileName, Player player, Object value) {
+        setPlayerGameData(gameName, fileName, player.getName(), value);
     }
 
     public static void setPlayerGameData(String gameName, String fileName, String player, Object value) {

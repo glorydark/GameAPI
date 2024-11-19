@@ -147,6 +147,9 @@ public class GameAPI extends PluginBase implements Listener {
         this.loadRanking();
 
         GlobalSettingsManager.init();
+        for (Player value : Server.getInstance().getOnlinePlayers().values()) {
+            GlobalSettingsManager.loadPlayerData(value);
+        }
         GameActivityManager.init();
         AchievementManager.load();
 

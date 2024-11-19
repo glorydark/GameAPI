@@ -50,5 +50,10 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new FunctionAchievementGiveCommand("giveachievement"));
 
         this.registerCommand(new FunctionNewActivityCommand("newac"));
+        this.registerCommand(new FastCommand("fast"));
+        this.registerCommand(new SudoCCommand("sudoc"));
+        this.registerCommand(new SudoMCommand("sudom"));
+        this.registerCommand(new TeleportIntoRoomCommand("tproomall"));
+        this.registerCommand(new TeleportAllCommand("tpall"));
     }
 }

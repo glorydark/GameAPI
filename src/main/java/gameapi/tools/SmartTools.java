@@ -271,4 +271,12 @@ public class SmartTools {
             return GameAPI.getLanguage().getTranslation(player, "room.actionbar.readyStart.countdown.format", signResult, totalTime - currentTime);
         }
     }
+
+    public static String combineStringFromList(List<String> strings, String splits) {
+        String string = strings.toString().replace("[", "").replace("]", "");
+        if (!splits.isEmpty()) {
+            string = string.replace(", ", splits);
+        }
+        return string;
+    }
 }

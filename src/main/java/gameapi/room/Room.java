@@ -6,7 +6,9 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
+import cn.nukkit.math.BlockVector3;
 import gameapi.GameAPI;
+import gameapi.entity.TextEntity;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
 import gameapi.extensions.obstacle.DynamicObstacle;
@@ -50,6 +52,7 @@ import java.util.stream.Collectors;
 @Setter
 public class Room {
 
+    private int roomNumber = -1;
     private final long createMillis;
     @Setter(AccessLevel.NONE)
     protected ConcurrentHashMap<String, BaseTeam> teamCache = new ConcurrentHashMap<>();
@@ -75,7 +78,7 @@ public class Room {
     private int gameWaitTime = 10;
     private int gameTime = 10;
     private int ceremonyTime = 10;
-    private int gameEndTime = 10;
+    private int gameEndTime = 3;
     private int nextRoundPreStartTime = 10;
     private int maxRound;
     private int round = 0;
@@ -112,6 +115,8 @@ public class Room {
     private List<String> whitelists = new ArrayList<>();
     private boolean enableWhitelist = false;
     private int accelerateWaitCountDownPlayerCount = 2;
+    protected List<TextEntity> textEntities = new ArrayList<>();
+    protected List<BlockVector3> blocks = new ArrayList<>();
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this(gameName, roomRule, "", round);
@@ -210,20 +215,23 @@ public class Room {
             return;
         }
         if (balance) {
+            List<BaseTeam> list = new ArrayList<>(this.getTeams())
+                    .stream()
+                    .filter(BaseTeam::isAvailable)
+                    .sorted(Comparator.comparing(BaseTeam::getSize))
+                    .collect(Collectors.toList());
             for (Player player : new ArrayList<>(this.players)) {
                 if (this.getTeam(player) != null) {
                     continue;
                 }
-                Map<String, BaseTeam> map = new ConcurrentHashMap<>(this.teamCache);
-                List<Map.Entry<String, BaseTeam>> list = map.entrySet()
-                        .stream()
-                        .filter(entry -> entry.getValue().isAvailable())
-                        .sorted(Comparator.comparing(t -> t.getValue().getSize()))
-                        .collect(Collectors.toList());
                 boolean hasResult = false;
-                for (Map.Entry<String, BaseTeam> entry : list) {
-                    BaseTeam team = entry.getValue();
+                for (BaseTeam team : list) {
                     if (team.addPlayer(player)) {
+                        list = new ArrayList<>(this.getTeams())
+                                .stream()
+                                .filter(BaseTeam::isAvailable)
+                                .sorted(Comparator.comparing(BaseTeam::getSize))
+                                .collect(Collectors.toList());
                         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
                         hasResult = true;
                         break;
@@ -346,9 +354,12 @@ public class Room {
     }
 
     public void processPlayerJoin(Player player) {
-        if (RoomManager.getRoom(player) != null) {
-            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_other_room"));
-            return;
+        Room oldRoom = RoomManager.getRoom(player);
+        if (oldRoom != null) {
+            if (oldRoom != this) {
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_other_room"));
+                return;
+            }
         }
         List<String> whitelists = this.getRoomRule().getAllowJoinPlayers();
         if (!whitelists.isEmpty()) {
@@ -375,10 +386,10 @@ public class Room {
                     } else {
                         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
                     }
-                    return;
                 } else if (this.getRoomRule().isAllowSpectators()) {
                     this.processSpectatorJoin(player);
                 }
+                break;
             case ROOM_STATUS_GAME_END:
             case ROOM_STATUS_CEREMONY:
             case ROOM_STATUS_END:
@@ -412,7 +423,7 @@ public class Room {
                 }
             }
         } else {
-            player.sendMessage(GameAPI.getLanguage().getTranslation("room.team.full"));
+            player.sendMessage(GameAPI.getLanguage().getTranslation("room.game.full"));
         }
     }
 
@@ -451,9 +462,12 @@ public class Room {
             this.updateHideStatus(player, true);
 
             this.players.remove(player);
+
             RoomManager.getPlayerRoomHashMap().remove(player);
 
-            player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+            if (reason != QuitRoomReason.TELEPORT) {
+                player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+            }
         }
     }
 
@@ -735,6 +749,10 @@ public class Room {
             player.getFoodData().reset();
             player.extinguish();
             this.resetSpeed(player);
+            if (this.getRoomRule().isAllowRespawn() && ev.isRespawn()) {
+                int respawnTicks = this.getRoomRule().getRespawnCoolDownTick();
+                this.addRespawnTask(player, respawnTicks);
+            }
         }
     }
 
@@ -743,11 +761,6 @@ public class Room {
     }
 
     public void addRespawnTask(Player player, int tick) {
-        if (!this.spectatorSpawn.isEmpty()) {
-            Random random = new Random();
-            this.spectatorSpawn.get(random.nextInt(spectatorSpawn.size())).teleport(player);
-            this.teleportToSpawn(player);
-        }
         RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player, null);
         if (!ev.isCancelled()) {
             if (tick > 0) {
@@ -797,7 +810,7 @@ public class Room {
 
     public void teleportToSpawn(Player player) {
         if (this.getTeam(player) != null) {
-            this.getTeam(player).teleportToSpawn();
+            this.getTeam(player).teleportToSpawn(player);
             return;
         }
         if (this.startSpawn.size() > 1) {
@@ -1030,5 +1043,14 @@ public class Room {
         player.setCrawling(false);
         player.setSwimming(false);
         player.setMovementSpeed(0.1f);
+    }
+
+    public boolean setRoomNumber(int number) {
+        if (RoomManager.getRoom(number) != null) {
+            return false;
+        } else {
+            this.roomNumber = number;
+            return true;
+        }
     }
 }

@@ -12,6 +12,7 @@ import gameapi.GameAPI;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.IntegerAxisAlignBB;
 import gameapi.utils.Rotation;
+import gameapi.utils.UndefinedLevelLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +76,26 @@ public class SpatialTools {
         return advancedLocations;
     }
 
+    public static UndefinedLevelLocation parseUndefinedLevelLocation(String locationString) {
+        String[] positions = locationString.split(":");
+        UndefinedLevelLocation loc = new UndefinedLevelLocation();
+        if (positions.length < 4) {
+            if (positions.length == 3) {
+                loc.setPos(new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2])));
+                return loc;
+            }
+            GameAPI.getInstance().getLogger().warning("Wrong Location Format! Please check it again, text: " + locationString);
+            return null;
+        }
+        if (positions.length >= 5) {
+            loc.setPos(new Location(Double.parseDouble(positions[3]), Double.parseDouble(positions[4]), 0));
+            if (positions.length == 6) {
+                loc.setPos(new Location(Double.parseDouble(positions[3]), Double.parseDouble(positions[4]), Double.parseDouble(positions[5])));
+            }
+        }
+        return loc;
+    }
+
     public static AdvancedLocation parseLocation(String locationString) {
         String[] positions = locationString.split(":");
         if (positions.length < 4) {
@@ -87,10 +108,10 @@ public class SpatialTools {
             GameAPI.getInstance().getLogger().warning("Wrong Location Format! Please check it again, text: " + locationString);
             return null;
         }
+        AdvancedLocation advancedLocation = new AdvancedLocation();
         if (!Server.getInstance().isLevelLoaded(positions[3])) {
             if (Server.getInstance().loadLevel(positions[3])) {
                 Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
-                AdvancedLocation advancedLocation = new AdvancedLocation();
                 advancedLocation.setLocation(location);
                 advancedLocation.setVersion(AdvancedLocation.LocationType.POS);
                 if (positions.length >= 6) {
@@ -108,7 +129,6 @@ public class SpatialTools {
             }
         } else {
             Location location = new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2]), Server.getInstance().getLevelByName(positions[3]));
-            AdvancedLocation advancedLocation = new AdvancedLocation();
             advancedLocation.setLocation(location);
             advancedLocation.setVersion(AdvancedLocation.LocationType.POS);
             if (positions.length >= 6) {
@@ -264,5 +284,28 @@ public class SpatialTools {
             }
         }
         return (double) matchingBlocks / totalBlocks1;
+    }
+
+    public static Vector3 rotateByYAxis(Vector3 p, Vector3 v, int angle) {
+
+        // 将角度转换为弧度
+        double theta = Math.toRadians(angle);
+
+        // 平移向量 V，使得旋转中心 P 成为原点
+        double vxPrime = v.x - p.x;
+        double vyPrime = v.y - p.y;
+        double vzPrime = v.z - p.z;
+
+        // 旋转向量
+        double xPrime = vxPrime * Math.cos(theta) + vzPrime * Math.sin(theta);
+        double yPrime = vyPrime;
+        double zPrime = -vxPrime * Math.sin(theta) + vzPrime * Math.cos(theta);
+
+        // 将旋转后的向量平移回原来的位置
+        double xFinal = xPrime + p.x;
+        double yFinal = yPrime + p.y;
+        double zFinal = zPrime + p.z;
+
+        return new Vector3(xFinal, yFinal, zFinal);
     }
 }

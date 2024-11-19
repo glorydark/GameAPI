@@ -83,6 +83,9 @@ public class WorldEditCommand extends Command {
                         }
                     }
                     break;
+                case "bwtest":
+                    WorldEditTools.createMultiplePlatform(player, Integer.parseInt(strings[1]), Integer.parseInt(strings[2]), Integer.parseInt(strings[3]), Block.get(Block.GLASS));
+                    break;
                 case "ball":
                     if (strings.length < 3) {
                         return false;

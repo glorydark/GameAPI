@@ -27,7 +27,7 @@ public class StatusCommand extends EasySubCommand {
         if (RoomManager.getRoomCount() > 0) {
             for (Map.Entry<String, List<Room>> game : RoomManager.getLoadedRooms().entrySet()) {
                 builder.append("\n")
-                        .append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.title", game))
+                        .append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.title", game.getKey()))
                         .append("\n");
                 List<Room> rooms = game.getValue();
                 if (!rooms.isEmpty()) {

@@ -90,7 +90,7 @@ public class RoomVirtualHealthManager {
     protected void resetHealthBar(Player player, double health) {
         BigDecimal decimal = new BigDecimal(health);
         decimal = decimal.divide(new BigDecimal(this.maxHealth), 1, RoundingMode.HALF_UP).multiply(new BigDecimal(player.getMaxHealth()));
-        int finalHealthDisplay = decimal.intValueExact();
+        int finalHealthDisplay = decimal.intValue();
         if (finalHealthDisplay < 1) {
             finalHealthDisplay = 1;
         }

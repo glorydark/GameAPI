@@ -76,7 +76,7 @@ public class AwardData {
     }
 
     public ElementButton getElementButton(Player player) {
-        boolean finished = this.checkFinish != null && this.checkFinish.apply(this.activityData, player);
+        boolean finished = this.checkFinish == null || this.checkFinish.apply(this.activityData, player);
         if (finished) {
             boolean claimed = this.checkClaimStatus != null && this.checkClaimStatus.apply(this.activityData, player);
             if (claimed) {

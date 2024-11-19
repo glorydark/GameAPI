@@ -107,7 +107,7 @@ public class WorldTools {
         }
 
         if (delete) {
-            level.tickRateCounter = 99999;
+            //level.tickRateCounter = 99999;
             if (level.unload(true)) {
                 return deleteWorld(levelName);
             } else {

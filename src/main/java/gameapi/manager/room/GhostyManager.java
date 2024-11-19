@@ -46,7 +46,7 @@ public class GhostyManager {
             if (playerRecordEngine != null) {
                 playerRecordEngine.stopRecord();
             }
-            levelRecordEngine.removePlayer(player);
+            // levelRecordEngine.removePlayer(player);
         }
     }
 

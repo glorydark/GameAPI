@@ -122,7 +122,6 @@ public abstract class EditProcess {
     }
 
     public void addTextEntity(Position position, String text) {
-        position = position.floor();
         TextEntity textEntity = new TextEntity(position.getChunk(), text, Entity.getDefaultNBT(position));
         textEntity.spawnToAll();
         this.textEntities.add(textEntity);

@@ -8,6 +8,7 @@ import gameapi.annotation.Internal;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
+import gameapi.tools.RandomTools;
 import gameapi.tools.WorldTools;
 import gameapi.utils.RoomNameUtils;
 
@@ -96,6 +97,38 @@ public class RoomManager {
 
     public static List<Room> getRooms(String gameName) {
         return new ArrayList<>(loadedRooms.getOrDefault(gameName, new ArrayList<>()));
+    }
+
+    public static Room getRoom(int roomNumber) {
+        if (roomNumber == -1) {
+            return null;
+        }
+        Room room;
+        for (Map.Entry<String, List<Room>> entry : loadedRooms.entrySet()) {
+            for (Room r : entry.getValue()) {
+                if (r.getRoomNumber() == roomNumber) {
+                    room = r;
+                    return room;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static int getAvailableRoomNumber() {
+        List<Integer> integers = new ArrayList<>();
+        for (Map.Entry<String, List<Room>> entry : loadedRooms.entrySet()) {
+            for (Room r : entry.getValue()) {
+                if (r.getRoomNumber() != -1) {
+                    integers.add(r.getRoomNumber());
+                }
+            }
+        }
+        int newRoomNumber = RandomTools.getRandom(100000, 999999);
+        if (integers.stream().noneMatch(integer -> integer == newRoomNumber)) {
+            return newRoomNumber;
+        }
+        return getAvailableRoomNumber();
     }
 
     public static List<Room> getCreatedRoom(Player player) {

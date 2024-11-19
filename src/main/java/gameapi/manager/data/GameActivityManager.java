@@ -1,9 +1,15 @@
 package gameapi.manager.data;
 
 import cn.nukkit.Player;
+import cn.nukkit.utils.ConfigSection;
+import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
+import gameapi.form.AdvancedFormWindowSimple;
+import gameapi.form.element.ResponsiveElementButton;
 import gameapi.manager.data.activity.ActivityData;
 import gameapi.manager.data.activity.ActivityPlayerDataCache;
+import gameapi.manager.data.activity.ActivityRegistry;
+import gameapi.manager.data.activity.AwardData;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,12 +21,18 @@ import java.util.Map;
  */
 public class GameActivityManager {
 
+    protected static String STATUS_UNDER_PREPARATION = "§c[未开始]";
+    protected static String STATUS_START = "§e[进行中]";
+    protected static String STATUS_EXPIRED = "§c[已结束]";
+
     public static String path;
 
     public static Map<String, ActivityData> activityDataMap = new LinkedHashMap<>();
 
     public static void init() {
         path = GameAPI.getPath() + File.separator + "activities" + File.separator;
+
+        ActivityRegistry.init();
     }
 
     public static void registerActivity(ActivityData activityData) {
@@ -49,5 +61,17 @@ public class GameActivityManager {
         if (activityData != null) {
             activityData.showActivityWindow(player);
         }
+    }
+
+    public static void showAllActivityForm(Player player) {
+        AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("活动界面", "");
+        for (Map.Entry<String, ActivityData> entry : activityDataMap.entrySet()) {
+            ActivityData activityData = entry.getValue();
+            simple.addButton(new ResponsiveElementButton(
+                    (activityData.isStarted()? (activityData.isExpired()? STATUS_EXPIRED: STATUS_START): STATUS_UNDER_PREPARATION)
+                            + activityData.getName()
+                            + "\n" + activityData.getDescription()));
+        }
+        simple.showToPlayer(player);
     }
 }

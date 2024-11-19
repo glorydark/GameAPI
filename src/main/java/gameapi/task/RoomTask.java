@@ -42,9 +42,6 @@ public class RoomTask extends Task {
         if (room == null) {
             return false;
         }
-        if (room.getRoomStatus().ordinal() >= 8) {
-            return false;
-        }
         room.getPlayers().remove(null);
         for (Player player : new ArrayList<>(room.getPlayers())) {
             if (!player.isOnline()) {
@@ -59,6 +56,13 @@ public class RoomTask extends Task {
         room.getStageStates().removeIf(StageState::isEnd);
 
         switch (room.getRoomStatus()) {
+            case ROOM_PLAYBACK:
+                if (room.getPlayers().isEmpty()) {
+                    GameAPI.getGameDebugManager().info("Detect that temp room " + room.getRoomName() + " has no players whilst playback, start destroying...");
+                    room.resetAll();
+                    return true;
+                }
+                break;
             case ROOM_STATUS_WAIT:
                 if (room.isTemporary() && room.isAutoDestroyOverTime()) {
                     if (System.currentTimeMillis() >= room.getCreateMillis() + GameAPI.MAX_TEMP_ROOM_WAIT_MILLIS) {

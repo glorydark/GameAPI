@@ -119,7 +119,7 @@ public class BaseRoomExecutor extends RoomExecutor {
         List<AdvancedLocation> startSpawns = this.room.getStartSpawn();
         if (!this.room.getTeams().isEmpty()) {
             if (this.room.getRoomRule().isAutoAllocatePlayerToTeam()) {
-                this.room.allocatePlayerToTeams();
+                this.room.allocatePlayerToTeams(true);
             }
             this.room.getPlayers().forEach(room::teleportToSpawn);
         } else {

@@ -3,6 +3,7 @@ package gameapi.manager.data.activity;
 import cn.nukkit.Player;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
+import cn.nukkit.utils.TextFormat;
 import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.manager.data.GameActivityManager;
 import gameapi.tools.CalendarTools;
@@ -71,11 +72,12 @@ public class ActivityData {
     }
 
     public void showActivityWindow(Player player) {
-        if (System.currentTimeMillis() < this.startTime) {
-            player.sendMessage("活动未开始！");
+        if (!this.isStarted()) {
+            player.sendMessage(TextFormat.RED + "活动未开始！");
             return;
-        } else if (System.currentTimeMillis() > this.endTime) {
-            player.sendMessage("活动已结束！");
+        }
+        if (this.isExpired()) {
+            player.sendMessage(TextFormat.RED + "活动已结束！");
             return;
         }
         AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple(this.name, this.description);
@@ -83,5 +85,13 @@ public class ActivityData {
             simple.addButton(awardData.getElementButton(player));
         }
         simple.showToPlayer(player);
+    }
+
+    public boolean isStarted() {
+        return System.currentTimeMillis() >= this.startTime;
+    }
+
+    public boolean isExpired() {
+        return System.currentTimeMillis() > this.endTime;
     }
 }

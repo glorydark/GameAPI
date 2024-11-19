@@ -1,5 +1,6 @@
 package gameapi.achievement;
 
+import cn.nukkit.Server;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 import cn.nukkit.utils.TextFormat;
@@ -65,6 +66,10 @@ public class AchievementManager {
     }
 
     public static void endowAchievement(String player, String category, String achievementId, String reason) {
+        if (!Server.getInstance().lookupName(player).isPresent()) {
+            GameAPI.getGameDebugManager().info(TextFormat.RED + "玩家不存在，玩家名：" + player);
+            return;
+        }
         long endowMillis = System.currentTimeMillis();
         ConfigSection section = ownedAchievementCaches.computeIfAbsent(player, s -> new ConfigSection());
         ConfigSection categorySection = section.getSection(category);
@@ -78,6 +83,7 @@ public class AchievementManager {
         Config config = new Config(GameAPI.getPath() + File.separator + "achievements" + File.separator + "player_data" + File.separator + player + ".yml", Config.YAML);
         config.setAll(section);
         config.save();
+        GameAPI.getGameDebugManager().info(TextFormat.GREEN + "成功给予玩家 " + player + " 成就 " + achievementId + ", 所属类别：" + category + ", 原因：" + reason);
     }
 
     public static void removeAchievement(String player, String category, String achievementId) {

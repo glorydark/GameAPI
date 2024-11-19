@@ -29,6 +29,8 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     protected String subtitle = "";
 
+    protected boolean respawn = true;
+
     public RoomPlayerDeathEvent(Room room, Player player, boolean sendTitle, EntityDamageEvent.DamageCause cause) {
         super(room, player);
         //导入的伤害来源
@@ -94,5 +96,13 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     public void setSendTitle(boolean sendTitle) {
         this.sendTitle = sendTitle;
+    }
+
+    public boolean isRespawn() {
+        return respawn;
+    }
+
+    public void setRespawn(boolean respawn) {
+        this.respawn = respawn;
     }
 }

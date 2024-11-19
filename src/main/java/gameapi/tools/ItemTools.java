@@ -6,6 +6,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import gameapi.utils.NukkitTypeUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -102,10 +103,12 @@ public class ItemTools {
     public static Item parseItemFromMap(Map<String, Object> map) {
         Item item = Item.fromString(map.get("id") + ":" + map.getOrDefault("damage", 0));
         item.setCount((Integer) map.getOrDefault("count", 1));
-        if (!item.hasCompoundTag()) {
-            item.setNamedTag(new CompoundTag().putBoolean("Unbreakable", true));
-        } else {
-            item.getNamedTag().putBoolean("Unbreakable", true);
+        if ((Boolean) map.getOrDefault("unbreakable", false)) {
+            if (!item.hasCompoundTag()) {
+                item.setNamedTag(new CompoundTag().putBoolean("Unbreakable", true));
+            } else {
+                item.getNamedTag().putBoolean("Unbreakable", true);
+            }
         }
         if (map.containsKey("enchantments")) {
             List<Map<String, Object>> enchantmentDataEntries = (List<Map<String, Object>>) map.get("enchantments");
@@ -115,7 +118,60 @@ public class ItemTools {
                 item.addEnchantment(enchantment);
             }
         }
+        if (map.containsKey("minecraft:item_lock")) {
+            if (item.hasCompoundTag()) {
+                item.getNamedTag().putByte("minecraft:item_lock", (Integer) map.getOrDefault("minecraft:item_lock", 0));
+            } else {
+                item.setNamedTag(new CompoundTag().putByte("minecraft:item_lock", (Integer) map.getOrDefault("minecraft:item_lock", 0)));
+            }
+        }
+
+        if (map.containsKey("minecraft:keep_on_death")) {
+            if (item.hasCompoundTag()) {
+                item.getNamedTag().putByte("minecraft:keep_on_death", (Boolean) map.getOrDefault("minecraft:keep_on_death", false)? 1: 0);
+            } else {
+                item.setNamedTag(new CompoundTag().putByte("minecraft:keep_on_death", (Boolean) map.getOrDefault("minecraft:keep_on_death", false)? 1: 0));
+            }
+        }
+
+        if (map.containsKey("custom_name")) {
+            item.setCustomName((String) map.getOrDefault("custom_name", ""));
+        }
+
+        if (map.containsKey("tags")) {
+            if (item.hasCompoundTag()) {
+                item.setNamedTag(parseCompoundTag(item, (Map<String, Object>) map.getOrDefault("tags", new LinkedHashMap<>())));
+            } else {
+                item.setNamedTag(new CompoundTag().putByte("minecraft:keep_on_death", (Boolean) map.getOrDefault("minecraft:keep_on_death", false)? 1: 0));
+            }
+        }
         return item;
+    }
+
+    public static CompoundTag parseCompoundTag(Item item, Map<String, Object> map) {
+        CompoundTag compoundTag = item.hasCompoundTag()? item.getNamedTag(): new CompoundTag();
+        Map<String, Object> tagMap = (Map<String, Object>) map.getOrDefault("tags", new LinkedHashMap<>());
+        for (Map.Entry<String, Object> entry : tagMap.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                compoundTag.putString(key, value.toString());
+            } else if (value instanceof Double) {
+                compoundTag.putDouble(key, (Double) value);
+            } else if (value instanceof Float) {
+                compoundTag.putFloat(key, (Float) value);
+            } else if (value instanceof Long) {
+                compoundTag.putLong(key, (Long) value);
+            } else if (value instanceof Map) {
+                if (!((Map<?, ?>) value).keySet().isEmpty()) {
+                    Object object = new ArrayList<>(((Map<?, ?>) value).keySet()).get(0);
+                    if (object instanceof String) {
+                        compoundTag.putCompound(parseCompoundTag(item, (Map<String, Object>) value));
+                    }
+                }
+            }
+        }
+        return compoundTag;
     }
 
     public static List<Enchantment> parseEnchantments(List<Map<String, Object>> mapList) {

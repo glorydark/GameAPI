@@ -3,12 +3,16 @@ package gameapi.tools;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.entity.item.EntityXPOrb;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
+import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.nbt.tag.DoubleTag;
+import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.MobArmorEquipmentPacket;
 import cn.nukkit.network.protocol.MobEquipmentPacket;
@@ -245,5 +249,36 @@ public class EntityTools {
             return NBTIO.getItemHelper(entity.namedTag.getCompound("Item"));
         }
         return Item.AIR_ITEM;
+    }
+
+    public static EntityItem getEntityItem(Item item, Position position, boolean display) {
+        try {
+            CompoundTag itemTag = NBTIO.putItemHelper(item);
+            itemTag.setName("Item");
+            EntityItem entityItem = new EntityItem(position.getLevel().getChunk((int) position.getX() >> 4, (int) position.getZ() >> 4, true),
+                    new CompoundTag().putList(new ListTag<>("Pos")
+                                    .add(new DoubleTag("", position.getX()))
+                                    .add(new DoubleTag("", position.getY()))
+                                    .add(new DoubleTag("", position.getZ())))
+                            .putShort("Health", 5)
+                            .putCompound("Item", itemTag)
+                            .putList((new ListTag<>("Motion"))
+                                    .add(new DoubleTag("", 0))
+                                    .add(new DoubleTag("", 0))
+                                    .add(new DoubleTag("", 0)))
+                            .putList((new ListTag<>("Rotation"))
+                                    .add(new FloatTag("", ThreadLocalRandom.current().nextFloat() * 360.0F))
+                                    .add(new FloatTag("", 0.0F)))
+                            .putShort("PickupDelay", 10));
+
+            if (display) {
+                entityItem.setNameTagAlwaysVisible(true);
+                entityItem.setNameTagVisible(true);
+                entityItem.setNameTag(item.getCustomName());
+            }
+            return entityItem;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

@@ -19,7 +19,7 @@ public class GlobalSettingsManager {
     public static Map<String, Map<String, ConfigSection>> playerSettingCaches = new LinkedHashMap<>();
 
     public static void init() {
-        path = GameAPI.getPath() + File.separator + "global_settings" + File.separator;
+        path = GameAPI.getPath() + File.separator + "global_settings";
         new File(path).mkdirs();
     }
 
@@ -63,10 +63,18 @@ public class GlobalSettingsManager {
     }
 
     public static ConfigSection getPlayerSettingCache(Player player, String name) {
-        return playerSettingCaches.getOrDefault(player.getName(), new LinkedHashMap<>()).getOrDefault(name, new ConfigSection());
+        return getPlayerSettingCache(player.getName(), name);
+    }
+
+    public static ConfigSection getPlayerSettingCache(String player, String name) {
+        return playerSettingCaches.getOrDefault(player, new LinkedHashMap<>()).getOrDefault(name, new ConfigSection());
     }
 
     public static void setPlayerSettingCache(Player player, String name, ConfigSection configSection) {
-        playerSettingCaches.computeIfAbsent(player.getName(), s -> new LinkedHashMap<>()).put(name, configSection);
+        setPlayerSettingCache(player.getName(), name, configSection);
+    }
+
+    public static void setPlayerSettingCache(String player, String name, ConfigSection configSection) {
+        playerSettingCaches.computeIfAbsent(player, s -> new LinkedHashMap<>()).put(name, configSection);
     }
 }

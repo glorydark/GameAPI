@@ -8,5 +8,6 @@ public enum QuitRoomReason {
     DEFAULT,
     PLAYER_OFFLINE,
     PLAYER_OPERATION,
-    GAME_ERROR
+    GAME_ERROR,
+    TELEPORT
 }

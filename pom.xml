@@ -38,7 +38,7 @@
         <dependency>
             <groupId>cn.nukkit</groupId>
             <artifactId>Nukkit</artifactId>
-            <version>MOT-java8-20240709.115146-9</version>
+            <version>MOT-java8-SNAPSHOT</version>
         </dependency>
 
         <dependency>

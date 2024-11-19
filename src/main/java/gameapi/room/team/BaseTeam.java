@@ -6,14 +6,14 @@ import gameapi.GameAPI;
 import gameapi.room.Room;
 import gameapi.tools.PlayerTools;
 import gameapi.utils.AdvancedLocation;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.util.*;
 
-@Setter
-@Getter
+@Data
 @ToString
 public class BaseTeam {
     private String registryName;
@@ -30,7 +30,9 @@ public class BaseTeam {
 
     private int maxPlayer;
 
-    private boolean isAlive = true;
+    private boolean alive = true;
+
+    private boolean eliminated = false;
 
     private DyeColor dyeColor = DyeColor.WHITE;
 
@@ -84,7 +86,7 @@ public class BaseTeam {
 
     public void resetAll() {
         this.players.clear();
-        this.isAlive = true;
+        this.alive = true;
     }
 
     public void teleportToSpawn() {
