@@ -5,10 +5,7 @@ import gameapi.commands.sub.*;
 import gameapi.commands.sub.achievement.FunctionAchievementCommand;
 import gameapi.commands.sub.achievement.FunctionAchievementGiveCommand;
 import gameapi.commands.sub.achievement.FunctionAchievementReloadCommand;
-import gameapi.commands.sub.ranking.FunctionRankingAddCommand;
-import gameapi.commands.sub.ranking.FunctionRankingCheckCommand;
-import gameapi.commands.sub.ranking.FunctionRankingInfoCommand;
-import gameapi.commands.sub.ranking.FunctionRankingRefreshCommand;
+import gameapi.commands.sub.ranking.*;
 import gameapi.commands.sub.test.FunctionNewActivityCommand;
 
 /**
@@ -42,6 +39,8 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new FunctionRankingCheckCommand("checkrank"));
         this.registerCommand(new FunctionRankingInfoCommand("rankinfo"));
         this.registerCommand(new FunctionRankingRefreshCommand("refreshrank"));
+        this.registerCommand(new FunctionRankingRemoveAllCommand("removerank"));
+        this.registerCommand(new FunctionRankingMonthlyConclusionCommand("monthrank"));
 
         // other functions
         this.registerCommand(new FunctionActivityCommand("activity"));
@@ -55,5 +54,9 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new SudoMCommand("sudom"));
         this.registerCommand(new TeleportIntoRoomCommand("tproomall"));
         this.registerCommand(new TeleportAllCommand("tpall"));
+        this.registerCommand(new ChangeToSnowBiome("snow"));
+        this.registerCommand(new SudoActionCommand("sudoact"));
+
+        this.registerCommand(new FunctionWardenCommand("shenquan"));
     }
 }

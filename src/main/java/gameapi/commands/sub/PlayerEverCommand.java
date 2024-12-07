@@ -4,8 +4,10 @@ import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import gameapi.GameAPI;
 import gameapi.commands.base.EasySubCommand;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBIterator;
 
-import java.io.File;
+import java.lang.reflect.Field;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -22,19 +24,23 @@ public class PlayerEverCommand extends EasySubCommand {
         CompletableFuture.runAsync(() -> {
             int count = 0;
             try {
-                File[] files = new File(Server.getInstance().getDataPath() + "players/").listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        String name = file.getName();
-                        if (name.endsWith(".dat") && !name.endsWith(".bak.dat")) {
-                            count++;
-                        }
-                    }
+                Class<?> serverClass = Server.class;
+                // 获取Server类中名为"nameLookup"的字段
+                Field nameLookupField = serverClass.getDeclaredField("nameLookup");
+                // 设置可访问性，以允许访问私有成员
+                nameLookupField.setAccessible(true);
+                // 创建Server类的实例（如果需要的话）
+                DB nameLookupValue = (DB) nameLookupField.get(Server.getInstance());
+                DBIterator iterator = nameLookupValue.iterator();
+                for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
+                    count++;
                 }
-                commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.player_ever.success", count));
-            } catch (Exception ignore) {
+
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                e.printStackTrace();
                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.player_ever.no_access"));
             }
+            commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.player_ever.success", count));
         });
         return false;
     }

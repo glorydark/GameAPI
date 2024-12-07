@@ -13,7 +13,7 @@ import gameapi.manager.data.PlayerGameDataManager;
  */
 public class ActivityLobbyTask {
 
-    public static final String activityId = "Activity_Lobby_Task_202411";
+    public static final String activityId = "Activity_Lobby_Task_202412";
 
     public static void showActivityForm(Player player) {
         AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("常规任务");

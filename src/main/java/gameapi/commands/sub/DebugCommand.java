@@ -1,5 +1,6 @@
 package gameapi.commands.sub;
 
+import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
 import gameapi.GameAPI;
 import gameapi.commands.base.EasySubCommand;
@@ -21,7 +22,7 @@ public class DebugCommand extends EasySubCommand {
         if (commandSender.isPlayer()) {
             switch (args[0]) {
                 case "true":
-                    GameAPI.getGameDebugManager().addPlayer(commandSender.asPlayer());
+                    GameAPI.getGameDebugManager().addPlayer((Player) commandSender);
                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.debug.on"));
                     break;
                 case "false":

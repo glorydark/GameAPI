@@ -44,6 +44,7 @@ import gameapi.room.team.BaseTeam;
 import gameapi.room.utils.QuitRoomReason;
 import gameapi.tools.FireworkTools;
 import gameapi.utils.*;
+import glorydark.nukkit.customquest.QuestAPI;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import java.math.BigDecimal;
@@ -72,6 +73,7 @@ public class BaseEventListener implements Listener {
     public void PlayerQuitEvent(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         GlobalSettingsManager.removeCacheAndSaveData(player);
+        GameAPI.getGameDebugManager().removePlayer(player);
         Room room = RoomManager.getRoom(player);
         if (room != null) {
             room.sendMessageToAll(GameAPI.getLanguage().getTranslation("baseEvent.quit.success", player.getName()));
@@ -899,12 +901,21 @@ public class BaseEventListener implements Listener {
                     }
                 }
             }
-            if (player.getLevelName().equals("world") && event.getBlock() != null && event.getBlock().getId() == Block.LIGHT_WEIGHTED_PRESSURE_PLATE && event.getBlock().distance(new Vector3(84, 45, -42)) <= 1) {
-                boolean parkourFinishStatus = PlayerGameDataManager.getPlayerGameData(ActivityLobbyTask.activityId, "parkour_finished", player.getName(), false);
-                if (!parkourFinishStatus) {
-                    FireworkTools.spawnRandomFirework(player);
-                    player.sendMessage(TextFormat.GREEN + "恭喜你完成了主城跑酷，请前往福利姬的主城活动界面领取奖励吧！");
-                    PlayerGameDataManager.setPlayerGameData(ActivityLobbyTask.activityId, "parkour_finished", player.getName(), true);
+            if (player.getLevelName().equals("world") && event.getBlock() != null && event.getBlock().getId() == Block.LIGHT_WEIGHTED_PRESSURE_PLATE) {
+                if (event.getBlock().distance(new Vector3(84, 45, -42)) <= 1) {
+                    boolean parkourFinishStatus = PlayerGameDataManager.getPlayerGameData(ActivityLobbyTask.activityId, "parkour_finished", player.getName(), false);
+                    if (!parkourFinishStatus) {
+                        FireworkTools.spawnRandomFirework(player);
+                        player.sendMessage(TextFormat.GREEN + "恭喜你完成了主城跑酷，请前往福利姬的主城活动界面领取奖励吧！");
+                        PlayerGameDataManager.setPlayerGameData(ActivityLobbyTask.activityId, "parkour_finished", player.getName(), true);
+                    }
+                } else if (event.getBlock().distance(new Vector3(65, 33, -37)) <= 1) {
+                    if (!QuestAPI.hasPlayerDailyProcess(player.getName(), "lobby_2412_christmas_parkour")) {
+                        FireworkTools.spawnRandomFirework(player);
+                        player.sendMessage(TextFormat.GREEN + "恭喜你完成了每日圣诞跑酷，请前往任务系统领取奖励哦！");
+                        QuestAPI.addPlayerDailyProcess(player.getName(), "lobby_2412_christmas_parkour", 1);
+                        QuestAPI.addPlayerPermanentProcess(player.getName(), "lobby_2412_christmas_parkour_accumulation", 1);
+                    }
                 }
             }
         }
@@ -1122,7 +1133,7 @@ public class BaseEventListener implements Listener {
     }
 
     @EventHandler
-    public void RoomEntityEffectRemoveEvent(RoomEntityEffectRemoveEvent event) {
+    public void EntityEffectRemoveEvent(EntityEffectRemoveEvent event) {
         Optional<Room> roomOptional = RoomManager.getRoom(event.getEntity().getLevel());
         if (roomOptional.isPresent()) {
             Room room = roomOptional.get();

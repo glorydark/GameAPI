@@ -44,18 +44,24 @@ public class GameEntityManager {
                             textEntityDataList.remove(textEntityData);
                             GameEntityManager.spawnTextEntity(textEntityData.getLocation(), textEntityData.getDefaultText());
                             // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
-                        } else if (!textEntity.isAlive() || textEntity.isClosed()
-                                || !textEntity.getChunk().getEntities().containsValue(textEntity)) {
-                            textEntityDataList.remove(textEntityData);
-                            textEntity.close();
-                            GameEntityManager.spawnTextEntity(textEntity.getLocation(), textEntityData.getDefaultText());
-                            // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
-                        } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
-                            textEntityDataList.remove(textEntityData);
-                            textEntity.close();
-                            GameEntityManager.spawnTextEntity(textEntity.getLocation(), textEntityData.getDefaultText());
                         } else {
-                            textEntity.onAsyncUpdate(Server.getInstance().getTick());
+                            Level level = textEntity.getLevel();
+                            if (level == null || level.getPlayers().isEmpty()) {
+                                return;
+                            }
+                            if (!textEntity.isAlive() || textEntity.isClosed()
+                                    || Arrays.stream(textEntity.getLevel().getEntities()).noneMatch(entity -> entity == textEntity)) {
+                                textEntityDataList.remove(textEntityData);
+                                textEntity.close();
+                                GameEntityManager.spawnTextEntity(textEntity.getLocation(), textEntityData.getDefaultText());
+                                // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
+                            } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
+                                textEntityDataList.remove(textEntityData);
+                                textEntity.close();
+                                GameEntityManager.spawnTextEntity(textEntity.getLocation(), textEntityData.getDefaultText());
+                            } else {
+                                textEntity.onAsyncUpdate(Server.getInstance().getTick());
+                            }
                         }
                         break;
                     case TextEntityData.TYPE_RANKING:
@@ -64,23 +70,28 @@ public class GameEntityManager {
                             textEntityDataList.remove(textEntityData);
                             GameEntityManager.spawnRankingListEntity(textEntityData.getLocation(), ranking);
                             // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
-                        } else if (!textEntity.isAlive() || textEntity.isClosed()
-                                || !textEntity.getChunk().getEntities().containsValue(textEntity)) {
-                            textEntityDataList.remove(textEntityData);
-                            textEntity.close();
-                            GameEntityManager.spawnRankingListEntity(textEntityData.getLocation(), ranking);
-                            // GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
-                        } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
-                            textEntityDataList.remove(textEntityData);
-                            textEntity.close();
-                            GameEntityManager.spawnRankingListEntity(textEntityData.getLocation(), ranking);
                         } else {
-                            textEntity.onAsyncUpdate(Server.getInstance().getTick());
+                            Level level = textEntity.getLevel();
+                            if (level == null || level.getPlayers().isEmpty()) {
+                                return;
+                            }
+                            if (!textEntity.isAlive() || textEntity.isClosed()
+                                    || Arrays.stream(textEntity.getLevel().getEntities()).noneMatch(entity -> entity == textEntity)) {
+                                textEntityDataList.remove(textEntityData);
+                                textEntity.close();
+                                GameEntityManager.spawnRankingListEntity(textEntityData.getLocation(), ranking);
+                                // GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
+                            } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
+                                textEntityDataList.remove(textEntityData);
+                                textEntity.close();
+                                GameEntityManager.spawnRankingListEntity(textEntityData.getLocation(), ranking);
+                            } else {
+                                textEntity.onAsyncUpdate(Server.getInstance().getTick());
+                            }
                         }
                         break;
                 }
             } catch (Throwable e) {
-                e.printStackTrace();
                 GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
                         + e + ":\n"
                         + Arrays.toString(e.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")
@@ -109,12 +120,11 @@ public class GameEntityManager {
 
     public static void spawnTextEntity(Location location, String content) {
         FullChunk chunk = location.getChunk();
-        if (!chunk.isLoaded()) {
+        if (chunk == null || !chunk.isLoaded() || chunk.getProvider() == null) {
             try {
                 location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ());
                 chunk = location.getLevel().getChunk(location.getChunkX(), location.getChunkZ());
             } catch (Throwable e) {
-                e.printStackTrace();
                 GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
                         + e + ":\n"
                         + Arrays.toString(e.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")
@@ -138,7 +148,6 @@ public class GameEntityManager {
                 location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ());
                 chunk = location.getLevel().getChunk(location.getChunkX(), location.getChunkZ());
             } catch (Throwable e) {
-                e.printStackTrace();
                 GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
                         + e + ":\n"
                         + Arrays.toString(e.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")

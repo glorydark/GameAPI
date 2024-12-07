@@ -75,7 +75,7 @@ public class RoomUpdateTask implements Runnable {
                 }
 
                 FullChunk chunk = player.getChunk();
-                if (!updateLightChunks.contains(chunk)) {
+                if (chunk.getProvider() != null && !updateLightChunks.contains(chunk)) {
                     chunk.populateSkyLight();
                     updateLightChunks.add(chunk);
                 }

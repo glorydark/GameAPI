@@ -14,7 +14,6 @@ import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryHolder;
-import cn.nukkit.inventory.PlayerUIInventory;
 import cn.nukkit.network.protocol.ContainerClosePacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import gameapi.form.AdvancedForm;
@@ -29,12 +28,13 @@ import java.util.Map;
 public class AdvancedFormListener implements Listener {
 
     public static final String VILLAGER_ENTITY_TAG = "gameapi_villager_entity";
-    protected static Map<Player, LinkedHashMap<Integer, FormWindow>> playerFormWindows = new LinkedHashMap<>();
+    protected static Map<Player, Map<Integer, FormWindow>> playerFormWindows = new LinkedHashMap<>();
     protected static Map<Player, AdvancedBlockFakeBlockInventory> chestFormMap = new LinkedHashMap<>();
     protected static Map<Player, ResponsiveTradeForm> villagerFormMap = new LinkedHashMap<>();
 
     public static void showToPlayer(Player player, FormWindow form) {
-        AdvancedFormListener.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>()).put(player.showFormWindow(form), form);
+        AdvancedFormListener.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>())
+                .put(player.showFormWindow(form), form);
     }
 
     public static void showToPlayer(Player player, ResponsiveTradeForm form) {
@@ -161,7 +161,7 @@ public class AdvancedFormListener implements Listener {
     @EventHandler
     public void DataPacketReceiveEvent(DataPacketReceiveEvent event) {
         Player player = event.getPlayer();
-        if (event.getPacket().packetId() == ProtocolInfo.CONTAINER_CLOSE_PACKET) {
+        if (event.getPacket() instanceof ContainerClosePacket) {
             ContainerClosePacket pk = (ContainerClosePacket) event.getPacket();
             if (pk.windowId == -1) {
                 if (villagerFormMap.containsKey(player)) {

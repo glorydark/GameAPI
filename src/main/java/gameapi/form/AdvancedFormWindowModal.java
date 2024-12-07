@@ -48,14 +48,12 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
         return this;
     }
 
-    public AdvancedFormWindowModal trueButton(String content, Consumer<Player> trueButtonResponseExecutor) {
-        this.setButton1(content);
+    public AdvancedFormWindowModal onTrueButton(Consumer<Player> trueButtonResponseExecutor) {
         this.trueButtonResponseExecutor = trueButtonResponseExecutor;
         return this;
     }
 
-    public AdvancedFormWindowModal falseButton(String content, Consumer<Player> falseButtonResponseExecutor) {
-        this.setButton2(content);
+    public AdvancedFormWindowModal onFalseButton(Consumer<Player> falseButtonResponseExecutor) {
         this.falseButtonResponseExecutor = falseButtonResponseExecutor;
         return this;
     }

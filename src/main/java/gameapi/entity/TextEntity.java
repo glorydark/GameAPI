@@ -7,7 +7,6 @@ import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,9 +35,11 @@ public class TextEntity extends Entity {
         if (this.isClosed()) {
             return;
         }
+        /*
         if (Arrays.stream(this.level.getEntities()).noneMatch(entity -> entity == this)) {
             this.getLevel().addEntity(this);
         }
+         */
         for (Player player : new ArrayList<>(this.getViewers().values())) {
             if (this.getViewers().containsKey(player.getLoaderId())) {
                 if (!player.isOnline() || player.getLevel() != this.getLevel()) {

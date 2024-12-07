@@ -3,14 +3,12 @@ package gameapi.manager.data;
 import cn.nukkit.Player;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
-import gameapi.manager.GameDebugManager;
-import gameapi.ranking.RankingFormat;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -22,16 +20,38 @@ public class PlayerGameDataManager {
 
     protected static Map<String, Map<String, Object>> playerData = new LinkedHashMap<>();
 
-    @Setter
-    @Getter
-    protected static RankingFormat rankingFormat = new RankingFormat();
-
     public static Map<String, Object> getPlayerAllGameData(String gameName, String fileName) {
         return playerData.getOrDefault(gameName + "/" + fileName, new LinkedHashMap<>());
     }
 
     public static void addPlayerGameData(String gameName, String fileName, Player player, Integer add) {
         addPlayerGameData(gameName, fileName, player.getName(), add);
+    }
+
+    public static void removeAllGameData(String player) {
+        for (Map.Entry<String, Map<String, Object>> entry : new ArrayList<>(playerData.entrySet())) {
+            playerData.getOrDefault(entry.getKey(), new LinkedHashMap<>()).remove(player);
+        }
+        for (File file : Objects.requireNonNull(new File(GameAPI.getPath() + "/gameRecords/").listFiles())) {
+            if (file.isDirectory()) {
+                for (File listFile : Objects.requireNonNull(file.listFiles())) {
+                    if (listFile.getName().endsWith(".yml")) {
+                        Config config = new Config(listFile, Config.YAML);
+                        config.remove(player);
+                        config.save();
+                    }
+                }
+            }
+        }
+    }
+
+    public static void removePlayerGameData(String gameName, String fileName, String player) {
+        Map<String, Object> allData = getPlayerAllGameData(gameName, fileName); // o1 -> o2
+        allData.remove(player);
+        playerData.put(gameName + "/" + fileName, allData);
+        Config config = new Config(GameAPI.getPath() + File.separator + "gameRecords" + File.separator + gameName + File.separator + fileName + ".yml", Config.YAML);
+        config.remove(player);
+        config.save();
     }
 
     public static void addPlayerGameData(String gameName, String fileName, String player, Integer add) {

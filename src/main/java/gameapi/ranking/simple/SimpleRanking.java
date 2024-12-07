@@ -27,4 +27,12 @@ public class SimpleRanking extends Ranking {
     public Map<String, Object> getLatestRankingData() {
         return PlayerGameDataManager.getPlayerAllGameData(this.gameName, this.dataName);
     }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public String getDataName() {
+        return dataName;
+    }
 }

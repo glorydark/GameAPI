@@ -1,15 +1,12 @@
 package gameapi.manager.data;
 
 import cn.nukkit.Player;
-import cn.nukkit.utils.ConfigSection;
-import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.form.element.ResponsiveElementButton;
 import gameapi.manager.data.activity.ActivityData;
 import gameapi.manager.data.activity.ActivityPlayerDataCache;
 import gameapi.manager.data.activity.ActivityRegistry;
-import gameapi.manager.data.activity.AwardData;
 
 import java.io.File;
 import java.util.ArrayList;

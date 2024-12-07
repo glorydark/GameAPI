@@ -17,14 +17,18 @@ public class ActivityMain {
 
     public static void showActivityMain(Player player) {
         AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("活动界面", "称号奖励请前往测试服须知NPC处装备");
+        /*
         simple.addButton(
-                new ResponsiveElementButton("§c§lClamber 4跑酷新图挑战\n§b活动时间: 11月17日0:00 - 11月30日23:59")
+                new ResponsiveElementButton("§c§lClamber 4跑酷新图挑战\n§b活动时间: 11月17日0:00 - 12月8日23:59")
                         .onRespond(player1 -> Server.getInstance().dispatchCommand(player1, "gameapi newac activity_parkour_c4_new_map_20241117"))
         );
+         */
+        /*
         simple.addButton(
                 new ResponsiveElementButton("§6§l初冬福利\n§b活动时间: 11月10日0:00 - 11月19日23:59")
                         .onRespond(player1 -> Server.getInstance().dispatchCommand(player1, "gameapi newac activity_winter_coming_20241110"))
         );
+         */
         /*
         simple.addButton(
                 new ResponsiveElementButton("§6§l11月测试服跑酷公开赛\n§b活动时间: 11月7日0:00 - 11月16日23:59")
@@ -50,21 +54,31 @@ public class ActivityMain {
         );
          */
         simple.addButton(
+                new ResponsiveElementButton("§a§l12月跑酷月赛模拟赛")
+                        .onRespond(player1 -> Server.getInstance().dispatchCommand(player1, "gameapi newac activity_parkour_ring_pk_new_map_20241206"))
+        );
+        simple.addButton(
                 new ResponsiveElementButton("§a§l主城活动")
                         .onRespond(ActivityLobbyTask::showActivityForm)
         );
         simple.addButton(
-                new ResponsiveElementButton("§6§l11月测试服跑酷公开赛\n§r§8已结束")
+                new ElementButton("初冬福利\n§r§8已结束")
+        );
+        simple.addButton(
+                new ElementButton("Clamber 4跑酷新图挑战\n§r§8已结束")
+        );
+        simple.addButton(
+                new ResponsiveElementButton("11月测试服跑酷公开赛\n§r§8已结束")
                         .onRespond(ActivityParkourMonthlyCompetition202411::showMainForm)
         );
         simple.addButton(
-                new ElementButton("§e§lBedFight挑战\n§r§8[已结束]")
+                new ElementButton("BedFight挑战\n§r§8[已结束]")
         );
         simple.addButton(
                 new ElementButton("丧尸围城限时挑战\n§r§8[已结束]")
         );
         simple.addButton(
-                new ElementButton("§6§l10月测试服跑酷公开赛\n§r§8[已结束]")
+                new ElementButton("10月测试服跑酷公开赛\n§r§8[已结束]")
         );
         simple.showToPlayer(player);
     }

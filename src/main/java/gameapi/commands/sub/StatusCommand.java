@@ -46,6 +46,13 @@ public class StatusCommand extends EasySubCommand {
                         builder.append("Players: ")
                                 .append(playerNameList.toString().replace("[", "").replace("]", ""))
                                 .append("\n");
+                        Set<String> spectatorNameList = new HashSet<>();
+                        for (Player spectator : room.getSpectators()) {
+                            spectatorNameList.add(spectator.getName());
+                        }
+                        builder.append("Spectators: ")
+                                .append(spectatorNameList.toString().replace("[", "").replace("]", ""))
+                                .append("\n");
                     }
                 } else {
                     builder.append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.no_room_loaded"))

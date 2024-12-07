@@ -12,9 +12,9 @@ import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import gameapi.achievement.AchievementManager;
-import gameapi.activity.ActivityMain;
 import gameapi.commands.GameAPICommandMain;
 import gameapi.commands.HubCommand;
+import gameapi.commands.ShenquanCommand;
 import gameapi.commands.WorldEditCommand;
 import gameapi.entity.RankingListEntity;
 import gameapi.listener.AdvancedFormListener;
@@ -56,6 +56,7 @@ public class GameAPI extends PluginBase implements Listener {
 
     protected int rankingTextEntityRefreshIntervals;
     protected boolean tipsEnabled;
+    protected boolean customQuestEnabled;
     protected boolean saveTempStates = false;
     protected static GameDebugManager gameDebugManager;
     protected static final Language language = new Language("GameAPI");
@@ -142,6 +143,7 @@ public class GameAPI extends PluginBase implements Listener {
         this.loadLanguage();
         language.setDefaultLanguage(config.getString("default-language", "zh_CN"));
         this.tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
+        this.customQuestEnabled = this.getServer().getPluginManager().getPlugin("CustomQuest") != null;
 
         this.loadAllPlayerGameData();
         this.loadRanking();
@@ -160,6 +162,7 @@ public class GameAPI extends PluginBase implements Listener {
         this.getServer().getCommandMap().register("", new GameAPICommandMain("gameapi"));
         this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
         this.getServer().getCommandMap().register("", new HubCommand("hub"));
+        this.getServer().getCommandMap().register("", new ShenquanCommand("shenquan"));
         // others ...
         roomTaskExecutor.scheduleAtFixedRate(() -> {
             try {
@@ -172,30 +175,41 @@ public class GameAPI extends PluginBase implements Listener {
             }
             GameActivityManager.updateTempDataCleaning();
         }, 0, 1, TimeUnit.SECONDS);
-        roomTaskExecutor.scheduleAtFixedRate(() -> gameDebugManager.getPlayers().forEach(player -> {
-                    DecimalFormat df = new DecimalFormat("#0.00");
-                    String out = "GameAPI Debug\n";
-                    out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
-                    out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
-                    Item item = player.getInventory().getItemInHand();
-                    out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + "] 数量:" + item.getCount() + "\n";
-                    Block block = player.getTargetBlock(32);
-                    if (block != null) {
-                        //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
-                        out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 物品id：" + block.getItemId() + " 方块名称:" + block.getName() + "\n";
-                        out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
+        roomTaskExecutor.scheduleAtFixedRate(() ->
+                gameDebugManager.getPlayers().forEach(player -> {
+                    if (player.isOp()) {
+                        DecimalFormat df = new DecimalFormat("#0.00");
+                        String out = "GameAPI Debug\n";
+                        out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
+                        out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
+                        Item item = player.getInventory().getItemInHand();
+                        out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + "] 数量:" + item.getCount() + "\n";
+                        Block block = player.getTargetBlock(32);
+                        if (block != null) {
+                            //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
+                            out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 物品id：" + block.getItemId() + " 方块名称:" + block.getName() + "\n";
+                            out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
+                        } else {
+                            out += "所指方块id: [无] 方块名称:无" + "\n";
+                            out += "所指方块位置: [无]" + "\n";
+                        }
+                        Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
+                        if (under != null) {
+                            //out += "所踩方块: " + under.toItem().getNamespaceId();
+                            out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);
+                        } else {
+                            out += "所踩方块: [无]";
+                        }
+                        player.sendActionBar(out);
                     } else {
-                        out += "所指方块id: [无] 方块名称:无" + "\n";
-                        out += "所指方块位置: [无]" + "\n";
+                        player.sendActionBar("x: " + player.getX()
+                                + "\ny: " + player.getY()
+                                + "\nz: " + player.getZ()
+                                + "\nyaw: " + player.getYaw()
+                                + "\npitch: " + player.getPitch()
+                                + "\nheadYaw: " + player.getHeadYaw()
+                        );
                     }
-                    Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
-                    if (under != null) {
-                        //out += "所踩方块: " + under.toItem().getNamespaceId();
-                        out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);
-                    } else {
-                        out += "所踩方块: [无]";
-                    }
-                    player.sendActionBar(out);
                 }
         ), 0, 200, TimeUnit.MILLISECONDS);
         roomTaskExecutor.scheduleAtFixedRate(GameEntityManager::onUpdate, 0, 2, TimeUnit.SECONDS);
@@ -240,13 +254,6 @@ public class GameAPI extends PluginBase implements Listener {
     }
 
     public void loadRanking() {
-        if (new File(path + "/rankings.yml").exists()) {
-            Config rankingConfig = new Config(path + "/rankings.yml", Config.YAML);
-            if (rankingConfig.exists("format")) {
-                RankingFormat rankingFormat = new RankingFormat(rankingConfig.getString("score_show_format"), rankingConfig.getString("champion_prefix"), rankingConfig.getString("runnerUp_prefix"), rankingConfig.getString("secondRunnerUp_prefix"));
-                PlayerGameDataManager.setRankingFormat(rankingFormat);
-            }
-        }
         this.loadAllRankingListEntities();
     }
 

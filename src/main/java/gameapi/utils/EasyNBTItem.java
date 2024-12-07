@@ -27,6 +27,7 @@ public class EasyNBTItem {
     protected String[] lore = null;
     protected List<Enchantment> enchantments = new ArrayList<>();
     private int meta;
+    private int count = 1;
     private String customName = "";
     private DyeColor dyeColor = null;
 
@@ -57,6 +58,11 @@ public class EasyNBTItem {
 
     public EasyNBTItem damage(int damage) {
         this.meta = damage;
+        return this;
+    }
+
+    public EasyNBTItem count(int count) {
+        this.count = count;
         return this;
     }
 
@@ -135,6 +141,7 @@ public class EasyNBTItem {
         } else {
             item = Item.get(this.id, this.meta);
         }
+        item.setCount(this.count);
         if (!this.compoundTag.isEmpty()) {
             item.setCompoundTag(this.compoundTag);
         }

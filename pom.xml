@@ -5,7 +5,7 @@
 
     <groupId>glorydark.nukkit</groupId>
     <artifactId>GameAPI</artifactId>
-    <version>1.4.2</version>
+    <version>1.5.0</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -67,6 +67,14 @@
             <artifactId>Ghosty</artifactId>
             <version>B20240115-MOT-C1-JAVA8</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>glorydark.nukkit.customquest</groupId>
+            <artifactId>CustomQuest</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>E:/dependencies/pure-test-mot/plugins/CustomQuest.jar</systemPath>
         </dependency>
     </dependencies>
 

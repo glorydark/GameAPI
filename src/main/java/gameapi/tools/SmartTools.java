@@ -161,35 +161,42 @@ public class SmartTools {
      * @return 序数词字符串
      */
     public static String getOrdinalString(int number, boolean isAllCapital) {
-        switch (number) {
+        String suffix = "";
+        switch (number % 10) {
             case 1:
                 if (isAllCapital) {
-                    return "1ST";
+                    suffix = "ST";
                 } else {
-                    return "1st";
+                    suffix = "st";
                 }
+                break;
             case 2:
                 if (isAllCapital) {
-                    return "2ND";
+                    suffix = "2ND";
                 } else {
-                    return "2nd";
+                    suffix = "2nd";
                 }
+                break;
             case 3:
                 if (isAllCapital) {
-                    return "3RD";
+                    suffix = "3RD";
                 } else {
-                    return "3rd";
+                    suffix = "3rd";
                 }
+                break;
             default:
                 if (number < 0) {
                     return "Invalid Number";
                 }
                 if (isAllCapital) {
-                    return number + "TH";
+                    suffix = number + "TH";
                 } else {
-                    return number + "th";
+                    suffix = number + "th";
                 }
+                break;
+
         }
+        return number + suffix;
     }
 
     public <T> List<T> buildList(Supplier<List<T>> supplier) {
