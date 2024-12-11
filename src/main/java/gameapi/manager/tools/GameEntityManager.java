@@ -47,7 +47,7 @@ public class GameEntityManager {
                         } else {
                             Level level = textEntity.getLevel();
                             if (level == null || level.getPlayers().isEmpty()) {
-                                return;
+                                continue;
                             }
                             if (!textEntity.isAlive() || textEntity.isClosed()
                                     || Arrays.stream(textEntity.getLevel().getEntities()).noneMatch(entity -> entity == textEntity)) {
@@ -73,7 +73,7 @@ public class GameEntityManager {
                         } else {
                             Level level = textEntity.getLevel();
                             if (level == null || level.getPlayers().isEmpty()) {
-                                return;
+                                continue;
                             }
                             if (!textEntity.isAlive() || textEntity.isClosed()
                                     || Arrays.stream(textEntity.getLevel().getEntities()).noneMatch(entity -> entity == textEntity)) {

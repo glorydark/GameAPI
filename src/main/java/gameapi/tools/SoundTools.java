@@ -65,4 +65,5 @@ public class SoundTools {
     public static void addAmbientSound(Position position, Sound sound) {
         position.getLevel().addSound(position, sound);
     }
+
 }

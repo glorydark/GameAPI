@@ -5,7 +5,6 @@ import de.theamychan.scoreboard.api.ScoreboardAPI;
 import de.theamychan.scoreboard.network.DisplaySlot;
 import de.theamychan.scoreboard.network.Scoreboard;
 import de.theamychan.scoreboard.network.ScoreboardDisplay;
-import gameapi.tools.SmartTools;
 
 import java.util.concurrent.ConcurrentHashMap;
 

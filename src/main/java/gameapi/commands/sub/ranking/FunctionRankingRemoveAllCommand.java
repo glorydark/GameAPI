@@ -3,15 +3,8 @@ package gameapi.commands.sub.ranking;
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.TextFormat;
-import gameapi.GameAPI;
 import gameapi.commands.base.EasySubCommand;
-import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.manager.data.PlayerGameDataManager;
-import gameapi.manager.tools.GameEntityManager;
-import gameapi.ranking.Ranking;
-import gameapi.ranking.simple.SimpleRanking;
-
-import java.util.*;
 
 /**
  * @author glorydark

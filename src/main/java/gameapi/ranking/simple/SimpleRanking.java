@@ -1,6 +1,5 @@
 package gameapi.ranking.simple;
 
-import cn.nukkit.level.Location;
 import gameapi.manager.data.PlayerGameDataManager;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.RankingFormat;

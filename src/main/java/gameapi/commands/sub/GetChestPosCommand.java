@@ -5,8 +5,8 @@ import cn.nukkit.block.BlockID;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.SimpleAxisAlignedBB;
-import gameapi.commands.WorldEditCommand;
 import gameapi.commands.base.EasySubCommand;
+import gameapi.commands.worldedit.WorldEditCommand;
 import gameapi.utils.PosSet;
 
 /**

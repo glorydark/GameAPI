@@ -33,10 +33,10 @@ public class StatusCommand extends EasySubCommand {
                 if (!rooms.isEmpty()) {
                     for (Room room : rooms) {
                         if (!room.isAllowedToStart()) {
-                            builder.append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.need_start_pass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()))
+                            builder.append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.need_start_pass", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMaxPlayer(), room.getMinPlayer()))
                                     .append("\n");
                         } else {
-                            builder.append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMinPlayer(), room.getMinPlayer() - room.getPlayers().size()))
+                            builder.append(GameAPI.getLanguage().getTranslation(commandSender, "command.status.show.tag.common", room.getRoomName(), room.getRoomStatus().toString(), room.getPlayers().size(), room.getMaxPlayer(), room.getMinPlayer()))
                                     .append("\n");
                         }
                         Set<String> playerNameList = new HashSet<>();

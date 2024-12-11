@@ -66,7 +66,7 @@ public class GameActivityManager {
             ActivityData activityData = entry.getValue();
             simple.addButton(new ResponsiveElementButton(
                     (activityData.isStarted()? (activityData.isExpired()? STATUS_EXPIRED: STATUS_START): STATUS_UNDER_PREPARATION)
-                            + activityData.getName()
+                            + " " + activityData.getName()
                             + "\n" + activityData.getDescription()));
         }
         simple.showToPlayer(player);

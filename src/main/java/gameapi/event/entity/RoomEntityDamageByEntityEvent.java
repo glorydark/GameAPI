@@ -6,7 +6,6 @@ import cn.nukkit.event.entity.EntityDamageEvent;
 import gameapi.event.Cancellable;
 import gameapi.room.Room;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

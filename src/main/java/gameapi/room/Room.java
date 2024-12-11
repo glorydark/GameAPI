@@ -18,6 +18,7 @@ import gameapi.form.element.ResponsiveElementInput;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
 import gameapi.manager.music.NBSMusicManager;
+import gameapi.manager.music.OggMusicManager;
 import gameapi.manager.room.AdvancedBlockManager;
 import gameapi.manager.room.CheckpointManager;
 import gameapi.manager.room.GhostyManager;
@@ -32,9 +33,9 @@ import gameapi.room.utils.HideType;
 import gameapi.room.utils.QuitRoomReason;
 import gameapi.tools.PlayerTools;
 import gameapi.tools.TipsTools;
-import gameapi.utils.TitleData;
 import gameapi.tools.WorldTools;
 import gameapi.utils.AdvancedLocation;
+import gameapi.utils.TitleData;
 import gameapi.utils.text.GameTextContainer;
 import it.unimi.dsi.fastutil.Function;
 import lombok.AccessLevel;
@@ -109,6 +110,7 @@ public class Room {
     private AdvancedBlockManager advancedBlockManager = new AdvancedBlockManager();
     private GhostyManager ghostyManager = new GhostyManager(this);
     private NBSMusicManager nbsMusicManager;
+    private OggMusicManager oggMusicManager;
     private boolean autoDestroyOverTime = true; // 超过maxWaitMillis自动释放房间
     private List<String> roomAdmins = new ArrayList<>();
     private String creator = "";
@@ -130,7 +132,6 @@ public class Room {
         this.roomLevelBackup = roomLevelBackup;
         this.createMillis = System.currentTimeMillis();
         this.checkpointManager = new CheckpointManager(this);
-        this.nbsMusicManager = new NBSMusicManager(this, NBSMusicManager.PlayType.LIST);
     }
 
     public void registerRoomItem(RoomItemBase... roomItems) {
@@ -423,7 +424,9 @@ public class Room {
                 }
             }
         } else {
-            player.sendMessage(GameAPI.getLanguage().getTranslation("room.game.full"));
+            if (!this.roomRule.isAllowSpectators()) {
+                player.sendMessage(GameAPI.getLanguage().getTranslation("room.game.full"));
+            }
         }
     }
 

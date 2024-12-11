@@ -2,7 +2,6 @@ package gameapi.event.entity;
 
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.Cancellable;
-import cn.nukkit.event.HandlerList;
 import cn.nukkit.potion.Effect;
 import gameapi.room.Room;
 

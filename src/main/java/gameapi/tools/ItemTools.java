@@ -103,6 +103,12 @@ public class ItemTools {
     public static Item parseItemFromMap(Map<String, Object> map) {
         Item item = Item.fromString(map.get("id") + ":" + map.getOrDefault("damage", 0));
         item.setCount((Integer) map.getOrDefault("count", 1));
+
+        String customName = (String) map.getOrDefault("custom_name", "");
+        if (!customName.isEmpty()) {
+            item.setCustomName(customName);
+        }
+
         if ((Boolean) map.getOrDefault("unbreakable", false)) {
             if (!item.hasCompoundTag()) {
                 item.setNamedTag(new CompoundTag().putBoolean("Unbreakable", true));
@@ -127,23 +133,22 @@ public class ItemTools {
         }
 
         if (map.containsKey("minecraft:keep_on_death")) {
-            if (item.hasCompoundTag()) {
-                item.getNamedTag().putByte("minecraft:keep_on_death", (Boolean) map.getOrDefault("minecraft:keep_on_death", false)? 1: 0);
-            } else {
-                item.setNamedTag(new CompoundTag().putByte("minecraft:keep_on_death", (Boolean) map.getOrDefault("minecraft:keep_on_death", false)? 1: 0));
+            boolean keepOnDeath = (Boolean) map.getOrDefault("minecraft:keep_on_death", false);
+            if (keepOnDeath) {
+                if (item.hasCompoundTag()) {
+                    item.getNamedTag().putByte("minecraft:keep_on_death", 1);
+                } else {
+                    item.setNamedTag(new CompoundTag().putByte("minecraft:keep_on_death", 1));
+                }
             }
-        }
-
-        if (map.containsKey("custom_name")) {
-            item.setCustomName((String) map.getOrDefault("custom_name", ""));
         }
 
         if (map.containsKey("tags")) {
-            if (item.hasCompoundTag()) {
-                item.setNamedTag(parseCompoundTag(item, (Map<String, Object>) map.getOrDefault("tags", new LinkedHashMap<>())));
-            } else {
-                item.setNamedTag(new CompoundTag().putByte("minecraft:keep_on_death", (Boolean) map.getOrDefault("minecraft:keep_on_death", false)? 1: 0));
-            }
+            item.setNamedTag(parseCompoundTag(item, (Map<String, Object>) map.getOrDefault("tags", new LinkedHashMap<>())));
+        }
+
+        if (item.getNamedTag() != null) {
+            item.setNamedTag(item.getNamedTag());
         }
         return item;
     }

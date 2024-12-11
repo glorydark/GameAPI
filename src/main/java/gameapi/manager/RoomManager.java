@@ -1,7 +1,6 @@
 package gameapi.manager;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
 import gameapi.annotation.Internal;
@@ -12,7 +11,10 @@ import gameapi.tools.RandomTools;
 import gameapi.tools.WorldTools;
 import gameapi.utils.RoomNameUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -64,15 +66,16 @@ public class RoomManager {
         loadedRooms.put(room.getGameName(), rooms);
     }
 
-    public static Optional<Room> getRoom(Level level) {
+    public static List<Room> getRooms(Level level) {
+        List<Room> rooms = new ArrayList<>();
         for (List<Room> roomList : RoomManager.loadedRooms.values()) {
             for (Room room : roomList) {
                 if (room.getPlayLevels().contains(level)) {
-                    return Optional.of(room);
+                    rooms.add(room);
                 }
             }
         }
-        return Optional.empty();
+        return rooms;
     }
 
     public static Room getRoom(String gameName, Player player) {

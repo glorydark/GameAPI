@@ -8,12 +8,8 @@ import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.simple.SimpleRanking;
-import gameapi.tools.SmartTools;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.ToDoubleFunction;
 
 /**
  * @author glorydark

@@ -8,6 +8,7 @@ import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.manager.data.GameActivityManager;
 import gameapi.tools.CalendarTools;
 import lombok.Getter;
+import org.apache.logging.log4j.util.TriConsumer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,6 +33,12 @@ public class ActivityData {
     private final long endTime;
 
     private final List<AwardData> awardDataList = new ArrayList<>();
+
+    private TriConsumer<Player, ActivityData, AdvancedFormWindowSimple> activityFormBuilder = (player, activityData, simple) -> {
+        for (AwardData awardData : activityData.awardDataList) {
+            simple.addButton(awardData.getElementButton(player));
+        }
+    };
 
     public Map<String, ActivityPlayerDataCache> activityPlayerDataCacheMap = new LinkedHashMap<>();
 
@@ -81,9 +88,7 @@ public class ActivityData {
             return;
         }
         AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple(this.name, this.description);
-        for (AwardData awardData : this.awardDataList) {
-            simple.addButton(awardData.getElementButton(player));
-        }
+        this.activityFormBuilder.accept(player, this, simple);
         simple.showToPlayer(player);
     }
 
@@ -93,5 +98,13 @@ public class ActivityData {
 
     public boolean isExpired() {
         return System.currentTimeMillis() > this.endTime;
+    }
+
+    public TriConsumer<Player, ActivityData, AdvancedFormWindowSimple> getActivityFormBuilder() {
+        return activityFormBuilder;
+    }
+
+    public void setActivityFormBuilder(TriConsumer<Player, ActivityData, AdvancedFormWindowSimple> activityFormBuilder) {
+        this.activityFormBuilder = activityFormBuilder;
     }
 }

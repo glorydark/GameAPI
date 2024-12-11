@@ -15,7 +15,7 @@ import gameapi.achievement.AchievementManager;
 import gameapi.commands.GameAPICommandMain;
 import gameapi.commands.HubCommand;
 import gameapi.commands.ShenquanCommand;
-import gameapi.commands.WorldEditCommand;
+import gameapi.commands.worldedit.WorldEditCommand;
 import gameapi.entity.RankingListEntity;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.listener.BaseEventListener;
@@ -266,9 +266,11 @@ public class GameAPI extends PluginBase implements Listener {
                     File[] subFiles = file.listFiles();
                     if (subFiles != null) {
                         for (File subFile : subFiles) {
-                            String name = file.getName() + "/" + subFile.getName().split("\\.")[0];
-                            playerGameData.put(name, new Config(subFile, Config.YAML).getAll());
-                            this.getLogger().info("Loaded player data: " + subFile);
+                            if (subFile != null && subFile.isFile()) {
+                                String name = file.getName() + "/" + subFile.getName().split("\\.")[0];
+                                playerGameData.put(name, new Config(subFile, Config.YAML).getAll());
+                                this.getLogger().info("Loaded player data: " + subFile);
+                            }
                         }
                     }
                 }

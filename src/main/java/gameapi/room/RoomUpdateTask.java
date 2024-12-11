@@ -6,7 +6,6 @@ import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
-import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
@@ -19,6 +18,7 @@ import gameapi.extensions.obstacle.DynamicObstacle;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.task.RoomAdvancedUpdateTask;
+import gameapi.tools.VanillaCustomMusicTools;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -63,7 +63,9 @@ public class RoomUpdateTask implements Runnable {
             }
         }
         try {
-            List<FullChunk> updateLightChunks = new ArrayList<>();
+            if (!this.room.getRoomRule().isVanillaCustomMusic()) {
+                VanillaCustomMusicTools.stopCustomMusic(0f, room.getPlayers().toArray(new Player[0]));
+            }
             // Internal Process
             for (Player player : new ArrayList<>(this.room.getPlayers())) {
                 if (player.getGamemode() != 3) {
@@ -72,12 +74,6 @@ public class RoomUpdateTask implements Runnable {
                     this.onUpdateRoomPlayerMovementEvent(player);
                     // RecordPoint
                     this.room.getCheckpointManager().onUpdate(player);
-                }
-
-                FullChunk chunk = player.getChunk();
-                if (chunk.getProvider() != null && !updateLightChunks.contains(chunk)) {
-                    chunk.populateSkyLight();
-                    updateLightChunks.add(chunk);
                 }
             }
 
@@ -96,8 +92,15 @@ public class RoomUpdateTask implements Runnable {
             }
 
             this.onTickDynamicObstacles();
-            if (!this.room.getNbsMusicManager().isStopped()) {
-                this.room.getNbsMusicManager().onTick();
+            if (this.room.getNbsMusicManager() != null) {
+                if (!this.room.getNbsMusicManager().isStopped()) {
+                    this.room.getNbsMusicManager().onTick();
+                }
+            }
+            if (this.room.getOggMusicManager() != null) {
+                if (!this.room.getOggMusicManager().isStopped()) {
+                    this.room.getOggMusicManager().onTick();
+                }
             }
             this.onUpdateRoomItemHeld();
 

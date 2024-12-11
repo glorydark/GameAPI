@@ -4,6 +4,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 import com.google.common.collect.ImmutableList;
+import lombok.ToString;
 
 import java.util.*;
 import java.util.concurrent.RecursiveTask;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 /**
  * @author glorydark
  */
+@ToString
 public class BlockFillTask extends RecursiveTask<Long> {
 
     private static final int THRESHOLD = 1000; // This is the threshold of executing task counts

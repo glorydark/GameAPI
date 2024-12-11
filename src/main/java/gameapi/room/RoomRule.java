@@ -100,7 +100,11 @@ public class RoomRule {
 
     private boolean protectMapBlock = false;
 
+    private boolean allowEnderPearlDamage = false;
+
     private List<String> allowBreakProtectedMapBlocks = new ArrayList<>();
+
+    private boolean vanillaCustomMusic = true;
 
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;

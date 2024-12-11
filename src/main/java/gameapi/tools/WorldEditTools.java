@@ -60,7 +60,7 @@ public class WorldEditTools {
             BlockFillTask fillTask = new BlockFillTask(level, block);
             bb.forEach((i, i1, i2) -> {
                 Vector3 pos = new Vector3(i, i1, i2);
-                if (!isReplacedExistedBlock && level.getBlock(pos) != null) {
+                if (!isReplacedExistedBlock && level.getBlock(pos).getId() != 0) {
                     return;
                 }
                 fillTask.addPos(pos);

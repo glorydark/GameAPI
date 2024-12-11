@@ -1,7 +1,6 @@
 package gameapi.entity.data;
 
 import cn.nukkit.level.Location;
-import cn.nukkit.level.Position;
 import gameapi.entity.RankingListEntity;
 import gameapi.ranking.Ranking;
 

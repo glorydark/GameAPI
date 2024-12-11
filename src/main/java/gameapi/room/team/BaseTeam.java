@@ -7,8 +7,6 @@ import gameapi.room.Room;
 import gameapi.tools.PlayerTools;
 import gameapi.utils.AdvancedLocation;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.util.*;

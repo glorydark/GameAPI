@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.form.element.ElementButton;
 import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.form.element.ResponsiveElementButton;
+import gameapi.manager.data.activity.internal.ActivityParkourMonthlyCompetition202412;
 
 /**
  * @author glorydark
@@ -54,8 +55,8 @@ public class ActivityMain {
         );
          */
         simple.addButton(
-                new ResponsiveElementButton("§a§l12月跑酷月赛模拟赛")
-                        .onRespond(player1 -> Server.getInstance().dispatchCommand(player1, "gameapi newac activity_parkour_ring_pk_new_map_20241206"))
+                new ResponsiveElementButton("§6§l12月跑酷月赛\n§b活动时间: 12月10日0:00 - 12月15日20:00")
+                        .onRespond(player1 -> Server.getInstance().dispatchCommand(player1, "gameapi newac " + ActivityParkourMonthlyCompetition202412.activityId))
         );
         simple.addButton(
                 new ResponsiveElementButton("§a§l主城活动")

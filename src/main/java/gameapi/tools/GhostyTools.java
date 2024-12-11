@@ -5,11 +5,10 @@ import gameapi.GameAPI;
 import net.easecation.ghosty.LevelRecordPack;
 import net.easecation.ghosty.recording.player.PlayerRecord;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 /**
  * @author glorydark

@@ -15,7 +15,6 @@ import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.network.protocol.ContainerClosePacket;
-import cn.nukkit.network.protocol.ProtocolInfo;
 import gameapi.form.AdvancedForm;
 import gameapi.form.entity.ResponsiveTradeForm;
 import gameapi.form.inventory.block.AdvancedBlockFakeBlockInventory;
