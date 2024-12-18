@@ -61,8 +61,12 @@ public class Ranking {
     }
 
     public String getDisplayContent() {
+        return getDisplayContent(false);
+    }
+
+    public String getDisplayContent(boolean onlyContent) {
         RankingFormat format = this.getRankingFormat();
-        StringBuilder builder = new StringBuilder().append(this.getTitle().replace("\\n", "\n"));
+        StringBuilder builder = new StringBuilder().append(onlyContent? "" : this.getTitle().replace("\\n", "\n"));
         if (!this.rankingData.isEmpty()) {
             int i = 1;
             for (Map.Entry<String, ?> entry : this.rankingData.entrySet()) {
@@ -94,7 +98,9 @@ public class Ranking {
                 }
             }
         } else {
-            builder.append("\n").append(this.getNoDataContent().replace("\\n", "\n"));
+            if (!onlyContent) {
+                builder.append("\n").append(this.getNoDataContent().replace("\\n", "\n"));
+            }
         }
         return builder.toString();
     }

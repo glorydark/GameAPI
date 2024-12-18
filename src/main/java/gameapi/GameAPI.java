@@ -15,6 +15,7 @@ import gameapi.achievement.AchievementManager;
 import gameapi.commands.GameAPICommandMain;
 import gameapi.commands.HubCommand;
 import gameapi.commands.ShenquanCommand;
+import gameapi.commands.vanilla.VanillaFixCommand;
 import gameapi.commands.worldedit.WorldEditCommand;
 import gameapi.entity.RankingListEntity;
 import gameapi.listener.AdvancedFormListener;
@@ -34,6 +35,8 @@ import gameapi.room.edit.EditProcess;
 import gameapi.task.RoomTask;
 import gameapi.tools.BlockTools;
 import gameapi.tools.ItemTools;
+import gameapi.tools.SpatialTools;
+import gameapi.utils.AdvancedLocation;
 import gameapi.utils.Language;
 
 import java.io.File;
@@ -163,6 +166,7 @@ public class GameAPI extends PluginBase implements Listener {
         this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
         this.getServer().getCommandMap().register("", new HubCommand("hub"));
         this.getServer().getCommandMap().register("", new ShenquanCommand("shenquan"));
+        this.getServer().getCommandMap().register("", new VanillaFixCommand("vanilla"));
         // others ...
         roomTaskExecutor.scheduleAtFixedRate(() -> {
             try {
@@ -176,7 +180,7 @@ public class GameAPI extends PluginBase implements Listener {
             GameActivityManager.updateTempDataCleaning();
         }, 0, 1, TimeUnit.SECONDS);
         roomTaskExecutor.scheduleAtFixedRate(() ->
-                gameDebugManager.getPlayers().forEach(player -> {
+                GameAPI.getGameDebugManager().getPlayers().forEach(player -> {
                     if (player.isOp()) {
                         DecimalFormat df = new DecimalFormat("#0.00");
                         String out = "GameAPI Debug\n";
@@ -254,7 +258,7 @@ public class GameAPI extends PluginBase implements Listener {
     }
 
     public void loadRanking() {
-        this.loadAllRankingListEntities();
+        this.loadAllRanking();
     }
 
     public void loadAllPlayerGameData() {
@@ -279,7 +283,7 @@ public class GameAPI extends PluginBase implements Listener {
         PlayerGameDataManager.setPlayerGameData(playerGameData);
     }
 
-    protected void loadAllRankingListEntities() {
+    protected void loadAllRanking() {
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof RankingListEntity) {
@@ -303,17 +307,6 @@ public class GameAPI extends PluginBase implements Listener {
             } else {
                 this.getLogger().info(language.getTranslation("loading.ranking_loader.world.already_loaded", level));
             }
-            Location location = new Location((Double) map.get("x"), (Double) map.get("y"), (Double) map.get("z"), this.getServer().getLevelByName((String) map.get("level")));
-            if (location.getChunk() == null) {
-                if (!location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ())) {
-                    this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.load_start", location.getChunkX(), location.getChunkZ()));
-                    return;
-                } else {
-                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.chunk.load.failed", location.getChunkX(), location.getChunkZ()));
-                }
-            } else {
-                this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
-            }
             String rankingIdentifier = map.getOrDefault("game_name", "") + "_" + map.getOrDefault("data_name", "");
             if (!GameEntityManager.rankingFactory.containsKey(rankingIdentifier)) {
                 GameEntityManager.rankingFactory.put(
@@ -329,7 +322,22 @@ public class GameAPI extends PluginBase implements Listener {
                         )
                 );
             }
-            GameEntityManager.spawnRankingListEntity(location, GameEntityManager.rankingFactory.get(rankingIdentifier));
+            Location location;
+            AdvancedLocation advancedLocation = SpatialTools.parseLocation(config.getString("position"));
+            if (advancedLocation != null) {
+                location = advancedLocation.getLocation();
+                if (location.getChunk() == null) {
+                    if (!location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ())) {
+                        this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.load_start", location.getChunkX(), location.getChunkZ()));
+                        return;
+                    } else {
+                        this.getLogger().warning(language.getTranslation("loading.ranking_loader.chunk.load.failed", location.getChunkX(), location.getChunkZ()));
+                    }
+                } else {
+                    this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
+                }
+                GameEntityManager.spawnRankingListEntity(location, GameEntityManager.rankingFactory.get(rankingIdentifier));
+            }
         }
     }
 

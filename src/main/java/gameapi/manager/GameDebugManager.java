@@ -53,7 +53,7 @@ public class GameDebugManager {
             }
         }
         logger.info(TextFormat.clean(message));
-        if (enableConsoleDebug) {
+        if (this.enableConsoleDebug) {
             GameAPI.getInstance().getLogger().info(message);
         }
     }
@@ -63,7 +63,7 @@ public class GameDebugManager {
             player.sendMessage(message);
         }
         logger.warning(TextFormat.clean(message));
-        if (enableConsoleDebug) {
+        if (this.enableConsoleDebug) {
             GameAPI.getInstance().getLogger().warning(message);
         }
     }
@@ -73,17 +73,17 @@ public class GameDebugManager {
             player.sendMessage(message);
         }
         logger.severe(TextFormat.clean(message));
-        if (enableConsoleDebug) {
+        if (this.enableConsoleDebug) {
             GameAPI.getInstance().getLogger().error(message);
         }
     }
 
     public void addPlayer(Player player) {
-        players.add(player);
+        this.players.add(player);
     }
 
     public void removePlayer(Player player) {
-        players.remove(player);
+        this.players.remove(player);
     }
 
     public List<Player> getPlayers() {
@@ -95,6 +95,6 @@ public class GameDebugManager {
     }
 
     public boolean isEnableConsoleDebug() {
-        return enableConsoleDebug;
+        return this.enableConsoleDebug;
     }
 }

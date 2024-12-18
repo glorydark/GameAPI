@@ -1,21 +1,22 @@
 package gameapi.event.player;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import gameapi.event.Cancellable;
-import gameapi.listener.BaseEventListener;
 import gameapi.room.Room;
-import gameapi.utils.DamageSource;
+import gameapi.utils.EntityDamageSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable {
 
-    protected DamageSource lastDamageSource;
+    protected EntityDamageSource lastDamageByPlayerSource;
 
-    protected List<DamageSource> assistingDamageSource;
+    protected EntityDamageSource lastDamageByEntitySource;
+
+    protected List<EntityDamageSource> assistingDamageSource;
 
     protected EntityDamageEvent.DamageCause cause;
 
@@ -34,24 +35,15 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
     public RoomPlayerDeathEvent(Room room, Player player, boolean sendTitle, EntityDamageEvent.DamageCause cause) {
         super(room, player);
         //导入的伤害来源
-        List<DamageSource> sources = BaseEventListener.damageSources.getOrDefault(player.getName(), new ArrayList<>());
-        if (!sources.isEmpty()) {
-            this.lastDamageSource = sources.get(sources.size() - 1);
-            sources.remove(lastDamageSource);
-        } else {
-            this.lastDamageSource = new DamageSource("", 0);
-        }
-        this.assistingDamageSource = sources;
+        this.lastDamageByPlayerSource = room.getLastEntityDamageByPlayerSource(player).orElse(null);
+        this.lastDamageByEntitySource = room.getLastEntityDamageByEntitySource(player).orElse(null);
+        List<EntityDamageSource> entityDamageSources = new ArrayList<>(room.getLastEntityReceiveDamageSource().getOrDefault(player, new ArrayList<>()));
+        entityDamageSources.remove(this.lastDamageByEntitySource);
+        entityDamageSources.remove(this.lastDamageByPlayerSource);
         this.cause = cause;
         this.sendTitle = sendTitle;
-    }
-
-    public Player getLastDamageSource() {
-        return Server.getInstance().getPlayer(lastDamageSource.getDamager());
-    }
-
-    public List<DamageSource> getAssistedSource() {
-        return assistingDamageSource;
+        this.assistingDamageSource = entityDamageSources;
+        room.getLastEntityReceiveDamageSource().remove(player);
     }
 
     public EntityDamageEvent.DamageCause getCause() {
@@ -104,5 +96,17 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     public void setRespawn(boolean respawn) {
         this.respawn = respawn;
+    }
+
+    public List<EntityDamageSource> getAssistingDamageSource() {
+        return assistingDamageSource;
+    }
+
+    public Optional<EntityDamageSource> getLastDamageByEntitySource() {
+        return Optional.ofNullable(lastDamageByEntitySource);
+    }
+
+    public Optional<EntityDamageSource> getLastDamageByPlayerSource() {
+        return Optional.ofNullable(lastDamageByPlayerSource);
     }
 }

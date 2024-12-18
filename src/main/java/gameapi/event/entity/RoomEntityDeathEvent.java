@@ -1,14 +1,12 @@
 package gameapi.event.entity;
 
-import cn.nukkit.Player;
-import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.event.HandlerList;
 import cn.nukkit.item.Item;
-import gameapi.listener.BaseEventListener;
 import gameapi.room.Room;
 import gameapi.utils.EntityDamageSource;
-import gameapi.utils.PlayerDamageSource;
+
+import java.util.Optional;
 
 /**
  * @author glorydark
@@ -19,9 +17,9 @@ public class RoomEntityDeathEvent extends RoomEntityEvent {
 
     private Item[] drops;
 
-    private Entity lastDamageSourceFromEntity = null;
+    private EntityDamageSource lastDamageSourceFromEntity = null;
 
-    private Player lastDamageSourceFromPlayer = null;
+    private EntityDamageSource lastDamageSourceFromPlayer = null;
 
     public RoomEntityDeathEvent(Room room, EntityLiving entity) {
         this(room, entity, new Item[0]);
@@ -30,16 +28,14 @@ public class RoomEntityDeathEvent extends RoomEntityEvent {
     public RoomEntityDeathEvent(Room room, EntityLiving entity, Item[] drops) {
         super(room, entity);
         this.drops = drops;
-        EntityDamageSource entityDamageSource = BaseEventListener.lastLivingEntityDamagedByEntitySources.get(entity.getId());
-        if (entityDamageSource != null) {
-            this.lastDamageSourceFromEntity = entityDamageSource.getDamager();
-        }
-        PlayerDamageSource playerDamageSource = BaseEventListener.lastLivingEntityDamagedByPlayerSources.get(entity.getId());
-        if (playerDamageSource != null) {
-            this.lastDamageSourceFromPlayer = playerDamageSource.getDamager();
-        }
-        BaseEventListener.lastLivingEntityDamagedByEntitySources.remove(entity.getId());
-        BaseEventListener.lastLivingEntityDamagedByPlayerSources.remove(entity.getId());
+
+        Optional<EntityDamageSource> source = room.getLastEntityDamageByEntitySource(entity);
+        source.ifPresent(entityDamageSource -> this.lastDamageSourceFromEntity = entityDamageSource);
+
+        Optional<EntityDamageSource> pSource = room.getLastEntityDamageByPlayerSource(entity);
+        pSource.ifPresent(playerDamageSource -> this.lastDamageSourceFromPlayer = playerDamageSource);
+
+        room.getLastEntityReceiveDamageSource().remove(entity);
     }
 
     public static HandlerList getHandlers() {
@@ -58,11 +54,11 @@ public class RoomEntityDeathEvent extends RoomEntityEvent {
         this.drops = drops;
     }
 
-    public Entity getLastDamageSourceFromEntity() {
-        return lastDamageSourceFromEntity;
+    public Optional<EntityDamageSource> getLastDamageSourceFromEntity() {
+        return Optional.ofNullable(lastDamageSourceFromEntity);
     }
 
-    public Player getLastDamageSourceFromPlayer() {
-        return lastDamageSourceFromPlayer;
+    public Optional<EntityDamageSource> getLastDamageSourceFromPlayer() {
+        return Optional.ofNullable(lastDamageSourceFromPlayer);
     }
 }

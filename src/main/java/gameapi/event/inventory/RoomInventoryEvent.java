@@ -20,6 +20,6 @@ public abstract class RoomInventoryEvent extends RoomEvent implements Cancellabl
     }
 
     public Player[] getViewers() {
-        return (Player[]) this.inventory.getViewers().toArray(new Player[0]);
+        return this.inventory.getViewers().toArray(new Player[0]);
     }
 }

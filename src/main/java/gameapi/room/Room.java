@@ -2,6 +2,7 @@ package gameapi.room;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
@@ -35,6 +36,7 @@ import gameapi.tools.PlayerTools;
 import gameapi.tools.TipsTools;
 import gameapi.tools.WorldTools;
 import gameapi.utils.AdvancedLocation;
+import gameapi.utils.EntityDamageSource;
 import gameapi.utils.TitleData;
 import gameapi.utils.text.GameTextContainer;
 import it.unimi.dsi.fastutil.Function;
@@ -44,6 +46,7 @@ import lombok.Setter;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -119,6 +122,7 @@ public class Room {
     private int accelerateWaitCountDownPlayerCount = 2;
     protected List<TextEntity> textEntities = new ArrayList<>();
     protected List<BlockVector3> blocks = new ArrayList<>();
+    private Map<Entity, List<EntityDamageSource>> lastEntityReceiveDamageSource = new LinkedHashMap<>();
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this(gameName, roomRule, "", round);
@@ -197,13 +201,21 @@ public class Room {
 
     public void executeLoseCommands(Player player) {
         for (String string : this.loseConsoleCommands) {
-            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", "\"" + player.getName() + "\"").replace("%level%", player.getLevel().getName()).replace("%game_name%", gameName).replace("%room_name%", roomName));
+            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(),
+                    string.replace("{player}", "\"" + player.getName() + "\"")
+                            .replace("{level}", player.getLevel().getName())
+                            .replace("{game_name}", this.gameName)
+                            .replace("{room_name}", this.roomName));
         }
     }
 
     public void executeWinCommands(Player player) {
         for (String string : this.winConsoleCommands) {
-            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(), string.replace("%player%", "\"" + player.getName() + "\"").replace("%level%", player.getLevel().getName()).replace("%game_name%", gameName).replace("%room_name%", roomName));
+            Server.getInstance().dispatchCommand(Server.getInstance().getConsoleSender(),
+                    string.replace("{player}", "\"" + player.getName() + "\"")
+                            .replace("{level}", player.getLevel().getName())
+                            .replace("{game_name}", this.gameName)
+                            .replace("{room_name}", this.roomName));
         }
     }
 
@@ -516,6 +528,7 @@ public class Room {
             this.removePlayer(player);
         }
         //因为某些原因无法正常传送走玩家，就全部踹出服务器！
+        this.getLastEntityReceiveDamageSource().clear();
         this.players = new ArrayList<>();
         this.round = 0;
         this.time = 0;
@@ -1055,5 +1068,43 @@ public class Room {
             this.roomNumber = number;
             return true;
         }
+    }
+
+    public void addEntityDamageSource(Entity victim, Entity damager, float damage) {
+        AtomicReference<Float> damageAll = new AtomicReference<>(0f);
+        new ArrayList<>(this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>())).stream().filter(
+                entityDamageSource -> damager == entityDamageSource.getDamager()).forEach(
+                entityDamageSource -> {
+                    damageAll.updateAndGet(v -> v + entityDamageSource.getFinalDamage());
+                    this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>()).remove(entityDamageSource);
+                }
+        );
+        this.getLastEntityReceiveDamageSource().computeIfAbsent(victim, o -> new ArrayList<>()).add(new EntityDamageSource(damager, damage, damageAll.get() + damage, System.currentTimeMillis()));
+    }
+
+    public Optional<EntityDamageSource> getLastEntityDamageByEntitySource(Entity victim) {
+        List<EntityDamageSource> entityDamageSources = this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>());
+        entityDamageSources.removeIf(entityDamageSource -> {
+            Entity entity = entityDamageSource.getDamager();
+            return System.currentTimeMillis() - entityDamageSource.getMilliseconds() > 6000L
+                    || entity == null
+                    || !entity.isAlive()
+                    || entity.isClosed();
+        });
+        List<EntityDamageSource> result = entityDamageSources.stream().filter(entityDamageSource -> !entityDamageSource.getDamager().isPlayer).collect(Collectors.toList());
+        return result.isEmpty()? Optional.empty(): Optional.of(result.get(result.size() - 1));
+    }
+
+    public Optional<EntityDamageSource> getLastEntityDamageByPlayerSource(Entity victim) {
+        List<EntityDamageSource> entityDamageSources = this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>());
+        entityDamageSources.removeIf(entityDamageSource -> {
+            Entity entity = entityDamageSource.getDamager();
+            return System.currentTimeMillis() - entityDamageSource.getMilliseconds() > 6000L
+                    || entity == null
+                    || !entity.isAlive()
+                    || entity.isClosed();
+        });
+        List<EntityDamageSource> result = entityDamageSources.stream().filter(entityDamageSource -> entityDamageSource.getDamager().isPlayer).collect(Collectors.toList());
+        return result.isEmpty()? Optional.empty(): Optional.of(result.get(result.size() - 1));
     }
 }

@@ -20,6 +20,7 @@ public class VanillaCustomMusicTools {
         LevelEventGenericPacket pk = new LevelEventGenericPacket();
         pk.eventId = EVENT_PLAY_CUSTOM_MUSIC;
         pk.tag = new CompoundTag()
+                .putString("trackName", trackName)
                 .putFloat("volume", volume)
                 .putFloat("fadeSeconds", fadeSeconds)
                 .putBoolean("repeatMode", repeatMode)

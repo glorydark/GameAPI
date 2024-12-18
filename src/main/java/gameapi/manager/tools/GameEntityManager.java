@@ -35,7 +35,12 @@ public class GameEntityManager {
                 TextEntity textEntity = textEntityData.getEntity();
                 if (textEntity != null) {
                     if (textEntity.getLevel().getPlayers().isEmpty()) {
+                        textEntity.despawnFromAll();
+                        textEntity.close();
+                        textEntityDataList.remove(textEntityData);
                         continue;
+                    } else if (!textEntity.isAlive() || textEntity.isClosed()) {
+                        textEntity.respawn();
                     }
                 }
                 switch (textEntityData.getEntityType()) {
@@ -49,14 +54,15 @@ public class GameEntityManager {
                             if (level == null || level.getPlayers().isEmpty()) {
                                 continue;
                             }
-                            if (!textEntity.isAlive() || textEntity.isClosed()
-                                    || Arrays.stream(textEntity.getLevel().getEntities()).noneMatch(entity -> entity == textEntity)) {
+                            if (!textEntity.isAlive() || textEntity.isClosed()) {
                                 textEntityDataList.remove(textEntityData);
+                                textEntity.despawnFromAll();
                                 textEntity.close();
                                 GameEntityManager.spawnTextEntity(textEntity.getLocation(), textEntityData.getDefaultText());
                                 // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
                             } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
                                 textEntityDataList.remove(textEntityData);
+                                textEntity.despawnFromAll();
                                 textEntity.close();
                                 GameEntityManager.spawnTextEntity(textEntity.getLocation(), textEntityData.getDefaultText());
                             } else {
@@ -75,14 +81,15 @@ public class GameEntityManager {
                             if (level == null || level.getPlayers().isEmpty()) {
                                 continue;
                             }
-                            if (!textEntity.isAlive() || textEntity.isClosed()
-                                    || Arrays.stream(textEntity.getLevel().getEntities()).noneMatch(entity -> entity == textEntity)) {
+                            if (!textEntity.isAlive() || textEntity.isClosed()) {
                                 textEntityDataList.remove(textEntityData);
+                                textEntity.despawnFromAll();
                                 textEntity.close();
                                 GameEntityManager.spawnRankingListEntity(textEntityData.getLocation(), ranking);
                                 // GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
                             } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
                                 textEntityDataList.remove(textEntityData);
+                                textEntity.despawnFromAll();
                                 textEntity.close();
                                 GameEntityManager.spawnRankingListEntity(textEntityData.getLocation(), ranking);
                             } else {
@@ -104,23 +111,20 @@ public class GameEntityManager {
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof TextEntity) {
+                    entity.despawnFromAll();
                     entity.close();
                 }
             }
-        }
-        List<TextEntityData> cacheList = new ArrayList<>(textEntityDataList);
-        textEntityDataList.clear();
-        for (TextEntityData data : cacheList) {
-            Entity textEntity = data.getEntity();
-            textEntity.despawnFromAll();
-            textEntity.close();
         }
         rankingFactory.clear();
     }
 
     public static void spawnTextEntity(Location location, String content) {
         FullChunk chunk = location.getChunk();
-        if (chunk == null || !chunk.isLoaded() || chunk.getProvider() == null) {
+        if (chunk == null) {
+            return;
+        }
+        if (!chunk.isLoaded() || chunk.getProvider() == null) {
             try {
                 location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ());
                 chunk = location.getLevel().getChunk(location.getChunkX(), location.getChunkZ());

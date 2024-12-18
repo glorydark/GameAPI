@@ -1,6 +1,10 @@
 package gameapi.commands.base;
 
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandParameter;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author glorydark
@@ -8,6 +12,8 @@ import cn.nukkit.command.CommandSender;
 public abstract class EasySubCommand {
 
     private final String name;
+
+    public final Map<String, CommandParameter[]> commandParameters = new LinkedHashMap<>();
 
     public EasySubCommand(String name) {
         this.name = name;
@@ -21,5 +27,9 @@ public abstract class EasySubCommand {
 
     public String getName() {
         return this.name;
+    }
+
+    public Map<String, CommandParameter[]> getCommandParameters() {
+        return commandParameters;
     }
 }

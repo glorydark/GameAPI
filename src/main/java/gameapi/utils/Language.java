@@ -19,9 +19,13 @@ public class Language {
     protected String defaultLanguage;
 
     public Language(String pluginName) {
+        this(pluginName, Locale.getDefault().getLanguage() + "_" + Locale.getDefault().getCountry());
+    }
+
+    public Language(String pluginName, String defaultLanguage) {
         lang = new HashMap<>();
         this.pluginName = pluginName;
-        this.defaultLanguage = Locale.getDefault().getLanguage() + "_" + Locale.getDefault().getCountry();
+        this.defaultLanguage = defaultLanguage;
     }
 
     public String getPluginName() {
@@ -30,7 +34,7 @@ public class Language {
 
     public void addLanguage(File file) {
         if (file.getName().endsWith(".properties")) {
-            String locale = file.getName().replace(".properties", "");
+            String locale = file.getName().substring(0, file.getName().lastIndexOf("."));
             lang.put(locale, new Config(file, Config.PROPERTIES).getAll());
             GameAPI.getInstance().getLogger().info("§aLanguage Loaded: " + locale);
         } else {

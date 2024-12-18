@@ -2,8 +2,10 @@ package gameapi.commands.base;
 
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandParameter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author glorydark
@@ -16,10 +18,17 @@ public class EasyCommand extends Command {
 
     public EasyCommand(String name) {
         super(name);
+        this.getCommandParameters().clear();
     }
 
     public void registerCommand(EasySubCommand easySubCommand) {
         this.easySubCommandMap.put(easySubCommand.getName(), easySubCommand);
+        for (Map.Entry<String, CommandParameter[]> entry : easySubCommand.getCommandParameters().entrySet()) {
+            String name = easySubCommand.getName() + "-" + entry.getKey();
+            List<CommandParameter> commandParameterList = Arrays.stream(entry.getValue()).collect(Collectors.toList());
+            commandParameterList.add(0, CommandParameter.newEnum(easySubCommand.getName(), false, new String[]{easySubCommand.getName()}));
+            this.getCommandParameters().put(name, commandParameterList.toArray(new CommandParameter[0]));
+        }
     }
 
     @Override

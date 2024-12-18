@@ -22,8 +22,6 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new RoomSetPwdCommand("setpwd"));
         this.registerCommand(new RoomStartCommand("roomstart"));
         this.registerCommand(new StatusCommand("status"));
-        this.registerCommand(new ResetSpeedCommand("resetspeed"));
-        this.registerCommand(new ResetSpeedCommand("reloadchunk"));
 
         // player tools
         this.registerCommand(new PlayerEverCommand("playerever"));
@@ -49,6 +47,10 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new FunctionAchievementReloadCommand("reloadachievement"));
         this.registerCommand(new FunctionAchievementGiveCommand("giveachievement"));
 
+        this.registerCommand(new FixUICommand("fixui"));
+        this.registerCommand(new ReloadChunkCommand("rchunk"));
+        this.registerCommand(new ResetSpeedCommand("resetspeed"));
+
         this.registerCommand(new FunctionNewActivityCommand("newac"));
         this.registerCommand(new FastCommand("fast"));
         this.registerCommand(new SudoCCommand("sudoc"));
@@ -58,8 +60,10 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new TeleportAllOutOfGameCommand("tpallog"));
         this.registerCommand(new ChangeToSnowBiome("snow"));
         this.registerCommand(new SudoActionCommand("sudoact"));
-
         this.registerCommand(new GetBlockPosCommand("blockpos"));
+        this.registerCommand(new GetLoginChainCommand("loginchain"));
+
+        this.registerCommand(new RankingUICommand("rankui"));
 
         this.registerCommand(new FunctionWardenCommand("shenquan"));
     }

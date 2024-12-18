@@ -46,31 +46,21 @@ import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
 import gameapi.room.utils.QuitRoomReason;
 import gameapi.tools.FireworkTools;
-import gameapi.utils.*;
+import gameapi.utils.AdvancedLocation;
+import gameapi.utils.PosSet;
 import glorydark.nukkit.customquest.QuestAPI;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * @author Glorydark
  */
 public class BaseEventListener implements Listener {
-
-    public static Map<String, List<DamageSource>> damageSources = new LinkedHashMap<>();
-
-    public static Map<Long, EntityDamageSource> lastLivingEntityDamagedByEntitySources = new Long2ObjectOpenHashMap<>();
-
-    public static Map<Long, PlayerDamageSource> lastLivingEntityDamagedByPlayerSources = new Long2ObjectOpenHashMap<>();
-
-    public static void addPlayerDamageSource(String player, String damager) {
-        List<DamageSource> temp = new ArrayList<>(damageSources.getOrDefault(player, new ArrayList<>()));
-        DamageSource damageSource = new DamageSource(damager, System.currentTimeMillis());
-        temp.add(damageSource);
-        damageSources.put(player, temp);
-    }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void PlayerQuitEvent(PlayerQuitEvent event) {
@@ -418,9 +408,6 @@ public class BaseEventListener implements Listener {
             if (!room.getRoomRule().isVirtualHealth()) {
                 if (entity.getHealth() - event.getFinalDamage() <= 0f) {
                     room.setDeath(player); // 设置死亡
-                    if (event.getCause() != EntityDamageEvent.DamageCause.VOID) {
-                        damageSources.remove(entity.getName());
-                    }
                     event.setCancelled(true);
                     return;
                 }
@@ -478,17 +465,6 @@ public class BaseEventListener implements Listener {
                         return;
                     }
                 }
-                if (!room1.getRoomRule().isVirtualHealth()) {
-                    if (entity.getHealth() - event.getFinalDamage() <= 0f) {
-                        addPlayerDamageSource(victim.getName(), damager.getName());
-                        room1.setDeath(victim); // 设置死亡
-                        damageSources.remove(entity.getName());
-                    }
-                    if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-                        room1.setDeath(victim); // 设置死亡
-                        damageSources.remove(entity.getName());
-                    }
-                }
                 if (!room1.getRoomRule().isUseDefaultAttackCooldown()) {
                     long cd = room1.getRoomRule().getAttackCoolDownMillis();
                     if (cd > 0) {
@@ -526,8 +502,14 @@ public class BaseEventListener implements Listener {
                     event.setCancelled(true);
                 } else {
                     if (event.getEntity() instanceof Player && room1.getRoomRule().isVirtualHealth()) {
-                        room1.getRoomVirtualHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getFinalDamage()).doubleValue());
-                        event.setDamage(0);
+                        if (entity.getHealth() - event.getFinalDamage() <= 0f) {
+                            room1.setDeath(victim); // 设置死亡
+                        } else if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+                            room1.setDeath(victim); // 设置死亡
+                        } else {
+                            room1.getRoomVirtualHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getFinalDamage()).doubleValue());
+                            event.setDamage(0);
+                        }
                     } else {
                         for (EntityDamageEvent.DamageModifier value : EntityDamageEvent.DamageModifier.values()) {
                             event.setDamage(roomEntityDamageByEntityEvent.getDamage(value), value);
@@ -535,7 +517,7 @@ public class BaseEventListener implements Listener {
                     }
                     event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
                     event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
-                    addPlayerDamageSource(victim.getName(), damager.getName());
+                    room1.addEntityDamageSource(victim, damager, event.getFinalDamage());
                 }
             }
         } else {
@@ -578,14 +560,12 @@ public class BaseEventListener implements Listener {
                                 roomItemBase.onEntityDamageByEntity(item, event);
                             }
                         }
-                        lastLivingEntityDamagedByPlayerSources.put(entity.getId(), new PlayerDamageSource((Player) event.getDamager(), System.currentTimeMillis()));
-                    } else {
-                        lastLivingEntityDamagedByEntitySources.put(entity.getId(), new EntityDamageSource(event.getDamager(), System.currentTimeMillis()));
                     }
                     if (event.getEntity() instanceof Player && room.getRoomRule().isVirtualHealth()) {
                         room.getRoomVirtualHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getFinalDamage()).doubleValue());
                         event.setDamage(0);
                     }
+                    room.addEntityDamageSource(entity, event.getDamager(), event.getFinalDamage());
                     room.setPlayerProperty(entity.getName(), DefaultPropertyKey.KEY_LAST_RECEIVE_ENTITY_DAMAGE_MILLIS, System.currentTimeMillis());
                 }
             }
@@ -692,20 +672,25 @@ public class BaseEventListener implements Listener {
                 if (!arenas.contains(toLevel)) {
                     if (arenas.contains(fromLevel)) {
                         if (room.getRoomRule().isAllowQuitByTeleport()) {
-                            room.removePlayer(player, QuitRoomReason.TELEPORT);
-                            room.removeSpectator(player);
+                            List<Room> rooms = RoomManager.getRooms(toLevel);
+                            Room targetRoom = null;
+                            if (!rooms.isEmpty()) {
+                                targetRoom = rooms.get(0);
+                            }
+                            if (targetRoom != null) {
+                                if (targetRoom != room) {
+                                    room.removePlayer(player, QuitRoomReason.TELEPORT);
+                                    room.removeSpectator(player);
+                                    targetRoom.addPlayer(player);
+                                }
+                            } else {
+                                room.removePlayer(player, QuitRoomReason.TELEPORT);
+                                room.removeSpectator(player);
+                            }
                         } else {
                             player.sendMessage(GameAPI.getLanguage().getTranslation(player, "baseEvent.level_change.not_allowed"));
                             event.setCancelled(true);
-                            return;
                         }
-                    }
-                }
-                List<Room> rooms = RoomManager.getRooms(toLevel);
-                if (!rooms.isEmpty()) {
-                    Room room1 = rooms.get(0);
-                    if (room1 != room) {
-                        room1.addPlayer(player);
                     }
                 }
             } else {

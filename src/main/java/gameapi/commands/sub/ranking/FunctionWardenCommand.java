@@ -32,7 +32,6 @@ public class FunctionWardenCommand extends EasySubCommand {
         {
             this.add("niangaoqiqi");
             this.add("mcfatienr");
-            this.add("Mitpoppy");
             this.add("BizarreDark");
         }
     };
@@ -142,21 +141,19 @@ public class FunctionWardenCommand extends EasySubCommand {
         custom.toggle(new ElementToggle(TextFormat.GREEN + "我保证我的处理合规且已留存证据！", promise));
         custom.onRespond((player, formResponseCustom) -> {
             String name = formResponseCustom.getDropdownResponse(1).getElementContent();
+            if (name.isEmpty()) {
+                name = formResponseCustom.getInputResponse(2);
+            }
             String game = formResponseCustom.getDropdownResponse(3).getElementContent();
             String reason1 = formResponseCustom.getInputResponse(4);
             boolean promise1 = formResponseCustom.getToggleResponse(5);
             if (name.isEmpty()) {
-                name = formResponseCustom.getInputResponse(2);
-            }
-            if (name.isEmpty()) {
                 showPunishUI(player, 0, reason1, true, TextFormat.RED + "[提示] 您未选择玩家，请重新选择！”");
                 return;
             }
-            if (!player.getName().equals("BizarreDark")) {
-                if (managers.contains(name)) {
-                    player.sendMessage(TextFormat.RED + "该玩家为正义之光小组成员，需要由组长处理。");
-                    return;
-                }
+            if (player.getName().equals("BizarreDark") || managers.contains(name)) {
+                player.sendMessage(TextFormat.RED + "该玩家为正义之光小组成员，需要由组长处理。");
+                return;
             }
             if (promise1) {
                 if (Server.getInstance().lookupName(name).isPresent()) {
