@@ -58,8 +58,8 @@ public class GameAPI extends PluginBase implements Listener {
     protected static final int THREAD_POOL_SIZE = 8;
 
     protected int rankingTextEntityRefreshIntervals;
+    protected boolean glorydarkRelatedFeature;
     protected boolean tipsEnabled;
-    protected boolean customQuestEnabled;
     protected boolean saveTempStates = false;
     protected static GameDebugManager gameDebugManager;
     protected static final Language language = new Language("GameAPI");
@@ -140,13 +140,13 @@ public class GameAPI extends PluginBase implements Listener {
 
         Config config = new Config(path + File.separator + "config.yml", Config.YAML);
         gameDebugManager.setEnableConsoleDebug(config.getBoolean("log_show_in_console", true));
+        this.glorydarkRelatedFeature = config.getBoolean("glorydark-feature", false);
         this.saveTempStates = config.getBoolean("save-temp-state", true);
         this.rankingTextEntityRefreshIntervals = config.getInt("ranking-text-entity-refresh-intervals", 100);
         // load lang data
         this.loadLanguage();
         language.setDefaultLanguage(config.getString("default-language", "zh_CN"));
         this.tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
-        this.customQuestEnabled = this.getServer().getPluginManager().getPlugin("CustomQuest") != null;
 
         this.loadAllPlayerGameData();
         this.loadRanking();
@@ -351,6 +351,10 @@ public class GameAPI extends PluginBase implements Listener {
 
     public boolean isSaveTempStates() {
         return saveTempStates;
+    }
+
+    public boolean isGlorydarkRelatedFeature() {
+        return glorydarkRelatedFeature;
     }
 
     public static GameDebugManager getGameDebugManager() {

@@ -62,10 +62,11 @@ public class RoomUpdateTask implements Runnable {
                 this.playerLocationHashMap.remove(player);
             }
         }
+        if (!this.room.getRoomRule().isVanillaCustomMusic()) {
+            VanillaCustomMusicTools.stopCustomMusic(0f, this.room.getPlayers().toArray(new Player[0]));
+            VanillaCustomMusicTools.stopCustomMusic(0f, this.room.getSpectators().toArray(new Player[0]));
+        }
         try {
-            if (!this.room.getRoomRule().isVanillaCustomMusic()) {
-                VanillaCustomMusicTools.stopCustomMusic(0f, room.getPlayers().toArray(new Player[0]));
-            }
             // Internal Process
             for (Player player : new ArrayList<>(this.room.getPlayers())) {
                 if (player.getGamemode() != 3) {

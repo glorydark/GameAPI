@@ -1,5 +1,6 @@
 package gameapi.commands;
 
+import gameapi.GameAPI;
 import gameapi.commands.base.EasyCommand;
 import gameapi.commands.sub.*;
 import gameapi.commands.sub.achievement.FunctionAchievementCommand;
@@ -39,32 +40,36 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new FunctionRankingInfoCommand("rankinfo"));
         this.registerCommand(new FunctionRankingRefreshCommand("refreshrank"));
         this.registerCommand(new FunctionRankingRemoveAllCommand("removerank"));
-        this.registerCommand(new FunctionRankingMonthlyConclusionCommand("monthrank"));
 
         // other functions
-        this.registerCommand(new FunctionActivityCommand("activity"));
+        // this.registerCommand(new FunctionActivityCommand("activity"));
         this.registerCommand(new FunctionAchievementCommand("achievement"));
         this.registerCommand(new FunctionAchievementReloadCommand("reloadachievement"));
         this.registerCommand(new FunctionAchievementGiveCommand("giveachievement"));
 
-        this.registerCommand(new FixUICommand("fixui"));
-        this.registerCommand(new ReloadChunkCommand("rchunk"));
-        this.registerCommand(new ResetSpeedCommand("resetspeed"));
+        if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
+            this.registerCommand(new FixUICommand("fixui"));
+            this.registerCommand(new ReloadChunkCommand("rchunk"));
+            this.registerCommand(new ResetSpeedCommand("resetspeed"));
+            this.registerCommand(new FunctionRankingMonthlyConclusionCommand("monthrank"));
+            this.registerCommand(new FunctionWardenCommand("shenquan"));
+            this.registerCommand(new FastCommand("fast"));
+            this.registerCommand(new SudoCCommand("sudoc"));
+            this.registerCommand(new SudoMCommand("sudom"));
+            this.registerCommand(new SudoActionCommand("sudoact"));
+            this.registerCommand(new ChangeToSnowBiome("snow"));
+            this.registerCommand(new GetBlockPosCommand("blockpos"));
+            this.registerCommand(new GetLoginChainCommand("loginchain"));
+        }
 
-        this.registerCommand(new FunctionNewActivityCommand("newac"));
-        this.registerCommand(new FastCommand("fast"));
-        this.registerCommand(new SudoCCommand("sudoc"));
-        this.registerCommand(new SudoMCommand("sudom"));
+        this.registerCommand(new FunctionNewActivityCommand("activity"));
+
         this.registerCommand(new TeleportIntoRoomCommand("tproomall"));
         this.registerCommand(new TeleportAllCommand("tpall"));
         this.registerCommand(new TeleportAllOutOfGameCommand("tpallog"));
-        this.registerCommand(new ChangeToSnowBiome("snow"));
-        this.registerCommand(new SudoActionCommand("sudoact"));
-        this.registerCommand(new GetBlockPosCommand("blockpos"));
-        this.registerCommand(new GetLoginChainCommand("loginchain"));
 
         this.registerCommand(new RankingUICommand("rankui"));
 
-        this.registerCommand(new FunctionWardenCommand("shenquan"));
+        this.registerCommand(new StopMusicCommand("stopmusic"));
     }
 }

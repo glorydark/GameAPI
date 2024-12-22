@@ -29,7 +29,9 @@ public class GameActivityManager {
     public static void init() {
         path = GameAPI.getPath() + File.separator + "activities" + File.separator;
 
-        ActivityRegistry.init();
+        if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
+            ActivityRegistry.init();
+        }
     }
 
     public static void registerActivity(ActivityData activityData) {

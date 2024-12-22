@@ -68,14 +68,6 @@
             <version>B20240115-MOT-C1-JAVA8</version>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>glorydark.nukkit.customquest</groupId>
-            <artifactId>CustomQuest</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>E:/dependencies/pure-test-mot/plugins/CustomQuest.jar</systemPath>
-        </dependency>
     </dependencies>
 
     <build>

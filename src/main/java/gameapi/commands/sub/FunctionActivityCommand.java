@@ -8,6 +8,7 @@ import gameapi.commands.base.EasySubCommand;
 /**
  * @author glorydark
  */
+@Deprecated
 public class FunctionActivityCommand extends EasySubCommand {
 
     public FunctionActivityCommand(String name) {

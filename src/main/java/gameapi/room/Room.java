@@ -475,7 +475,9 @@ public class Room {
             this.removePlayerFromTeam(player);
             ScoreboardManager.removeScoreboard(player);
             this.updateHideStatus(player, true);
-
+            if (this.getOggMusicManager() != null) {
+                this.getOggMusicManager().onQuit(player);
+            }
             this.players.remove(player);
 
             RoomManager.getPlayerRoomHashMap().remove(player);

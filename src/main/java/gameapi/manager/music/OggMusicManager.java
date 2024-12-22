@@ -84,6 +84,10 @@ public class OggMusicManager {
         this.currentTick++;
     }
 
+    public void onQuit(Player player) {
+        SoundTools.stopAllSound(player);
+    }
+
     public void stop() {
         for (Player player : this.room.getPlayers()) {
             SoundTools.stopAllSound(player);
@@ -135,6 +139,7 @@ public class OggMusicManager {
         if (this.songMap.containsKey(string)) {
             this.currentTick = 0;
             this.currentSongId = string;
+            GameAPI.getGameDebugManager().info("[游戏|" + this.room.getGameName() + "] " + this.room.getRoomName() + " 开始播放 [" + new ArrayList<>(this.songMap.keySet()).indexOf(this.currentSongId) + "] " + this.currentSongId);
             for (Player player : this.room.getPlayers()) {
                 if (this.stopMusicPlayers.contains(player)) {
                     continue;
@@ -149,6 +154,8 @@ public class OggMusicManager {
                 SoundTools.stopAllSound(player);
                 SoundTools.addSoundToPlayer(player, this.currentSongId, 1.0f, 1.0f);
             }
+        } else {
+            GameAPI.getGameDebugManager().warning("[游戏|" + this.room.getGameName() + "] " + this.room.getRoomName() + " 播放失败，无法找到音乐，音乐名： " + this.currentSongId);
         }
     }
 
