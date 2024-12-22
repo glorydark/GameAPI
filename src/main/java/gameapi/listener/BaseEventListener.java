@@ -48,7 +48,6 @@ import gameapi.room.utils.QuitRoomReason;
 import gameapi.tools.FireworkTools;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.PosSet;
-import glorydark.nukkit.customquest.QuestAPI;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -889,6 +888,7 @@ public class BaseEventListener implements Listener {
                     }
                 }
             }
+            /*
             if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
                 if (player.getLevelName().equals("world") && event.getBlock() != null && event.getBlock().getId() == Block.LIGHT_WEIGHTED_PRESSURE_PLATE) {
                     if (event.getBlock().distance(new Vector3(84, 45, -42)) <= 1) {
@@ -908,6 +908,7 @@ public class BaseEventListener implements Listener {
                     }
                 }
             }
+             */
         }
     }
 
