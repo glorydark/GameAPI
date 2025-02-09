@@ -2,6 +2,7 @@ package gameapi.manager.music;
 
 import cn.nukkit.Player;
 import gameapi.GameAPI;
+import gameapi.manager.music.data.OggMusicData;
 import gameapi.room.Room;
 import gameapi.tools.SoundTools;
 
@@ -18,7 +19,7 @@ public class OggMusicManager {
 
     protected Room room;
 
-    protected Map<String, Integer> songMap;
+    protected Map<String, OggMusicData> songMap;
 
     protected PlayType playType;
 
@@ -69,7 +70,7 @@ public class OggMusicManager {
             this.setPlayingSong(this.currentSongId);
             return;
         }
-        boolean isFinish = this.currentTick / 20 >= songMap.get(this.currentSongId);
+        boolean isFinish = this.currentTick / 20 >= this.songMap.get(this.currentSongId).getLength();
         if (isFinish) {
             if (this.getNextSong() == null) {
                 GameAPI.getGameDebugManager().info("Finish playing, stopping music player for the room: " + this.room.getRoomName());
@@ -140,19 +141,20 @@ public class OggMusicManager {
             this.currentTick = 0;
             this.currentSongId = string;
             GameAPI.getGameDebugManager().info("[游戏|" + this.room.getGameName() + "] " + this.room.getRoomName() + " 开始播放 [" + new ArrayList<>(this.songMap.keySet()).indexOf(this.currentSongId) + "] " + this.currentSongId);
+            OggMusicData songData = this.getSongMap().get(this.currentSongId);
             for (Player player : this.room.getPlayers()) {
                 if (this.stopMusicPlayers.contains(player)) {
                     continue;
                 }
                 SoundTools.stopAllSound(player);
-                SoundTools.addSoundToPlayer(player, this.currentSongId, 1.0f, 1.0f);
+                SoundTools.addSoundToPlayer(player, this.currentSongId, songData.getVolume(), songData.getPitch());
             }
             for (Player player : this.room.getSpectators()) {
                 if (this.stopMusicPlayers.contains(player)) {
                     continue;
                 }
                 SoundTools.stopAllSound(player);
-                SoundTools.addSoundToPlayer(player, this.currentSongId, 1.0f, 1.0f);
+                SoundTools.addSoundToPlayer(player, this.currentSongId, songData.getVolume(), songData.getPitch());
             }
         } else {
             GameAPI.getGameDebugManager().warning("[游戏|" + this.room.getGameName() + "] " + this.room.getRoomName() + " 播放失败，无法找到音乐，音乐名： " + this.currentSongId);
@@ -171,7 +173,7 @@ public class OggMusicManager {
         return currentTick;
     }
 
-    public Map<String, Integer> getSongMap() {
+    public Map<String, OggMusicData> getSongMap() {
         return songMap;
     }
 

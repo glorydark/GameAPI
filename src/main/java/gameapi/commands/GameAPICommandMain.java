@@ -28,6 +28,9 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new PlayerEverCommand("playerever"));
         this.registerCommand(new SeeNameCommand("seename"));
         this.registerCommand(new SeeUUIDCommand("seeuuid"));
+        this.registerCommand(new MoveDataCommand("movedata"));
+        this.registerCommand(new SeeEnderChestCommand("enderchest"));
+        this.registerCommand(new SeeInventoryCommand("seeinv"));
 
         // smart tools
         this.registerCommand(new GetChestPosCommand("getchestpos"));
@@ -47,15 +50,18 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new FunctionAchievementReloadCommand("reloadachievement"));
         this.registerCommand(new FunctionAchievementGiveCommand("giveachievement"));
 
+        this.registerCommand(new GetFirstPlayedCommand("firstplay"));
+
+        this.registerCommand(new SudoCCommand("sudoc"));
+        this.registerCommand(new SudoMCommand("sudom"));
+        this.registerCommand(new ResetSpeedCommand("resetspeed"));
+
         if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
             this.registerCommand(new FixUICommand("fixui"));
             this.registerCommand(new ReloadChunkCommand("rchunk"));
-            this.registerCommand(new ResetSpeedCommand("resetspeed"));
             this.registerCommand(new FunctionRankingMonthlyConclusionCommand("monthrank"));
             this.registerCommand(new FunctionWardenCommand("shenquan"));
             this.registerCommand(new FastCommand("fast"));
-            this.registerCommand(new SudoCCommand("sudoc"));
-            this.registerCommand(new SudoMCommand("sudom"));
             this.registerCommand(new SudoActionCommand("sudoact"));
             this.registerCommand(new ChangeToSnowBiome("snow"));
             this.registerCommand(new GetBlockPosCommand("blockpos"));
@@ -71,5 +77,6 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new RankingUICommand("rankui"));
 
         this.registerCommand(new StopMusicCommand("stopmusic"));
+        this.registerCommand(new SeeItemTagCommand("seeitemtag"));
     }
 }

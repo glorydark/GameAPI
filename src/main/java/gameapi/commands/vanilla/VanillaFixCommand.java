@@ -12,5 +12,7 @@ public class VanillaFixCommand extends EasyCommand {
         this.registerCommand(new ImprovedCameraCommand("camera"));
         this.registerCommand(new ImprovedTeleportCommand("tp"));
         this.registerCommand(new ImprovedThunderCommand("thunder"));
+        this.registerCommand(new ImprovedSendFakeBlockCommand("sendfakeblock"));
+        this.registerCommand(new ImprovedEntityPropertyCommand("synctest"));
     }
 }

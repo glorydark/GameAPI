@@ -106,6 +106,8 @@ public class RoomRule {
 
     private boolean vanillaCustomMusic = true;
 
+    private boolean hasCeremony = true;
+
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
     }

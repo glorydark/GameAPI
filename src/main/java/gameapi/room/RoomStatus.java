@@ -31,5 +31,7 @@ public enum RoomStatus {
 
     ROOM_PLAYBACK,
 
-    ROOM_EDIT
+    ROOM_EDIT,
+
+    ROOM_INITIALIZING
 }

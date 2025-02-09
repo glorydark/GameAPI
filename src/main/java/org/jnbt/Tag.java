@@ -13,4 +13,13 @@ public abstract class Tag {
     public final String getName() {
         return this.name;
     }
+
+    @Override
+    public Tag clone() {
+        try {
+            return (Tag) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

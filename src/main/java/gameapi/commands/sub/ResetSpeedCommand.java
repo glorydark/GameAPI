@@ -2,6 +2,7 @@ package gameapi.commands.sub;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.event.player.PlayerTeleportEvent;
 import gameapi.commands.base.EasySubCommand;
 
 /**
@@ -22,7 +23,7 @@ public class ResetSpeedCommand extends EasySubCommand {
         player.setSwimming(false);
         player.setSneaking(false);
         player.removeAllEffects();
-        player.teleport(player.add(0, 1,0), null);
+        player.teleport(player.add(0, 1,0), PlayerTeleportEvent.TeleportCause.PLUGIN);
         player.setMovementSpeed(0.1f);
         return false;
     }

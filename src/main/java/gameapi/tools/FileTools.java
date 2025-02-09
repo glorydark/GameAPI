@@ -50,21 +50,21 @@ public class FileTools {
 
     public static boolean copy(File from, File to) {
         try {
-            File[] files = from.listFiles();
+            File [] files = from.listFiles();
             if (files != null) {
                 if (!to.exists() && !to.mkdirs()) {
-                    throw new IOException(GameAPI.getLanguage().getTranslation("file.folder.create.failed", to.getName()));
+                    throw new IOException("文件夹: " + to.getName() + " 创建失败！");
                 }
                 for (File file : files) {
                     if (file.isDirectory()) {
                         copy(file, new File(to, file.getName()));
-                    } else {
+                    }else {
                         Utils.copyFile(file, new File(to, file.getName()));
                     }
                 }
                 return true;
-            } else {
-                return false;
+            }else {
+                Utils.copyFile(from, to);
             }
         } catch (Exception e) {
             e.printStackTrace();

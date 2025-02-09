@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageEvent;
+import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
@@ -70,10 +71,11 @@ public class Room {
     // Used as a temporary room and will be deleted after the game.
     private RoomExecutor statusExecutor = new BaseRoomExecutor(this);
     private boolean temporary = false;
+    private boolean autoDestroy = false;
     private boolean resetMap = true;
     private String roomName = "";
     private RoomRule roomRule;
-    private RoomStatus roomStatus = RoomStatus.ROOM_STATUS_WAIT;
+    private RoomStatus roomStatus = RoomStatus.ROOM_INITIALIZING;
     private List<Player> players = new ArrayList<>();
     private List<Player> spectators = new ArrayList<>();
     private int maxPlayer = 16;
@@ -86,6 +88,7 @@ public class Room {
     private int nextRoundPreStartTime = 10;
     private int maxRound;
     private int round = 0;
+    private int gameDuration = 0;
     private int time = 0; // Spent Seconds
     private boolean isAllowedToStart = true;
     private List<Level> playLevels = new ArrayList<>();
@@ -123,6 +126,8 @@ public class Room {
     protected List<TextEntity> textEntities = new ArrayList<>();
     protected List<BlockVector3> blocks = new ArrayList<>();
     private Map<Entity, List<EntityDamageSource>> lastEntityReceiveDamageSource = new LinkedHashMap<>();
+    private String prevChangeStatusReason = "";
+    public long maxTempRoomWaitMillis = 1800000L;
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this(gameName, roomRule, "", round);
@@ -483,12 +488,29 @@ public class Room {
             RoomManager.getPlayerRoomHashMap().remove(player);
 
             if (reason != QuitRoomReason.TELEPORT) {
-                player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+                if (this.getEndSpawn() != null && this.getEndSpawn().getLocation() != null && this.getEndSpawn().getLocation().isValid()) {
+                    this.getEndSpawn().teleport(player);
+                } else {
+                    player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                }
             }
         }
     }
 
     public void setRoomStatus(RoomStatus status) {
+        setRoomStatus(status, "internal");
+    }
+
+    public void setRoomStatus(RoomStatus status, String reason) {
+        if (status == RoomStatus.ROOM_STATUS_GAME_END) {
+            this.gameDuration = this.time;
+        }
+        String prevReason = this.prevChangeStatusReason;
+        this.prevChangeStatusReason = reason;
+        if (status == this.roomStatus) {
+            GameAPI.getGameDebugManager().warning("Found duplicated move in setting the same status for a room, room: " + this.getRoomName() + ", reason: " + reason + ", lastReason: " + prevReason + ", status: " + this.roomStatus);
+            return;
+        }
         this.time = 0;
         switch (status) {
             case ROOM_STATUS_PRESTART:
@@ -509,6 +531,9 @@ public class Room {
             case ROOM_STATUS_NEXT_ROUND_PRESTART:
                 GameListenerRegistry.callEvent(this, new RoomNextRoundPreStartEvent(this));
                 break;
+            case ROOM_STATUS_END:
+                GameListenerRegistry.callEvent(this, new RoomEndEvent(this));
+                break;
         }
         this.roomStatus = status;
     }
@@ -517,11 +542,12 @@ public class Room {
         if (this.roomStatus == RoomStatus.ROOM_MAP_INITIALIZING) {
             return;
         }
-        this.setRoomStatus(RoomStatus.ROOM_MAP_INITIALIZING);
+        this.setRoomStatus(RoomStatus.ROOM_MAP_INITIALIZING, "internal");
         if (this.getRoomTaskExecutor() != null) {
             this.getRoomTaskExecutor().shutdownNow();
             GameAPI.getGameDebugManager().info("关闭线程池成功: " + this.getRoomTaskExecutor().toString());
         }
+        this.stageStates = new ArrayList<>();
         GameListenerRegistry.callEvent(this, new RoomResetEvent(this));
         for (Player player : new ArrayList<>(this.spectators)) {
             this.removeSpectator(player);
@@ -542,6 +568,9 @@ public class Room {
         this.roomVirtualHealthManager.clearAll();
         if (this.playLevels == null) {
             GameAPI.getInstance().getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
+            if (this.resetMap) {
+                RoomManager.unloadRoom(this);
+            }
             return;
         }
         // 增加默认地图判断
@@ -577,13 +606,13 @@ public class Room {
                 if (WorldTools.unloadAndReloadLevels(this)) {
                     this.roomTaskExecutor = Executors.newScheduledThreadPool(4);
                     this.getRoomTaskExecutor().scheduleAtFixedRate(this.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
-                    this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
+                    this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, "internal");
                 }
             } else {
                 GameAPI.getInstance().getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.only_room", this.getRoomName()));
                 this.roomTaskExecutor = Executors.newScheduledThreadPool(4);
                 this.getRoomTaskExecutor().scheduleAtFixedRate(this.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
-                this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
+                this.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, "internal");
             }
         }
     }
@@ -706,7 +735,7 @@ public class Room {
                         AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
                         location.teleport(player);
                     } else {
-                        player.teleport(this.players.get(0).getLocation(), null);
+                        player.teleport(this.players.get(0).getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                     }
                 }
                 break;
@@ -759,7 +788,7 @@ public class Room {
                         AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
                         location.teleport(player);
                     } else {
-                        player.teleport(this.players.get(0).getLocation(), null);
+                        player.teleport(this.players.get(0).getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                     }
                 }
             }
@@ -791,7 +820,7 @@ public class Room {
                         if (ev.getRespawnLocation() == null) {
                             this.teleportToSpawn(player);
                         } else {
-                            player.teleport(ev.getRespawnLocation(), null);
+                            player.teleport(ev.getRespawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                         }
                         if (this.getRoomRule().isVirtualHealth()) {
                             this.roomVirtualHealthManager.resetHealth(player);
@@ -810,7 +839,7 @@ public class Room {
                     if (ev.getRespawnLocation() == null) {
                         teleportToSpawn(player);
                     } else {
-                        player.teleport(ev.getRespawnLocation(), null);
+                        player.teleport(ev.getRespawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                     }
                     if (this.getRoomRule().isVirtualHealth()) {
                         this.roomVirtualHealthManager.resetHealth(player);

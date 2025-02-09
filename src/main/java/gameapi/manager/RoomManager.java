@@ -31,7 +31,7 @@ public class RoomManager {
         List<Room> rooms = new ArrayList<>(loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
         rooms.add(room);
         loadedRooms.put(room.getGameName(), rooms);
-        room.setRoomStatus(baseStatus);
+        room.setRoomStatus(baseStatus, "internal");
         room.getRoomTaskExecutor().scheduleAtFixedRate(room.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
     }
 

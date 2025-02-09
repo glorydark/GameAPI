@@ -5,7 +5,7 @@ import gameapi.room.Room;
 /**
  * @author glorydark
  */
-public abstract class RoomAdvancedUpdateTask {
+public abstract class RoomPreciseUpdateTask {
 
     private boolean cancelled = false;
 
@@ -13,8 +13,16 @@ public abstract class RoomAdvancedUpdateTask {
 
     private int tick;
 
-    public RoomAdvancedUpdateTask() {
+    public RoomPreciseUpdateTask() {
         this.startMillis = System.currentTimeMillis();
+    }
+
+    public void onStart(Room room) {
+
+    }
+
+    public void onEnd(Room room) {
+
     }
 
     public abstract void onUpdate(Room room);

@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.SimpleAxisAlignedBB;
@@ -69,11 +70,11 @@ public class BaseCommand extends Command {
                         Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
                             for (Player player : room.getPlayers()) {
-                                player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+                                player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                                 player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
                                 RoomManager.getPlayerRoomHashMap().remove(player);
                             }
-                            room.setRoomStatus(RoomStatus.ROOM_STOPPED);
+                            room.setRoomStatus(RoomStatus.ROOM_STOPPED, "internal");
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
                         } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));
@@ -89,10 +90,10 @@ public class BaseCommand extends Command {
                                 return true;
                             }
                             for (Player player : room.getPlayers()) {
-                                player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+                                player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                                 player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.halt"));
                             }
-                            room.setRoomStatus(RoomStatus.ROOM_HALTED);
+                            room.setRoomStatus(RoomStatus.ROOM_HALTED, "internal");
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.halt"));
                         } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));
@@ -105,13 +106,13 @@ public class BaseCommand extends Command {
                         if (room != null) {
                             for (Player player : room.getPlayers()) {
                                 if (player.isOnline()) {
-                                    player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+                                    player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                                     player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.restart"));
                                 } else {
                                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_offline", player.getName()));
                                 }
                             }
-                            room.setRoomStatus(RoomStatus.ROOM_STATUS_START);
+                            room.setRoomStatus(RoomStatus.ROOM_STATUS_START, "internal");
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.restart"));
                         } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));

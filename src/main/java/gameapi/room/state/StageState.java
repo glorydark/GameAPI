@@ -10,40 +10,27 @@ import lombok.Data;
 public class StageState {
 
     // StageState will be executed per second. Here 1 tick equals to 1 seconds
-    public int currentTick;
-    public int maxTick;
-    public Room room;
+    public int time;
+    public int maxTime;
+    private boolean end = false;
 
-    public StageState(Room room, int maxTick) {
-        this.maxTick = maxTick;
-        this.room = room;
+    public StageState(int maxTime) {
+        this.maxTime = maxTime;
     }
 
-    public void onStart() {
-
-    }
-
-    public void onEnd() {
+    public void onStart(Room room) {
 
     }
 
-    public void onTick() {
+    public void onEnd(Room room) {
 
     }
 
-    public void onUpdate() {
-        if (this.currentTick == 0) {
-            this.onStart();
-        }
-        this.currentTick++;
-        if (this.isEnd()) {
-            this.onEnd();
-        } else {
-            this.onTick();
-        }
+    public void onTick(Room room) {
+
     }
 
     public boolean isEnd() {
-        return this.currentTick > this.maxTick;
+        return this.end || this.time > this.maxTime;
     }
 }

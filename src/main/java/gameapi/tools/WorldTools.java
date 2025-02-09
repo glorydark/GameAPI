@@ -4,8 +4,9 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.event.player.PlayerTeleportEvent;
+import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
-import cn.nukkit.scheduler.NukkitRunnable;
 import gameapi.GameAPI;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
@@ -72,7 +73,7 @@ public class WorldTools {
                 }
             } else {
                 GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.not_found", room.getRoomName()));
-                room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
+                room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED, "internal");
                 return false;
             }
         }
@@ -91,7 +92,7 @@ public class WorldTools {
         // 移除玩家
         if (!level.getPlayers().values().isEmpty()) {
             for (Player p : level.getPlayers().values()) {
-                p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), null);
+                p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
         }
 
@@ -107,16 +108,16 @@ public class WorldTools {
         }
 
         if (delete) {
-            //level.tickRateCounter = 99999;
-            if (level.unload(true)) {
+            Server.getInstance().getLevels().remove(level.getId());
+            if (Server.getInstance().unloadLevel(level, true)) {
                 return deleteWorld(levelName);
             } else {
                 return false;
             }
         } else {
-            return level.unload(true);
+            Server.getInstance().getLevels().remove(level.getId());
+            return Server.getInstance().unloadLevel(level, true);
         }
-
     }
 
     protected static boolean reloadLevel(Room room, String loadName) {
@@ -130,48 +131,40 @@ public class WorldTools {
             GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.not_found", loadName));
         }
 
-        final boolean[] b = {true};
-
-        // Try Async Delayed Task
-        new NukkitRunnable() {
-            @Override
-            public void run() {
-                if (FileTools.delete(levelFile)) {
-                    if (FileTools.copy(backup, levelFile)) {
-                        if (Server.getInstance().loadLevel(loadName)) {
-                            Level loadLevel = Server.getInstance().getLevelByName(loadName);
-                            if (loadLevel != null) {
-                                room.addPlayLevel(loadLevel);
-                                // Change referred level of each location
-                                room.getWaitSpawn().setLevel(loadLevel);
-                                for (AdvancedLocation advancedLocation : room.getStartSpawn()) {
-                                    advancedLocation.setLevel(loadLevel);
-                                }
-                                if (room.getEndSpawn() != null && room.getEndSpawn().getLevel().getProvider() == null) {
-                                    room.getEndSpawn().setLevel(loadLevel);
-                                }
-                                for (AdvancedLocation advancedLocation : room.getSpectatorSpawn()) {
-                                    advancedLocation.setLevel(loadLevel);
-                                }
-                                room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT);
-                                GameAPI.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("world.load.success", loadName));
-                            }
-                        } else {
-                            GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
-                            room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
+        if (FileTools.delete(levelFile)) {
+            if (FileTools.copy(backup, levelFile)) {
+                if (Server.getInstance().loadLevel(loadName)) {
+                    Level loadLevel = Server.getInstance().getLevelByName(loadName);
+                    if (loadLevel != null) {
+                        room.addPlayLevel(loadLevel);
+                        // Change referred level of each location
+                        room.getWaitSpawn().setLevel(loadLevel);
+                        for (AdvancedLocation advancedLocation : room.getStartSpawn()) {
+                            advancedLocation.setLevel(loadLevel);
                         }
-                    } else {
-                        GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
-                        room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
+                        if (room.getEndSpawn() != null && room.getEndSpawn().getLevel().getProvider() == null) {
+                            room.getEndSpawn().setLevel(loadLevel);
+                        }
+                        for (AdvancedLocation advancedLocation : room.getSpectatorSpawn()) {
+                            advancedLocation.setLevel(loadLevel);
+                        }
+                        room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, "internal");
+                        GameAPI.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("world.load.success", loadName));
+                        return true;
                     }
                 } else {
                     GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
-                    room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED);
+                    room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED, "internal");
                 }
-                b[0] = false;
+            } else {
+                GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
+                room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED, "internal");
             }
-        }.runTaskAsynchronously(GameAPI.getInstance());
-        return b[0];
+        } else {
+            GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
+            room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED, "internal");
+        }
+        return false;
     }
 
     public static boolean loadLevelFromBackup(String loadName, String backupName) {
@@ -183,10 +176,19 @@ public class WorldTools {
         String worldPath = Server.getInstance().getDataPath() + File.separator + "worlds" + File.separator + loadName + File.separator;
         if (new File(savePath).exists()) {
             if (FileTools.copy(savePath, worldPath)) {
-                return Server.getInstance().loadLevel(loadName);
+                if (Server.getInstance().loadLevel(loadName)) {
+                    initLevel(Server.getInstance().getLevelByName(loadName));
+                    return true;
+                }
             }
-            return false;
         }
         return false;
+    }
+
+    public static void initLevel(Level level) {
+        level.setThundering(false);
+        level.setRaining(false);
+        level.setAutoSave(false);
+        level.getGameRules().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
     }
 }

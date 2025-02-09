@@ -2,27 +2,28 @@ package gameapi.commands.sub;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.item.Item;
 import gameapi.commands.base.EasySubCommand;
-import it.unimi.dsi.fastutil.ints.IntSet;
 
 /**
  * @author glorydark
  */
-public class ReloadChunkCommand extends EasySubCommand {
+public class SeeItemTagCommand extends EasySubCommand {
 
-    public ReloadChunkCommand(String name) {
+    public SeeItemTagCommand(String name) {
         super(name);
     }
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
         Player player = commandSender.asPlayer();
-        player.getChunk().getProvider().requestChunkTask(IntSet.of(player.protocol), player.getChunkX(), player.getChunkZ());
+        Item item = player.getInventory().getItemInHand();
+        commandSender.sendMessage("物品Tag如下\n" + item.getOrCreateNamedTag().toString());
         return false;
     }
 
     @Override
     public boolean hasPermission(CommandSender commandSender) {
-        return commandSender.isPlayer();
+        return commandSender.isOp() && commandSender.isPlayer();
     }
 }

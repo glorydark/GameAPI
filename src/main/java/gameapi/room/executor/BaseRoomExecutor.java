@@ -74,7 +74,11 @@ public class BaseRoomExecutor extends RoomExecutor {
 
     @Override
     public void onGameEnd() {
-        this.room.sendActionbarToAll(new GameTranslationContainer("room.actionbar.gameEnd", this.room.getGameEndTime() - this.room.getTime()));
+        if (this.room.getRoomRule().isHasCeremony()) {
+            this.room.sendActionbarToAll(new GameTranslationContainer("room.actionbar.gameEnd.ceremony", this.room.getGameEndTime() - this.room.getTime()));
+        } else {
+            this.room.sendActionbarToAll(new GameTranslationContainer("room.actionbar.gameEnd", this.room.getGameEndTime() - this.room.getTime()));
+        }
     }
 
     @Override

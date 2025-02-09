@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockLiquid;
+import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.SimpleAxisAlignedBB;
@@ -17,7 +18,7 @@ import gameapi.extensions.checkpoint.CheckpointData;
 import gameapi.extensions.obstacle.DynamicObstacle;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.items.RoomItemBase;
-import gameapi.room.task.RoomAdvancedUpdateTask;
+import gameapi.room.task.RoomPreciseUpdateTask;
 import gameapi.tools.VanillaCustomMusicTools;
 
 import java.util.*;
@@ -31,7 +32,7 @@ public class RoomUpdateTask implements Runnable {
 
     private final Room room;
 
-    private final List<RoomAdvancedUpdateTask> customTickListenerList = new ArrayList<>();
+    private final List<RoomPreciseUpdateTask> customTickListenerList = new ArrayList<>();
 
     private final Map<Player, Location> playerLocationHashMap = new HashMap<>();
 
@@ -40,7 +41,7 @@ public class RoomUpdateTask implements Runnable {
     }
 
     public void addListener(Consumer<Room> roomConsumer) {
-        this.customTickListenerList.add(new RoomAdvancedUpdateTask() {
+        this.addListener(new RoomPreciseUpdateTask() {
             @Override
             public void onUpdate(Room room) {
                 roomConsumer.accept(room);
@@ -48,8 +49,9 @@ public class RoomUpdateTask implements Runnable {
         });
     }
 
-    public void addListener(RoomAdvancedUpdateTask roomAdvancedUpdateTask) {
-        this.customTickListenerList.add(roomAdvancedUpdateTask);
+    public void addListener(RoomPreciseUpdateTask roomPreciseUpdateTask) {
+        roomPreciseUpdateTask.onStart(this.room);
+        this.customTickListenerList.add(roomPreciseUpdateTask);
     }
 
     @Override
@@ -84,12 +86,14 @@ public class RoomUpdateTask implements Runnable {
                 }
             }
 
-            for (RoomAdvancedUpdateTask customRoomUpdateTask : new ArrayList<>(this.customTickListenerList)) {
-                if (customRoomUpdateTask.isCancelled()) {
-                    this.customTickListenerList.remove(customRoomUpdateTask);
+            for (RoomPreciseUpdateTask task : new ArrayList<>(this.customTickListenerList)) {
+                if (task.isCancelled()) {
+                    task.onEnd(room);
+                    this.customTickListenerList.remove(task);
+                    continue;
                 }
-                customRoomUpdateTask.setTick(customRoomUpdateTask.getTick() + 1);
-                customRoomUpdateTask.onUpdate(this.room);
+                task.setTick(task.getTick() + 1);
+                task.onUpdate(room);
             }
 
             this.onTickDynamicObstacles();
@@ -105,12 +109,14 @@ public class RoomUpdateTask implements Runnable {
             }
             this.onUpdateRoomItemHeld();
 
-            for (TextEntity textEntity : new ArrayList<>(this.room.getTextEntities())) {
-                if (!textEntity.isAlive() || textEntity.isClosed()) {
-                    textEntity.respawn();
-                    this.room.getTextEntities().remove(textEntity);
-                } else {
-                    textEntity.onAsyncUpdate(Server.getInstance().getTick());
+            if (this.room.getTextEntities().isEmpty()) {
+                for (TextEntity textEntity : new ArrayList<>(this.room.getTextEntities())) {
+                    if (!textEntity.isAlive() || textEntity.isClosed()) {
+                        textEntity.respawn();
+                        this.room.getTextEntities().remove(textEntity);
+                    } else {
+                        textEntity.onAsyncUpdate(Server.getInstance().getTick());
+                    }
                 }
             }
         } catch (Throwable e) {
@@ -181,7 +187,7 @@ public class RoomUpdateTask implements Runnable {
         }
         if ((this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START || this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_NEXT_ROUND_PRESTART) && !this.room.getRoomRule().isAllowReadyStartWalk()) {
             if (lastPosition != null) {
-                player.teleport(lastPosition, null);
+                player.teleport(lastPosition, PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
             return;
         }
@@ -191,7 +197,7 @@ public class RoomUpdateTask implements Runnable {
         if (roomPlayerMoveEvent.isCancelled()) {
             Location from = roomPlayerMoveEvent.getFrom();
             if (from != null) {
-                player.teleport(from, null);
+                player.teleport(from, PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
         } else {
             setPlayerLastLocation(player, roomPlayerMoveEvent.getTo());

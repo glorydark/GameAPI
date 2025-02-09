@@ -105,17 +105,15 @@ public class SchematicConverter {
         int pieceSize = maxCount / 20;
         AtomicInteger percentage = new AtomicInteger();
         long startMillis = System.currentTimeMillis();
-        player.sendMessage("Start generating schematics...");
+        player.sendMessage("Start generating schematics...(pieceSize: " + pieceSize + ", maxCount: " + maxCount);
         CompletableFuture.runAsync(() -> {
             for (BlockDataWithPos data : blockDataWithPos) {
                 if (finishedCount.get() % pieceSize == 0) {
                     percentage.addAndGet(5);
                     GameAPI.getInstance().getLogger().info("Generating blocks [" + finishedCount.get() + "/" + maxCount + "] " + percentage + "% [Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillis) + "]");
                 }
-                if (data.id != 0) {
-                    finishedCount.addAndGet(1);
-                    level.setBlock(new Vector3(data.x + player.getFloorX(), data.y + player.getFloorY(), data.z + player.getFloorZ()), Block.get(data.id, data.data), true, true);
-                }
+                finishedCount.addAndGet(1);
+                level.setBlock(new Vector3(data.x + player.getFloorX(), data.y + player.getFloorY(), data.z + player.getFloorZ()), Block.get(data.id, data.data), true, false);
             }
         }).thenRun(() -> GameAPI.getInstance().getLogger().info("Finished generating all " + maxCount + " blocks! [Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), startMillis) + "]"));
     }

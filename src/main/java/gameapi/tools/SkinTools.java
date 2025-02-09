@@ -114,21 +114,23 @@ public class SkinTools {
     }
 
     public static void savePlayerJson(String jsonString, File file) {
-        try {
-            Utils.writeFile(file, jsonString);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (!jsonString.isEmpty()) {
+            try {
+                Utils.writeFile(file, jsonString);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public static void parseSerializedImage(SerializedImage image, File file) {
         byte[] data = image.data;
         if (data == null) {
-            GameAPI.getInstance().getLogger().warning("data为null");
+            // GameAPI.getInstance().getLogger().warning("data为null");
             return;
         }
         if (data.length == 0) {
-            GameAPI.getInstance().getLogger().warning("data长度为0");
+            // GameAPI.getInstance().getLogger().warning("data长度为0");
             return;
         }
 

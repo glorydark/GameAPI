@@ -9,9 +9,9 @@ import java.util.Date;
 public class RoomChatData {
     String playerName;
 
-    String message;
+    String message = "";
 
-    String prefix;
+    String prefix = "";
 
     String rawMessage = "";
 

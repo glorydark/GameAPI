@@ -54,7 +54,6 @@ import java.util.concurrent.*;
 public class GameAPI extends PluginBase implements Listener {
 
     public static final int GAME_TASK_INTERVAL = 1; // this value should not be modified for the roomUpdateTask
-    public static final long MAX_TEMP_ROOM_WAIT_MILLIS = 1800000L;
     protected static final int THREAD_POOL_SIZE = 8;
 
     protected int rankingTextEntityRefreshIntervals;
@@ -80,6 +79,7 @@ public class GameAPI extends PluginBase implements Listener {
         }
     };
     protected static boolean experimentalFeature = false;
+    protected static boolean isFirstLaunch = true;
 
     public static void addRoomEdit(EditProcess editProcess) {
         editProcessList.add(editProcess);
@@ -158,9 +158,13 @@ public class GameAPI extends PluginBase implements Listener {
         GameActivityManager.init();
         AchievementManager.load();
 
-        this.getServer().getScheduler().scheduleRepeatingTask(instance, new RoomTask(), 20);
-        this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
-        this.getServer().getPluginManager().registerEvents(new AdvancedFormListener(), this);
+        if (isFirstLaunch) {
+            GameListenerRegistry.clearAllRegisters();
+            this.getServer().getScheduler().scheduleRepeatingTask(instance, new RoomTask(), 20);
+            this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
+            this.getServer().getPluginManager().registerEvents(new AdvancedFormListener(), this);
+            isFirstLaunch = false;
+        }
         // this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
         this.getServer().getCommandMap().register("", new GameAPICommandMain("gameapi"));
         this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
