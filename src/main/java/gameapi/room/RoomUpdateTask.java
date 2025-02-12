@@ -88,12 +88,12 @@ public class RoomUpdateTask implements Runnable {
 
             for (RoomPreciseUpdateTask task : new ArrayList<>(this.customTickListenerList)) {
                 if (task.isCancelled()) {
-                    task.onEnd(room);
+                    task.onEnd(this.room);
                     this.customTickListenerList.remove(task);
                     continue;
                 }
                 task.setTick(task.getTick() + 1);
-                task.onUpdate(room);
+                task.onUpdate(this.room);
             }
 
             this.onTickDynamicObstacles();

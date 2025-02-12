@@ -31,7 +31,7 @@ public class GameDebugManager {
             dic.mkdirs();
             logger = Logger.getLogger(name);
             logger.setUseParentHandlers(false);
-            FileHandler fileHandler = new FileHandler(dic.getPath() + File.separator + CalendarTools.getDateStringByDefault(System.currentTimeMillis()).replace(" ", "_") + ".log");
+            FileHandler fileHandler = new FileHandler(dic.getPath() + File.separator + CalendarTools.getDateStringWithoutDetailsByDefault(System.currentTimeMillis()).replace(" ", "_") + ".log", true);
             // Set a formatter to format log records
             CustomFormatter formatter = new CustomFormatter();
             fileHandler.setFormatter(formatter);
