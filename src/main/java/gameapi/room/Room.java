@@ -539,6 +539,10 @@ public class Room {
     }
 
     public void resetAll() {
+        resetAll(ResetAllReason.DEFAULT);
+    }
+
+    public void resetAll(ResetAllReason resetAllReason) {
         if (this.roomStatus == RoomStatus.ROOM_MAP_INITIALIZING) {
             return;
         }
@@ -715,6 +719,8 @@ public class Room {
         if (roomSpectatorJoinEvent.isCancelled()) {
             return;
         }
+        this.spectators.add(player);
+        RoomManager.getPlayerRoomHashMap().put(player, this);
         player.setGamemode(this.roomRule.getSpectatorGameMode());
         player.removeAllEffects();
         player.setNameTagVisible(false);
@@ -749,8 +755,6 @@ public class Room {
         for (Player p : this.getPlayers()) {
             p.sendMessage(GameAPI.getLanguage().getTranslation(p, "room.game.broadcast.join_spectator", player.getName()));
         }
-        this.spectators.add(player);
-        RoomManager.getPlayerRoomHashMap().put(player, this);
         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
     }
 

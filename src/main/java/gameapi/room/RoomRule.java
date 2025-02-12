@@ -18,7 +18,7 @@ public class RoomRule {
 
     private int gameMode;
 
-    private boolean allowReadyStartWalk = true;
+    private boolean allowWalk = true;
 
     private boolean allowDropItem = true;
 

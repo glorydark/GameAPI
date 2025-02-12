@@ -640,7 +640,7 @@ public class BaseEventListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH)
     public void PlayerTeleportEvent(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
         Level fromLevel = event.getFrom().getLevel();
@@ -651,21 +651,8 @@ public class BaseEventListener implements Listener {
         Room room = RoomManager.getRoom(player);
         if (!fromLevel.equals(toLevel)) {
             if (room != null) {
-                Set<Level> arenas = new HashSet<>();
-                if (room.getWaitSpawn() != null && room.getWaitSpawn().isValid()) {
-                    arenas.add(room.getWaitSpawn().getLevel());
-                }
-                if (room.getEndSpawn() != null && room.getEndSpawn().isValid()) {
-                    arenas.add(room.getEndSpawn().getLevel());
-                }
-                for (AdvancedLocation location : room.getStartSpawn()) {
-                    if (location != null && location.isValid()) {
-                        arenas.add(location.getLevel());
-                    }
-                }
-                arenas.addAll(room.getPlayLevels());
-                if (!arenas.contains(toLevel)) {
-                    if (arenas.contains(fromLevel)) {
+                if (!room.getPlayLevels().contains(toLevel)) {
+                    if (room.getPlayLevels().contains(fromLevel)) {
                         if (room.getRoomRule().isAllowQuitByTeleport()) {
                             List<Room> rooms = RoomManager.getRooms(toLevel);
                             Room targetRoom = null;

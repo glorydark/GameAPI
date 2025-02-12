@@ -9,6 +9,7 @@ import gameapi.event.room.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.ScoreboardManager;
+import gameapi.room.ResetAllReason;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.room.state.StageState;
@@ -70,7 +71,7 @@ public class RoomTask extends Task {
             case ROOM_PLAYBACK:
                 if (room.getPlayers().isEmpty()) {
                     GameAPI.getGameDebugManager().info("Detect that temp room " + room.getRoomName() + " has no players whilst playback, start destroying...");
-                    room.resetAll();
+                    room.resetAll(ResetAllReason.ROOM_PLAYBACK_LEAVE);
                     return true;
                 }
                 break;
@@ -79,7 +80,7 @@ public class RoomTask extends Task {
                     if (room.isAutoDestroyOverTime()) {
                         if (System.currentTimeMillis() >= room.getCreateMillis() + room.getMaxTempRoomWaitMillis()) {
                             GameAPI.getGameDebugManager().info("Detect that temp room " + room.getRoomName() + " has reached the maximum of waiting time, start destroying...");
-                            room.resetAll();
+                            room.resetAll(ResetAllReason.ROOM_AUTO_DESTROY);
                             return true;
                         }
                     }
@@ -90,7 +91,7 @@ public class RoomTask extends Task {
             case ROOM_STATUS_PRESTART:
                 if (room.getPlayers().size() < room.getMinPlayer()) {
                     if (room.isTemporary()) {
-                        room.resetAll();
+                        room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                     } else {
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, "internal");
                     }
@@ -101,7 +102,7 @@ public class RoomTask extends Task {
                 break;
             case ROOM_STATUS_READY_START:
                 if (room.getPlayers().size() < room.getMinPlayer()) {
-                    room.resetAll();
+                    room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomReadyStartTickEvent(room));
@@ -109,7 +110,7 @@ public class RoomTask extends Task {
                 break;
             case ROOM_STATUS_START:
                 if (room.getPlayers().isEmpty()) {
-                    room.resetAll();
+                    room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                     return true;
                 } else {
                     if (!room.getRoomRule().isTestStatus()) {
@@ -122,7 +123,7 @@ public class RoomTask extends Task {
                             });
                             if (hasPlayer.get() <= 1) {
                                 if (hasPlayer.get() == 0) {
-                                    room.resetAll();
+                                    room.resetAll(ResetAllReason.NO_ENOUGH_TEAM);
                                 } else {
                                     room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END, "internal");
                                 }
@@ -131,7 +132,7 @@ public class RoomTask extends Task {
                         } else {
                             if (room.getPlayers().size() < room.getMinPlayer()) {
                                 if (room.getPlayers().isEmpty()) {
-                                    room.resetAll();
+                                    room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                                 } else {
                                     room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END, "internal");
                                 }
@@ -145,7 +146,7 @@ public class RoomTask extends Task {
                 break;
             case ROOM_STATUS_GAME_END:
                 if (room.getPlayers().isEmpty()) {
-                    room.resetAll();
+                    room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                     return true;
                 }
                 GameListenerRegistry.callEvent(room, new RoomGameEndTickEvent(room));
@@ -153,14 +154,14 @@ public class RoomTask extends Task {
                 break;
             case ROOM_STATUS_CEREMONY:
                 if (room.getPlayers().isEmpty()) {
-                    room.resetAll();
+                    room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                 }
                 GameListenerRegistry.callEvent(room, new RoomCeremonyTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.CEREMONY);
                 break;
             case ROOM_STATUS_NEXT_ROUND_PRESTART:
                 if (room.getPlayers().isEmpty()) {
-                    room.resetAll();
+                    room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                     return true;
                 } else {
                     if (room.getTeams().size() > 1) {

@@ -23,8 +23,6 @@ public class DecimalTools {
         return BigDecimal.valueOf(v1).subtract(BigDecimal.valueOf(v2)).setScale(scale, roundingMode).doubleValue();
     }
 
-
-
     public static double getFloatAdd(float v1, float v2, int scale) {
         return getFloatAdd(v1, v2, scale, RoundingMode.FLOOR);
     }

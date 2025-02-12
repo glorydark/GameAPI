@@ -108,14 +108,12 @@ public class WorldTools {
         }
 
         if (delete) {
-            Server.getInstance().getLevels().remove(level.getId());
             if (Server.getInstance().unloadLevel(level, true)) {
                 return deleteWorld(levelName);
             } else {
                 return false;
             }
         } else {
-            Server.getInstance().getLevels().remove(level.getId());
             return Server.getInstance().unloadLevel(level, true);
         }
     }
@@ -136,6 +134,7 @@ public class WorldTools {
                 if (Server.getInstance().loadLevel(loadName)) {
                     Level loadLevel = Server.getInstance().getLevelByName(loadName);
                     if (loadLevel != null) {
+                        initLevel(loadLevel);
                         room.addPlayLevel(loadLevel);
                         // Change referred level of each location
                         room.getWaitSpawn().setLevel(loadLevel);
@@ -189,6 +188,7 @@ public class WorldTools {
         level.setThundering(false);
         level.setRaining(false);
         level.setAutoSave(false);
+        level.setSaveOnUnloadEnabled(false);
         level.getGameRules().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
     }
 }

@@ -185,11 +185,11 @@ public class RoomUpdateTask implements Runnable {
         if (player.getLocation().equals(lastPosition)) {
             return;
         }
-        if ((this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START || this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_NEXT_ROUND_PRESTART) && !this.room.getRoomRule().isAllowReadyStartWalk()) {
-            if (lastPosition != null) {
+        if (!this.room.getRoomRule().isAllowWalk()) {
+            if (lastPosition != null && lastPosition.getLevel() == player.getLevel()) {
                 player.teleport(lastPosition, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                return;
             }
-            return;
         }
         // MoveEvent
         RoomPlayerMoveEvent roomPlayerMoveEvent = new RoomPlayerMoveEvent(this.room, player, lastPosition, player.getLocation());
