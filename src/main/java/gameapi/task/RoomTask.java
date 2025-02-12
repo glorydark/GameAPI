@@ -9,7 +9,7 @@ import gameapi.event.room.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
 import gameapi.manager.tools.ScoreboardManager;
-import gameapi.room.ResetAllReason;
+import gameapi.room.utils.reason.ResetAllReason;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.room.state.StageState;

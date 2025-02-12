@@ -41,15 +41,14 @@ import gameapi.room.*;
 import gameapi.room.edit.EditProcess;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
-import gameapi.room.utils.QuitRoomReason;
-import gameapi.utils.AdvancedLocation;
+import gameapi.room.utils.BasicAttackSetting;
+import gameapi.room.utils.DefaultPropertyKey;
+import gameapi.room.utils.reason.QuitRoomReason;
 import gameapi.utils.PosSet;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

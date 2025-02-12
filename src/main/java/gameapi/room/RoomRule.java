@@ -1,5 +1,6 @@
 package gameapi.room;
 
+import gameapi.room.utils.BasicAttackSetting;
 import gameapi.room.utils.HideType;
 import lombok.Data;
 
@@ -18,6 +19,10 @@ public class RoomRule {
 
     private int gameMode;
 
+    /**
+     * 使用此选项时，teleport也会被禁止！
+     * To set this to true, any teleportation will be rejected.
+     */
     private boolean allowWalk = true;
 
     private boolean allowDropItem = true;
@@ -66,8 +71,16 @@ public class RoomRule {
 
     private boolean allowSpectators = true;
 
+    /**
+     * 原版攻击冷却
+     * Vanilla attack cooldown
+     */
     private boolean useDefaultAttackCooldown = true;
 
+    /**
+     * 自定义攻击冷却（需要useDefaultAttackCooldown = false）
+     * Custom attack cooldown (useDefaultAttackCooldown should be false)
+     */
     private long attackCoolDownMillis = 0;
 
     private long playerReceiveEntityDamageCoolDownMillis = 500;
@@ -92,20 +105,44 @@ public class RoomRule {
 
     private boolean allowJoinAfterStart = false;
 
+    /**
+     * todo: auto-rejoin system
+     */
     private boolean savePlayerPropertiesAfterQuit = false;
 
+    /**
+     * 此选项用于单人测试多人逻辑，避免房间进入游戏后立马关闭，配合最低人数为1一起使用。
+     * This option is used for multi-player performance testing while only you are participated in.
+     * After enabling this, you should set the min player to 1 in order to start the test game.
+     */
     private boolean testStatus = false;
 
+    /**
+     * PVP相关的kb设置
+     * Set the settings for PVP servers
+     */
     private BasicAttackSetting basicAttackSetting = null;
 
     private boolean protectMapBlock = false;
 
+    /**
+     * 末影珍珠伤害有时很迷惑，默认为关闭。
+     * It is tricky to deal with damages caused by ender pearls. So this is default set to false.
+     */
     private boolean allowEnderPearlDamage = false;
 
     private List<String> allowBreakProtectedMapBlocks = new ArrayList<>();
 
+    /**
+     * 暂时暂停原版音乐
+     * Stop the game background music temporarily.
+     */
     private boolean vanillaCustomMusic = true;
 
+    /**
+     * 是否进行颁奖典礼
+     * Decide whether ceremony phase will exist or not.
+     */
     private boolean hasCeremony = true;
 
     public RoomRule(Integer gameMode) {

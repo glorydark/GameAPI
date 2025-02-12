@@ -1,7 +1,9 @@
-package gameapi.room;
+package gameapi.room.utils.reason;
 
 /**
  * @author glorydark
+ *
+ * This aims at targeting the real cause of wrong room reset.
  */
 public enum ResetAllReason {
 

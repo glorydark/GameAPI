@@ -1,4 +1,4 @@
-package gameapi.room;
+package gameapi.room.utils;
 
 /**
  * @author glorydark

@@ -3,7 +3,7 @@ package gameapi.event.player;
 import cn.nukkit.Player;
 import cn.nukkit.event.Cancellable;
 import gameapi.room.Room;
-import gameapi.room.utils.QuitRoomReason;
+import gameapi.room.utils.reason.QuitRoomReason;
 
 /**
  * @author Glorydark

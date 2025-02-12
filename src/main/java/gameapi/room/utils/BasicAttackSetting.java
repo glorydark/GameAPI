@@ -1,4 +1,4 @@
-package gameapi.room;
+package gameapi.room.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
