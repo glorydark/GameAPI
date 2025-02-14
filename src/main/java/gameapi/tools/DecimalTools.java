@@ -15,7 +15,9 @@ public class DecimalTools {
 
     public static double getFloatDiff(float v1, float v2, int scale, RoundingMode roundingMode) {
         return Double.parseDouble(getFloatByFormat(v1 - v2, scale, roundingMode));
-    }public static double getDoubleDiff(double v1, double v2, int scale) {
+    }
+
+    public static double getDoubleDiff(double v1, double v2, int scale) {
         return getDoubleDiff(v1, v2, scale, RoundingMode.FLOOR);
     }
 
