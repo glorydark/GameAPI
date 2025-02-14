@@ -2,6 +2,7 @@ package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import gameapi.tools.type.TipElementType;
 import tip.messages.defaults.*;
 import tip.utils.Api;
 
@@ -30,8 +31,8 @@ public class TipsTools {
      * @param level  世界
      * @param player 玩家
      */
-    public static void closeTipsShow(String level, Player player) {
-        TIPS_TOOLS.closeTipsShowInternal(level, player.getName());
+    public static void closeTipsShow(String level, Player player, TipElementType... tipElementTypes) {
+        TIPS_TOOLS.closeTipsShowInternal(level, player.getName(), tipElementTypes);
     }
 
     /**
@@ -40,112 +41,186 @@ public class TipsTools {
      * @param level  世界
      * @param player 玩家
      */
-    public static void removeTipsConfig(String level, Player player) {
-        TIPS_TOOLS.removeTipsConfigInternal(level, player.getName());
+    public static void removeTipsConfig(String level, Player player, TipElementType... tipElementTypes) {
+        TIPS_TOOLS.removeTipsConfigInternal(level, player.getName(), tipElementTypes);
     }
 
-    private void closeTipsShowInternal(String level, String playerName) {
-        try {
-            Api.setPlayerShowMessage(
-                    playerName,
-                    new BossBarMessage(level, false, 5, false, new LinkedList<>())
-            );
-            Api.setPlayerShowMessage(
-                    playerName,
-                    new BroadcastMessage(level, false, 5, new LinkedList<>())
-            );
-            Api.setPlayerShowMessage(
-                    playerName,
-                    new ChatMessage(level, false, "", true)
-            );
-            Api.setPlayerShowMessage(
-                    playerName,
-                    new NameTagMessage(level, false, "")
-            );
-            Api.setPlayerShowMessage(
-                    playerName,
-                    new ScoreBoardMessage(level, false, "", new LinkedList<>())
-            );
-            Api.setPlayerShowMessage(
-                    playerName,
-                    new TipMessage(level, false, TipMessage.TIP, "")
-            );
-        } catch (Exception e) {
-            try {
-                Api.setPlayerShowMessage(
-                        playerName,
-                        new tip.messages.BossBarMessage(level, false, 5, false, new LinkedList<>())
-                );
-                Api.setPlayerShowMessage(
-                        playerName,
-                        new tip.messages.NameTagMessage(level, true, "")
-                );
-                Api.setPlayerShowMessage(
-                        playerName,
-                        new tip.messages.ScoreBoardMessage(level, false, "", new LinkedList<>())
-                );
-                Api.setPlayerShowMessage(
-                        playerName,
-                        new tip.messages.TipMessage(level, false, 0, "")
-                );
-            } catch (Exception ignored) {
+    private void closeTipsShowInternal(String level, String playerName, TipElementType... tipElementTypes) {
+        for (TipElementType tipElementType : tipElementTypes) {
+            switch (tipElementType) {
+                case TIP:
+                    try {
+                        Api.setPlayerShowMessage(
+                                playerName,
+                                new TipMessage(level, false, TipMessage.TIP, "")
+                        );
+                    } catch (Exception e) {
+                        try {
+                            Api.setPlayerShowMessage(
+                                    playerName,
+                                    new tip.messages.TipMessage(level, false, 0, "")
+                            );
+                        } catch (Exception ignored) {
 
+                        }
+                    }
+                    Player player = Server.getInstance().getPlayer(playerName);
+                    if (player != null) {
+                        player.setNameTag(player.getName());
+                        player.setNameTagVisible(true);
+                        player.setNameTagAlwaysVisible(true);
+                    }
+                    break;
+                case SCOREBOARD:
+                    try {
+                        Api.setPlayerShowMessage(
+                                playerName,
+                                new ScoreBoardMessage(level, false, "", new LinkedList<>())
+                        );
+                    } catch (Exception e) {
+                        try {
+                            Api.setPlayerShowMessage(
+                                    playerName,
+                                    new tip.messages.ScoreBoardMessage(level, false, "", new LinkedList<>())
+                            );
+                        } catch (Exception ignored) {
+
+                        }
+                    }
+                    break;
+                case BROADCAST:
+                    Api.setPlayerShowMessage(
+                            playerName,
+                            new BroadcastMessage(level, false, 5, new LinkedList<>())
+                    );
+                    break;
+                case BOSS_BAR:
+                    try {
+                        Api.setPlayerShowMessage(
+                                playerName,
+                                new BossBarMessage(level, false, 5, false, new LinkedList<>())
+                        );
+                    } catch (Exception e) {
+                        try {
+                            Api.setPlayerShowMessage(
+                                    playerName,
+                                    new tip.messages.BossBarMessage(level, false, 5, false, new LinkedList<>())
+                            );
+                        } catch (Exception ignored) {
+
+                        }
+                    }
+                    break;
+                case NAMETAG:
+                    try {
+                        Api.setPlayerShowMessage(
+                                playerName,
+                                new NameTagMessage(level, false, "")
+                        );
+                    } catch (Exception e) {
+                        try {
+                            Api.setPlayerShowMessage(
+                                    playerName,
+                                    new tip.messages.NameTagMessage(level, true, "")
+                            );
+                        } catch (Exception ignored) {
+
+                        }
+                    }
+                    break;
+                case CHAT:
+                    Api.setPlayerShowMessage(
+                            playerName,
+                            new ChatMessage(level, false, "", true)
+                    );
+                    break;
             }
         }
-        Player player = Server.getInstance().getPlayer(playerName);
-        if (player != null) {
-            player.setNameTag(player.getName());
-            player.setNameTagVisible(true);
-            player.setNameTagAlwaysVisible(true);
-        }
     }
 
-    private void removeTipsConfigInternal(String level, String playerName) {
-        try {
-            Api.removePlayerShowMessage(
-                    playerName,
-                    new BossBarMessage(level, false, 5, false, new LinkedList<>())
-            );
-            Api.removePlayerShowMessage(
-                    playerName,
-                    new BroadcastMessage(level, false, 5, new LinkedList<>())
-            );
-            Api.removePlayerShowMessage(
-                    playerName,
-                    new ChatMessage(level, false, "", true)
-            );
-            Api.removePlayerShowMessage(
-                    playerName,
-                    new NameTagMessage(level, true, "")
-            );
-            Api.removePlayerShowMessage(
-                    playerName,
-                    new ScoreBoardMessage(level, false, "", new LinkedList<>())
-            );
-            Api.removePlayerShowMessage(
-                    playerName,
-                    new TipMessage(level, false, TipMessage.TIP, "")
-            );
-        } catch (Exception e) {
-            try {
-                Api.removePlayerShowMessage(
-                        playerName,
-                        new tip.messages.BossBarMessage(level, false, 5, false, new LinkedList<>())
-                );
-                Api.removePlayerShowMessage(
-                        playerName,
-                        new tip.messages.NameTagMessage(level, true, "")
-                );
-                Api.removePlayerShowMessage(
-                        playerName,
-                        new tip.messages.ScoreBoardMessage(level, false, "", new LinkedList<>())
-                );
-                Api.removePlayerShowMessage(
-                        playerName,
-                        new tip.messages.TipMessage(level, false, 0, "")
-                );
-            } catch (Exception ignored) {
+    private void removeTipsConfigInternal(String level, String playerName, TipElementType... tipElementTypes) {
+        for (TipElementType tipElementType : tipElementTypes) {
+            switch (tipElementType) {
+                case TIP:
+                    try {
+                        Api.removePlayerShowMessage(
+                                playerName,
+                                new TipMessage(level, false, TipMessage.TIP, "")
+                        );
+                    } catch (Exception e) {
+                        try {
+                            Api.removePlayerShowMessage(
+                                    playerName,
+                                    new tip.messages.TipMessage(level, false, 0, "")
+                            );
+                        } catch (Exception ignored) {
 
+                        }
+                    }
+                    break;
+                case CHAT:
+                    Api.removePlayerShowMessage(
+                            playerName,
+                            new ChatMessage(level, false, "", true)
+                    );
+                    break;
+                case NAMETAG:
+                    try {
+                        Api.removePlayerShowMessage(
+                                playerName,
+                                new NameTagMessage(level, true, "")
+                        );
+                    } catch (Exception e) {
+                        try {
+                            Api.removePlayerShowMessage(
+                                    playerName,
+                                    new tip.messages.NameTagMessage(level, true, "")
+                            );
+                        } catch (Exception ignored) {
+
+                        }
+                    }
+                    break;
+                case BOSS_BAR:
+                    try {
+                        Api.removePlayerShowMessage(
+                                playerName,
+                                new BossBarMessage(level, false, 5, false, new LinkedList<>())
+                        );
+                    } catch (Exception e) {
+                        try {
+                            Api.removePlayerShowMessage(
+                                    playerName,
+                                    new tip.messages.BossBarMessage(level, false, 5, false, new LinkedList<>())
+                            );
+                        } catch (Exception ignored) {
+
+                        }
+                    }
+                    break;
+                case BROADCAST:
+                    Api.removePlayerShowMessage(
+                            playerName,
+                            new BroadcastMessage(level, false, 5, new LinkedList<>())
+                    );
+                    break;
+                case SCOREBOARD:
+                    try {
+                        Api.removePlayerShowMessage(
+                                playerName,
+                                new ScoreBoardMessage(level, false, "", new LinkedList<>())
+                        );
+                    } catch (Exception e) {
+                        try {
+                            Api.removePlayerShowMessage(
+                                    playerName,
+                                    new tip.messages.ScoreBoardMessage(level, false, "", new LinkedList<>())
+                            );
+                        } catch (Exception ignored) {
+
+                        }
+                    }
+                    break;
             }
         }
     }

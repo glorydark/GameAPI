@@ -2,10 +2,13 @@ package gameapi.room;
 
 import gameapi.room.utils.BasicAttackSetting;
 import gameapi.room.utils.HideType;
+import gameapi.tools.type.TipElementType;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Glorydark
@@ -144,6 +147,20 @@ public class RoomRule {
      * Decide whether ceremony phase will exist or not.
      */
     private boolean hasCeremony = true;
+
+    private boolean autoDestroyWhenBelowMinPlayers = false;
+
+    private static Set<TipElementType> DEFAULT_HIDE_ELEMENT_TYPE = new HashSet<TipElementType>() {
+        {
+            this.add(TipElementType.BOSS_BAR);
+            this.add(TipElementType.BROADCAST);
+            this.add(TipElementType.CHAT);
+            this.add(TipElementType.NAMETAG);
+            this.add(TipElementType.SCOREBOARD);
+            this.add(TipElementType.TIP);
+        }
+    };
+    private Set<TipElementType> tipHideElements = DEFAULT_HIDE_ELEMENT_TYPE;
 
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;

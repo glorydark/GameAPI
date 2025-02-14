@@ -75,6 +75,10 @@ public class GameListenerRegistry {
         }
     }
 
+    public static ConcurrentHashMap<String, List<RoomListener>> getListeners() {
+        return listeners;
+    }
+
     public void unregisterAllEvents(String gameName) {
         listeners.put(gameName, new ArrayList<>());
     }

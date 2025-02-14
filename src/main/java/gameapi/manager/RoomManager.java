@@ -1,20 +1,20 @@
 package gameapi.manager;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
 import gameapi.annotation.Internal;
+import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
+import gameapi.room.edit.EditProcess;
 import gameapi.tools.RandomTools;
 import gameapi.tools.WorldTools;
 import gameapi.utils.RoomNameUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -163,28 +163,45 @@ public class RoomManager {
     }
 
     public static void close() {
-        for (Map.Entry<String, List<Room>> entry : loadedRooms.entrySet()) {
-            for (Room room : entry.getValue()) {
-                room.getRoomTaskExecutor().shutdownNow();
-
+        Set<String> prefixes = new HashSet<>();
+        for (String s : GameListenerRegistry.getListeners().keySet()) {
+            if (s.equals(GameListenerRegistry.KEY_GLOBAL_LISTENER)) {
+                continue;
+            }
+            prefixes.add(s + "_");
+        }
+        for (Player player : Server.getInstance().getOnlinePlayers().values()) {
+            Room room = RoomManager.getRoom(player);
+            if (room != null) {
                 String prefix = room.getGameName() + "_";
                 if (!room.getTempWorldPrefixOverride().isEmpty()) {
                     prefix = room.getTempWorldPrefixOverride();
                 }
-                WorldTools.delWorldByPrefix(prefix);
+                prefixes.add(prefix);
+                if (room.getPlayers().contains(player)) {
+                    room.removePlayer(player);
+                } else {
+                    room.removeSpectator(player);
+                }
+            } else {
+                for (EditProcess editProcess : GameAPI.editProcessList) {
+                    Player editor = editProcess.getPlayer();
+                    if (editor == player) {
+                        editProcess.onQuit();
+                        editProcess.clearAllTextEntities();
+                    }
+                }
             }
+        }
+        for (Map.Entry<String, List<Room>> entry : RoomManager.getLoadedRooms().entrySet()) {
+            for (Room room : entry.getValue()) {
+                room.getRoomTaskExecutor().shutdownNow();
+            }
+        }
+        for (String gameName : prefixes) {
+            WorldTools.delWorldByPrefix(gameName);
         }
         GameEntityManager.closeAll();
-        for (String s : loadedRooms.keySet()) {
-            for (Room room : loadedRooms.getOrDefault(s, new ArrayList<>())) {
-                for (Player player : new ArrayList<>(room.getPlayers())) {
-                    room.removePlayer(player);
-                }
-                for (Player player : new ArrayList<>(room.getSpectators())) {
-                    room.removePlayer(player);
-                }
-            }
-        }
         loadedRooms.clear();
         playerRoomHashMap.clear();
     }

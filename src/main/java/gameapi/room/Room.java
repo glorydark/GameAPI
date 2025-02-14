@@ -37,6 +37,7 @@ import gameapi.room.utils.reason.ResetAllReason;
 import gameapi.tools.PlayerTools;
 import gameapi.tools.TipsTools;
 import gameapi.tools.WorldTools;
+import gameapi.tools.type.TipElementType;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.EntityDamageSource;
 import gameapi.utils.TitleData;
@@ -72,6 +73,7 @@ public class Room {
     // Used as a temporary room and will be deleted after the game.
     private RoomExecutor statusExecutor = new BaseRoomExecutor(this);
     private boolean temporary = false;
+    @Deprecated
     private boolean autoDestroy = false;
     private boolean resetMap = true;
     private String roomName = "";
@@ -467,7 +469,7 @@ public class Room {
             }
             if (GameAPI.getInstance().isTipsEnabled()) {
                 for (Level playLevel : this.getPlayLevels()) {
-                    TipsTools.removeTipsConfig(playLevel.getName(), player);
+                    TipsTools.removeTipsConfig(playLevel.getName(), player, this.getRoomRule().getTipHideElements().toArray(new TipElementType[0]));
                 }
             }
             this.getGhostyManager().stopRecordingPlayer(player);
@@ -689,7 +691,7 @@ public class Room {
         }
         if (GameAPI.getInstance().isTipsEnabled()) {
             for (Level playLevel : this.getPlayLevels()) {
-                TipsTools.removeTipsConfig(playLevel.getName(), player);
+                TipsTools.removeTipsConfig(playLevel.getName(), player, this.getRoomRule().getTipHideElements().toArray(new TipElementType[0]));
             }
         }
         ScoreboardManager.removeScoreboard(player);
@@ -730,7 +732,7 @@ public class Room {
             case ROOM_STATUS_READY_START:
             case ROOM_STATUS_START:
                 for (Level playLevel : this.getPlayLevels()) {
-                    TipsTools.closeTipsShow(playLevel.getName(), player);
+                    TipsTools.closeTipsShow(playLevel.getName(), player, this.getRoomRule().getTipHideElements().toArray(new TipElementType[0]));
                 }
                 if (!this.getSpectatorSpawn().isEmpty()) {
                     int randomInt = ThreadLocalRandom.current().nextInt(this.getSpectatorSpawn().size());

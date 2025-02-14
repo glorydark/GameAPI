@@ -9,6 +9,7 @@ import gameapi.tools.FireworkTools;
 import gameapi.tools.SmartTools;
 import gameapi.tools.SoundTools;
 import gameapi.tools.TipsTools;
+import gameapi.tools.type.TipElementType;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.TitleData;
 import gameapi.utils.text.GameTranslationContainer;
@@ -102,10 +103,10 @@ public class BaseRoomExecutor extends RoomExecutor {
         if (GameAPI.getInstance().isTipsEnabled()) {
             for (Level playLevel : this.room.getPlayLevels()) {
                 for (Player player : this.room.getPlayers()) {
-                    TipsTools.closeTipsShow(playLevel.getName(), player);
+                    TipsTools.closeTipsShow(playLevel.getName(), player, this.room.getRoomRule().getTipHideElements().toArray(new TipElementType[0]));
                 }
                 for (Player player : this.room.getSpectators()) {
-                    TipsTools.closeTipsShow(playLevel.getName(), player);
+                    TipsTools.closeTipsShow(playLevel.getName(), player, this.room.getRoomRule().getTipHideElements().toArray(new TipElementType[0]));
                 }
             }
         }

@@ -67,9 +67,10 @@ public class RoomTask extends Task {
             }
         }
 
+        int playerCount = room.getPlayers().size();
         switch (room.getRoomStatus()) {
             case ROOM_PLAYBACK:
-                if (room.getPlayers().isEmpty()) {
+                if (playerCount == 0) {
                     GameAPI.getGameDebugManager().info("Detect that temp room " + room.getRoomName() + " has no players whilst playback, start destroying...");
                     room.resetAll(ResetAllReason.ROOM_PLAYBACK_LEAVE);
                     return true;
@@ -89,7 +90,7 @@ public class RoomTask extends Task {
                 this.onStateUpdate(room, ListenerStatusType.WAIT);
                 break;
             case ROOM_STATUS_PRESTART:
-                if (room.getPlayers().size() < room.getMinPlayer()) {
+                if (playerCount < room.getMinPlayer()) {
                     if (room.isTemporary()) {
                         room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                     } else {
@@ -101,7 +102,7 @@ public class RoomTask extends Task {
                 this.onStateUpdate(room, ListenerStatusType.PRESTART);
                 break;
             case ROOM_STATUS_READY_START:
-                if (room.getPlayers().size() < room.getMinPlayer()) {
+                if (playerCount < room.getMinPlayer()) {
                     room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                     return true;
                 }
@@ -130,7 +131,7 @@ public class RoomTask extends Task {
                                 return true;
                             }
                         } else {
-                            if (room.getPlayers().size() < room.getMinPlayer()) {
+                            if (room.getRoomRule().isAutoDestroyWhenBelowMinPlayers() && playerCount < room.getMinPlayer()) {
                                 if (room.getPlayers().isEmpty()) {
                                     room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                                 } else {
@@ -153,14 +154,14 @@ public class RoomTask extends Task {
                 this.onStateUpdate(room, ListenerStatusType.GAME_END);
                 break;
             case ROOM_STATUS_CEREMONY:
-                if (room.getPlayers().isEmpty()) {
+                if (playerCount == 0) {
                     room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                 }
                 GameListenerRegistry.callEvent(room, new RoomCeremonyTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.CEREMONY);
                 break;
             case ROOM_STATUS_NEXT_ROUND_PRESTART:
-                if (room.getPlayers().isEmpty()) {
+                if (playerCount == 0) {
                     room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
                     return true;
                 } else {

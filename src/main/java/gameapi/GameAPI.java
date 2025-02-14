@@ -227,24 +227,6 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onDisable() {
-        for (Player player : Server.getInstance().getOnlinePlayers().values()) {
-            Room room = RoomManager.getRoom(player);
-            if (room != null) {
-                if (room.getPlayers().contains(player)) {
-                    room.removePlayer(player);
-                } else {
-                    room.removeSpectator(player);
-                }
-            } else {
-                for (EditProcess editProcess : GameAPI.editProcessList) {
-                    Player editor = editProcess.getPlayer();
-                    if (editor == player) {
-                        editProcess.onQuit();
-                        editProcess.clearAllTextEntities();
-                    }
-                }
-            }
-        }
         RoomManager.close();
         PlayerGameDataManager.close();
         GameEntityManager.closeAll();

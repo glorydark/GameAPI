@@ -16,6 +16,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Glorydark
@@ -24,26 +26,28 @@ import java.util.Objects;
 public class WorldTools {
 
     public static boolean delWorldByPrefix(String prefix) {
-        String rootPath = Server.getInstance().getDataPath() + "/worlds";
+        String rootPath = Server.getInstance().getDataPath() + File.separator + "worlds" + File.separator;
         for (File file : Objects.requireNonNull(new File(rootPath).listFiles())) {
             if (file.getName().startsWith(prefix)) {
                 Level level = Server.getInstance().getLevelByName(file.getName());
                 if (level == null) {
                     FileTools.delete(file);
+                    GameAPI.getInstance().getLogger().warning("删除已复制地图，地图名:" + file.getName());
                     continue;
                 }
                 if (!unloadLevel(level, true)) {
                     GameAPI.getInstance().getLogger().warning("发现地图无法卸载，地图名:" + file.getName());
                     continue;
+                } else {
+                    GameAPI.getInstance().getLogger().warning("删除已复制地图，地图名:" + file.getName());
                 }
-                GameAPI.getInstance().getLogger().warning("删除已复制地图，地图名:" + file.getName());
             }
         }
         return true;
     }
 
     protected static boolean deleteWorld(String saveWorld) {
-        String worldPath = Server.getInstance().getDataPath() + "/worlds/" + saveWorld + "/";
+        String worldPath = Server.getInstance().getDataPath()  + File.separator + "worlds" + File.separator + saveWorld + File.separator;
         File file = new File(worldPath);
         return FileTools.delete(file);
     }
@@ -171,17 +175,35 @@ public class WorldTools {
         if (level != null) {
             unloadLevel(level, true);
         }
+
         String savePath = GameAPI.getPath() + File.separator + "worlds" + File.separator + backupName + File.separator;
         String worldPath = Server.getInstance().getDataPath() + File.separator + "worlds" + File.separator + loadName + File.separator;
-        if (new File(savePath).exists()) {
-            if (FileTools.copy(savePath, worldPath)) {
-                if (Server.getInstance().loadLevel(loadName)) {
-                    initLevel(Server.getInstance().getLevelByName(loadName));
-                    return true;
+
+        AtomicBoolean finishCopy = new AtomicBoolean(false);
+
+        // 创建 CompletableFuture 链
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            if (new File(savePath).exists()) {
+                if (new File(worldPath).exists()) {
+                    FileTools.delete(new File(worldPath));
+                }
+                if (FileTools.copy(savePath, worldPath)) {
+                    finishCopy.set(true);
                 }
             }
-        }
-        return false;
+        }).thenAcceptAsync(unused -> {
+            if (Server.getInstance().loadLevel(loadName)) {
+                initLevel(Server.getInstance().getLevelByName(loadName));
+            }
+        }).thenRunAsync(() -> {
+            finishCopy.set(true);
+            GameAPI.getGameDebugManager().info("地图加载完成: " + loadName);
+        });
+
+        // 等待所有任务完成
+        future.join(); // 或者 future.get()
+
+        return finishCopy.get();
     }
 
     public static void initLevel(Level level) {
