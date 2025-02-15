@@ -22,10 +22,7 @@ public class CommandTools {
                 Server.getInstance().getScheduler().scheduleTask(GameAPI.getInstance(), () -> Server.getInstance().dispatchCommand(sender, cmd), false);
             }
         } catch (Throwable t) {
-            GameAPI.getGameDebugManager().error(t.getCause().getMessage() + "\n"
-                    + t + ":\n"
-                    + Arrays.toString(t.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")
-            );
+            GameAPI.getGameDebugManager().printError(t);
         }
     }
 }

@@ -32,7 +32,7 @@ public class MoveDataCommand extends EasySubCommand {
                     Files.move(new File(Server.getInstance().getDataPath() + "/players/" + seePlayer.get().getUniqueId() + ".dat").toPath(), new File(Server.getInstance().getDataPath() + "/players_move/" + seePlayer.get().getUniqueId() + ".dat").toPath());
                     commandSender.sendMessage(TextFormat.GREEN + "移动成功！");
                 } catch (IOException e) {
-                    e.printStackTrace();;
+                    GameAPI.getGameDebugManager().printError(e);
                 }
             } else {
                 IPlayer offlinePlayer = Server.getInstance().getOfflinePlayer(args[0]);
@@ -41,7 +41,7 @@ public class MoveDataCommand extends EasySubCommand {
                     try {
                         Files.move(new File(Server.getInstance().getDataPath() + "/players/" + offlinePlayer.getUniqueId().toString() + ".dat").toPath(), new File(Server.getInstance().getDataPath() + "/players_move/" + offlinePlayer.getUniqueId() + ".dat").toPath());
                     } catch (IOException e) {
-                        e.printStackTrace();;
+                        GameAPI.getGameDebugManager().printError(e);
                     }
                     commandSender.sendMessage(TextFormat.GREEN + "移动成功！");
                 } else {

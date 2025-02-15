@@ -108,7 +108,7 @@ public class SkinTools {
         try {
             content = Utils.readFile(file);
         } catch (IOException e) {
-            e.printStackTrace();
+            GameAPI.getGameDebugManager().printError(e);
         }
         return content;
     }

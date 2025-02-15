@@ -99,10 +99,7 @@ public class GameEntityManager {
                         break;
                 }
             } catch (Throwable e) {
-                GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
-                        + e + ":\n"
-                        + Arrays.toString(e.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")
-                );
+                GameAPI.getGameDebugManager().printError(e);
             }
         }
     }
@@ -129,10 +126,7 @@ public class GameEntityManager {
                 location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ());
                 chunk = location.getLevel().getChunk(location.getChunkX(), location.getChunkZ());
             } catch (Throwable e) {
-                GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
-                        + e + ":\n"
-                        + Arrays.toString(e.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")
-                );
+                GameAPI.getGameDebugManager().printError(e);
                 return;
             }
         }
@@ -152,10 +146,7 @@ public class GameEntityManager {
                 location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ());
                 chunk = location.getLevel().getChunk(location.getChunkX(), location.getChunkZ());
             } catch (Throwable e) {
-                GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
-                        + e + ":\n"
-                        + Arrays.toString(e.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")
-                );
+                GameAPI.getGameDebugManager().printError(e);
                 return;
             }
         }

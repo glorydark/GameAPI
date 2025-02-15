@@ -14,15 +14,15 @@ import gameapi.room.RoomStatus;
 import gameapi.utils.AdvancedLocation;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Glorydark
  * Based on lt-name's sourcecode in CrystalWar
  */
 public class WorldTools {
+
+    public static Map<String, Integer> gameBackUpLoadId = new LinkedHashMap<>();
 
     @Internal
     public static void delWorldByPrefix(String prefix) {
@@ -179,5 +179,11 @@ public class WorldTools {
         level.setAutoSave(false);
         level.setSaveOnUnloadEnabled(false);
         level.getGameRules().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+    }
+
+    public static int getNewBackUpLoadId(String gameName) {
+        int result = gameBackUpLoadId.getOrDefault(gameName, 0) + 1;
+        gameBackUpLoadId.put(gameName, result);
+        return result;
     }
 }

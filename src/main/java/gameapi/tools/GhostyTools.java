@@ -32,7 +32,7 @@ public class GhostyTools {
             recordPack = PlayerRecord.fromBinary(Files.readAllBytes(file.toPath()));
         } catch (Throwable e) {
             GameAPI.getGameDebugManager().error(file.getName() + " has found error while playing!");
-            e.printStackTrace();
+            GameAPI.getGameDebugManager().printError(e);
             return null;
         }
         return recordPack;

@@ -9,6 +9,7 @@ import gameapi.tools.CalendarTools;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -76,6 +77,33 @@ public class GameDebugManager {
         if (this.enableConsoleDebug) {
             GameAPI.getInstance().getLogger().error(message);
         }
+    }
+
+    public void printError(Throwable t) {
+        printError(t, null);
+    }
+
+    public void printError(Throwable t, String reason) {
+        StringBuilder message = new StringBuilder("Error caused by: " + t);
+        if (t.getCause() != null) {
+            message.append(t.getCause().toString());
+        }
+        message.append("\n");
+        if (reason != null) {
+            message.append("Reason: ").append(reason).append("\n");
+        }
+        message.append("Stack Traces: \n");
+        for (StackTraceElement stackTraceElement : t.getStackTrace()) {
+            message.append("  ").append(stackTraceElement.toString()).append("\n");
+        }
+        if (t.getSuppressed().length > 0) {
+            message.append("Suppressed: \n");
+            for (Throwable throwable : t.getSuppressed()) {
+                message.append("  ").append(throwable.toString()).append("\n");
+            }
+        }
+        logger.severe(TextFormat.clean(message.toString()));
+        GameAPI.getInstance().getLogger().info(message.toString());
     }
 
     public void addPlayer(Player player) {

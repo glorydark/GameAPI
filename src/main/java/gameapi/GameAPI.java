@@ -179,7 +179,7 @@ public class GameAPI extends PluginBase implements Listener {
                     editProcess.getCurrentStep().onTick();
                 }
             } catch (Throwable t) {
-                t.printStackTrace();
+                GameAPI.getGameDebugManager().printError(t);
             }
             GameActivityManager.updateTempDataCleaning();
         }, 0, 1, TimeUnit.SECONDS);

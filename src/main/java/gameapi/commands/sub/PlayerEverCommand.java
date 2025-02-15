@@ -37,7 +37,7 @@ public class PlayerEverCommand extends EasySubCommand {
                 }
 
             } catch (IllegalAccessException | NoSuchFieldException e) {
-                e.printStackTrace();
+                GameAPI.getGameDebugManager().printError(e);
                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.player_ever.no_access"));
             }
             commandSender.sendMessage(GameAPI.getLanguage().getTranslation("command.player_ever.success", count));

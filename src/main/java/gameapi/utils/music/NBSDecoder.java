@@ -1,5 +1,7 @@
 package gameapi.utils.music;
 
+import gameapi.GameAPI;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +16,7 @@ public class NBSDecoder {
         try {
             return parse(identifier, new FileInputStream(decodeFile));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            GameAPI.getGameDebugManager().printError(e);
         }
         return null;
     }

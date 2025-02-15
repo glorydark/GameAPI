@@ -120,11 +120,7 @@ public class RoomUpdateTask implements Runnable {
                 }
             }
         } catch (Throwable e) {
-            e.printStackTrace();
-            GameAPI.getGameDebugManager().error(e.getCause().getMessage() + "\n"
-                    + e + ":\n"
-                    + Arrays.toString(e.getStackTrace()).replace("[", "\n").replace("]", "\n").replace(", ", "\n")
-            );
+            GameAPI.getGameDebugManager().printError(e);
         }
     }
 

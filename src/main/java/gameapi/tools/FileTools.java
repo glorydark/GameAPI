@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author lt_name (CrystalWar)
+ * @author lt_name (CrystalWar), SoBadFish(Bedwar)
  */
 public class FileTools {
 
@@ -30,6 +30,7 @@ public class FileTools {
      */
     public static boolean copyFiles(File from, File target) {
 
+        GameAPI.getInstance().getLogger().info("Copying world from backup {" + from.getName() + "} to {" + target.getName() + "}...");
         int load = 1;
         File[] files = from.listFiles();
         if (files != null) {
@@ -37,35 +38,44 @@ public class FileTools {
                 GameAPI.getInstance().getLogger().info("Copy World ... " + ((load / (float) files.length) * 100) + "%");
                 load++;
                 if (value.isFile()) {
+                    File file1 = new File(target + File.separator + value.getName());
                     // 复制文件
                     try {
-                        File file1 = new File(target + File.separator + value.getName());
+                        File parentFile = file1.getParentFile();
+                        if (!parentFile.exists() && parentFile.isDirectory()) {
+                            parentFile.mkdirs();
+                        }
+                        File canonicalFile = file1.getParentFile().getCanonicalFile();
+                        if (!canonicalFile.exists()) {
+                            canonicalFile.mkdirs();
+                        }
                         if (!file1.exists()) {
                             try {
                                 file1.createNewFile();
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                GameAPI.getGameDebugManager().printError(e, "Cannot create file in " + file1.toPath());
                             }
 
                         }
                         copyByChannelToChannel(value, file1);
 
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        GameAPI.getGameDebugManager().printError(e, "Cannot copy file from " + value.toPath() + " to " + file1.getPath());
                     }
                 } else if (value.isDirectory()) {
                     // 复制目录
                     String sourceDir = from + File.separator + value.getName();
                     String targetDir = target + File.separator + value.getName();
                     try {
-                        copyDirectiory(sourceDir, targetDir);
+                        copyDirectory(sourceDir, targetDir);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        GameAPI.getGameDebugManager().printError(e, "Cannot copy directory from " + sourceDir + " to " + targetDir);
                     }
                 }
             }
 
         }
+        GameAPI.getInstance().getLogger().info("Finish copying world from backup {" + from.getName() + "} to {" + target.getName() + "}...");
         return true;
     }
 
@@ -107,7 +117,7 @@ public class FileTools {
     /**
      * 复制文件夹
      */
-    private static void copyDirectiory(String sourceDir, String targetDir)
+    private static void copyDirectory(String sourceDir, String targetDir)
             throws IOException {
         // 新建目标目录
         File file = new File(targetDir);
@@ -134,11 +144,10 @@ public class FileTools {
                     String dir1 = sourceDir + File.separator + value.getName();
                     // 准备复制的目标文件夹
                     String dir2 = targetDir + File.separator + value.getName();
-                    copyDirectiory(dir1, dir2);
+                    copyDirectory(dir1, dir2);
                 }
             }
         }
-
     }
 
 
@@ -207,7 +216,7 @@ public class FileTools {
             }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            GameAPI.getGameDebugManager().printError(e);
         }
         return false;
     }
@@ -236,7 +245,7 @@ public class FileTools {
                 Utils.copyFile(from, to);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            GameAPI.getGameDebugManager().printError(e);
         }
         return false;
     }
