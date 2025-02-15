@@ -8,6 +8,7 @@ import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import gameapi.GameAPI;
+import gameapi.annotation.Internal;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.utils.AdvancedLocation;
@@ -16,8 +17,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Glorydark
@@ -25,7 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class WorldTools {
 
-    public static boolean delWorldByPrefix(String prefix) {
+    @Internal
+    public static void delWorldByPrefix(String prefix) {
         String rootPath = Server.getInstance().getDataPath() + File.separator + "worlds" + File.separator;
         for (File file : Objects.requireNonNull(new File(rootPath).listFiles())) {
             if (file.getName().startsWith(prefix)) {
@@ -37,13 +37,11 @@ public class WorldTools {
                 }
                 if (!unloadLevel(level, true)) {
                     GameAPI.getInstance().getLogger().warning("发现地图无法卸载，地图名:" + file.getName());
-                    continue;
                 } else {
                     GameAPI.getInstance().getLogger().warning("删除已复制地图，地图名:" + file.getName());
                 }
             }
         }
-        return true;
     }
 
     protected static boolean deleteWorld(String saveWorld) {
@@ -51,20 +49,6 @@ public class WorldTools {
         File file = new File(worldPath);
         return FileTools.delete(file);
     }
-
-    @Deprecated
-    public static void createVoidWorld(String worldname) {
-        Server.getInstance().generateLevel(worldname);
-    }
-
-    /* 钻石大陆
-    public static void createDIYWorld(String worldname){
-        Generator.addGenerator(FlatDIY.class, "DIY", Generator.TYPE_FLAT);
-        Server.getInstance().generateLevel(worldname,0, Generator.getGenerator("DIY"));
-        Server.getInstance().loadLevel(worldname);
-    }
-
-     */
 
     public static boolean unloadAndReloadLevels(Room room) {
         List<Level> originList = new ArrayList<>(room.getPlayLevels());
@@ -122,21 +106,20 @@ public class WorldTools {
         }
     }
 
-    protected static boolean reloadLevel(Room room, String loadName) {
+    protected static boolean reloadLevel(Room room, String worldLoadName) {
 
         // 开始根据备份重载
-        File levelFile = new File(Server.getInstance().getDataPath() + "/worlds/" + loadName);
+        File targetDir = new File(Server.getInstance().getDataPath() + "/worlds/" + worldLoadName);
+        File backupDir = new File(GameAPI.getPath() + "/worlds/" + room.getRoomLevelBackup());
 
-        File backup = new File(GameAPI.getPath() + "/worlds/" + room.getRoomLevelBackup());
-
-        if (!backup.exists()) {
-            GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.not_found", loadName));
+        if (!backupDir.exists()) {
+            GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.not_found", worldLoadName));
         }
 
-        if (FileTools.delete(levelFile)) {
-            if (FileTools.copy(backup, levelFile)) {
-                if (Server.getInstance().loadLevel(loadName)) {
-                    Level loadLevel = Server.getInstance().getLevelByName(loadName);
+        if (FileTools.delete(targetDir)) {
+            if (FileTools.copyFiles(backupDir, targetDir)) {
+                if (Server.getInstance().loadLevel(worldLoadName)) {
+                    Level loadLevel = Server.getInstance().getLevelByName(worldLoadName);
                     if (loadLevel != null) {
                         initLevel(loadLevel);
                         room.addPlayLevel(loadLevel);
@@ -152,19 +135,19 @@ public class WorldTools {
                             advancedLocation.setLevel(loadLevel);
                         }
                         room.setRoomStatus(RoomStatus.ROOM_STATUS_WAIT, "internal");
-                        GameAPI.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("world.load.success", loadName));
+                        GameAPI.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("world.load.success", worldLoadName));
                         return true;
                     }
                 } else {
-                    GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
+                    GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", worldLoadName));
                     room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED, "internal");
                 }
             } else {
-                GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
+                GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", worldLoadName));
                 room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED, "internal");
             }
         } else {
-            GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", loadName));
+            GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", worldLoadName));
             room.setRoomStatus(RoomStatus.ROOM_MAP_LOAD_FAILED, "internal");
         }
         return false;
@@ -179,31 +162,15 @@ public class WorldTools {
         String savePath = GameAPI.getPath() + File.separator + "worlds" + File.separator + backupName + File.separator;
         String worldPath = Server.getInstance().getDataPath() + File.separator + "worlds" + File.separator + loadName + File.separator;
 
-        AtomicBoolean finishCopy = new AtomicBoolean(false);
-
-        // 创建 CompletableFuture 链
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            if (new File(savePath).exists()) {
-                if (new File(worldPath).exists()) {
-                    FileTools.delete(new File(worldPath));
-                }
-                if (FileTools.copy(savePath, worldPath)) {
-                    finishCopy.set(true);
+        if (new File(savePath).exists()) {
+            if (FileTools.copyFiles(savePath, worldPath)) {
+                if (Server.getInstance().loadLevel(loadName)) {
+                    initLevel(Server.getInstance().getLevelByName(loadName));
+                    return true;
                 }
             }
-        }).thenAcceptAsync(unused -> {
-            if (Server.getInstance().loadLevel(loadName)) {
-                initLevel(Server.getInstance().getLevelByName(loadName));
-            }
-        }).thenRunAsync(() -> {
-            finishCopy.set(true);
-            GameAPI.getGameDebugManager().info("地图加载完成: " + loadName);
-        });
-
-        // 等待所有任务完成
-        future.join(); // 或者 future.get()
-
-        return finishCopy.get();
+        }
+        return false;
     }
 
     public static void initLevel(Level level) {
