@@ -711,6 +711,10 @@ public class BaseEventListener implements Listener {
             return;
         }
 
+        if (!room.getRoomRule().isEnableRoomChatSystem()) {
+            return;
+        }
+
         RoomChatData roomChatData = new RoomChatData(player.getName(), event.getMessage());
         // Player is in game, so we trigger RoomPlayerChatEvent.
         RoomPlayerChatEvent chatEvent = new RoomPlayerChatEvent(room, player, roomChatData);

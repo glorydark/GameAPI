@@ -437,6 +437,11 @@ public class Room {
                     this.hidePlayer(player, this.getRoomRule().getHideType());
                     this.updateHideStatus(player, false);
                     RoomManager.getPlayerRoomHashMap().put(player, this);
+                    if (GameAPI.getInstance().isTipsEnabled()) {
+                        for (Level playLevel : this.getPlayLevels()) {
+                            TipsTools.closeTipsShow(playLevel.getName(), player, this.getRoomRule().getTipHideElements().toArray(new TipElementType[0]));
+                        }
+                    }
                     for (Player p : this.players) {
                         p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
                     }
@@ -731,9 +736,6 @@ public class Room {
         switch (this.getRoomStatus()) {
             case ROOM_STATUS_READY_START:
             case ROOM_STATUS_START:
-                for (Level playLevel : this.getPlayLevels()) {
-                    TipsTools.closeTipsShow(playLevel.getName(), player, this.getRoomRule().getTipHideElements().toArray(new TipElementType[0]));
-                }
                 if (!this.getSpectatorSpawn().isEmpty()) {
                     int randomInt = ThreadLocalRandom.current().nextInt(this.getSpectatorSpawn().size());
                     AdvancedLocation location = this.getSpectatorSpawn().get(randomInt);
@@ -754,6 +756,11 @@ public class Room {
                     this.getWaitSpawn().teleport(player);
                 }
                 break;
+        }
+        if (GameAPI.getInstance().isTipsEnabled()) {
+            for (Level playLevel : this.getPlayLevels()) {
+                TipsTools.closeTipsShow(playLevel.getName(), player, this.getRoomRule().getTipHideElements().toArray(new TipElementType[0]));
+            }
         }
         for (Player p : this.getPlayers()) {
             p.sendMessage(GameAPI.getLanguage().getTranslation(p, "room.game.broadcast.join_spectator", player.getName()));
