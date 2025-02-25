@@ -26,7 +26,7 @@ public class DebugCommand extends EasySubCommand {
                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.debug.on"));
                     break;
                 case "false":
-                    GameAPI.getGameDebugManager().removePlayer(commandSender.asPlayer());
+                    GameAPI.getGameDebugManager().removePlayer((Player) commandSender);
                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.debug.off"));
                     break;
             }

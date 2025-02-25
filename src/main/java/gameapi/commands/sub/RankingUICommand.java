@@ -6,7 +6,7 @@ import cn.nukkit.command.CommandSender;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.form.element.ResponsiveElementButton;
-import gameapi.manager.tools.GameEntityManager;
+import gameapi.manager.data.RankingManager;
 import gameapi.ranking.Ranking;
 
 import java.util.Map;
@@ -25,7 +25,7 @@ public class RankingUICommand extends EasySubCommand {
         Player player = commandSender.asPlayer();
         if (args.length == 0) {
             AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("排行榜列表");
-            for (Map.Entry<String, Ranking> entry : GameEntityManager.rankingFactory.entrySet()) {
+            for (Map.Entry<String, Ranking> entry : RankingManager.getRankingFactory().entrySet()) {
                 simple.addButton(
                         new ResponsiveElementButton(entry.getValue().getTitle())
                                 .onRespond(player1 -> Server.getInstance().dispatchCommand(player1, "gameapi rankui " + entry.getKey()))
@@ -33,7 +33,7 @@ public class RankingUICommand extends EasySubCommand {
             }
             simple.showToPlayer(player);
         } else {
-            Ranking ranking = GameEntityManager.rankingFactory.get(args[0]);
+            Ranking ranking = RankingManager.getRankingFactory().get(args[0]);
             if (ranking != null) {
                 ranking.refreshRankingData();
                 AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple(ranking.getTitle());

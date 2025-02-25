@@ -3,11 +3,8 @@ package gameapi;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
-import cn.nukkit.entity.Entity;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
-import cn.nukkit.level.Level;
-import cn.nukkit.level.Location;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
@@ -17,7 +14,6 @@ import gameapi.commands.HubCommand;
 import gameapi.commands.ShenquanCommand;
 import gameapi.commands.vanilla.VanillaFixCommand;
 import gameapi.commands.worldedit.WorldEditCommand;
-import gameapi.entity.RankingListEntity;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -26,25 +22,17 @@ import gameapi.manager.RoomManager;
 import gameapi.manager.data.GameActivityManager;
 import gameapi.manager.data.GlobalSettingsManager;
 import gameapi.manager.data.PlayerGameDataManager;
+import gameapi.manager.data.RankingManager;
 import gameapi.manager.tools.GameEntityManager;
-import gameapi.ranking.Ranking;
-import gameapi.ranking.RankingFormat;
-import gameapi.ranking.simple.SimpleRanking;
-import gameapi.room.Room;
 import gameapi.room.edit.EditProcess;
 import gameapi.task.RoomTask;
 import gameapi.tools.BlockTools;
 import gameapi.tools.ItemTools;
-import gameapi.tools.SpatialTools;
-import gameapi.utils.AdvancedLocation;
 import gameapi.utils.Language;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -56,13 +44,12 @@ public class GameAPI extends PluginBase implements Listener {
     public static final int GAME_TASK_INTERVAL = 1; // this value should not be modified for the roomUpdateTask
     protected static final int THREAD_POOL_SIZE = 8;
 
-    protected int rankingTextEntityRefreshIntervals;
     protected boolean glorydarkRelatedFeature;
     protected boolean tipsEnabled;
     protected boolean saveTempStates = false;
     protected static GameDebugManager gameDebugManager;
     protected static final Language language = new Language("GameAPI");
-    public static List<Player> worldEditPlayers = new ArrayList<>();
+    public static Set<Player> worldEditPlayers = new HashSet<>();
     public static List<EditProcess> editProcessList = new ArrayList<>();
     public static ForkJoinPool WORLDEDIT_THREAD_POOL_EXECUTOR;
     protected static String path;
@@ -142,7 +129,7 @@ public class GameAPI extends PluginBase implements Listener {
         gameDebugManager.setEnableConsoleDebug(config.getBoolean("log_show_in_console", true));
         this.glorydarkRelatedFeature = config.getBoolean("glorydark-feature", false);
         this.saveTempStates = config.getBoolean("save-temp-state", true);
-        this.rankingTextEntityRefreshIntervals = config.getInt("ranking-text-entity-refresh-intervals", 100);
+        RankingManager.rankingTextEntityRefreshIntervals = config.getInt("ranking-text-entity-refresh-intervals", 100);
         // load lang data
         this.loadLanguage();
         language.setDefaultLanguage(config.getString("default-language", "zh_CN"));
@@ -178,45 +165,49 @@ public class GameAPI extends PluginBase implements Listener {
                     editProcess.onTick();
                     editProcess.getCurrentStep().onTick();
                 }
+                GameActivityManager.updateTempDataCleaning();
             } catch (Throwable t) {
                 GameAPI.getGameDebugManager().printError(t);
             }
-            GameActivityManager.updateTempDataCleaning();
         }, 0, 1, TimeUnit.SECONDS);
         roomTaskExecutor.scheduleAtFixedRate(() ->
                 GameAPI.getGameDebugManager().getPlayers().forEach(player -> {
-                    if (player.isOp()) {
-                        DecimalFormat df = new DecimalFormat("#0.00");
-                        String out = "GameAPI Debug\n";
-                        out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
-                        out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
-                        Item item = player.getInventory().getItemInHand();
-                        out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + "] 数量:" + item.getCount() + "\n";
-                        Block block = player.getTargetBlock(32);
-                        if (block != null) {
-                            //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
-                            out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 物品id：" + block.getItemId() + " 方块名称:" + block.getName() + "\n";
-                            out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
+                    try {
+                        if (player.isOp()) {
+                            DecimalFormat df = new DecimalFormat("#0.00");
+                            String out = "GameAPI Debug\n";
+                            out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
+                            out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
+                            Item item = player.getInventory().getItemInHand();
+                            out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + "] 数量:" + item.getCount() + "\n";
+                            Block block = player.getTargetBlock(32);
+                            if (block != null) {
+                                //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
+                                out += "所指方块id: [" + block.getId() + ":" + block.getDamage() + "] 物品id：" + block.getItemId() + " 方块名称:" + block.getName() + "\n";
+                                out += "所指方块位置: [" + df.format(block.getX()) + ":" + df.format(block.getY()) + ":" + df.format(block.getZ()) + "]" + "\n";
+                            } else {
+                                out += "所指方块id: [无] 方块名称:无" + "\n";
+                                out += "所指方块位置: [无]" + "\n";
+                            }
+                            Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
+                            if (under != null) {
+                                //out += "所踩方块: " + under.toItem().getNamespaceId();
+                                out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);
+                            } else {
+                                out += "所踩方块: [无]";
+                            }
+                            player.sendActionBar(out);
                         } else {
-                            out += "所指方块id: [无] 方块名称:无" + "\n";
-                            out += "所指方块位置: [无]" + "\n";
+                            player.sendActionBar("x: " + player.getX()
+                                    + "\ny: " + player.getY()
+                                    + "\nz: " + player.getZ()
+                                    + "\nyaw: " + player.getYaw()
+                                    + "\npitch: " + player.getPitch()
+                                    + "\nheadYaw: " + player.getHeadYaw()
+                            );
                         }
-                        Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
-                        if (under != null) {
-                            //out += "所踩方块: " + under.toItem().getNamespaceId();
-                            out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);
-                        } else {
-                            out += "所踩方块: [无]";
-                        }
-                        player.sendActionBar(out);
-                    } else {
-                        player.sendActionBar("x: " + player.getX()
-                                + "\ny: " + player.getY()
-                                + "\nz: " + player.getZ()
-                                + "\nyaw: " + player.getYaw()
-                                + "\npitch: " + player.getPitch()
-                                + "\nheadYaw: " + player.getHeadYaw()
-                        );
+                    } catch (Throwable t) {
+                        GameAPI.getGameDebugManager().printError(t);
                     }
                 }
         ), 0, 200, TimeUnit.MILLISECONDS);
@@ -227,10 +218,13 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onDisable() {
-        RoomManager.close();
-        PlayerGameDataManager.close();
-        GameEntityManager.closeAll();
-        GameListenerRegistry.clearAllRegisters();
+        try {
+            RoomManager.close();
+            PlayerGameDataManager.close();
+            GameEntityManager.closeAll();
+            GameListenerRegistry.clearAllRegisters();
+        } catch (Throwable t) {
+        }
         roomTaskExecutor.shutdownNow();
         WORLDEDIT_THREAD_POOL_EXECUTOR.shutdownNow();
         this.getLogger().info("DGameAPI Disabled!");
@@ -244,7 +238,8 @@ public class GameAPI extends PluginBase implements Listener {
     }
 
     public void loadRanking() {
-        this.loadAllRanking();
+        RankingManager.despawnAllRankingEntities();
+        RankingManager.init();
     }
 
     public void loadAllPlayerGameData() {
@@ -267,68 +262,6 @@ public class GameAPI extends PluginBase implements Listener {
             }
         }
         PlayerGameDataManager.setPlayerGameData(playerGameData);
-    }
-
-    protected void loadAllRanking() {
-        for (Level level : Server.getInstance().getLevels().values()) {
-            for (Entity entity : level.getEntities()) {
-                if (entity instanceof RankingListEntity) {
-                    GameEntityManager.textEntityDataList.clear();
-                    entity.close();
-                }
-            }
-        }
-        Config config = new Config(path + "/rankings.yml");
-        this.rankingTextEntityRefreshIntervals = config.getInt("ranking-text-entity-refresh-intervals", 100);
-        List<Map<String, Object>> maps = config.get("list", new ArrayList<>());
-        for (Map<String, Object> map : maps) {
-            String level = (String) map.get("level");
-            if (Server.getInstance().getLevelByName(level) == null) {
-                if (!Server.getInstance().loadLevel(level)) {
-                    this.getLogger().warning(language.getTranslation("loading.ranking_loader.world.not_found", level));
-                    continue;
-                } else {
-                    this.getLogger().info(language.getTranslation("loading.ranking_loader.world.load.start", level));
-                }
-            } else {
-                this.getLogger().info(language.getTranslation("loading.ranking_loader.world.already_loaded", level));
-            }
-            String rankingIdentifier = map.getOrDefault("game_name", "") + "_" + map.getOrDefault("data_name", "");
-            if (!GameEntityManager.rankingFactory.containsKey(rankingIdentifier)) {
-                GameEntityManager.rankingFactory.put(
-                        rankingIdentifier,
-                        new SimpleRanking(Ranking.getRankingValueType((String) map.getOrDefault("value_type", "")),
-                                (String) map.getOrDefault("game_name", ""),
-                                (String) map.getOrDefault("data_name", ""),
-                                (String) map.getOrDefault("title", "Undefined"),
-                                "暂无数据",
-                                new RankingFormat(),
-                                Ranking.getRankingSortSequence((String) map.getOrDefault("sort_sequence", "descend")),
-                                (Integer) map.getOrDefault("max_show_count", 15)
-                        )
-                );
-            }
-            Location location;
-            AdvancedLocation advancedLocation = SpatialTools.parseLocation(config.getString("position"));
-            if (advancedLocation != null) {
-                location = advancedLocation.getLocation();
-                if (location.getChunk() == null) {
-                    if (!location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ())) {
-                        this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.load_start", location.getChunkX(), location.getChunkZ()));
-                        return;
-                    } else {
-                        this.getLogger().warning(language.getTranslation("loading.ranking_loader.chunk.load.failed", location.getChunkX(), location.getChunkZ()));
-                    }
-                } else {
-                    this.getLogger().info(language.getTranslation("loading.ranking_loader.chunk.already_loaded", location.getChunkX(), location.getChunkZ()));
-                }
-                GameEntityManager.spawnRankingListEntity(location, GameEntityManager.rankingFactory.get(rankingIdentifier));
-            }
-        }
-    }
-
-    public int getRankingTextEntityRefreshIntervals() {
-        return rankingTextEntityRefreshIntervals;
     }
 
     public boolean isTipsEnabled() {

@@ -2,7 +2,7 @@ package gameapi.commands.sub.ranking;
 
 import cn.nukkit.command.CommandSender;
 import gameapi.commands.base.EasySubCommand;
-import gameapi.manager.tools.GameEntityManager;
+import gameapi.manager.data.RankingManager;
 import gameapi.ranking.Ranking;
 
 /**
@@ -16,7 +16,7 @@ public class FunctionRankingInfoCommand extends EasySubCommand {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
-        for (Ranking ranking : GameEntityManager.rankingFactory.values()) {
+        for (Ranking ranking : RankingManager.getRankingFactory().values()) {
             commandSender.sendMessage(ranking.getDisplayContent() + "\n");
         }
         return false;

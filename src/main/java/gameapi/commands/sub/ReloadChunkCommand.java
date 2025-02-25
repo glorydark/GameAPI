@@ -2,6 +2,12 @@ package gameapi.commands.sub;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.level.Level;
+import cn.nukkit.math.BlockVector3;
+import cn.nukkit.network.protocol.ChangeDimensionPacket;
+import cn.nukkit.network.protocol.NetworkChunkPublisherUpdatePacket;
+import cn.nukkit.network.protocol.PlayerActionPacket;
+import cn.nukkit.network.protocol.ProtocolInfo;
 import gameapi.commands.base.EasySubCommand;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
@@ -17,7 +23,12 @@ public class ReloadChunkCommand extends EasySubCommand {
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
         Player player = commandSender.asPlayer();
-        player.getChunk().getProvider().requestChunkTask(IntSet.of(player.protocol), player.getChunkX(), player.getChunkZ());
+        if (player.protocol >= ProtocolInfo.v1_8_0) {
+            NetworkChunkPublisherUpdatePacket pk0 = new NetworkChunkPublisherUpdatePacket();
+            pk0.position = new BlockVector3((int) player.x, (int) player.y, (int) player.z);
+            pk0.radius = player.getViewDistance() << 4;
+            player.dataPacket(pk0);
+        }
         return false;
     }
 

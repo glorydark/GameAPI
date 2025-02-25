@@ -436,6 +436,9 @@ public class Room {
                     player.setHealth(player.getMaxHealth());
                     this.hidePlayer(player, this.getRoomRule().getHideType());
                     this.updateHideStatus(player, false);
+                    if (!this.getRoomRule().isEnableVanillaMoveCheck()) {
+                        player.setCheckMovement(false);
+                    }
                     RoomManager.getPlayerRoomHashMap().put(player, this);
                     if (GameAPI.getInstance().isTipsEnabled()) {
                         for (Level playLevel : this.getPlayLevels()) {
@@ -492,6 +495,7 @@ public class Room {
                 this.getOggMusicManager().onQuit(player);
             }
             this.players.remove(player);
+            player.setCheckMovement(false);
 
             RoomManager.getPlayerRoomHashMap().remove(player);
 
@@ -689,7 +693,13 @@ public class Room {
         if (!this.getSpectators().contains(player)) {
             return;
         }
-        RoomSpectatorLeaveEvent roomSpectatorLeaveEvent = new RoomSpectatorLeaveEvent(this, player, Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation());
+        Location location;
+        if (this.getEndSpawn() != null && this.getEndSpawn().getLocation() != null && this.getEndSpawn().getLocation().isValid()) {
+            location = this.getEndSpawn().getLocation();
+        } else {
+            location = Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation();
+        }
+        RoomSpectatorLeaveEvent roomSpectatorLeaveEvent = new RoomSpectatorLeaveEvent(this, player, location);
         GameListenerRegistry.callEvent(this, roomSpectatorLeaveEvent);
         if (roomSpectatorLeaveEvent.isCancelled()) {
             return;
@@ -778,7 +788,6 @@ public class Room {
         ev.setSubtitle(subtitle);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
-            player.setGamemode(this.roomRule.getSpectatorGameMode());
             if (!ev.isKeepExp()) {
                 player.setExperience(0, 0);
             }
@@ -825,6 +834,7 @@ public class Room {
         RoomPlayerRespawnEvent ev = new RoomPlayerRespawnEvent(this, player, null);
         if (!ev.isCancelled()) {
             if (tick > 0) {
+                player.setGamemode(this.roomRule.getSpectatorGameMode());
                 Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), () -> {
                     GameListenerRegistry.callEvent(this, ev);
                     if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
@@ -847,9 +857,8 @@ public class Room {
                 GameListenerRegistry.callEvent(this, ev);
                 if (!ev.isCancelled() && this.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
                     player.sendTitle(GameAPI.getLanguage().getTranslation(player, "room.respawn.title"), GameAPI.getLanguage().getTranslation(player, "room.respawn.subtitle"));
-                    player.setGamemode(roomRule.getGameMode());
+                    player.setGamemode(this.roomRule.getGameMode());
                     player.getEffects().clear();
-                    Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), () -> player.fireProof = false, 5);
                     if (ev.getRespawnLocation() == null) {
                         teleportToSpawn(player);
                     } else {

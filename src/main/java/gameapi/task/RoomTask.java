@@ -256,7 +256,7 @@ public class RoomTask extends Task {
                 break;
             case CEREMONY:
                 if (room.getTime() >= room.getCeremonyTime()) {
-                    for (Player p : room.getPlayers()) {
+                    for (Player p : new ArrayList<>(room.getPlayers())) {
                         p.setGamemode(2);
                         ScoreboardManager.removeScoreboard(p);
                         ScoreboardManager.scoreboardConcurrentHashMap.remove(p);

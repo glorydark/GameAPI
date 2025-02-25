@@ -56,9 +56,10 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new SudoMCommand("sudom"));
         this.registerCommand(new ResetSpeedCommand("resetspeed"));
 
+        this.registerCommand(new ReloadChunkCommand("rchunk"));
+
         if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
             this.registerCommand(new FixUICommand("fixui"));
-            this.registerCommand(new ReloadChunkCommand("rchunk"));
             this.registerCommand(new FunctionRankingMonthlyConclusionCommand("monthrank"));
             this.registerCommand(new FunctionWardenCommand("shenquan"));
             this.registerCommand(new FastCommand("fast"));

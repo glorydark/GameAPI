@@ -3,7 +3,7 @@ package gameapi.commands.sub.ranking;
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
 import gameapi.commands.base.EasySubCommand;
-import gameapi.manager.tools.GameEntityManager;
+import gameapi.manager.data.RankingManager;
 import gameapi.ranking.Ranking;
 
 /**
@@ -19,7 +19,7 @@ public class FunctionRankingAddCommand extends EasySubCommand {
     public boolean execute(CommandSender commandSender, String s, String[] args) {
         if (args.length >= 5) {
             Player player = (Player) commandSender;
-            GameEntityManager.addRankingList(player, args[0], args[1], args[2], args[3], Ranking.getRankingSortSequence(args[4]));
+            RankingManager.addRankingList(player, args[0], args[1], args[2], args[3], Ranking.getRankingSortSequence(args[4]));
         }
         return false;
     }

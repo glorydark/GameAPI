@@ -5,7 +5,7 @@ import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.form.AdvancedFormWindowSimple;
-import gameapi.manager.tools.GameEntityManager;
+import gameapi.manager.data.RankingManager;
 import gameapi.ranking.Ranking;
 import gameapi.ranking.simple.SimpleRanking;
 
@@ -79,7 +79,7 @@ public class FunctionRankingMonthlyConclusionCommand extends EasySubCommand {
     public static Map<String, Map<String, Double>> getDetailedMap() {
         Map<String, Double> map = new LinkedHashMap<>();
         Map<String, Map<String, Double>> details = new LinkedHashMap<>();
-        for (Ranking ranking : GameEntityManager.rankingFactory.values()) {
+        for (Ranking ranking : RankingManager.getRankingFactory().values()) {
             if (ranking instanceof SimpleRanking) {
                 SimpleRanking simpleRanking = (SimpleRanking) ranking;
                 if (simpleRanking.getGameName().equals("RecklessHero")) {

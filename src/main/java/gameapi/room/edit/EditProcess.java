@@ -134,12 +134,17 @@ public abstract class EditProcess {
                 .filter(textEntity -> textEntity.distance(finalPosition) < 0.1d)
                 .forEach(textEntity -> {
                     this.textEntities.remove(textEntity);
+                    textEntity.despawnFromAll();
                     textEntity.close();
                 });
     }
 
     public void clearAllTextEntities() {
         for (TextEntity textEntity : this.textEntities) {
+            if (textEntity.closed) {
+                continue;
+            }
+            textEntity.despawnFromAll();
             textEntity.close();
         }
         this.textEntities = new ArrayList<>();

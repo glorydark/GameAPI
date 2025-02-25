@@ -150,7 +150,7 @@ public class RoomRule {
 
     private boolean autoDestroyWhenBelowMinPlayers = false;
 
-    private static final Set<TipElementType> DEFAULT_HIDE_ELEMENT_TYPE = new HashSet<TipElementType>() {
+    protected static final Set<TipElementType> DEFAULT_HIDE_ELEMENT_TYPE = new HashSet<TipElementType>() {
         {
             this.add(TipElementType.BOSS_BAR);
             this.add(TipElementType.BROADCAST);
@@ -161,11 +161,14 @@ public class RoomRule {
         }
     };
 
-    private Set<TipElementType> tipHideElements = new HashSet<>(DEFAULT_HIDE_ELEMENT_TYPE);
+    private Set<TipElementType> tipHideElements;
 
     private boolean enableRoomChatSystem = true;
 
+    private boolean enableVanillaMoveCheck = true;
+
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
+        this.tipHideElements = new HashSet<>(DEFAULT_HIDE_ELEMENT_TYPE);
     }
 }
