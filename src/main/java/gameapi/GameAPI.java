@@ -10,8 +10,7 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import gameapi.achievement.AchievementManager;
 import gameapi.commands.GameAPICommandMain;
-import gameapi.commands.HubCommand;
-import gameapi.commands.ShenquanCommand;
+import gameapi.commands.defaults.room.HubCommand;
 import gameapi.commands.vanilla.VanillaFixCommand;
 import gameapi.commands.worldedit.WorldEditCommand;
 import gameapi.listener.AdvancedFormListener;
@@ -156,7 +155,6 @@ public class GameAPI extends PluginBase implements Listener {
         this.getServer().getCommandMap().register("", new GameAPICommandMain("gameapi"));
         this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
         this.getServer().getCommandMap().register("", new HubCommand("hub"));
-        this.getServer().getCommandMap().register("", new ShenquanCommand("shenquan"));
         this.getServer().getCommandMap().register("", new VanillaFixCommand("vanilla"));
         // others ...
         roomTaskExecutor.scheduleAtFixedRate(() -> {

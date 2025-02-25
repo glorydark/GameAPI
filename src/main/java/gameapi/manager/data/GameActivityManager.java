@@ -6,7 +6,6 @@ import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.form.element.ResponsiveElementButton;
 import gameapi.manager.data.activity.ActivityData;
 import gameapi.manager.data.activity.ActivityPlayerDataCache;
-import gameapi.manager.data.activity.ActivityRegistry;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,10 +27,6 @@ public class GameActivityManager {
 
     public static void init() {
         path = GameAPI.getPath() + File.separator + "activities" + File.separator;
-
-        if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
-            ActivityRegistry.init();
-        }
     }
 
     public static void registerActivity(ActivityData activityData) {
