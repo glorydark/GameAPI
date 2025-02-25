@@ -139,10 +139,13 @@ public class RoomUpdateTask implements Runnable {
         bb.forEach(((i, i1, i2) -> {
             Block block = player.getLevel().getBlock(i, i1, i2).getLevelBlock();
             if (!(block.getId() == 0 || block instanceof BlockLiquid)) {
-                RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(room, block, player);
-                GameListenerRegistry.callEvent(room, roomBlockTreadEvent);
+                RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(this.room, block, player);
+                GameListenerRegistry.callEvent(this.room, roomBlockTreadEvent);
                 if (!roomBlockTreadEvent.isCancelled()) {
-                    for (DynamicObstacle dynamicObstacle : new ArrayList<>(room.getDynamicObstacles())) {
+                    for (DynamicObstacle dynamicObstacle : new ArrayList<>(this.room.getDynamicObstacles())) {
+                        if (!dynamicObstacle.isEnabled()) {
+                            continue;
+                        }
                         for (Block dynamicObstacleBlock : dynamicObstacle.getBlocks()) {
                             if (dynamicObstacleBlock.distanceSquared(block) < 1d) {
                                 dynamicObstacle.onTread(dynamicObstacleBlock);
@@ -201,8 +204,10 @@ public class RoomUpdateTask implements Runnable {
     }
 
     protected void onTickDynamicObstacles() {
-        for (DynamicObstacle dynamicObstacle : new ArrayList<>(room.getDynamicObstacles())) {
-            dynamicObstacle.onTick();
+        for (DynamicObstacle dynamicObstacle : new ArrayList<>(this.room.getDynamicObstacles())) {
+            if (dynamicObstacle.isEnabled()) {
+                dynamicObstacle.onTick();
+            }
         }
     }
 

@@ -15,17 +15,15 @@ import java.util.List;
 @ToString
 public abstract class DynamicObstacle {
 
-    List<Block> blocks = new ArrayList<>();
+    private List<Block> blocks = new ArrayList<>();
 
-    Block switchBlock;
+    private Level level;
 
-    boolean isUsing;
+    private int startCoolDownTick;
 
-    Level level;
+    private boolean enabled;
 
-    int startCoolDownTick;
-
-    public DynamicObstacle(int startCoolDownTick, Level level, List<BlockInfoAndVecData> blockInfoAndVecDataList, int replaceBlockId, int replaceBlockMeta) {
+    public DynamicObstacle(int startCoolDownTick, Level level, List<BlockInfoAndVecData> blockInfoAndVecDataList) {
         for (BlockInfoAndVecData blockInfoAndVecData : blockInfoAndVecDataList) {
             if (blockInfoAndVecData.getVector3() != null) {
                 Block block = blockInfoAndVecData.toBlock(level);
@@ -44,21 +42,16 @@ public abstract class DynamicObstacle {
             }
         }
         this.startCoolDownTick = startCoolDownTick;
-        this.isUsing = false;
-        this.switchBlock = Block.get(replaceBlockId, replaceBlockMeta);
         this.level = level;
+        this.enabled = true;
     }
 
-    public abstract void onTick();
+    public void onTick() {
 
-    public abstract void onTread(Block block);
-
-    public Block getSwitchBlock() {
-        return switchBlock;
     }
 
-    public void setSwitchBlock(Block switchBlock) {
-        this.switchBlock = switchBlock;
+    public void onTread(Block block) {
+
     }
 
     public List<Block> getBlocks() {
@@ -67,14 +60,6 @@ public abstract class DynamicObstacle {
 
     public void setBlocks(List<Block> blocks) {
         this.blocks = blocks;
-    }
-
-    public boolean isUsing() {
-        return isUsing;
-    }
-
-    public void setUsing(boolean using) {
-        isUsing = using;
     }
 
     public Level getLevel() {
@@ -91,5 +76,13 @@ public abstract class DynamicObstacle {
 
     public void setStartCoolDownTick(int startCoolDownTick) {
         this.startCoolDownTick = startCoolDownTick;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
