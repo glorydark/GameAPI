@@ -1,6 +1,9 @@
-package gameapi.commands.vanilla;
+package gameapi.commands;
 
 import gameapi.commands.base.EasyCommand;
+import gameapi.commands.vanilla.ImprovedCameraCommand;
+import gameapi.commands.vanilla.ImprovedTeleportCommand;
+import gameapi.commands.vanilla.ImprovedThunderCommand;
 
 /**
  * @author glorydark

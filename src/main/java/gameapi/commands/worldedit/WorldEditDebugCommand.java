@@ -1,4 +1,4 @@
-package gameapi.commands.worldedit.sub;
+package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;

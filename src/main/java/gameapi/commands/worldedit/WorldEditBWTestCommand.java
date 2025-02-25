@@ -1,28 +1,24 @@
-package gameapi.commands.worldedit.sub;
+package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.Block;
 import cn.nukkit.command.CommandSender;
 import gameapi.commands.base.EasySubCommand;
-import gameapi.commands.worldedit.WorldEditCommand;
 import gameapi.tools.WorldEditTools;
-import gameapi.utils.PosSet;
 
 /**
  * @author glorydark
  */
-public class WorldEditCreateBuildCommand extends EasySubCommand {
+public class WorldEditBWTestCommand extends EasySubCommand {
 
-    public WorldEditCreateBuildCommand(String name) {
+    public WorldEditBWTestCommand(String name) {
         super(name);
     }
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
         Player player = commandSender.asPlayer();
-        if (WorldEditCommand.isFirstPosSet(player)) {
-            PosSet posSet = WorldEditCommand.posSetLinkedHashMap.get(player);
-            WorldEditTools.generateBuild(player, args[0], posSet.getPos1());
-        }
+        WorldEditTools.createMultiplePlatform(player, Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Block.get(Block.GLASS));
         return false;
     }
 

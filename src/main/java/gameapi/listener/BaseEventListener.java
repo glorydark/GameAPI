@@ -25,7 +25,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 import gameapi.GameAPI;
-import gameapi.commands.worldedit.WorldEditCommand;
+import gameapi.commands.WorldEditCommand;
 import gameapi.entity.GameProjectileEntity;
 import gameapi.event.block.RoomBlockBreakEvent;
 import gameapi.event.block.RoomBlockIgniteEvent;

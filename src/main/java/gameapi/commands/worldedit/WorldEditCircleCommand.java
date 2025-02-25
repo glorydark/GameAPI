@@ -1,12 +1,11 @@
-
-package gameapi.commands.worldedit.sub;
+package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.TextFormat;
 import gameapi.commands.base.EasySubCommand;
-import gameapi.commands.worldedit.WorldEditCommand;
+import gameapi.commands.WorldEditCommand;
 import gameapi.tools.BlockTools;
 import gameapi.tools.WorldEditTools;
 import gameapi.utils.PosSet;
@@ -14,9 +13,9 @@ import gameapi.utils.PosSet;
 /**
  * @author glorydark
  */
-public class WorldEditBallCommand extends EasySubCommand {
+public class WorldEditCircleCommand extends EasySubCommand {
 
-    public WorldEditBallCommand(String name) {
+    public WorldEditCircleCommand(String name) {
         super(name);
     }
 
@@ -26,16 +25,16 @@ public class WorldEditBallCommand extends EasySubCommand {
             return false;
         }
         Player player = commandSender.asPlayer();
-        Block ballFiller = BlockTools.getBlockfromString(args[0]);
-        if (ballFiller == null) {
+        Block circleFiller = BlockTools.getBlockfromString(args[0]);
+        if (circleFiller == null) {
             commandSender.sendMessage(TextFormat.RED + "Unable to find the block identifier: " + args[0]);
             return false;
         } else {
             if (WorldEditCommand.isFirstPosSet(player)) {
                 PosSet posSet = WorldEditCommand.posSetLinkedHashMap.get(player);
-                WorldEditTools.createBall(player,
+                WorldEditTools.createCircle(player,
                         posSet.getPos1(),
-                        ballFiller,
+                        circleFiller,
                         Double.parseDouble(args[1]),
                         args.length != 3 || Boolean.parseBoolean(args[2]));
             } else {

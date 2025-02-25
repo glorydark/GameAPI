@@ -1,9 +1,9 @@
-package gameapi.commands.worldedit;
+package gameapi.commands;
 
 import cn.nukkit.Player;
 import gameapi.annotation.Experimental;
 import gameapi.commands.base.EasyCommand;
-import gameapi.commands.worldedit.sub.*;
+import gameapi.commands.worldedit.*;
 import gameapi.utils.PosSet;
 
 import java.util.LinkedHashMap;

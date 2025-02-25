@@ -6,7 +6,7 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import gameapi.commands.base.EasySubCommand;
-import gameapi.commands.worldedit.WorldEditCommand;
+import gameapi.commands.WorldEditCommand;
 import gameapi.utils.PosSet;
 
 /**

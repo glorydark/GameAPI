@@ -1,4 +1,4 @@
-package gameapi.commands;
+package gameapi.commands.defaults.tools;
 
 import cn.nukkit.command.CommandSender;
 import gameapi.commands.base.EasySubCommand;

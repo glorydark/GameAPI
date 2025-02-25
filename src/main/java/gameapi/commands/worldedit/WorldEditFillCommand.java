@@ -1,4 +1,4 @@
-package gameapi.commands.worldedit.sub;
+package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -8,7 +8,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.TextFormat;
 import gameapi.commands.base.EasySubCommand;
-import gameapi.commands.worldedit.WorldEditCommand;
+import gameapi.commands.WorldEditCommand;
 import gameapi.tools.BlockTools;
 import gameapi.tools.WorldEditTools;
 import gameapi.utils.PosSet;

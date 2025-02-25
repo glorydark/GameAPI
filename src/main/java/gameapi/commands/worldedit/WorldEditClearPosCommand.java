@@ -1,10 +1,10 @@
-package gameapi.commands.worldedit.sub;
+package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.TextFormat;
 import gameapi.commands.base.EasySubCommand;
-import gameapi.commands.worldedit.WorldEditCommand;
+import gameapi.commands.WorldEditCommand;
 
 /**
  * @author glorydark
