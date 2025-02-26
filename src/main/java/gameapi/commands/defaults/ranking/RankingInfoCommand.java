@@ -17,6 +17,7 @@ public class RankingInfoCommand extends EasySubCommand {
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
         for (Ranking ranking : RankingManager.getRankingFactory().values()) {
+            ranking.refreshRankingData();
             commandSender.sendMessage(ranking.getDisplayContent() + "\n");
         }
         return false;

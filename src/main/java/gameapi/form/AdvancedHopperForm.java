@@ -37,6 +37,6 @@ public class AdvancedHopperForm extends AdvancedBlockFakeBlockInventoryImpl {
     public void addItem(int slot, ResponsiveElementSlotItem slotItem) {
         Item item = slotItem.getItem();
         this.addItemToSlot(slot, item);
-        this.getResponseMap().put(slot, slotItem.getResponse());
+        this.getResponseMap().put(slot, slotItem.getOnClickResponse());
     }
 }

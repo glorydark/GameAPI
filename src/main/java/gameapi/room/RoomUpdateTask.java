@@ -36,6 +36,8 @@ public class RoomUpdateTask implements Runnable {
 
     private final Map<Player, Location> playerLocationHashMap = new HashMap<>();
 
+    private boolean cancel = false;
+
     public RoomUpdateTask(Room room) {
         this.room = room;
     }
@@ -56,6 +58,9 @@ public class RoomUpdateTask implements Runnable {
 
     @Override
     public void run() {
+        if (this.cancel) {
+            return;
+        }
         if (this.room.getPlayers().isEmpty()) {
             return;
         }
@@ -213,6 +218,9 @@ public class RoomUpdateTask implements Runnable {
 
     protected void onUpdateRoomItemHeld() {
         for (Player player : this.room.getPlayers()) {
+            if (!player.isOnline()) {
+                continue;
+            }
             Item item = player.getInventory().getItemInHand();
             RoomItemBase roomItemBase = this.room.getRoomItem(RoomItemBase.getRoomItemIdentifier(item));
             if (roomItemBase != null) {
@@ -222,5 +230,9 @@ public class RoomUpdateTask implements Runnable {
                 }
             }
         }
+    }
+
+    public void cancel() {
+        this.cancel = true;
     }
 }

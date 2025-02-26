@@ -96,7 +96,7 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
     public void addItemToSlot(int slot, ResponsiveElementSlotItem item) {
         Map<Integer, Item> itemMap = this.getContents();
         itemMap.put(slot, item.getItem());
-        this.responseMap.put(slot, item.getResponse());
+        this.responseMap.put(slot, item.getOnClickResponse());
         this.setContents(itemMap);
         if (!this.getViewers().isEmpty()) {
             this.sendContents(this.getViewers());

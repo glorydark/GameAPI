@@ -217,6 +217,7 @@ public class GameAPI extends PluginBase implements Listener {
     @Override
     public void onDisable() {
         try {
+            AdvancedFormListener.closeAllForms();
             RoomManager.close();
             PlayerGameDataManager.close();
             GameEntityManager.closeAll();

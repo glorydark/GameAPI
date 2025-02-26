@@ -404,11 +404,13 @@ public class Room {
                 if (!this.roomRule.isAllowJoinAfterStart()) {
                     if (this.getRoomRule().isAllowSpectators()) {
                         this.processSpectatorJoin(player);
+                        return;
                     } else {
                         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
                     }
                 } else if (this.getRoomRule().isAllowSpectators()) {
                     this.processSpectatorJoin(player);
+                    return;
                 }
                 break;
             case ROOM_STATUS_GAME_END:
@@ -560,6 +562,7 @@ public class Room {
         }
         this.setRoomStatus(RoomStatus.ROOM_MAP_INITIALIZING, "internal");
         if (this.getRoomTaskExecutor() != null) {
+            this.getRoomUpdateTask().cancel();
             this.getRoomTaskExecutor().shutdownNow();
             GameAPI.getGameDebugManager().info("关闭线程池成功: " + this.getRoomTaskExecutor().toString());
         }

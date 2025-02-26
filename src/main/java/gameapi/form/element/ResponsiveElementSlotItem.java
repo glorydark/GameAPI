@@ -17,7 +17,7 @@ public class ResponsiveElementSlotItem {
 
     protected Item item;
 
-    private BiConsumer<Player, BlockInventoryResponse> response;
+    private BiConsumer<Player, BlockInventoryResponse> onClickResponse;
 
     public ResponsiveElementSlotItem(int id) {
         this(id, 0);
@@ -41,12 +41,12 @@ public class ResponsiveElementSlotItem {
 
 
     public ResponsiveElementSlotItem onRespond(BiConsumer<Player, BlockInventoryResponse> response) {
-        this.response = response;
+        this.onClickResponse = response;
         return this;
     }
 
-    public BiConsumer<Player, BlockInventoryResponse> getResponse() {
-        return response;
+    public BiConsumer<Player, BlockInventoryResponse> getOnClickResponse() {
+        return onClickResponse;
     }
 
     // basic parts

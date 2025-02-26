@@ -14,12 +14,20 @@ import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryHolder;
+import cn.nukkit.inventory.transaction.InventoryTransaction;
+import cn.nukkit.inventory.transaction.action.InventoryAction;
+import cn.nukkit.inventory.transaction.action.SlotChangeAction;
+import cn.nukkit.item.Item;
+import cn.nukkit.network.protocol.ClientboundCloseFormPacket;
 import cn.nukkit.network.protocol.ContainerClosePacket;
+import cn.nukkit.network.protocol.ProtocolInfo;
+import gameapi.annotation.Description;
 import gameapi.form.AdvancedForm;
 import gameapi.form.entity.ResponsiveTradeForm;
 import gameapi.form.inventory.block.AdvancedBlockFakeBlockInventory;
 import gameapi.form.inventory.block.AdvancedBlockFakeBlockInventoryImpl;
 import gameapi.form.response.BlockInventoryResponse;
+import gameapi.utils.protocol.ProtocolVersion;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,6 +38,25 @@ public class AdvancedFormListener implements Listener {
     protected static Map<Player, Map<Integer, FormWindow>> playerFormWindows = new LinkedHashMap<>();
     protected static Map<Player, AdvancedBlockFakeBlockInventory> chestFormMap = new LinkedHashMap<>();
     protected static Map<Player, ResponsiveTradeForm> villagerFormMap = new LinkedHashMap<>();
+
+    @Description(usage = "This aims at avoiding players to take items out of the form as reloading may causes some lags for them to do so.")
+    public static void closeAllForms() {
+        for (Player player : playerFormWindows.keySet()) {
+            if (player.protocol > ProtocolVersion.v1_21_2) {
+                player.dataPacket(new ClientboundCloseFormPacket());
+            }
+        }
+        for (Map.Entry<Player, AdvancedBlockFakeBlockInventory> entry : chestFormMap.entrySet()) {
+            Player player = entry.getKey();
+            AdvancedBlockFakeBlockInventory inv = entry.getValue();
+            inv.closeForPlayer(player);
+        }
+        for (Map.Entry<Player, ResponsiveTradeForm> entry : villagerFormMap.entrySet()) {
+            Player player = entry.getKey();
+            ResponsiveTradeForm inv = entry.getValue();
+            inv.closeForPlayer(player);
+        }
+    }
 
     public static void showToPlayer(Player player, FormWindow form) {
         AdvancedFormListener.playerFormWindows.computeIfAbsent(player, i -> new LinkedHashMap<>())
@@ -76,8 +103,6 @@ public class AdvancedFormListener implements Listener {
             AdvancedBlockFakeBlockInventoryImpl form = (AdvancedBlockFakeBlockInventoryImpl) inventory;
             if (!form.isItemMovable()) {
                 event.setCancelled(true);
-            } else {
-                form.dealOnSlotChangeResponse(event);
             }
         }
     }
@@ -87,6 +112,19 @@ public class AdvancedFormListener implements Listener {
         for (Inventory inventory : event.getTransaction().getInventories()) {
             if (this.isChestInventory(inventory)) {
                 AdvancedBlockFakeBlockInventoryImpl form = (AdvancedBlockFakeBlockInventoryImpl) inventory;
+                InventoryTransaction transaction = event.getTransaction();
+                for (InventoryAction action : transaction.getActions()) {
+                    for (Player player : inventory.getViewers()) {
+                        Item item = action.getSourceItem();
+                        for (Map.Entry<Integer, Item> entry : form.getContents().entrySet()) {
+                            int slot = entry.getKey();
+                            Item item1 = entry.getValue();
+                            if (item.equals(item1)) {
+                                form.dealOnClickResponse(player, new BlockInventoryResponse(form, slot, item1));
+                            }
+                        }
+                    }
+                }
                 if (!form.isItemMovable()) {
                     event.setCancelled(true);
                 }
@@ -101,13 +139,12 @@ public class AdvancedFormListener implements Listener {
         // System.out.println(inventory.getClass() + ":" + inventory.getName() + ":" + inventory.getTitle() + ":" + inventory.getType());
         if (this.isChestInventory(inventory)) {
             AdvancedBlockFakeBlockInventoryImpl form = (AdvancedBlockFakeBlockInventoryImpl) inventory;
-            BlockInventoryResponse response = new BlockInventoryResponse(form, event.getSlot(), event.getSourceItem());
-            form.dealOnClickResponse(player, response);
+            // BlockInventoryResponse response = new BlockInventoryResponse(form, event.getSlot(), event.getSourceItem());
+            // form.dealOnClickResponse(player, response);
             if (!form.isItemMovable()) {
                 event.setCancelled(true);
-            } else if (response.isCancelled()) {
-                event.setCancelled(true);
             }
+            // if (response.isCancelled()) { event.setCancelled(true); }
         }
     }
 

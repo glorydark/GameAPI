@@ -32,7 +32,7 @@ public class AdvancedChestForm extends AdvancedBlockFakeBlockInventoryImpl {
     public AdvancedChestForm item(int slot, ResponsiveElementSlotItem slotItem) {
         Item item = slotItem.getItem();
         this.addItemToSlot(slot, item);
-        this.getResponseMap().put(slot, slotItem.getResponse());
+        this.getResponseMap().put(slot, slotItem.getOnClickResponse());
         return this;
     }
 }

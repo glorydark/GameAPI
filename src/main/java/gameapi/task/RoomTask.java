@@ -146,17 +146,10 @@ public class RoomTask extends Task {
                 this.onStateUpdate(room, ListenerStatusType.START);
                 break;
             case ROOM_STATUS_GAME_END:
-                if (room.getPlayers().isEmpty()) {
-                    room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
-                    return true;
-                }
                 GameListenerRegistry.callEvent(room, new RoomGameEndTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.GAME_END);
                 break;
             case ROOM_STATUS_CEREMONY:
-                if (playerCount == 0) {
-                    room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
-                }
                 GameListenerRegistry.callEvent(room, new RoomCeremonyTickEvent(room));
                 this.onStateUpdate(room, ListenerStatusType.CEREMONY);
                 break;
