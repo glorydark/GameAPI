@@ -5,16 +5,19 @@ import lombok.Data;
 @Data
 public class RankingFormat {
 
-    String scoreShowFormat = "[%rank%] %player%: %score%";
+    private String scoreShowFormat;
 
-    String championPrefix = "§6";
+    private String championPrefix;
 
-    String runnerUpPrefix = "§e";
+    private String runnerUpPrefix;
 
-    String secondRunnerUpPrefix = "§a";
+    private String secondRunnerUpPrefix;
 
     public RankingFormat() {
-
+        this.scoreShowFormat = "[%rank%] %player%: %score%";
+        this.championPrefix = "§6";
+        this.runnerUpPrefix = "§e";
+        this.secondRunnerUpPrefix = "§a";
     }
 
     public RankingFormat(String scoreShowFormat, String champion_prefix, String runnerUpPrefix, String secondRunnerUpPrefix) {

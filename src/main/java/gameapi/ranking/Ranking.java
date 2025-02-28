@@ -66,7 +66,10 @@ public class Ranking {
 
     public String getDisplayContent(boolean onlyContent) {
         RankingFormat format = this.getRankingFormat();
-        StringBuilder builder = new StringBuilder().append(onlyContent? "" : this.getTitle().replace("\\n", "\n"));
+        StringBuilder builder = new StringBuilder();
+        if (!onlyContent) {
+            builder.append(this.getTitle().replace("\\n", "\n"));
+        }
         if (!this.rankingData.isEmpty()) {
             builder.append(getRawRankingContent(this.maxDisplayCount, format));
         } else {
@@ -79,10 +82,10 @@ public class Ranking {
 
     public String getRawRankingContent(int maxDisplayCount, RankingFormat format) {
         StringBuilder builder = new StringBuilder();
-        if (!this.rankingData.isEmpty()) {
+        if (!this.getLatestRankingData().isEmpty()) {
             int i = 1;
-            for (Map.Entry<String, ?> entry : this.rankingData.entrySet()) {
-                if (maxDisplayCount != -1 && i <= maxDisplayCount) {
+            for (Map.Entry<String, ?> entry : this.getLatestRankingData().entrySet()) {
+                if (maxDisplayCount == -1 || i <= maxDisplayCount) {
                     String text = format.getScoreShowFormat().replace("%rank%", String.valueOf(i)).replace("%player%", entry.getKey()).replace("\\n", "\n");
                     if (this.getType() == RankingValueType.LONG_T0_TIME) {
                         text = text.replace("%score%", SmartTools.timeMillisToString(Long.parseLong(entry.getValue().toString())));
@@ -91,7 +94,7 @@ public class Ranking {
                     }
                     switch (i) {
                         case 1:
-                            builder.append("§f\n").append(format.getChampionPrefix());
+                            builder.append("§f").append(format.getChampionPrefix());
                             break;
                         case 2:
                             builder.append("§f\n").append(format.getRunnerUpPrefix());
