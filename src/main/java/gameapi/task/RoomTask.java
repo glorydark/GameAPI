@@ -54,15 +54,19 @@ public class RoomTask extends Task {
         if (room.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
             // This is specifically designed for some special events that lasts for few seconds
             for (StageState stageState : new ArrayList<>(room.getStageStates())) {
-                if (stageState.getTime() == 0) {
-                    stageState.onStart(room);
-                }
-                stageState.setTime(stageState.getTime() + 1);
-                if (stageState.isEnd()) {
-                    stageState.onEnd(room);
-                    room.getStageStates().remove(stageState);
-                } else {
-                    stageState.onTick(room);
+                try {
+                    if (stageState.getTime() == 0) {
+                        stageState.onStart(room);
+                    }
+                    stageState.setTime(stageState.getTime() + 1);
+                    if (stageState.isEnd()) {
+                        stageState.onEnd(room);
+                        room.getStageStates().remove(stageState);
+                    } else {
+                        stageState.onTick(room);
+                    }
+                } catch (Throwable t) {
+                    GameAPI.getGameDebugManager().printError(t);
                 }
             }
         }

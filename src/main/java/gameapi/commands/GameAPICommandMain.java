@@ -74,6 +74,7 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new TeleportIntoRoomCommand("tproomall"));
         this.registerCommand(new TeleportAllCommand("tpall"));
         this.registerCommand(new TeleportAllOutOfGameCommand("tpallog"));
+        this.registerCommand(new RecoverTempDataCommand("recovertempdata"));
 
         // fix
         this.registerCommand(new ResetSpeedCommand("resetspeed"));

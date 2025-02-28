@@ -53,6 +53,9 @@ public class ItemTools {
     }
 
     public static String toString(Item item) {
+        if (item == null) {
+            return "0:0:0:null";
+        }
         switch (NukkitTypeUtils.getNukkitType()) {
             case POWER_NUKKIT_X:
             case POWER_NUKKIT_X_2:
@@ -201,6 +204,9 @@ public class ItemTools {
     }
 
     public static Item toItem(String itemString) {
+        if (itemString.startsWith("0:")) {
+            return Item.get(0);
+        }
         String[] strings = itemString.split(":");
         if (strings.length < 4) {
             return Item.get(0);

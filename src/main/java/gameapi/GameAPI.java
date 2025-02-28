@@ -123,6 +123,7 @@ public class GameAPI extends PluginBase implements Listener {
         new File(path + File.separator + "buildings" + File.separator).mkdirs();
         new File(path + File.separator + "activities" + File.separator).mkdirs();
         new File(path + File.separator + "global_settings" + File.separator).mkdirs();
+        new File(path + File.separator + "player_caches_old" + File.separator).mkdirs();
 
         Config config = new Config(path + File.separator + "config.yml", Config.YAML);
         gameDebugManager.setEnableConsoleDebug(config.getBoolean("log_show_in_console", true));
