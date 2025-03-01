@@ -7,7 +7,6 @@ package gameapi.ranking.simple;
 public enum RankingValueType {
     FLOAT,
     LONG,
-    // LONG_TO_TIME,
     INTEGER,
     LONG_T0_TIME,
     DOUBLE

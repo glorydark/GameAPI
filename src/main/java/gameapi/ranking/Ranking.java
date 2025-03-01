@@ -27,18 +27,28 @@ public class Ranking {
     private int maxDisplayCount;
     private long lastUpdateMillis = 0L;
 
+    private static final String SEQUENCE_ASCEND = "ascend";
+
+    private static final String TYPE_DOUBLE = "double";
+    private static final String TYPE_LONG_TO_TIME = "long_to_time";
+    private static final String TYPE_FLOAT = "float";
+    private static final String TYPE_LONG = "long";
+    private static final String TYPE_INTEGER = "integer";
+
+    private static final String FORMAT_RESET = "§f";
+
     public Ranking(RankingValueType valueType, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence, int maxDisplayCount) {
         this.title = title;
         this.noDataContent = noDataContent;
         this.rankingFormat = rankingFormat;
-        this.rankingData = new LinkedHashMap<>();
+        this.rankingData = new LinkedHashMap<>(); // sequential needs
         this.rankingSortSequence = rankingSortSequence;
         this.type = valueType;
         this.maxDisplayCount = maxDisplayCount;
     }
 
     public static RankingSortSequence getRankingSortSequence(String s) {
-        if ("ascend".equals(s)) {
+        if (SEQUENCE_ASCEND.equals(s)) {
             return RankingSortSequence.ASCEND;
         }
         return RankingSortSequence.DESCEND;
@@ -46,15 +56,15 @@ public class Ranking {
 
     public static RankingValueType getRankingValueType(String s) {
         switch (s.toLowerCase()) {
-            case "double":
+            case TYPE_DOUBLE:
                 return RankingValueType.DOUBLE;
-            case "long_to_time":
+            case TYPE_LONG_TO_TIME:
                 return RankingValueType.LONG_T0_TIME;
-            case "float":
+            case TYPE_FLOAT:
                 return RankingValueType.FLOAT;
-            case "long":
+            case TYPE_LONG:
                 return RankingValueType.LONG;
-            case "integer":
+            case TYPE_INTEGER:
             default:
                 return RankingValueType.INTEGER;
         }
@@ -68,7 +78,7 @@ public class Ranking {
         RankingFormat format = this.getRankingFormat();
         StringBuilder builder = new StringBuilder();
         if (!onlyContent) {
-            builder.append(this.getTitle().replace("\\n", "\n"));
+            builder.append(this.getTitle().replace("\\n", "\n")).append("\n");
         }
         if (!this.rankingData.isEmpty()) {
             builder.append(getRawRankingContent(this.maxDisplayCount, format));
@@ -94,16 +104,16 @@ public class Ranking {
                     }
                     switch (i) {
                         case 1:
-                            builder.append("§f").append(format.getChampionPrefix());
+                            builder.append(FORMAT_RESET).append(format.getChampionPrefix());
                             break;
                         case 2:
-                            builder.append("§f\n").append(format.getRunnerUpPrefix());
+                            builder.append(FORMAT_RESET).append("\n").append(format.getRunnerUpPrefix());
                             break;
                         case 3:
-                            builder.append("§f\n").append(format.getSecondRunnerUpPrefix());
+                            builder.append(FORMAT_RESET).append("\n").append(format.getSecondRunnerUpPrefix());
                             break;
                         default:
-                            builder.append("§f\n");
+                            builder.append(FORMAT_RESET).append("\n");
                             break;
                     }
                     builder.append(text);

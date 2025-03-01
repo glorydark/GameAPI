@@ -31,9 +31,9 @@ public class RecoverTempDataCommand extends EasySubCommand {
         File file = new File(GameAPI.getPath() + File.separator + "player_caches_old" + File.separator + player.getName() + File.separator + backup + ".yml");
         if (file.exists()) {
             Config config = new Config(file, Config.YAML);
-            PlayerTempStateManager.loadInventoryCaches(config, player);
-            PlayerTempStateManager.loadOffhandCaches(config, player);
-            PlayerTempStateManager.loadEnderChestCaches(config, player);
+            player.getInventory().setContents(PlayerTempStateManager.loadInventoryCaches(config));
+            player.getEnderChestInventory().setContents(PlayerTempStateManager.loadEnderChestCaches(config));
+            player.getOffhandInventory().setContents(PlayerTempStateManager.loadOffhandCaches(config));
             PlayerTempStateManager.loadExpCaches(config, player);
             commandSender.sendMessage(TextFormat.GREEN + "恢复玩家 " + player.getName() + " 小游戏背包数据成功，数据名称: " + args[1]);
         } else {

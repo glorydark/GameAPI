@@ -47,10 +47,10 @@ public class PlayerTempStateManager {
             playerTempDataMap.remove(player.getName());
         } else {
             Config config = new Config(file, Config.YAML);
-            loadInventoryCaches(config, player);
-            loadOffhandCaches(config, player);
+            player.getInventory().setContents(loadInventoryCaches(config));
+            player.getEnderChestInventory().setContents(loadEnderChestCaches(config));
+            player.getOffhandInventory().setContents(loadOffhandCaches(config));
             loadExpCaches(config, player);
-            loadEnderChestCaches(config, player);
         }
         try {
             Files.move(file.toPath(), newSavePath.toPath());
@@ -67,18 +67,6 @@ public class PlayerTempStateManager {
         }
         playerTempDataMap.put(player.getName(), new PlayerTempData(player));
         Config config = new Config(GameAPI.getPath() + File.separator + "player_caches" + File.separator + player.getName() + ".yml", Config.YAML);
-        saveInventoryCaches(config, player);
-        saveOffhandData(config, player);
-        saveExpCaches(config, player);
-        saveEnderChestCaches(config, player);
-        config.save();
-    }
-
-    public static void saveDataToTemp(Player player, String prefix) {
-        if (!GameAPI.getInstance().isSaveTempStates()) {
-            return;
-        }
-        Config config = new Config(GameAPI.getPath() + File.separator + "player_caches_old" + File.separator + player.getName() + File.separator + prefix + SmartTools.dateToString(Calendar.getInstance().getTime()) + ".yml", Config.YAML);
         saveInventoryCaches(config, player);
         saveOffhandData(config, player);
         saveExpCaches(config, player);
@@ -118,33 +106,39 @@ public class PlayerTempStateManager {
     }
 
     @Internal
-    public static void loadInventoryCaches(Config config, Player player) {
+    public static Map<Integer, Item> loadInventoryCaches(Config config) {
+        Map<Integer, Item> inventoryCaches = new LinkedHashMap<>();
         List<String> bag = getPlayerConfig(config, KEY_BAG_CACHES, new ArrayList<>());
         if (!bag.isEmpty()) {
-            for (int i = 0; i < player.getInventory().getSize() + 4; i++) {
-                player.getInventory().setItem(i, ItemTools.toItem(bag.get(i)));
+            for (int i = 0; i < bag.size(); i++) {
+                inventoryCaches.put(i, ItemTools.toItem(bag.get(i)));
             }
         }
+        return inventoryCaches;
     }
 
     @Internal
-    public static void loadOffhandCaches(Config config, Player player) {
+    public static Map<Integer, Item> loadOffhandCaches(Config config) {
+        Map<Integer, Item> inventoryCaches = new LinkedHashMap<>();
         List<String> bag = getPlayerConfig(config, KEY_OFFHAND_CACHES, new ArrayList<>());
         if (bag != null && !bag.isEmpty()) {
-            for (int i = 0; i < player.getOffhandInventory().getSize(); i++) {
-                player.getOffhandInventory().setItem(i, ItemTools.toItem(bag.get(i)));
+            for (int i = 0; i < bag.size(); i++) {
+                inventoryCaches.put(i, ItemTools.toItem(bag.get(i)));
             }
         }
+        return inventoryCaches;
     }
 
     @Internal
-    public static void loadEnderChestCaches(Config config, Player player) {
+    public static Map<Integer, Item> loadEnderChestCaches(Config config) {
+        Map<Integer, Item> inventoryCaches = new LinkedHashMap<>();
         List<String> bag = getPlayerConfig(config, KEY_ENDER_CHEST_CACHE, new ArrayList<>());
         if (bag != null && !bag.isEmpty()) {
-            for (int i = 0; i < player.getEnderChestInventory().getSize() + 4; i++) {
-                player.getEnderChestInventory().setItem(i, ItemTools.toItem(bag.get(i)));
+            for (int i = 0; i < bag.size(); i++) {
+                inventoryCaches.put(i, ItemTools.toItem(bag.get(i)));
             }
         }
+        return inventoryCaches;
     }
 
     @Internal
@@ -155,12 +149,19 @@ public class PlayerTempStateManager {
 
     @Internal
     public static void loadExpCaches(Config config, Player player) {
-        int exp = getPlayerConfig(config, KEY_EXP, -1);
-        int level = getPlayerConfig(config, KEY_EXP_LEVEL, -1);
-        if (exp != -1 && level != -1) {
-            player.setExperience(exp, level);
-        }
+        player.setExperience(loadExp(config), loadExpLevel(config));
     }
+
+    @Internal
+    public static int loadExp(Config config) {
+        return getPlayerConfig(config, KEY_EXP, 0);
+    }
+
+    @Internal
+    public static int loadExpLevel(Config config) {
+        return getPlayerConfig(config, KEY_EXP_LEVEL, 0);
+    }
+
 
     @Internal
     public static Object getPlayerConfig(Config config, String key) {
