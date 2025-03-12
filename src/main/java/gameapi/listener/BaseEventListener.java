@@ -190,7 +190,7 @@ public class BaseEventListener implements Listener {
                             WorldEditCommand.posSetLinkedHashMap.put(player, new PosSet());
                         }
                         WorldEditCommand.posSetLinkedHashMap.get(player).setPos1(block.getLocation());
-                        player.sendMessage("Successfully set pos1 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
+                        player.sendMessage("Successfully set pos1 to " + block.getX() + ":" + block.getY() + ":" + block.getZ());
                         event.setCancelled(true);
                         return;
                     case Block.EMERALD_BLOCK:
@@ -198,7 +198,7 @@ public class BaseEventListener implements Listener {
                             WorldEditCommand.posSetLinkedHashMap.put(player, new PosSet());
                         }
                         WorldEditCommand.posSetLinkedHashMap.get(player).setPos2(block.getLocation());
-                        player.sendMessage("Successfully set pos2 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
+                        player.sendMessage("Successfully set pos2 to " + block.getX() + ":" + block.getY() + ":" + block.getZ());
                         event.setCancelled(true);
                 }
             } else {

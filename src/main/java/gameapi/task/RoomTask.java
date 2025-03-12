@@ -1,14 +1,11 @@
 package gameapi.task;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.scheduler.Task;
 import gameapi.GameAPI;
 import gameapi.event.room.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
-import gameapi.manager.tools.ScoreboardManager;
 import gameapi.room.utils.reason.ResetAllReason;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
@@ -253,13 +250,6 @@ public class RoomTask extends Task {
                 break;
             case CEREMONY:
                 if (room.getTime() >= room.getCeremonyTime()) {
-                    for (Player p : new ArrayList<>(room.getPlayers())) {
-                        p.setGamemode(2);
-                        ScoreboardManager.removeScoreboard(p);
-                        ScoreboardManager.scoreboardConcurrentHashMap.remove(p);
-                        //玩家先走
-                        p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    }
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_END, "internal");
                     room.resetAll();
                 } else {
