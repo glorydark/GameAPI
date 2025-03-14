@@ -1,3 +1,4 @@
 default-language: en_US
 save-temp-state: true
 entity-refresh-intervals: 100
+timestamp-api: "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Shanghai"

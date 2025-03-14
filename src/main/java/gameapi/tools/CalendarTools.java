@@ -1,7 +1,21 @@
 package gameapi.tools;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import gameapi.GameAPI;
+import gameapi.annotation.Description;
+import gameapi.annotation.Internal;
+import gameapi.utils.TimestampData;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -24,6 +38,7 @@ public class CalendarTools {
     public static final long MILLIS_MONTH = 2592000000L;
     public static final long MILLIS_YEAR = 31536000000L;
 
+    public static Calendar timestampInBeijingArea = null; // 存储最新的毫秒时间戳
 
     public static String getDateStringByDefault(long millis) {
         Date date = new Date(millis);
@@ -59,5 +74,72 @@ public class CalendarTools {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Internal
+    public static long getBeijingTimeMillis(long defaultValue) {
+        String apiUrl = GameAPI.getInstance().getTimestampApi();
+        long startTime = System.currentTimeMillis(); // 记录请求发起的时间
+        try {
+            URL url = new URL(apiUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(10000);
+
+            if (conn.getResponseCode() != 200) {
+                GameAPI.getGameDebugManager().printError(new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode()));
+                return defaultValue;
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                response.append(line);
+            }
+            br.close();
+            conn.disconnect();
+
+            // 解析 JSON
+            GsonBuilder builder = new GsonBuilder();
+            Gson gson = builder.create();
+            TimestampData map = gson.fromJson(response.toString(), TimestampData.class);
+
+            int year = map.getYear();
+            int month = map.getMonth();
+            int day = map.getDay();
+            int hour = map.getHour();
+            int minute = map.getMinute();
+            int second = map.getSeconds();
+            int milliSeconds = map.getMilliSeconds();
+
+            // 转换为时间戳
+            LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second, milliSeconds * 1_000_000);
+            ZoneId zoneId = ZoneId.of("Asia/Shanghai");
+
+            long endTime = System.currentTimeMillis(); // 记录接收到数据的时间
+            // 计算延迟
+            long delay = endTime - startTime; // 延迟单位是毫秒
+            return dateTime.atZone(zoneId).toInstant().toEpochMilli() + delay;
+
+        } catch (Throwable t) {
+            GameAPI.getGameDebugManager().printError(t);
+        }
+        return defaultValue;
+    }
+
+    @Description(usage = "Developers should add an exception catch on whether the value is null or not.")
+    public static Calendar getCachedBeijingTime() {
+        if (timestampInBeijingArea == null) {
+            long current = CalendarTools.getBeijingTimeMillis(-1);
+            if (current == -1) {
+                return null;
+            } else {
+                CalendarTools.timestampInBeijingArea = new Calendar.Builder().setInstant(current).build();
+            }
+        }
+        return timestampInBeijingArea;
     }
 }

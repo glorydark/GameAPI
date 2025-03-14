@@ -1,19 +1,21 @@
-package gameapi.commands.defaults;
+package gameapi.commands.defaults.test;
 
 import cn.nukkit.command.CommandSender;
 import gameapi.commands.base.EasySubCommand;
+import gameapi.tools.CalendarTools;
 
 /**
  * @author glorydark
  */
-public class TestCommand extends EasySubCommand {
+public class TimeCommand extends EasySubCommand {
 
-    public TestCommand(String name) {
+    public TimeCommand(String name) {
         super(name);
     }
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
+        commandSender.sendMessage(CalendarTools.getCachedBeijingTime().getTime().toString());
         return false;
     }
 
