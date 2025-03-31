@@ -9,7 +9,10 @@ public enum QuitRoomReason {
 
     DEFAULT,
     PLAYER_OFFLINE,
-    PLAYER_OPERATION,
-    GAME_ERROR,
-    TELEPORT
+    PLAYER_LEAVE,
+    ALLOCATE_ERROR,
+    TELEPORT,
+    ROOM_RESET,
+    ROOM_UNLOAD,
+    GAME_ERROR
 }

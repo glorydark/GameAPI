@@ -212,34 +212,39 @@ public class GameAPI extends PluginBase implements Listener {
             }
         }), 0, 200, TimeUnit.MILLISECONDS);
         roomTaskExecutor.scheduleAtFixedRate(GameEntityManager::onUpdate, 0, 2, TimeUnit.SECONDS);
-        roomTaskExecutor.scheduleAtFixedRate(new Runnable() {
+        if (experimentalFeature) {
+            roomTaskExecutor.scheduleAtFixedRate(new Runnable() {
 
-            private long lastUpdateMillis = 0L;
+                private long lastUpdateMillis = 0L;
 
-            @Override
-            public void run() {
-                try {
-                    if (System.currentTimeMillis() - lastUpdateMillis >= 60000L) {
-                        lastUpdateMillis = System.currentTimeMillis();
-                        long current = CalendarTools.getBeijingTimeMillis(-1);
-                        if (current == -1) {
-                            if (GameAPI.getGameDebugManager().isEnableConsoleDebug()) {
-                                GameAPI.getGameDebugManager().error("校准时间更新失败！");
+                @Override
+                public void run() {
+                    try {
+                        if (System.currentTimeMillis() - lastUpdateMillis >= 60000L) {
+                            lastUpdateMillis = System.currentTimeMillis();
+                            long current = CalendarTools.getBeijingTimeMillis(-1);
+                            if (current == -1) {
+                                if (GameAPI.getGameDebugManager().isEnableConsoleDebug()) {
+                                    GameAPI.getGameDebugManager().error("校准时间更新失败！");
+                                }
+                                return;
                             }
-                            return;
+                            CalendarTools.timestampInBeijingArea = new Calendar.Builder().setInstant(current).build();
+                            if (GameAPI.getGameDebugManager().isEnableConsoleDebug()) {
+                                GameAPI.getGameDebugManager().info("校准时间完成，当前时间: " + CalendarTools.getCachedBeijingTime().getTime());
+                            }
+                        } else {
+                            if (CalendarTools.timestampInBeijingArea == null) {
+                                return;
+                            }
+                            CalendarTools.timestampInBeijingArea.add(Calendar.SECOND, 1);
                         }
-                        CalendarTools.timestampInBeijingArea = new Calendar.Builder().setInstant(current).build();
-                        if (GameAPI.getGameDebugManager().isEnableConsoleDebug()) {
-                            GameAPI.getGameDebugManager().info("校准时间完成，当前时间: " + CalendarTools.getCachedBeijingTime().getTime());
-                        }
-                    } else {
-                        CalendarTools.timestampInBeijingArea.add(Calendar.SECOND, 1);
+                    } catch (Throwable t) {
+                        GameAPI.getGameDebugManager().printError(t);
                     }
-                } catch (Throwable t) {
-                    GameAPI.getGameDebugManager().printError(t);
                 }
-            }
-        }, 0, 1, TimeUnit.SECONDS);
+            }, 0, 1, TimeUnit.SECONDS);
+        }
         WORLDEDIT_THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
         this.getLogger().info("§aDGameAPI Enabled!");
     }

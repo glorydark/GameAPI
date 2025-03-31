@@ -64,7 +64,7 @@ public class BaseEventListener implements Listener {
         Room room = RoomManager.getRoom(player);
         if (room != null) {
             room.sendMessageToAll(GameAPI.getLanguage().getTranslation("baseEvent.quit.success", player.getName()));
-            room.removePlayer(player);
+            room.removePlayer(player, QuitRoomReason.PLAYER_OFFLINE);
             room.removeSpectator(player);
             player.setPosition(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation());
         }

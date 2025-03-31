@@ -31,6 +31,9 @@ public class PlayerTempStateManager {
         if (!GameAPI.getInstance().isSaveTempStates()) {
             return;
         }
+        if (!player.isOnline()) {
+            return;
+        }
         File file = new File(GameAPI.getPath() + File.separator + "player_caches" + File.separator + player.getName() + ".yml");
         File newPath = new File(GameAPI.getPath() + File.separator + "player_caches_old" + File.separator + player.getName() + File.separator);
         newPath.mkdirs();

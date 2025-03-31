@@ -6,6 +6,7 @@ import gameapi.GameAPI;
 import gameapi.event.room.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
+import gameapi.room.utils.reason.QuitRoomReason;
 import gameapi.room.utils.reason.ResetAllReason;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
@@ -44,7 +45,7 @@ public class RoomTask extends Task {
         room.getPlayers().remove(null);
         for (Player player : new ArrayList<>(room.getPlayers())) {
             if (!player.isOnline()) {
-                room.removePlayer(null);
+                room.removePlayer(player, QuitRoomReason.PLAYER_OFFLINE);
             }
         }
 

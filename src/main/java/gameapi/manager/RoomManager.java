@@ -10,6 +10,7 @@ import gameapi.manager.tools.GameEntityManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.room.edit.EditProcess;
+import gameapi.room.utils.reason.QuitRoomReason;
 import gameapi.tools.RandomTools;
 import gameapi.tools.WorldTools;
 import gameapi.utils.RoomNameUtils;
@@ -48,7 +49,7 @@ public class RoomManager {
         }
 
         for (Player player : new ArrayList<>(room.getPlayers())) {
-            room.removePlayer(player);
+            room.removePlayer(player, QuitRoomReason.ROOM_UNLOAD);
         }
 
         for (Player player : new ArrayList<>(room.getSpectators())) {
@@ -179,7 +180,7 @@ public class RoomManager {
                 }
                 prefixes.add(prefix);
                 if (room.getPlayers().contains(player)) {
-                    room.removePlayer(player);
+                    room.removePlayer(player, QuitRoomReason.ROOM_UNLOAD);
                 } else {
                     room.removeSpectator(player);
                 }

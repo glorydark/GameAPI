@@ -259,7 +259,7 @@ public class Room {
                     }
                 }
                 if (!hasResult) {
-                    this.removePlayer(player);
+                    this.removePlayer(player, QuitRoomReason.ALLOCATE_ERROR);
                     player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.team.no_available"));
                 }
             }
@@ -279,7 +279,7 @@ public class Room {
                     }
                 }
                 if (!hasResult) {
-                    this.removePlayer(player);
+                    this.removePlayer(player, QuitRoomReason.ALLOCATE_ERROR);
                     player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.team.no_available"));
                 }
             }
@@ -572,7 +572,7 @@ public class Room {
             this.removeSpectator(player);
         }
         for (Player player : new ArrayList<>(this.players)) {
-            this.removePlayer(player);
+            this.removePlayer(player, QuitRoomReason.ROOM_RESET);
         }
         //因为某些原因无法正常传送走玩家，就全部踹出服务器！
         this.getLastEntityReceiveDamageSource().clear();

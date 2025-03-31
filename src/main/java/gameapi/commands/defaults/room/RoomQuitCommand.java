@@ -6,6 +6,7 @@ import gameapi.GameAPI;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.manager.RoomManager;
 import gameapi.room.Room;
+import gameapi.room.utils.reason.QuitRoomReason;
 
 /**
  * @author glorydark
@@ -21,7 +22,7 @@ public class RoomQuitCommand extends EasySubCommand {
         Room room = RoomManager.getRoom((Player) commandSender);
         if (room != null) {
             if (room.getPlayers().contains((Player) commandSender)) {
-                room.removePlayer((Player) commandSender);
+                room.removePlayer((Player) commandSender, QuitRoomReason.PLAYER_LEAVE);
             } else {
                 room.removeSpectator((Player) commandSender);
             }
