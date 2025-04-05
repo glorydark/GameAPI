@@ -79,6 +79,9 @@ public class PlayerTempStateManager {
 
     @Internal
     public static void saveInventoryCaches(Config config, Player player) {
+        if (player.getInventory().isEmpty()) {
+            return;
+        }
         Map<Integer, Item> contents = new LinkedHashMap<>(player.getInventory().getContents());
         List<String> bag = new ArrayList<>();
         for (int i = 0; i < player.getInventory().getSize() + 4; i++) {
@@ -90,6 +93,9 @@ public class PlayerTempStateManager {
 
     @Internal
     public static void saveOffhandData(Config config, Player player) {
+        if (player.getOffhandInventory().isEmpty()) {
+            return;
+        }
         Map<Integer, Item> contents = new LinkedHashMap<>(player.getOffhandInventory().getContents());
         List<String> bag = new ArrayList<>();
         for (int i = 0; i < player.getOffhandInventory().getSize(); i++) {
@@ -100,6 +106,9 @@ public class PlayerTempStateManager {
 
     @Internal
     public static void saveEnderChestCaches(Config config, Player player) {
+        if (player.getEnderChestInventory().isEmpty()) {
+            return;
+        }
         Map<Integer, Item> contents = new LinkedHashMap<>(player.getEnderChestInventory().getContents());
         List<String> bag = new ArrayList<>();
         for (int i = 0; i < player.getEnderChestInventory().getSize(); i++) {

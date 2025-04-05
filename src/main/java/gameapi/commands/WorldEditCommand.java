@@ -36,6 +36,8 @@ public class WorldEditCommand extends EasyCommand {
         this.registerCommand(new WorldEditResetChunkCommand("resetc"));
         this.registerCommand(new WorldEditBWTestCommand("bwtest"));
 
+        this.registerCommand(new WorldEditFindCommand("findblock"));
+
         this.registerCommand(new WorldEditSchematicCommand("loadschema"));
     }
 

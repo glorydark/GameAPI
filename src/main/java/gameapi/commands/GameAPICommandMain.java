@@ -14,7 +14,6 @@ import gameapi.commands.defaults.ranking.*;
 import gameapi.commands.defaults.activity.FunctionActivityCommand;
 import gameapi.commands.defaults.room.*;
 import gameapi.commands.defaults.dev.*;
-import gameapi.commands.defaults.test.TimeCommand;
 import gameapi.commands.defaults.tools.PlaySoundCommand;
 import gameapi.commands.defaults.tools.StopMusicCommand;
 import gameapi.commands.defaults.tools.ThunderCommand;
@@ -88,12 +87,12 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new StopMusicCommand("stopmusic"));
         this.registerCommand(new ThunderCommand("thunder"));
 
+        this.registerCommand(new HideChatCommand("hidechat"));
+
         // experimental && personal test
         if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
             this.registerCommand(new RankingMonthlyConclusionCommand("monthrank"));
             this.registerCommand(new ChangeToSnowBiome("snow"));
         }
-
-        this.registerCommand(new TimeCommand("time"));
     }
 }

@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
+import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.entity.item.EntityItem;
@@ -20,12 +21,15 @@ import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupArrowEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
 import cn.nukkit.event.player.*;
+import cn.nukkit.event.server.DataPacketSendEvent;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.network.protocol.TextPacket;
 import gameapi.GameAPI;
 import gameapi.commands.WorldEditCommand;
+import gameapi.commands.defaults.dev.HideChatCommand;
 import gameapi.entity.GameProjectileEntity;
 import gameapi.event.block.RoomBlockBreakEvent;
 import gameapi.event.block.RoomBlockIgniteEvent;
@@ -37,6 +41,7 @@ import gameapi.event.player.*;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
 import gameapi.manager.data.GlobalSettingsManager;
+import gameapi.manager.tools.PlayerTempStateManager;
 import gameapi.room.*;
 import gameapi.room.edit.EditProcess;
 import gameapi.room.items.RoomItemBase;
@@ -702,57 +707,72 @@ public class BaseEventListener implements Listener {
     public void PlayerChatEvent(PlayerChatEvent event) {
         Player player = event.getPlayer();
         Room room = RoomManager.getRoom(player);
-        if (room == null) {
-            // Player is not in game, so the server will send the message to the players who are not in game.
-            event.setRecipients(event.getRecipients()
-                    .stream()
-                    .filter(p -> !p.isPlayer() || RoomManager.getRoom((Player) p) == null)
-                    .collect(Collectors.toSet()));
-            return;
+
+        // 对发送者进行限制
+        boolean senderInGame = room != null;
+        for (CommandSender commandSender : new ArrayList<>(event.getRecipients())) {
+            if (commandSender.isPlayer()) {
+                Player receiver = (Player) commandSender;
+                boolean remove = false;
+                if (HideChatCommand.hideMessagePlayers.contains(receiver)) {
+                    remove = true;
+                } else {
+                    Room targetRoom = RoomManager.getRoom(receiver);
+                    // 如果发送消息的玩家不在游戏或不在同一房间，就要开始接下来的判断
+                    if ((!senderInGame || room != targetRoom)
+                            && targetRoom != null
+                            && targetRoom.getRoomRule().isEnableRoomChatSystem()) {
+                        remove = true;
+                    }
+                }
+                if (remove) {
+                    event.getRecipients().removeIf(o-> o.getName().equals(commandSender.getName()));
+                }
+            }
         }
 
-        if (!room.getRoomRule().isEnableRoomChatSystem()) {
-            return;
-        }
-
-        RoomChatData roomChatData = new RoomChatData(player.getName(), event.getMessage());
-        // Player is in game, so we trigger RoomPlayerChatEvent.
-        RoomPlayerChatEvent chatEvent = new RoomPlayerChatEvent(room, player, roomChatData);
-        GameListenerRegistry.callEvent(room, chatEvent);
-        if (!chatEvent.isCancelled()) {
-            event.setCancelled(true);
-            String rawMsg = roomChatData.getRawMessage();
-            if (rawMsg.startsWith("@")) {
-                if (!room.getTeams().isEmpty()) {
-                    BaseTeam team = room.getTeam(player);
-                    if (team != null) {
-                        rawMsg = roomChatData.getRawMessage().replaceFirst("@", "");
+        if (room != null) {
+            if (room.getRoomRule().isEnableRoomChatSystem()) {
+                RoomChatData roomChatData = new RoomChatData(player.getName(), event.getMessage());
+                // Player is in game, so we trigger RoomPlayerChatEvent.
+                RoomPlayerChatEvent chatEvent = new RoomPlayerChatEvent(room, player, roomChatData);
+                GameListenerRegistry.callEvent(room, chatEvent);
+                if (!chatEvent.isCancelled()) {
+                    event.setCancelled(true);
+                    String rawMsg = roomChatData.getRawMessage();
+                    if (rawMsg.startsWith("@")) {
+                        if (!room.getTeams().isEmpty()) {
+                            BaseTeam team = room.getTeam(player);
+                            if (team != null) {
+                                rawMsg = roomChatData.getRawMessage().replaceFirst("@", "");
+                                roomChatData.setMessage(rawMsg);
+                                String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format_team", room.getRoomName(), roomChatData.getDefaultChatMsg());
+                                team.sendMessageToAll(msg);
+                                GameAPI.getGameDebugManager().info(msg, false);
+                            } else {
+                                String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), roomChatData.getDefaultChatMsg());
+                                room.sendMessageToAll(msg);
+                                GameAPI.getGameDebugManager().info(msg, false);
+                            }
+                        } else {
+                            String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), roomChatData.getDefaultChatMsg());
+                            room.sendMessageToAll(msg);
+                            GameAPI.getGameDebugManager().info(msg, false);
+                        }
+                    } else if (rawMsg.startsWith("!") && rawMsg.length() > 1) {
+                        rawMsg = roomChatData.getRawMessage().replaceFirst("!", "");
                         roomChatData.setMessage(rawMsg);
-                        String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format_team", room.getRoomName(), roomChatData.getDefaultChatMsg());
-                        team.sendMessageToAll(msg);
-                        GameAPI.getGameDebugManager().info(msg, false);
+                        for (Player value : Server.getInstance().getOnlinePlayers().values()) {
+                            String msg = GameAPI.getLanguage().getTranslation(value, "baseEvent.chat.message_format.global", room.getRoomName(), roomChatData.getDefaultChatMsg());
+                            value.sendMessage(msg);
+                        }
+                        GameAPI.getGameDebugManager().info(GameAPI.getLanguage().getTranslation("baseEvent.chat.message_format.global", room.getRoomName(), roomChatData.getDefaultChatMsg()), false);
                     } else {
                         String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), roomChatData.getDefaultChatMsg());
                         room.sendMessageToAll(msg);
                         GameAPI.getGameDebugManager().info(msg, false);
                     }
-                } else {
-                    String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), roomChatData.getDefaultChatMsg());
-                    room.sendMessageToAll(msg);
-                    GameAPI.getGameDebugManager().info(msg, false);
                 }
-            } else if (rawMsg.startsWith("!") && rawMsg.length() > 1) {
-                rawMsg = roomChatData.getRawMessage().replaceFirst("!", "");
-                roomChatData.setMessage(rawMsg);
-                for (Player value : Server.getInstance().getOnlinePlayers().values()) {
-                    String msg = GameAPI.getLanguage().getTranslation(value, "baseEvent.chat.message_format.global", room.getRoomName(), roomChatData.getDefaultChatMsg());
-                    value.sendMessage(msg);
-                }
-                GameAPI.getGameDebugManager().info(GameAPI.getLanguage().getTranslation("baseEvent.chat.message_format.global", room.getRoomName(), roomChatData.getDefaultChatMsg()), false);
-            } else {
-                String msg = GameAPI.getLanguage().getTranslation(player, "baseEvent.chat.message_format", room.getRoomName(), roomChatData.getDefaultChatMsg());
-                room.sendMessageToAll(msg);
-                GameAPI.getGameDebugManager().info(msg, false);
             }
         }
     }
@@ -1127,6 +1147,7 @@ public class BaseEventListener implements Listener {
         Player player = event.getPlayer();
         GlobalSettingsManager.loadPlayerData(player);
         player.setCheckMovement(false);
+        PlayerTempStateManager.recoverData(player);
     }
 
     @EventHandler

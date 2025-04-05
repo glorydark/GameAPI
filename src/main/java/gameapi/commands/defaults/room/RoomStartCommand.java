@@ -32,11 +32,13 @@ public class RoomStartCommand extends EasySubCommand {
                 return false;
             }
         }
-        Room room = RoomManager.getRoom(p);
-        if (room != null) {
-            if (room.getRoomAdmins().contains(commandSender.getName()) || commandSender.isOp()) {
-                room.setAllowedToStart(true);
-                commandSender.sendMessage(TextFormat.GREEN + "您已允许房间开始倒计时！");
+        if (commandSender.isPlayer()) {
+            Room room = RoomManager.getRoom(p);
+            if (room != null) {
+                if (room.getRoomAdmins().contains(commandSender.getName()) || commandSender.isOp()) {
+                    room.setAllowedToStart(true);
+                    commandSender.sendMessage(TextFormat.GREEN + "您已允许房间开始倒计时！");
+                }
             }
         }
         return false;

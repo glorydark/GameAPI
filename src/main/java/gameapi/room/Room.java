@@ -10,6 +10,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockVector3;
 import gameapi.GameAPI;
+import gameapi.commands.defaults.dev.HideChatCommand;
 import gameapi.entity.TextEntity;
 import gameapi.event.player.*;
 import gameapi.event.room.*;
@@ -450,6 +451,9 @@ public class Room {
                     for (Player p : this.players) {
                         p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
                     }
+                    for (Player p : this.spectators) {
+                        p.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.broadcast.join", player.getName(), this.players.size(), this.maxPlayer));
+                    }
                     GameListenerRegistry.callEvent(this, new RoomPlayerJoinEvent(this, player));
                 }
             }
@@ -778,6 +782,9 @@ public class Room {
         for (Player p : this.getPlayers()) {
             p.sendMessage(GameAPI.getLanguage().getTranslation(p, "room.game.broadcast.join_spectator", player.getName()));
         }
+        for (Player p : this.getSpectators()) {
+            p.sendMessage(GameAPI.getLanguage().getTranslation(p, "room.game.broadcast.join_spectator", player.getName()));
+        }
         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
     }
 
@@ -1022,10 +1029,16 @@ public class Room {
 
     public void sendMessageToAll(GameTextContainer text, boolean includeSpectators) {
         for (Player player : this.players) {
+            if (HideChatCommand.hideMessagePlayers.contains(player)) {
+                continue;
+            }
             player.sendMessage(text.getText(player));
         }
         if (includeSpectators) {
             for (Player spectator : this.spectators) {
+                if (HideChatCommand.hideMessagePlayers.contains(spectator)) {
+                    continue;
+                }
                 spectator.sendMessage(text.getText(spectator));
             }
         }

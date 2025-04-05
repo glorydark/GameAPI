@@ -3,8 +3,6 @@ package gameapi.tools;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import gameapi.GameAPI;
-import gameapi.annotation.Description;
-import gameapi.annotation.Internal;
 import gameapi.utils.TimestampData;
 
 import java.io.BufferedReader;
@@ -15,7 +13,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -37,8 +34,6 @@ public class CalendarTools {
     public static final long MILLIS_WEEK = 604800000;
     public static final long MILLIS_MONTH = 2592000000L;
     public static final long MILLIS_YEAR = 31536000000L;
-
-    public static Calendar timestampInBeijingArea = null; // 存储最新的毫秒时间戳
 
     public static String getDateStringByDefault(long millis) {
         Date date = new Date(millis);
@@ -76,7 +71,6 @@ public class CalendarTools {
         }
     }
 
-    @Internal
     public static long getBeijingTimeMillis(long defaultValue) {
         String apiUrl = GameAPI.getInstance().getTimestampApi();
         long startTime = System.currentTimeMillis(); // 记录请求发起的时间
@@ -128,18 +122,5 @@ public class CalendarTools {
             GameAPI.getGameDebugManager().printError(t);
         }
         return defaultValue;
-    }
-
-    @Description(usage = "Developers should add an exception catch on whether the value is null or not.")
-    public static Calendar getCachedBeijingTime() {
-        if (timestampInBeijingArea == null) {
-            long current = CalendarTools.getBeijingTimeMillis(-1);
-            if (current == -1) {
-                return null;
-            } else {
-                CalendarTools.timestampInBeijingArea = new Calendar.Builder().setInstant(current).build();
-            }
-        }
-        return timestampInBeijingArea;
     }
 }
