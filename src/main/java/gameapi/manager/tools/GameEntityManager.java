@@ -14,7 +14,8 @@ import gameapi.entity.data.TextEntityData;
 import gameapi.manager.data.RankingManager;
 import gameapi.ranking.Ranking;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameEntityManager {
 

@@ -4,8 +4,6 @@ import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import gameapi.GameAPI;
 
-import java.util.Arrays;
-
 /**
  * @author glorydark
  */

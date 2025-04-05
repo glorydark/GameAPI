@@ -2,8 +2,8 @@ package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
-import gameapi.commands.base.EasySubCommand;
 import gameapi.commands.WorldEditCommand;
+import gameapi.commands.base.EasySubCommand;
 import gameapi.tools.WorldEditTools;
 import gameapi.utils.PosSet;
 

@@ -19,7 +19,6 @@ public class RoomStartCommand extends EasySubCommand {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
-        Player p = (Player) commandSender;
         if (commandSender.isOp()) {
             if (args.length == 2) {
                 Room room = RoomManager.getRoom(args[0], args[1]);
@@ -33,6 +32,7 @@ public class RoomStartCommand extends EasySubCommand {
             }
         }
         if (commandSender.isPlayer()) {
+            Player p = (Player) commandSender;
             Room room = RoomManager.getRoom(p);
             if (room != null) {
                 if (room.getRoomAdmins().contains(commandSender.getName()) || commandSender.isOp()) {
