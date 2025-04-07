@@ -29,6 +29,10 @@ public class GameEntityManager {
             try {
                 TextEntity textEntity = textEntityData.getEntity();
                 if (textEntity != null) {
+                    if (textEntity.isInvalid()) {
+                        textEntityDataList.remove(textEntityData);
+                        return;
+                    }
                     if (textEntity.getLevel().getPlayers().isEmpty()) {
                         textEntity.despawnFromAll();
                         textEntity.close();

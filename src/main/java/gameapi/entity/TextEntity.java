@@ -14,6 +14,8 @@ public class TextEntity extends Entity {
 
     private final Map<String, Object> extraProperties = new LinkedHashMap<>();
 
+    private boolean invalid = false;
+
     public TextEntity(FullChunk chunk, String text, CompoundTag nbt) {
         super(chunk, nbt);
         this.setNameTag(text);
@@ -70,6 +72,14 @@ public class TextEntity extends Entity {
     @Override
     public void saveNBT() {
 
+    }
+
+    public boolean isInvalid() {
+        return invalid;
+    }
+
+    public void setInvalid(boolean invalid) {
+        this.invalid = invalid;
     }
 
     @Override

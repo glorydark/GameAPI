@@ -48,7 +48,7 @@ public class RoomManager {
             GameAPI.getGameDebugManager().info("关闭线程池成功: " + room.getRoomTaskExecutor().toString());
         }
 
-        for (Player player : new ArrayList<>(room.getPlayers())) {
+        for (Player player : room.getPlayers()) {
             room.removePlayer(player, QuitRoomReason.ROOM_UNLOAD);
         }
 

@@ -42,8 +42,8 @@ public class RoomTask extends Task {
         if (room == null) {
             return false;
         }
-        room.getPlayers().remove(null);
-        for (Player player : new ArrayList<>(room.getPlayers())) {
+        room.getPlayersWithoutCreate().remove(null);
+        for (Player player : room.getPlayers()) {
             if (!player.isOnline()) {
                 room.removePlayer(player, QuitRoomReason.PLAYER_OFFLINE);
             }

@@ -147,6 +147,23 @@ public class Room {
         this.checkpointManager = new CheckpointManager(this);
     }
 
+    public List<Player> getPlayers() {
+        return new ArrayList<>(this.players);
+    }
+
+    public List<Player> getSpectators() {
+        return new ArrayList<>(this.spectators);
+    }
+
+    public List<Player> getPlayersWithoutCreate() {
+        return this.players;
+    }
+
+    public List<Player> getSpectatorsWithoutCreate() {
+        return this.spectators;
+    }
+
+
     public void registerRoomItem(RoomItemBase... roomItems) {
         for (RoomItemBase roomItem : roomItems) {
             this.roomItems.put(roomItem.getIdentifier(), roomItem);
@@ -242,7 +259,7 @@ public class Room {
                     .filter(BaseTeam::isAvailable)
                     .sorted(Comparator.comparing(BaseTeam::getSize))
                     .collect(Collectors.toList());
-            for (Player player : new ArrayList<>(this.players)) {
+            for (Player player : this.getPlayers()) {
                 if (this.getTeam(player) != null) {
                     continue;
                 }
@@ -265,7 +282,7 @@ public class Room {
                 }
             }
         } else {
-            for (Player player : new ArrayList<>(this.players)) {
+            for (Player player : this.getPlayers()) {
                 if (this.getTeam(player) != null) {
                     continue;
                 }
@@ -572,10 +589,10 @@ public class Room {
         }
         this.stageStates = new ArrayList<>();
         GameListenerRegistry.callEvent(this, new RoomResetEvent(this));
-        for (Player player : new ArrayList<>(this.spectators)) {
+        for (Player player : this.getSpectators()) {
             this.removeSpectator(player);
         }
-        for (Player player : new ArrayList<>(this.players)) {
+        for (Player player : this.getPlayers()) {
             this.removePlayer(player, QuitRoomReason.ROOM_RESET);
         }
         //因为某些原因无法正常传送走玩家，就全部踹出服务器！
