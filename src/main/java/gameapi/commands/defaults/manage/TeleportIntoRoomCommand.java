@@ -7,6 +7,7 @@ import cn.nukkit.utils.TextFormat;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.manager.RoomManager;
 import gameapi.room.Room;
+import gameapi.room.utils.reason.JoinRoomReason;
 
 /**
  * @author glorydark
@@ -35,7 +36,7 @@ public class TeleportIntoRoomCommand extends EasySubCommand {
                     room1.removePlayer(player);
                     room1.removeSpectator(player);
                 }
-                room.addPlayer(value);
+                room.addPlayer(value, JoinRoomReason.TELEPORT);
             }
             commandSender.sendMessage(TextFormat.GREEN + "成功让全体玩家加入房间！ ");
         } else {
@@ -44,7 +45,7 @@ public class TeleportIntoRoomCommand extends EasySubCommand {
                 commandSender.sendMessage(TextFormat.RED + "玩家不在线！");
                 return false;
             }
-            room.addPlayer(player1);
+            room.addPlayer(player1, JoinRoomReason.TELEPORT);
             commandSender.sendMessage(TextFormat.GREEN + "成功让玩家" + args[0] + "加入到您的房间！");
         }
         return false;

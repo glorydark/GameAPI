@@ -14,6 +14,8 @@ import java.util.function.Supplier;
 
 public class AdvancedFormWindowSimple extends FormWindowSimple implements AdvancedForm {
 
+    protected long sentMillis;
+
     protected BiConsumer<Player, FormResponseSimple> responseExecutor = null;
 
     protected Consumer<Player> noResponseExecutor = null;

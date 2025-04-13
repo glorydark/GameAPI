@@ -33,6 +33,7 @@ import gameapi.room.items.RoomItemBase;
 import gameapi.room.state.StageState;
 import gameapi.room.team.BaseTeam;
 import gameapi.room.utils.HideType;
+import gameapi.room.utils.reason.JoinRoomReason;
 import gameapi.room.utils.reason.QuitRoomReason;
 import gameapi.room.utils.reason.ResetAllReason;
 import gameapi.tools.PlayerTools;
@@ -362,11 +363,15 @@ public class Room {
         this.teamCache.put(team.getRegistryName(), team);
     }
 
+    public void addPlayer(Player player) {
+        this.addPlayer(player, JoinRoomReason.DEFAULT);
+    }
+
     /*
         Here we genuinely add an authentication process,
         which aims to serve the server hosting some big events
      */
-    public void addPlayer(Player player) {
+    public void addPlayer(Player player, JoinRoomReason joinRoomReason) {
         if (this.enableWhitelist) {
             if (!this.whitelists.contains(player.getName())) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.whitelisted"));
@@ -393,6 +398,10 @@ public class Room {
     }
 
     public void processPlayerJoin(Player player) {
+        this.processPlayerJoin(player, JoinRoomReason.DEFAULT);
+    }
+
+    public void processPlayerJoin(Player player, JoinRoomReason joinRoomReason) {
         Room oldRoom = RoomManager.getRoom(player);
         if (oldRoom != null) {
             if (oldRoom != this) {
@@ -417,7 +426,7 @@ public class Room {
             case ROOM_HALTED:
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
                 return;
-            case ROOM_STATUS_READY_START:
+            // case ROOM_STATUS_READY_START:
             case ROOM_STATUS_START:
                 if (!this.roomRule.isAllowJoinAfterStart()) {
                     if (this.getRoomRule().isAllowSpectators()) {
@@ -448,6 +457,7 @@ public class Room {
                     this.roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
                     this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
                     this.players.add(player);
+                    RoomManager.getPlayerRoomHashMap().put(player, this);
                     this.waitSpawn.teleport(player);
                     player.setGamemode(2);
                     player.getFoodData().reset();
@@ -459,7 +469,6 @@ public class Room {
                     if (!this.getRoomRule().isEnableVanillaMoveCheck()) {
                         player.setCheckMovement(false);
                     }
-                    RoomManager.getPlayerRoomHashMap().put(player, this);
                     if (GameAPI.getInstance().isTipsEnabled()) {
                         for (Level playLevel : this.getPlayLevels()) {
                             TipsTools.closeTipsShow(playLevel.getName(), player, this.getRoomRule().getTipHideElements().toArray(new TipElementType[0]));
@@ -780,7 +789,9 @@ public class Room {
                         AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
                         location.teleport(player);
                     } else {
-                        player.teleport(this.players.get(0).getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        if (!this.players.isEmpty()) {
+                            player.teleport(this.players.get(0).getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        }
                     }
                 }
                 break;

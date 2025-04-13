@@ -48,6 +48,7 @@ import gameapi.room.items.RoomItemBase;
 import gameapi.room.team.BaseTeam;
 import gameapi.room.utils.BasicAttackSetting;
 import gameapi.room.utils.DefaultPropertyKey;
+import gameapi.room.utils.reason.JoinRoomReason;
 import gameapi.room.utils.reason.QuitRoomReason;
 import gameapi.utils.PosSet;
 
@@ -666,7 +667,7 @@ public class BaseEventListener implements Listener {
                                 if (targetRoom != room) {
                                     room.removePlayer(player, QuitRoomReason.TELEPORT);
                                     room.removeSpectator(player);
-                                    targetRoom.addPlayer(player);
+                                    targetRoom.addPlayer(player, JoinRoomReason.TELEPORT);
                                 }
                             } else {
                                 room.removePlayer(player, QuitRoomReason.TELEPORT);
@@ -682,7 +683,7 @@ public class BaseEventListener implements Listener {
                 List<Room> rooms = RoomManager.getRooms(toLevel);
                 if (!rooms.isEmpty()) {
                     Room room1 = rooms.get(0);
-                    room1.addPlayer(player);
+                    room1.addPlayer(player, JoinRoomReason.TELEPORT);
                 }
             }
         }

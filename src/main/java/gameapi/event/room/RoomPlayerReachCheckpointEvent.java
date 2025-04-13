@@ -13,12 +13,19 @@ public class RoomPlayerReachCheckpointEvent extends RoomPlayerEvent {
 
     private final CheckpointData checkPointData;
 
-    public RoomPlayerReachCheckpointEvent(Room room, Player player, CheckpointData checkPointData) {
+    private final long timeDiff;
+
+    public RoomPlayerReachCheckpointEvent(Room room, Player player, CheckpointData checkPointData, long timeDiff) {
         super(room, player);
         this.checkPointData = checkPointData;
+        this.timeDiff = timeDiff;
     }
 
     public CheckpointData getCheckPointData() {
         return checkPointData;
+    }
+
+    public long getTimeDiff() {
+        return timeDiff;
     }
 }

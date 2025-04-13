@@ -50,6 +50,10 @@ public abstract class RoomItemBase {
     }
 
     public Item toItem() {
+        return toItem(null);
+    }
+
+    public Item toItem(Player player) {
         return this.item.clone();
     }
 

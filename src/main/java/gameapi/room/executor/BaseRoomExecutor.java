@@ -116,47 +116,46 @@ public class BaseRoomExecutor extends RoomExecutor {
             p.getFoodData().reset();
             p.setGamemode(this.room.getRoomRule().getGameMode());
         }
+        if (this.room.getRoomRule().isAutoStartTeleport()) {
+            List<AdvancedLocation> startSpawns = this.room.getStartSpawn();
+            if (!this.room.getTeams().isEmpty()) {
+                if (this.room.getRoomRule().isAutoAllocatePlayerToTeam()) {
+                    this.room.allocatePlayerToTeams(true);
+                }
+                this.room.getPlayers().forEach(room::teleportToSpawn);
+            } else {
+                if (startSpawns.size() > 1) {
+                    this.room.getPlayers().forEach(room::teleportToSpawn);
+                } else if (this.room.getStartSpawn().size() == 1) {
+                    AdvancedLocation location = startSpawns.get(0);
+                    for (Player p : this.room.getPlayers()) {
+                        location.teleport(p);
+                    }
+                }
+            }
+            for (Player player : this.room.getSpectators()) {
+                if (room.getPlayLevels().contains(player.getLevel())) {
+                    continue;
+                }
+                if (!this.room.getSpectatorSpawn().isEmpty()) {
+                    Random random = new Random(this.room.getSpectatorSpawn().size());
+                    AdvancedLocation location = this.room.getSpectatorSpawn().get(random.nextInt(this.room.getSpectatorSpawn().size()));
+                    location.teleport(player);
+                } else {
+                    if (!this.room.getStartSpawn().isEmpty()) {
+                        Random random = new Random(this.room.getStartSpawn().size());
+                        AdvancedLocation location = this.room.getStartSpawn().get(random.nextInt(this.room.getStartSpawn().size()));
+                        location.teleport(player);
+                    } else {
+                        player.teleport(this.room.getPlayers().get(0).getLocation());
+                    }
+                }
+            }
+        }
         this.room.sendTitleToAll(
                 new TitleData()
                         .title(new GameTranslationContainer("room.title.start"))
                         .subtitle(new GameTranslationContainer("room.subtitle.start"))
         );
-        if (!this.room.getRoomRule().isAutoStartTeleport()) {
-            return;
-        }
-        List<AdvancedLocation> startSpawns = this.room.getStartSpawn();
-        if (!this.room.getTeams().isEmpty()) {
-            if (this.room.getRoomRule().isAutoAllocatePlayerToTeam()) {
-                this.room.allocatePlayerToTeams(true);
-            }
-            this.room.getPlayers().forEach(room::teleportToSpawn);
-        } else {
-            if (startSpawns.size() > 1) {
-                this.room.getPlayers().forEach(room::teleportToSpawn);
-            } else if (this.room.getStartSpawn().size() == 1) {
-                AdvancedLocation location = startSpawns.get(0);
-                for (Player p : this.room.getPlayers()) {
-                    location.teleport(p);
-                }
-            }
-        }
-        for (Player player : this.room.getSpectators()) {
-            if (room.getPlayLevels().contains(player.getLevel())) {
-                continue;
-            }
-            if (!this.room.getSpectatorSpawn().isEmpty()) {
-                Random random = new Random(this.room.getSpectatorSpawn().size());
-                AdvancedLocation location = this.room.getSpectatorSpawn().get(random.nextInt(this.room.getSpectatorSpawn().size()));
-                location.teleport(player);
-            } else {
-                if (!this.room.getStartSpawn().isEmpty()) {
-                    Random random = new Random(this.room.getStartSpawn().size());
-                    AdvancedLocation location = this.room.getStartSpawn().get(random.nextInt(this.room.getStartSpawn().size()));
-                    location.teleport(player);
-                } else {
-                    player.teleport(this.room.getPlayers().get(0).getLocation());
-                }
-            }
-        }
     }
 }

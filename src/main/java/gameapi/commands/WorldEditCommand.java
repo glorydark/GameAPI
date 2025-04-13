@@ -27,6 +27,7 @@ public class WorldEditCommand extends EasyCommand {
 
         this.registerCommand(new WorldEditFillCommand("fill"));
         this.registerCommand(new WorldEditBallCommand("ball"));
+        this.registerCommand(new WorldEditHalfBallCommand("halfball"));
         this.registerCommand(new WorldEditCircleCommand("circle"));
         this.registerCommand(new WorldEditReplaceCommand("replace"));
 
