@@ -67,6 +67,8 @@ public class GameAPI extends PluginBase implements Listener {
     };
     protected static boolean experimentalFeature = false;
     protected static boolean isFirstLaunch = true;
+    // Since v_1_21_70, before opening another inventory, the action should wait at least 9 ticks to avoid lapping.
+    public static final int OPEN_INVENTORY_DELAY_TICKS = 9;
 
     public static void addRoomEdit(EditProcess editProcess) {
         editProcessList.add(editProcess);

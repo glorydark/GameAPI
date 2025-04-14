@@ -96,6 +96,6 @@ public class AdvancedDoubleChestForm extends AdvancedBlockFakeBlockInventoryImpl
             public void onRun(int i) {
                 player.addWindow(getResultInventory());
             }
-        }, 3);
+        }, GameAPI.OPEN_INVENTORY_DELAY_TICKS);
     }
 }

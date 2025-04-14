@@ -1,12 +1,15 @@
 package gameapi.form.inventory.block;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.event.inventory.InventoryMoveItemEvent;
 import cn.nukkit.level.GlobalBlockPalette;
 import cn.nukkit.level.Position;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.network.protocol.BlockEntityDataPacket;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
+import cn.nukkit.scheduler.Task;
+import gameapi.GameAPI;
 import gameapi.form.inventory.BlockFakeInventoryType;
 import gameapi.form.response.BlockInventoryResponse;
 import gameapi.listener.AdvancedFormListener;
@@ -71,7 +74,12 @@ public abstract class AdvancedBlockFakeBlockInventoryImpl extends AdvancedBlockF
 
         AdvancedFormListener.addChestMenuCache(player, this);
         // 向玩家展示窗口
-        player.addWindow(getResultInventory());
+        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), new Task() {
+            @Override
+            public void onRun(int i) {
+                player.addWindow(getResultInventory());
+            }
+        }, GameAPI.OPEN_INVENTORY_DELAY_TICKS);
     }
 
     @Override
