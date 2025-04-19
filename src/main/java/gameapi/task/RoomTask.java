@@ -252,7 +252,7 @@ public class RoomTask extends Task {
             case CEREMONY:
                 if (room.getTime() >= room.getCeremonyTime()) {
                     room.setRoomStatus(RoomStatus.ROOM_STATUS_END, "internal");
-                    room.resetAll();
+                    room.resetAll(ResetAllReason.ROOM_GAME_FINISH);
                 } else {
                     room.getStatusExecutor().onCeremony();
                     room.setTime(room.getTime() + 1);

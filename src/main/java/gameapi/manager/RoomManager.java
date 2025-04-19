@@ -45,6 +45,7 @@ public class RoomManager {
     public static void unloadRoom(Room room) {
         if (room.getRoomTaskExecutor() != null) {
             room.getRoomTaskExecutor().shutdownNow();
+            room.setRoomTaskExecutor(null);
             GameAPI.getGameDebugManager().info("关闭线程池成功: " + room.getRoomTaskExecutor().toString());
         }
 

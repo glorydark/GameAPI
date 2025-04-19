@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -34,6 +35,13 @@ public class CalendarTools {
     public static final long MILLIS_WEEK = 604800000;
     public static final long MILLIS_MONTH = 2592000000L;
     public static final long MILLIS_YEAR = 31536000000L;
+
+    public static String getWeekString(Calendar calendar) {
+        if (calendar.getWeekYear() != calendar.get(Calendar.DAY_OF_YEAR)) {
+            return (calendar.getWeekYear() - 1) + "-" + calendar.getWeeksInWeekYear();
+        }
+        return calendar.getWeekYear() + "-" + calendar.getWeeksInWeekYear();
+    }
 
     public static String getDateStringByDefault(long millis) {
         Date date = new Date(millis);

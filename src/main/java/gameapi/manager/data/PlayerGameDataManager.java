@@ -5,6 +5,8 @@ import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,6 +28,20 @@ public class PlayerGameDataManager {
 
     public static void addPlayerGameData(String gameName, String fileName, Player player, Integer add) {
         addPlayerGameData(gameName, fileName, player.getName(), add);
+    }
+
+    public static void clearGameData(String gameName, String fileName) {
+        for (Map.Entry<String, Map<String, Object>> entry : new ArrayList<>(playerData.entrySet())) {
+            playerData.remove(gameName + "_" + fileName);
+        }
+        File file = new File(GameAPI.getPath() + "/gameRecords/" + gameName + "/" + fileName + ".yml");
+        File moveTo = new File(GameAPI.getPath() + "/old_gameRecords/" + gameName + "_" + fileName + "_" + System.currentTimeMillis() + ".yml");
+        try {
+            Files.move(file.toPath(), moveTo.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            file.delete();
+        }
     }
 
     public static void removeAllGameData(String player) {

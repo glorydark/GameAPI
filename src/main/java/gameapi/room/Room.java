@@ -367,11 +367,15 @@ public class Room {
         this.addPlayer(player, JoinRoomReason.DEFAULT);
     }
 
+    public void addPlayer(Player player, JoinRoomReason joinRoomReason) {
+        this.addPlayer(player, null, joinRoomReason);
+    }
+
     /*
         Here we genuinely add an authentication process,
         which aims to serve the server hosting some big events
      */
-    public void addPlayer(Player player, JoinRoomReason joinRoomReason) {
+    public void addPlayer(Player player, String enterPassword, JoinRoomReason joinRoomReason) {
         if (this.enableWhitelist) {
             if (!this.whitelists.contains(player.getName())) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.whitelisted"));
@@ -380,18 +384,26 @@ public class Room {
         }
         if (!this.joinPassword.isEmpty()) {
             String rightPassword = this.getJoinPassword();
-            AdvancedFormWindowCustom custom = new AdvancedFormWindowCustom(GameAPI.getLanguage().getTranslation(player, "room.window.password.title"))
-                    .input(
-                            new ResponsiveElementInput(GameAPI.getLanguage().getTranslation(player, "room.window.password.input_text"))
-                                    .onRespond((player1, s) -> {
-                                        if (rightPassword.equals(s)) {
-                                            processPlayerJoin(player1);
-                                        } else {
-                                            player1.sendMessage(GameAPI.getLanguage().getTranslation(player1, "room.password.wrong"));
-                                        }
-                                    })
-                    );
-            custom.showToPlayer(player);
+            if (enterPassword == null) {
+                AdvancedFormWindowCustom custom = new AdvancedFormWindowCustom(GameAPI.getLanguage().getTranslation(player, "room.window.password.title"))
+                        .input(
+                                new ResponsiveElementInput(GameAPI.getLanguage().getTranslation(player, "room.window.password.input_text"))
+                                        .onRespond((player1, s) -> {
+                                            if (rightPassword.equals(s)) {
+                                                processPlayerJoin(player1, joinRoomReason);
+                                            } else {
+                                                player1.sendMessage(GameAPI.getLanguage().getTranslation(player1, "room.password.wrong"));
+                                            }
+                                        })
+                        );
+                custom.showToPlayer(player);
+            } else {
+                if (rightPassword.equals(enterPassword)) {
+                    processPlayerJoin(player, joinRoomReason);
+                } else {
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.password.wrong"));
+                }
+            }
         } else {
             processPlayerJoin(player);
         }
