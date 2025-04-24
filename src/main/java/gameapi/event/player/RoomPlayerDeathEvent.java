@@ -30,10 +30,11 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     protected String subtitle = "";
 
-    protected boolean respawn = true;
+    protected boolean respawn;
 
     public RoomPlayerDeathEvent(Room room, Player player, boolean sendTitle, EntityDamageEvent.DamageCause cause) {
         super(room, player);
+        this.respawn = room.getRoomRule().isAllowRespawn();
         //导入的伤害来源
         this.lastDamageByPlayerSource = room.getLastEntityDamageByPlayerSource(player).orElse(null);
         this.lastDamageByEntitySource = room.getLastEntityDamageByEntitySource(player).orElse(null);

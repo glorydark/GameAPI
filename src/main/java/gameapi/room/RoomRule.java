@@ -167,6 +167,12 @@ public class RoomRule {
 
     private boolean enableVanillaMoveCheck = true;
 
+    private boolean defaultTitleOnStart = true;
+
+    private boolean allowAttackPlayerBeforeStart = false;
+
+    private boolean allowAttackEntityBeforeStart = false;
+
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
         this.tipHideElements = new HashSet<>(DEFAULT_HIDE_ELEMENT_TYPE);

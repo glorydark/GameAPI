@@ -103,7 +103,7 @@ public class ActivityParkourMonthlyCompetition202411 {
         int rank = 1;
         StringBuilder stringBuilder = new StringBuilder();
         ranking.refreshRankingData();
-        Set<? extends Map.Entry<String, ?>> list = ranking.getRankingData().entrySet();
+        Set<? extends Map.Entry<String, ?>> list = ranking.getRankingCache().entrySet();
         List<String> participatingPlayers = new ArrayList<>(PlayerGameDataManager.getPlayerAllGameData(activityId, "join_times").keySet());
         for (Map.Entry<String, ?> stringEntry : list) {
             participatingPlayers.remove(stringEntry.getKey());
@@ -202,7 +202,7 @@ public class ActivityParkourMonthlyCompetition202411 {
         int rank = 1;
         StringBuilder stringBuilder = new StringBuilder();
         ranking.refreshRankingData();
-        Set<? extends Map.Entry<String, ?>> list = ranking.getRankingData().entrySet();
+        Set<? extends Map.Entry<String, ?>> list = ranking.getRankingCache().entrySet();
         List<String> participatingPlayers = new ArrayList<>(PlayerGameDataManager.getPlayerAllGameData(activityId, "times").keySet());
         for (Map.Entry<String, ?> stringEntry : list) {
             participatingPlayers.remove(stringEntry.getKey());

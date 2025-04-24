@@ -449,7 +449,8 @@ public class BaseEventListener implements Listener {
             if (room1 != null && room1 == room2) {
                 Player victim = (Player) event.getEntity();
                 Player damager = (Player) event.getDamager();
-                if (room1.getRoomStatus() != RoomStatus.ROOM_STATUS_START) {
+                if ((room1.getRoomRule().isAllowAttackEntityBeforeStart() && room1.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START)
+                        || room1.getRoomStatus() != RoomStatus.ROOM_STATUS_START) {
                     event.setCancelled(true);
                     return;
                 }
@@ -521,11 +522,11 @@ public class BaseEventListener implements Listener {
             }
         } else {
             for (Room room : RoomManager.getRooms(entity.getLevel())) {
-                if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_START) {
-                    event.setCancelled(true);
-                    return;
-                }
                 if (entity instanceof Player) {
+                    if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_START) {
+                        event.setCancelled(true);
+                        return;
+                    }
                     Room room1 = RoomManager.getRoom((Player) entity);
                     if (!room1.getRoomRule().isAllowEnderPearlDamage()) {
                         if (event.getDamager() instanceof EntityEnderPearl) {
@@ -535,6 +536,12 @@ public class BaseEventListener implements Listener {
                     }
                     long diff = System.currentTimeMillis() - room.getPlayerProperty(entity.getName(), DefaultPropertyKey.KEY_LAST_RECEIVE_ENTITY_DAMAGE_MILLIS, 0L);
                     if (diff <= room.getRoomRule().getPlayerReceiveEntityDamageCoolDownMillis()) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                } else {
+                    if ((room.getRoomRule().isAllowAttackEntityBeforeStart() && room.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START)
+                            || room.getRoomStatus() != RoomStatus.ROOM_STATUS_START) {
                         event.setCancelled(true);
                         return;
                     }

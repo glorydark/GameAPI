@@ -85,7 +85,7 @@ public class RankingMonthlyConclusionCommand extends EasySubCommand {
                 if (simpleRanking.getGameName().equals("RecklessHero")) {
                     if (simpleRanking.getDataName().endsWith("_time")) {
                         ranking.refreshRankingData();
-                        Set<? extends Map.Entry<String, ?>> list = ranking.getRankingData().entrySet();
+                        Set<? extends Map.Entry<String, ?>> list = ranking.getRankingCache().entrySet();
                         String mapName = simpleRanking.getDataName().split("_")[0];
                         int score = 15;
                         switch (mapName) {

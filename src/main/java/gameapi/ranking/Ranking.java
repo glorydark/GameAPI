@@ -8,9 +8,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -91,10 +89,11 @@ public class Ranking {
     }
 
     public String getRawRankingContent(int maxDisplayCount, RankingFormat format) {
+        this.refreshRankingData();
         StringBuilder builder = new StringBuilder();
-        if (!this.getLatestRankingData().isEmpty()) {
+        if (!this.getRankingCache().isEmpty()) {
             int i = 1;
-            for (Map.Entry<String, ?> entry : this.getLatestRankingData().entrySet()) {
+            for (Map.Entry<String, ?> entry : this.getRankingCache().entrySet()) {
                 if (maxDisplayCount == -1 || i <= maxDisplayCount) {
                     String text = format.getScoreShowFormat().replace("%rank%", String.valueOf(i)).replace("%player%", entry.getKey()).replace("\\n", "\n");
                     if (this.getType() == RankingValueType.LONG_T0_TIME) {
@@ -136,22 +135,18 @@ public class Ranking {
         // 先转换成Map.Entry进行排序
         switch (this.type) {
             case DOUBLE:
-                List<Map.Entry<String, Double>> doubleTemp;
+                List<Map.Entry<String, Double>> doubleTemp = getMapByType(oldRankingData, Double.class).entrySet().stream().sorted(Map.Entry.<String, Double>comparingByValue().reversed()).collect(Collectors.toList());
                 if (this.rankingSortSequence == RankingSortSequence.DESCEND) {
-                    doubleTemp = getMapByType(oldRankingData, Double.class).entrySet().stream().sorted(Map.Entry.<String, Double>comparingByValue().reversed()).collect(Collectors.toList());
-                } else {
-                    doubleTemp = getMapByType(oldRankingData, Double.class).entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
+                    Collections.reverse(doubleTemp);
                 }
                 for (Map.Entry<String, Double> final_entry : doubleTemp) {
                     output.put(final_entry.getKey(), final_entry.getValue());
                 }
                 break;
             case FLOAT:
-                List<Map.Entry<String, Float>> floatTemp;
+                List<Map.Entry<String, Float>> floatTemp = getMapByType(oldRankingData, Float.class).entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
                 if (this.rankingSortSequence == RankingSortSequence.DESCEND) {
-                    floatTemp = getMapByType(oldRankingData, Float.class).entrySet().stream().sorted(Map.Entry.<String, Float>comparingByValue().reversed()).collect(Collectors.toList());
-                } else {
-                    floatTemp = getMapByType(oldRankingData, Float.class).entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
+                    Collections.reverse(floatTemp);
                 }
                 for (Map.Entry<String, Float> final_entry : floatTemp) {
                     output.put(final_entry.getKey(), final_entry.getValue());
@@ -159,11 +154,9 @@ public class Ranking {
                 break;
             case LONG:
             case LONG_T0_TIME:
-                List<Map.Entry<String, Long>> longTemp;
+                List<Map.Entry<String, Long>> longTemp = getMapByType(oldRankingData, Long.class).entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
                 if (this.rankingSortSequence == RankingSortSequence.DESCEND) {
-                    longTemp = getMapByType(oldRankingData, Long.class).entrySet().stream().sorted(Map.Entry.<String, Long>comparingByValue().reversed()).collect(Collectors.toList());
-                } else {
-                    longTemp = getMapByType(oldRankingData, Long.class).entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
+                    Collections.reverse(longTemp);
                 }
                 for (Map.Entry<String, Long> final_entry : longTemp) {
                     output.put(final_entry.getKey(), final_entry.getValue());
@@ -171,11 +164,9 @@ public class Ranking {
                 break;
             case INTEGER:
             default:
-                List<Map.Entry<String, Integer>> integerTemp;
+                List<Map.Entry<String, Integer>> integerTemp = getMapByType(oldRankingData, Integer.class).entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
                 if (this.rankingSortSequence == RankingSortSequence.DESCEND) {
-                    integerTemp = getMapByType(oldRankingData, Integer.class).entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toList());
-                } else {
-                    integerTemp = getMapByType(oldRankingData, Integer.class).entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors.toList());
+                    Collections.reverse(integerTemp);
                 }
                 for (Map.Entry<String, Integer> final_entry : integerTemp) {
                     output.put(final_entry.getKey(), final_entry.getValue());
@@ -220,5 +211,9 @@ public class Ranking {
 
     public Map<String, Object> getLatestRankingData() {
         return (Map<String, Object>) rankingData;
+    }
+
+    public Map<String, ?> getRankingCache() {
+        return rankingData;
     }
 }

@@ -152,10 +152,13 @@ public class BaseRoomExecutor extends RoomExecutor {
                 }
             }
         }
-        this.room.sendTitleToAll(
-                new TitleData()
-                        .title(new GameTranslationContainer("room.title.start"))
-                        .subtitle(new GameTranslationContainer("room.subtitle.start"))
-        );
+
+        if (this.room.getRoomRule().isDefaultTitleOnStart()) {
+            this.room.sendTitleToAll(
+                    new TitleData()
+                            .title(new GameTranslationContainer("room.title.start"))
+                            .subtitle(new GameTranslationContainer("room.subtitle.start"))
+            );
+        }
     }
 }

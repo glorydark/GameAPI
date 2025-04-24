@@ -607,6 +607,7 @@ public class Room {
             this.getRoomUpdateTask().cancel();
             this.getRoomTaskExecutor().shutdownNow();
             GameAPI.getGameDebugManager().info("关闭线程池成功: " + this.getRoomTaskExecutor().toString());
+            this.setRoomTaskExecutor(null);
         }
         this.stageStates = new ArrayList<>();
         GameListenerRegistry.callEvent(this, new RoomResetEvent(this));
@@ -627,13 +628,6 @@ public class Room {
         this.getCheckpointManager().clearAllPlayerCheckPointData();
         this.getGhostyManager().clearAll();
         this.roomVirtualHealthManager.clearAll();
-        if (this.playLevels == null) {
-            GameAPI.getInstance().getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
-            if (this.resetMap) {
-                RoomManager.unloadRoom(this);
-            }
-            return;
-        }
         // 增加默认地图判断
         for (Level playLevel : this.playLevels) {
             if (playLevel == null || playLevel.getProvider() == null) {
@@ -663,6 +657,11 @@ public class Room {
             RoomManager.unloadRoom(this);
         } else {
             if (this.resetMap) {
+                if (this.playLevels == null) {
+                    GameAPI.getInstance().getLogger().warning("Unable to find the unloading map, room name: " + this.getRoomName());
+                    RoomManager.unloadRoom(this);
+                    return;
+                }
                 GameAPI.getInstance().getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.room_and_map", this.getRoomName()));
                 if (WorldTools.unloadAndReloadLevels(this)) {
                     this.roomTaskExecutor = Executors.newScheduledThreadPool(4);
@@ -872,6 +871,8 @@ public class Room {
             if (this.getRoomRule().isAllowRespawn() && ev.isRespawn()) {
                 int respawnTicks = this.getRoomRule().getRespawnCoolDownTick();
                 this.addRespawnTask(player, respawnTicks);
+            } else {
+                player.setGamemode(this.roomRule.getSpectatorGameMode());
             }
         }
     }
@@ -1183,10 +1184,11 @@ public class Room {
     public void addEntityDamageSource(Entity victim, Entity damager, float damage) {
         AtomicReference<Float> damageAll = new AtomicReference<>(0f);
         new ArrayList<>(this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>())).stream().filter(
-                entityDamageSource -> damager == entityDamageSource.getDamager()).forEach(
-                entityDamageSource -> {
-                    damageAll.updateAndGet(v -> v + entityDamageSource.getFinalDamage());
-                    this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>()).remove(entityDamageSource);
+                entityDamageSource -> entityDamageSource != null && damager == entityDamageSource.getDamager())
+                .forEach(
+                        entityDamageSource -> {
+                            damageAll.updateAndGet(v -> v + entityDamageSource.getFinalDamage());
+                            this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>()).remove(entityDamageSource);
                 }
         );
         this.getLastEntityReceiveDamageSource().computeIfAbsent(victim, o -> new ArrayList<>()).add(new EntityDamageSource(damager, damage, damageAll.get() + damage, System.currentTimeMillis()));
@@ -1194,6 +1196,7 @@ public class Room {
 
     public Optional<EntityDamageSource> getLastEntityDamageByEntitySource(Entity victim) {
         List<EntityDamageSource> entityDamageSources = this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>());
+        entityDamageSources.removeIf(Objects::isNull);
         entityDamageSources.removeIf(entityDamageSource -> {
             Entity entity = entityDamageSource.getDamager();
             return System.currentTimeMillis() - entityDamageSource.getMilliseconds() > 6000L

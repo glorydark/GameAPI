@@ -91,11 +91,20 @@ public class AdvancedDoubleChestForm extends AdvancedBlockFakeBlockInventoryImpl
 
         AdvancedFormListener.addChestMenuCache(player, this);
 
-        Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), new Task() {
-            @Override
-            public void onRun(int i) {
-                player.addWindow(getResultInventory());
-            }
-        }, GameAPI.OPEN_INVENTORY_DELAY_TICKS);
+        if (GameAPI.OPEN_INVENTORY_DELAY_TICKS == 0) {
+            Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), new Task() {
+                @Override
+                public void onRun(int i) {
+                    player.addWindow(getResultInventory());
+                }
+            }, 3);
+        } else {
+            Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(), new Task() {
+                @Override
+                public void onRun(int i) {
+                    player.addWindow(getResultInventory());
+                }
+            }, GameAPI.OPEN_INVENTORY_DELAY_TICKS);
+        }
     }
 }

@@ -68,7 +68,7 @@ public class GameAPI extends PluginBase implements Listener {
     protected static boolean experimentalFeature = false;
     protected static boolean isFirstLaunch = true;
     // Since v_1_21_70, before opening another inventory, the action should wait at least 9 ticks to avoid lapping.
-    public static final int OPEN_INVENTORY_DELAY_TICKS = 9;
+    public static int OPEN_INVENTORY_DELAY_TICKS = 9;
 
     public static void addRoomEdit(EditProcess editProcess) {
         editProcessList.add(editProcess);
@@ -132,6 +132,7 @@ public class GameAPI extends PluginBase implements Listener {
         gameDebugManager.setEnableConsoleDebug(config.getBoolean("log_show_in_console", true));
         this.glorydarkRelatedFeature = config.getBoolean("glorydark-feature", false);
         this.saveTempStates = config.getBoolean("save-temp-state", true);
+        OPEN_INVENTORY_DELAY_TICKS = config.getInt("inventory-menu-open-delay-ticks");
         this.timestampApi = config.getString("timestamp-api", "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Shanghai");
         RankingManager.rankingTextEntityRefreshIntervals = config.getInt("ranking-text-entity-refresh-intervals", 100);
         // load lang data
