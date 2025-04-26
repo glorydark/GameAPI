@@ -199,6 +199,14 @@ public class SmartTools {
         return number + suffix;
     }
 
+    public static String getTrimmedName(String name) {
+        if (name.length() > 10) {
+            return name.substring(0, 7) + "...";
+        } else {
+            return name;
+        }
+    }
+
     public <T> List<T> buildList(Supplier<List<T>> supplier) {
         return supplier.get();
     }

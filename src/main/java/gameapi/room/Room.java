@@ -52,6 +52,7 @@ import lombok.Setter;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -133,6 +134,53 @@ public class Room {
     private Map<Entity, List<EntityDamageSource>> lastEntityReceiveDamageSource = new LinkedHashMap<>();
     private String prevChangeStatusReason = "";
     public long maxTempRoomWaitMillis = 1800000L;
+
+    public static final BiFunction<Room, Player, Boolean> DEFAULT_ROOM_ADD_PLAYER_CHECK = new BiFunction<Room, Player, Boolean>() {
+        @Override
+        public Boolean apply(Room room, Player player) {
+            switch (room.getRoomStatus()) {
+                case ROOM_MAP_LOAD_FAILED:
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
+                    return true;
+                case ROOM_MAP_INITIALIZING:
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.resetting"));
+                    return true;
+                case ROOM_HALTED:
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
+                    return true;
+                case ROOM_STATUS_READY_START:
+                    if (room.getRoomRule().isAllowJoinAfterReadyStart()) {
+                        break;
+                    } else {
+                        room.processSpectatorJoin(player);
+                    }
+                    return true;
+                case ROOM_STATUS_START:
+                    if (!room.getRoomRule().isAllowJoinAfterStart()) {
+                        if (room.getRoomRule().isAllowSpectators()) {
+                            room.processSpectatorJoin(player);
+                            return true;
+                        } else {
+                            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                        }
+                    } else if (room.getRoomRule().isAllowSpectators()) {
+                        room.processSpectatorJoin(player);
+                        return true;
+                    }
+                    break;
+                case ROOM_STATUS_GAME_END:
+                case ROOM_STATUS_CEREMONY:
+                case ROOM_STATUS_END:
+                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                    return true;
+            }
+            return false;
+        }
+    };
+
+    // If returned with true, it means this function is enough to do with the join process.
+    // Other default logic will be defunct.
+    protected BiFunction<Room, Player, Boolean> addPlayerCheck = DEFAULT_ROOM_ADD_PLAYER_CHECK;
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this(gameName, roomRule, "", round);
@@ -428,35 +476,9 @@ public class Room {
                 return;
             }
         }
-        switch (this.roomStatus) {
-            case ROOM_MAP_LOAD_FAILED:
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
-                return;
-            case ROOM_MAP_INITIALIZING:
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.resetting"));
-                return;
-            case ROOM_HALTED:
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
-                return;
-            // case ROOM_STATUS_READY_START:
-            case ROOM_STATUS_START:
-                if (!this.roomRule.isAllowJoinAfterStart()) {
-                    if (this.getRoomRule().isAllowSpectators()) {
-                        this.processSpectatorJoin(player);
-                        return;
-                    } else {
-                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
-                    }
-                } else if (this.getRoomRule().isAllowSpectators()) {
-                    this.processSpectatorJoin(player);
-                    return;
-                }
-                break;
-            case ROOM_STATUS_GAME_END:
-            case ROOM_STATUS_CEREMONY:
-            case ROOM_STATUS_END:
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
-                return;
+
+        if (this.addPlayerCheck.apply(this, player)) {
+            return;
         }
 
         if (this.players.size() < this.maxPlayer) {

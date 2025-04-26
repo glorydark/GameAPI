@@ -28,6 +28,10 @@ public class GameListenerRegistry {
         listeners = new ConcurrentHashMap<>();
     }
 
+    public static void registerGlobalEvents(GameListener listener, Plugin plugin) {
+        registerEvents(KEY_GLOBAL_LISTENER, listener, plugin);
+    }
+
     public static void registerEvents(String gameName, GameListener listener, Plugin plugin) {
         if (!plugin.isEnabled()) {
             throw new PluginException("Plugin attempted to register " + listener.getClass().getName() + " while not enabled");

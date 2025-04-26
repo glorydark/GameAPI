@@ -33,6 +33,9 @@ public class EasyCommand extends Command {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
+        if (this.hasPermission(commandSender)) {
+            return false;
+        }
         if (strings.length == 0) {
             if (this.baseCommand != null) {
                 this.baseCommand.execute(commandSender, s, strings);
@@ -47,5 +50,9 @@ public class EasyCommand extends Command {
             }
         }
         return false;
+    }
+
+    public boolean hasPermission(CommandSender commandSender) {
+        return true;
     }
 }

@@ -242,8 +242,13 @@ public class RoomTask extends Task {
                 break;
             case GAME_END:
                 if (room.getTime() >= room.getGameEndTime()) {
-                    room.getStatusExecutor().beginCeremony();
-                    room.setRoomStatus(RoomStatus.ROOM_STATUS_CEREMONY, "internal");
+                    if (room.getRoomRule().isHasCeremony()) {
+                        room.getStatusExecutor().beginCeremony();
+                        room.setRoomStatus(RoomStatus.ROOM_STATUS_CEREMONY, "internal");
+                    } else {
+                        room.setRoomStatus(RoomStatus.ROOM_STATUS_END, "internal");
+                        room.resetAll(ResetAllReason.ROOM_GAME_FINISH);
+                    }
                 } else {
                     room.getStatusExecutor().onGameEnd();
                     room.setTime(room.getTime() + 1);

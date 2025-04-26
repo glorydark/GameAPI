@@ -106,6 +106,8 @@ public class RoomRule {
 
     private int spectatorGameMode = 3;
 
+    private boolean allowJoinAfterReadyStart = false;
+
     private boolean allowJoinAfterStart = false;
 
     /**

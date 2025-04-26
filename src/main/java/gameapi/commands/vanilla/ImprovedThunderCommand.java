@@ -1,6 +1,8 @@
 package gameapi.commands.vanilla;
 
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandParamType;
+import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.entity.weather.EntityLightning;
 import cn.nukkit.level.Location;
 import gameapi.commands.base.EasySubCommand;
@@ -11,6 +13,12 @@ public class ImprovedThunderCommand extends EasySubCommand {
 
     public ImprovedThunderCommand(String name) {
         super(name);
+        this.commandParameters.put("clear", new CommandParameter[]{
+                CommandParameter.newType("x", false, CommandParamType.FLOAT),
+                CommandParameter.newType("y", false, CommandParamType.FLOAT),
+                CommandParameter.newType("z", false, CommandParamType.FLOAT),
+                CommandParameter.newType("level", true, CommandParamType.STRING)
+        });
     }
 
     @Override

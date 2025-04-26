@@ -3,6 +3,8 @@ package gameapi.commands.vanilla;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandParamType;
+import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.level.Location;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.tools.SpatialTools;
@@ -14,6 +16,17 @@ public class ImprovedTeleportCommand extends EasySubCommand {
 
     public ImprovedTeleportCommand(String name) {
         super(name);
+        this.getCommandParameters().clear();
+        this.commandParameters.put("default", new CommandParameter[]{
+                CommandParameter.newType("players", false, CommandParamType.STRING),
+                CommandParameter.newType("x", false, CommandParamType.FLOAT),
+                CommandParameter.newType("y", false, CommandParamType.FLOAT),
+                CommandParameter.newType("z", false, CommandParamType.FLOAT),
+                CommandParameter.newType("level", true, CommandParamType.STRING),
+                CommandParameter.newType("yaw", true, CommandParamType.FLOAT),
+                CommandParameter.newType("pitch", true, CommandParamType.FLOAT),
+                CommandParameter.newType("headyaw", true, CommandParamType.FLOAT)
+        });
     }
 
     @Override

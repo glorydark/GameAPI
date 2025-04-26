@@ -17,6 +17,7 @@ import gameapi.commands.defaults.room.*;
 import gameapi.commands.defaults.tools.PlaySoundCommand;
 import gameapi.commands.defaults.tools.StopMusicCommand;
 import gameapi.commands.defaults.tools.ThunderCommand;
+import gameapi.commands.vanilla.ImprovedXpCommand;
 
 /**
  * @author glorydark

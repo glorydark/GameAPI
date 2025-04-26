@@ -1,6 +1,7 @@
 package gameapi.commands;
 
 import cn.nukkit.Player;
+import cn.nukkit.command.CommandSender;
 import gameapi.annotation.Experimental;
 import gameapi.commands.base.EasyCommand;
 import gameapi.commands.worldedit.*;
