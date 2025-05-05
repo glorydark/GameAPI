@@ -1,6 +1,10 @@
 package gameapi;
 
+import gameapi.tools.CalendarTools;
+
 import java.io.File;
+import java.time.Month;
+import java.util.Calendar;
 
 /**
  * @author glorydark
@@ -8,13 +12,15 @@ import java.io.File;
 public class Test {
 
     public static void main(String[] args) {
-        File file = new File("E:/dependencies/moli-test-server/plugins/GameAPI/worlds/RecklessHero/");
-        for (File listFile : file.listFiles()) {
-            String name = listFile.getName();
-            if (name.endsWith("-convert")) {
-                name = name.replace("-convert", "");
-            }
-            listFile.renameTo(new File("E:/dependencies/moli-test-server/plugins/GameAPI/worlds/RecklessHero/" + name));
-        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, 4);
+        System.out.println(CalendarTools.getWeekString(calendar));
+
+        calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, 5);
+        System.out.println(CalendarTools.getWeekString(calendar));
+
+        calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, 12);
+        System.out.println(CalendarTools.getWeekString(calendar));
     }
 }

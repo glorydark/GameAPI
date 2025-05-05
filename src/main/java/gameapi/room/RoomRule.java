@@ -1,7 +1,6 @@
 package gameapi.room;
 
 import gameapi.room.utils.BasicAttackSetting;
-import gameapi.room.utils.HideType;
 import gameapi.tools.type.TipElementType;
 import lombok.Data;
 

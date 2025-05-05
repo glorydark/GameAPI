@@ -65,7 +65,7 @@ public class RankingManager {
                 );
             }
             Location location;
-            AdvancedLocation advancedLocation = SpatialTools.parseLocation(config.getString("position"));
+            AdvancedLocation advancedLocation = SpatialTools.parseLocation(map.getOrDefault("x", 0) + ":" + map.getOrDefault("y", 0) + ":" + map.getOrDefault("z", 0) + ":" + level);
             if (advancedLocation != null) {
                 location = advancedLocation.getLocation();
                 if (location.getChunk() == null) {
@@ -107,11 +107,12 @@ public class RankingManager {
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof RankingListEntity) {
-                    GameEntityManager.textEntityDataList.clear();
+                    ((RankingListEntity) entity).setInvalid(true);
                     entity.close();
                 }
             }
         }
+        GameEntityManager.textEntityDataList.clear();
     }
 
     public static void spawnRankingListEntity(Location location, Ranking ranking) {

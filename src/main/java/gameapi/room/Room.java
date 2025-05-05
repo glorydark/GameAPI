@@ -5,10 +5,12 @@ import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.player.PlayerTeleportEvent;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockVector3;
+import cn.nukkit.network.protocol.CreativeContentPacket;
 import gameapi.GameAPI;
 import gameapi.commands.defaults.dev.HideChatCommand;
 import gameapi.entity.TextEntity;
@@ -32,7 +34,6 @@ import gameapi.room.executor.RoomExecutor;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.state.StageState;
 import gameapi.room.team.BaseTeam;
-import gameapi.room.utils.HideType;
 import gameapi.room.utils.reason.JoinRoomReason;
 import gameapi.room.utils.reason.QuitRoomReason;
 import gameapi.room.utils.reason.ResetAllReason;
@@ -71,7 +72,7 @@ public class Room {
     @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, Object> roomProperties = new LinkedHashMap<>();
     @Setter(AccessLevel.NONE)
-    protected LinkedHashMap<String, Object> inheritProperties = new LinkedHashMap<>();
+    protected LinkedHashMap<String, LinkedHashMap<String, Object>> internalProperties = new LinkedHashMap<>();
     protected String joinPassword = "";
     // Used as a temporary room and will be deleted after the game.
     private RoomExecutor statusExecutor = new BaseRoomExecutor(this);
@@ -134,6 +135,9 @@ public class Room {
     private Map<Entity, List<EntityDamageSource>> lastEntityReceiveDamageSource = new LinkedHashMap<>();
     private String prevChangeStatusReason = "";
     public long maxTempRoomWaitMillis = 1800000L;
+
+    public static final String INTERNAL_KEY_ROOM_INTERNAL = "room_internal";
+    public static final String INTERNAL_KEY_VISIBLE_TO_PLAYERS = "visible_to_players";
 
     public static final BiFunction<Room, Player, Boolean> DEFAULT_ROOM_ADD_PLAYER_CHECK = new BiFunction<Room, Player, Boolean>() {
         @Override
@@ -272,6 +276,55 @@ public class Room {
 
     public boolean hasRoomProperty(String key) {
         return this.roomProperties.containsKey(key);
+    }
+
+    //
+    public Object getInternalPlayerProperty(Player player, String key) {
+        return this.getInternalPlayerProperty(player.getName(), key);
+    }
+
+    public <T> T getInternalPlayerProperty(Player player, String key, T defaultValue) {
+        return this.getInternalPlayerProperty(player.getName(), key, defaultValue);
+    }
+
+    public void setInternalPlayerProperty(Player player, String key, Object value) {
+        this.setInternalPlayerProperty(player.getName(), key, value);
+    }
+
+    public Object getInternalPlayerProperty(String player, String key) {
+        return this.getInternalPlayerProperty(player, key, null);
+    }
+
+    public <T> T getInternalPlayerProperty(String player, String key, T defaultValue) {
+        return this.internalProperties.containsKey(player) ? (T) this.internalProperties.get(player).getOrDefault(key, defaultValue) : defaultValue;
+    }
+
+    public void setInternalPlayerProperty(String player, String key, Object value) {
+        this.internalProperties.computeIfAbsent(player, (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>()).put(key, value);
+    }
+
+    public boolean hasInternalPlayerProperty(String player, String key) {
+        if (this.internalProperties.containsKey(player)) {
+            return this.internalProperties.get(player).containsKey(key);
+        } else {
+            return false;
+        }
+    }
+
+    public Object getInternalRoomProperty(String key) {
+        return this.getRoomProperty(key, null);
+    }
+
+    public <T> T getInternalRoomProperty(String key, T defaultValue) {
+        return getInternalPlayerProperty(INTERNAL_KEY_ROOM_INTERNAL, key, defaultValue);
+    }
+
+    public void setInternalRoomProperty(String key, Object value) {
+        this.setInternalPlayerProperty(INTERNAL_KEY_ROOM_INTERNAL, key, value);
+    }
+
+    public boolean hasInternalRoomProperty(String key) {
+        return hasInternalPlayerProperty(INTERNAL_KEY_ROOM_INTERNAL, key);
     }
 
     public void executeLoseCommands(Player player) {
@@ -488,6 +541,11 @@ public class Room {
                 RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
                 GameListenerRegistry.callEvent(this, ev);
                 if (!ev.isCancelled()) {
+                    for (Player player1 : this.getPlayers()) {
+                        if (this.getInternalPlayerProperty(player, INTERNAL_KEY_VISIBLE_TO_PLAYERS, false)) {
+                            player.hidePlayer(player1);
+                        }
+                    }
                     this.roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
                     this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
                     this.players.add(player);
@@ -498,8 +556,6 @@ public class Room {
                     this.resetSpeed(player);
                     player.setFoodEnabled(this.getRoomRule().isAllowFoodLevelChange());
                     player.setHealth(player.getMaxHealth());
-                    this.hidePlayer(player, this.getRoomRule().getHideType());
-                    this.updateHideStatus(player, false);
                     if (!this.getRoomRule().isEnableVanillaMoveCheck()) {
                         player.setCheckMovement(false);
                     }
@@ -541,6 +597,11 @@ public class Room {
             for (Player p : this.getPlayers()) {
                 p.sendMessage(GameAPI.getLanguage().getTranslation(p, "baseEvent.quit.success", player.getName()));
             }
+            // reset hide status
+            for (Player player1 : this.getPlayers()) {
+                player1.showPlayer(player);
+                player.showPlayer(player1);
+            }
             if (GameAPI.getInstance().isTipsEnabled()) {
                 for (Level playLevel : this.getPlayLevels()) {
                     TipsTools.removeTipsConfig(playLevel.getName(), player, this.getRoomRule().getTipHideElements().toArray(new TipElementType[0]));
@@ -556,7 +617,6 @@ public class Room {
             this.roomVirtualHealthManager.removePlayer(player);
             this.removePlayerFromTeam(player);
             ScoreboardManager.removeScoreboard(player);
-            this.updateHideStatus(player, true);
             if (this.getOggMusicManager() != null) {
                 this.getOggMusicManager().onQuit(player);
             }
@@ -564,6 +624,8 @@ public class Room {
             player.setCheckMovement(false);
 
             RoomManager.getPlayerRoomHashMap().remove(player);
+
+            this.removeHideStatus(player);
 
             if (reason != QuitRoomReason.TELEPORT) {
                 if (this.getEndSpawn() != null && this.getEndSpawn().getLocation() != null && this.getEndSpawn().getLocation().isValid()) {
@@ -784,7 +846,7 @@ public class Room {
         player.sendMessage(GameAPI.getLanguage().getTranslation("room.spectator.quit"));
         this.spectators.remove(player);
         RoomManager.getPlayerRoomHashMap().remove(player);
-
+        this.removeHideStatus(player);
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
     }
 
@@ -805,7 +867,6 @@ public class Room {
         }
         this.spectators.add(player);
         RoomManager.getPlayerRoomHashMap().put(player, this);
-        player.setGamemode(this.roomRule.getSpectatorGameMode());
         player.removeAllEffects();
         player.setNameTagVisible(false);
         player.setNameTagAlwaysVisible(false);
@@ -845,6 +906,11 @@ public class Room {
         }
         for (Player p : this.getSpectators()) {
             p.sendMessage(GameAPI.getLanguage().getTranslation(p, "room.game.broadcast.join_spectator", player.getName()));
+        }
+        if (this.roomRule.getSpectatorGameMode() == 1) {
+            setPlayerCreativeSpectator(player);
+        } else {
+            player.setGamemode(this.roomRule.getSpectatorGameMode());
         }
         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.spectator.join"));
     }
@@ -1003,60 +1069,31 @@ public class Room {
         playLevels.remove(loadLevel);
     }
 
-    public void updateHideStatus(Player player, boolean isQuit) {
-        if (isQuit) {
-            for (Player onlinePlayer : Server.getInstance().getOnlinePlayers().values()) {
-                if (!player.canSee(onlinePlayer)) {
-                    player.showPlayer(onlinePlayer);
-                }
-            }
-        } else if (this.roomRule.getHideType() == HideType.NOT_IN_THE_SAME_ROOM) {
-            // 玩家加入房间，如果只有房内可见，只需要更新房内玩家的hidePlayers即可
-            for (Player roomPlayer : this.getPlayers()) {
-                roomPlayer.showPlayer(player);
-            }
+    public void removeHideStatus(Player player) {
+        this.setInternalPlayerProperty(player, INTERNAL_KEY_VISIBLE_TO_PLAYERS, false);
+        for (Player player1 : this.getPlayers()) {
+            player1.showPlayer(player);
+            player.showPlayer(player1);
         }
     }
 
-    public void hidePlayer(Player player, HideType type) {
-        switch (type) {
-            case ALL:
-                for (Player target : Server.getInstance().getOnlinePlayers().values()) {
-                    if (player.canSee(target)) {
-                        player.hidePlayer(target);
-                    }
-                }
-                break;
-            case NOT_IN_THE_SAME_ROOM:
-                Room room = RoomManager.getRoom(player);
-                for (Player target : Server.getInstance().getOnlinePlayers().values()) {
-                    Room targetRoom = RoomManager.getRoom(target);
-                    if (room != targetRoom) {
-                        if (player.canSee(target)) {
-                            player.hidePlayer(target);
-                        }
-                    }
-                }
-                break;
-            default:
-                for (Player value : Server.getInstance().getOnlinePlayers().values()) {
-                    if (!value.canSee(player)) {
-                        value.showPlayer(player);
-                    }
-                    if (!player.canSee(value)) {
-                        player.showPlayer(value);
-                    }
-                }
-                break;
-        }
+    public void setPlayerCreativeSpectator(Player player) {
+        player.setGamemode(1);
+        CreativeContentPacket pk = new CreativeContentPacket();
+        pk.entries = new Item[0];
+        player.dataPacket(pk);
+        setPlayerHideFromPlayers(player, false);
     }
 
-    public void showPlayer(Player player) {
-        for (Player value : Server.getInstance().getOnlinePlayers().values()) {
-            Room room = RoomManager.getRoom(player);
-            Room targetRoom = RoomManager.getRoom(value);
-            if (room == targetRoom && !player.canSee(value)) {
-                player.showPlayer(value);
+    public void setPlayerHideFromPlayers(Player player, boolean visible) {
+        this.setInternalPlayerProperty(player, INTERNAL_KEY_VISIBLE_TO_PLAYERS, visible);
+        if (visible) {
+            for (Player player1 : this.getPlayers()) {
+                player1.showPlayer(player);
+            }
+        } else {
+            for (Player player1 : this.getPlayers()) {
+                player1.hidePlayer(player);
             }
         }
     }

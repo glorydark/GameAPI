@@ -17,7 +17,6 @@ import gameapi.commands.defaults.room.*;
 import gameapi.commands.defaults.tools.PlaySoundCommand;
 import gameapi.commands.defaults.tools.StopMusicCommand;
 import gameapi.commands.defaults.tools.ThunderCommand;
-import gameapi.commands.vanilla.ImprovedXpCommand;
 
 /**
  * @author glorydark
@@ -46,6 +45,8 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new SeeInventoryCommand("seeinv"));
 
         this.registerCommand(new SeeItemTagCommand("seeitemtag"));
+
+        this.registerCommand(new SeeSpeedCommand("seespeed"));
 
         this.registerCommand(new GetBlockPosCommand("blockpos"));
         this.registerCommand(new GetChestPosCommand("getchestpos"));
@@ -93,7 +94,7 @@ public class GameAPICommandMain extends EasyCommand {
         // experimental && personal test
         if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
             this.registerCommand(new RankingMonthlyConclusionCommand("monthrank"));
-            this.registerCommand(new ChangeToSnowBiome("snow"));
+            this.registerCommand(new ChangeToSnowBiomeCommand("snow"));
         }
     }
 }

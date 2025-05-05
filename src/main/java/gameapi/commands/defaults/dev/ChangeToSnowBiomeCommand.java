@@ -10,9 +10,9 @@ import gameapi.commands.base.EasySubCommand;
 /**
  * @author glorydark
  */
-public class ChangeToSnowBiome extends EasySubCommand {
+public class ChangeToSnowBiomeCommand extends EasySubCommand {
 
-    public ChangeToSnowBiome(String name) {
+    public ChangeToSnowBiomeCommand(String name) {
         super(name);
     }
 

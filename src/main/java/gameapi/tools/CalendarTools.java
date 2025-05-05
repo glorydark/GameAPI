@@ -21,13 +21,13 @@ import java.util.Date;
  */
 public class CalendarTools {
 
-    protected static final String DATE_FORMAT_DETAILED_EASY = "yyyy-MM-dd HH-mm-ss";
+    public static final String DATE_FORMAT_DETAILED_EASY = "yyyy-MM-dd HH-mm-ss";
 
-    protected static final String DATE_FORMAT_DETAILED = "yyyy年MM月dd日 HH时mm分ss秒";
+    public static final String DATE_FORMAT_DETAILED = "yyyy年MM月dd日 HH时mm分ss秒";
 
-    protected static final String DATE_FORMAT = "yyyy年MM月dd日";
+    public static final String DATE_FORMAT = "yyyy年MM月dd日";
 
-    protected static final String DATE_FORMAT_SIMPLE = "yyyy/MM/dd日";
+    public static final String DATE_FORMAT_SIMPLE = "yyyy/MM/dd日";
 
     public static final long MILLIS_MINUTE = 60000;
     public static final long MILLIS_HOUR = 3600000;
@@ -37,10 +37,17 @@ public class CalendarTools {
     public static final long MILLIS_YEAR = 31536000000L;
 
     public static String getWeekString(Calendar calendar) {
-        if (calendar.getWeekYear() != calendar.get(Calendar.DAY_OF_YEAR)) {
-            return (calendar.getWeekYear() - 1) + "-" + calendar.getWeeksInWeekYear();
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        int week = calendar.get(Calendar.WEEK_OF_YEAR);
+        int year = calendar.get(Calendar.YEAR);
+        calendar.add(Calendar.DAY_OF_MONTH, -7);
+        int yearBefore = calendar.get(Calendar.YEAR);
+        int weekBefore = calendar.get(Calendar.WEEK_OF_YEAR);
+        if (week < weekBefore) {
+            yearBefore += 1;
+            year = yearBefore;
         }
-        return calendar.getWeekYear() + "-" + calendar.getWeeksInWeekYear();
+        return year + "-" + week;
     }
 
     public static String getDateStringByDefault(long millis) {

@@ -33,7 +33,7 @@ public class EasyCommand extends Command {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
-        if (this.hasPermission(commandSender)) {
+        if (!this.hasPermission(commandSender)) {
             return false;
         }
         if (strings.length == 0) {

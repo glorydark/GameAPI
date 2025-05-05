@@ -3,6 +3,7 @@ package gameapi.manager.data;
 import cn.nukkit.Player;
 import cn.nukkit.utils.Config;
 import gameapi.GameAPI;
+import gameapi.tools.CalendarTools;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,11 +32,10 @@ public class PlayerGameDataManager {
     }
 
     public static void clearGameData(String gameName, String fileName) {
-        for (Map.Entry<String, Map<String, Object>> entry : new ArrayList<>(playerData.entrySet())) {
-            playerData.remove(gameName + "_" + fileName);
-        }
+        playerData.remove(gameName + "_" + fileName);
         File file = new File(GameAPI.getPath() + "/gameRecords/" + gameName + "/" + fileName + ".yml");
-        File moveTo = new File(GameAPI.getPath() + "/old_gameRecords/" + gameName + "_" + fileName + "_" + System.currentTimeMillis() + ".yml");
+        new File(GameAPI.getPath() + "/old_game_records/").mkdirs();
+        File moveTo = new File(GameAPI.getPath() + "/old_game_records/" + gameName + "_" + fileName + "_" + CalendarTools.getDateString(CalendarTools.DATE_FORMAT_DETAILED) + ".yml");
         try {
             Files.move(file.toPath(), moveTo.toPath());
         } catch (IOException e) {

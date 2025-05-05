@@ -1,4 +1,4 @@
-package gameapi.room.utils;
+package gameapi.room;
 
 /**
  * @author glorydark
@@ -6,8 +6,6 @@ package gameapi.room.utils;
 public enum HideType {
 
     NONE,
-
-    ALL,
-
-    NOT_IN_THE_SAME_ROOM
+    DIFFERENT_GAMEMODE,
+    OTHERS
 }

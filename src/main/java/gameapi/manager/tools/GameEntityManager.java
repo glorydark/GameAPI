@@ -33,12 +33,8 @@ public class GameEntityManager {
                         textEntityDataList.remove(textEntityData);
                         return;
                     }
-                    if (textEntity.getLevel().getPlayers().isEmpty()) {
-                        textEntity.despawnFromAll();
+                    if (!textEntity.isAlive() || textEntity.isClosed()) {
                         textEntity.close();
-                        textEntityDataList.remove(textEntityData);
-                        continue;
-                    } else if (!textEntity.isAlive() || textEntity.isClosed()) {
                         textEntity.respawn();
                     }
                 }
@@ -104,6 +100,7 @@ public class GameEntityManager {
     }
 
     public static void closeAll() {
+        RankingManager.getRankingFactory().clear();
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof TextEntity) {
@@ -112,7 +109,6 @@ public class GameEntityManager {
                 }
             }
         }
-        RankingManager.getRankingFactory().clear();
     }
 
     public static void spawnTextEntity(Location location, String content) {
