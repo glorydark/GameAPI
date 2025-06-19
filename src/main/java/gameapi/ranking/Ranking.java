@@ -78,6 +78,7 @@ public class Ranking {
         if (!onlyContent) {
             builder.append(this.getTitle().replace("\\n", "\n")).append("\n");
         }
+        this.refreshRankingData();
         if (!this.rankingData.isEmpty()) {
             builder.append(getRawRankingContent(this.maxDisplayCount, format));
         } else {

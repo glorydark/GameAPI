@@ -3,6 +3,7 @@ package gameapi.commands;
 import gameapi.GameAPI;
 import gameapi.commands.base.EasyCommand;
 import gameapi.commands.defaults.DebugCommand;
+import gameapi.commands.defaults.TestCommand;
 import gameapi.commands.defaults.achievement.AchievementGiveCommand;
 import gameapi.commands.defaults.achievement.AchievementReloadCommand;
 import gameapi.commands.defaults.achievement.AchievementUICommand;
@@ -96,5 +97,7 @@ public class GameAPICommandMain extends EasyCommand {
             this.registerCommand(new RankingMonthlyConclusionCommand("monthrank"));
             this.registerCommand(new ChangeToSnowBiomeCommand("snow"));
         }
+
+        this.registerCommand(new TestCommand("test"));
     }
 }

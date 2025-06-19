@@ -52,6 +52,13 @@ public class NBSMusicManager {
         this.stopped = false;
     }
 
+    public void resume() {
+        if (!this.stopped) {
+            return;
+        }
+        this.stopped = false;
+    }
+
     public void onTick() {
         Song currentSong = this.getCurrentSong();
         if (currentSong == null) {
@@ -77,6 +84,7 @@ public class NBSMusicManager {
                 GameAPI.getGameDebugManager().info("Finish playing, stopping music player for the room: " + this.room.getRoomName());
                 this.stopped = true;
             } else {
+                this.currentTick = 0;
                 this.currentSong = this.getNextSong();
             }
             return;
@@ -87,8 +95,12 @@ public class NBSMusicManager {
         this.lastPlayed = System.currentTimeMillis();
     }
 
-    public void stop() {
+    public void pause() {
         this.stopped = true;
+    }
+
+    public void stop() {
+        this.reset();
     }
 
     public void reset() {
@@ -109,6 +121,9 @@ public class NBSMusicManager {
 
     public Song getNextSong() {
         int currentSongIndex = this.playList.indexOf(this.currentSong);
+        if (currentSongIndex == -1 && !this.playList.isEmpty()) {
+            currentSongIndex = 0;
+        }
         switch (this.playType) {
             case LIST_LOOP:
                 if (currentSongIndex + 1 >= this.playList.size()) {
@@ -118,8 +133,14 @@ public class NBSMusicManager {
                 }
                 return this.playList.get(currentSongIndex);
             case SINGLE_TRACK_LOOP:
-                return this.playList.get(currentSongIndex);
+                if (this.currentSong == null && this.playList.isEmpty()) {
+                    return null;
+                }
+                return this.currentSong;
             case SHUFFLE:
+                if (currentSongIndex + 1 >= this.playList.size()) {
+                    return null;
+                }
                 Collections.shuffle(this.playList);
                 return this.playList.get(ThreadLocalRandom.current().nextInt(this.playList.size()));
             case LIST:

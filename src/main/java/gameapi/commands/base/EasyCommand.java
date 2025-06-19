@@ -14,8 +14,6 @@ public class EasyCommand extends Command {
 
     protected Map<String, EasySubCommand> easySubCommandMap = new LinkedHashMap<>();
 
-    protected EasySubCommand baseCommand = null;
-
     public EasyCommand(String name) {
         super(name);
         this.getCommandParameters().clear();
@@ -31,15 +29,17 @@ public class EasyCommand extends Command {
         }
     }
 
+    public void onExecuteDefault(CommandSender commandSender) {
+
+    }
+
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (!this.hasPermission(commandSender)) {
             return false;
         }
         if (strings.length == 0) {
-            if (this.baseCommand != null) {
-                this.baseCommand.execute(commandSender, s, strings);
-            }
+            this.onExecuteDefault(commandSender);
         } else {
             String subCommand = strings[0];
             EasySubCommand easySubCommand = this.easySubCommandMap.get(subCommand);

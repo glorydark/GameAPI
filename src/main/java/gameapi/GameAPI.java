@@ -5,7 +5,11 @@ import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Position;
+import cn.nukkit.level.particle.DustParticle;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.utils.BlockColor;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import gameapi.achievement.AchievementManager;
@@ -13,6 +17,8 @@ import gameapi.commands.GameAPICommandMain;
 import gameapi.commands.VanillaFixCommand;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.defaults.room.HubCommand;
+import gameapi.extensions.particleGun.Weapon;
+import gameapi.extensions.particleGun.WeaponManager;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -69,6 +75,8 @@ public class GameAPI extends PluginBase implements Listener {
     protected static boolean isFirstLaunch = true;
     // Since v_1_21_70, before opening another inventory, the action should wait at least 9 ticks to avoid lapping.
     public static int OPEN_INVENTORY_DELAY_TICKS = 9;
+
+    public static boolean enableParticleWeapon = true;
 
     public static void addRoomEdit(EditProcess editProcess) {
         editProcessList.add(editProcess);
@@ -182,7 +190,7 @@ public class GameAPI extends PluginBase implements Listener {
                     out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
                     out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
                     Item item = player.getInventory().getItemInHand();
-                    out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + "] 数量:" + item.getCount() + "\n";
+                    out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + " (" + item.getId()  + ":" + item.getDamage() + ")] 数量:" + item.getCount() + "\n";
                     Block block = player.getTargetBlock(32);
                     if (block != null) {
                         //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
@@ -215,6 +223,12 @@ public class GameAPI extends PluginBase implements Listener {
         }), 0, 200, TimeUnit.MILLISECONDS);
         roomTaskExecutor.scheduleAtFixedRate(GameEntityManager::onUpdate, 0, 2, TimeUnit.SECONDS);
         WORLDEDIT_THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
+
+        if (enableParticleWeapon) {
+            WeaponManager.init();
+            WeaponManager.REGISTERED_WEAPONS.put("test", new Weapon("test", "测试武器", "描述", Item.fromString("minecraft:emerald"), 10, 180, new DustParticle(Position.fromObject(new Vector3()), BlockColor.YELLOW_BLOCK_COLOR), 30, 1, 1.0, 30, 1.0, 1, true, true));
+            this.getServer().getPluginManager().registerEvents(new WeaponManager(), this);
+        }
         this.getLogger().info("§aDGameAPI Enabled!");
     }
 
@@ -226,11 +240,14 @@ public class GameAPI extends PluginBase implements Listener {
             PlayerGameDataManager.close();
             GameEntityManager.closeAll();
             GameListenerRegistry.clearAllRegisters();
+            if (enableParticleWeapon) {
+                WeaponManager.EXECUTOR.shutdownNow();
+            }
         } catch (Throwable t) {
         }
         roomTaskExecutor.shutdownNow();
         WORLDEDIT_THREAD_POOL_EXECUTOR.shutdownNow();
-        this.getLogger().info("DGameAPI Disabled!");
+        this.getLogger().info("GameAPI Disabled!");
     }
 
     public void loadLanguage() {
@@ -247,7 +264,7 @@ public class GameAPI extends PluginBase implements Listener {
 
     public void loadAllPlayerGameData() {
         File[] files = new File(path + "/gameRecords/").listFiles();
-        LinkedHashMap<String, Map<String, Object>> playerGameData = new LinkedHashMap<>();
+        Map<String, Map<String, Object>> playerGameData = new LinkedHashMap<>();
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
@@ -255,7 +272,7 @@ public class GameAPI extends PluginBase implements Listener {
                     if (subFiles != null) {
                         for (File subFile : subFiles) {
                             if (subFile != null && subFile.isFile()) {
-                                String name = file.getName() + "/" + subFile.getName().split("\\.")[0];
+                                String name = file.getName() + "/" + subFile.getName().substring(0, subFile.getName().lastIndexOf("."));
                                 playerGameData.put(name, new Config(subFile, Config.YAML).getAll());
                                 this.getLogger().info("Loaded player data: " + subFile);
                             }

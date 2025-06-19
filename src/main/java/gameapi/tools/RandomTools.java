@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 public class RandomTools {
 
     private static final Pattern RANDOM_NUMBER_COMPILER = Pattern.compile("rand\\((\\d+),\\s*(\\d+)\\)");
+    private static final String SYMBOLS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";//数字和26个字母组成
+    private static final Random RANDOM = new SecureRandom();
 
     public static int getRandom(int min, int max) {
         if (max == 0) {
@@ -68,6 +70,14 @@ public class RandomTools {
         } catch (NumberFormatException ignored) {
         }
         return found;
+    }
+
+    public static String getRandomCode(int length) {
+        char[]nonceChars = new char[length];//指定长度为6位/自己可以要求设置
+        for (int index = 0; index < nonceChars.length; ++index) {
+            nonceChars[index] = SYMBOLS.charAt(RANDOM.nextInt(SYMBOLS.length()));
+        }
+        return new String(nonceChars);
     }
 
     public static String replaceRandomNumbers(String input) {

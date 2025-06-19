@@ -948,6 +948,7 @@ public class Room {
                         AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
                         location.teleport(player);
                     } else {
+                        System.out.println("4");
                         player.teleport(this.players.get(0).getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                     }
                 }

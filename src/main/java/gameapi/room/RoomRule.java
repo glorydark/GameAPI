@@ -151,6 +151,8 @@ public class RoomRule {
 
     private boolean autoDestroyWhenBelowMinPlayers = false;
 
+    private boolean autoResetOnEmptyAfterStart = false;
+
     protected static final Set<TipElementType> DEFAULT_HIDE_ELEMENT_TYPE = new HashSet<TipElementType>() {
         {
             this.add(TipElementType.BOSS_BAR);

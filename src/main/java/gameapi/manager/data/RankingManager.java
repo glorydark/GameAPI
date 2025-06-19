@@ -123,11 +123,15 @@ public class RankingManager {
         if (!chunk.isLoaded() || chunk.getProvider() == null) {
             try {
                 location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ());
-                chunk = location.getLevel().getChunk(location.getChunkX(), location.getChunkZ());
             } catch (Throwable e) {
                 GameAPI.getGameDebugManager().printError(e);
                 return;
             }
+        }
+        chunk = location.getLevel().getChunk(location.getChunkX(), location.getChunkZ());
+        if (!chunk.isLoaded() || chunk.getProvider() == null) {
+            GameAPI.getGameDebugManager().error("Failed to summon ranking entity at " + location.asVector3f());
+            return;
         }
         ranking.refreshRankingData();
         RankingListEntity entity = new RankingListEntity(ranking, chunk, RankingListEntity.getDefaultNBT(new Vector3(location.x, location.y, location.z)));

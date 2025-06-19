@@ -133,12 +133,11 @@ public class RoomTask extends Task {
                                 return true;
                             }
                         } else {
-                            if (room.getRoomRule().isAutoDestroyWhenBelowMinPlayers() && playerCount < room.getMinPlayer()) {
-                                if (room.getPlayers().isEmpty()) {
-                                    room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
-                                } else {
-                                    room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END, "internal");
-                                }
+                            if (room.getPlayers().isEmpty()) {
+                                room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
+                                return true;
+                            } else if (room.getRoomRule().isAutoDestroyWhenBelowMinPlayers() && playerCount < room.getMinPlayer()) {
+                                room.setRoomStatus(RoomStatus.ROOM_STATUS_GAME_END, "internal");
                                 return true;
                             }
                         }

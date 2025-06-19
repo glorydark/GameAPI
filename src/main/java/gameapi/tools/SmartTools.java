@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class SmartTools {
+
+    public static double tickToSecondString(int ticks, int scale) {
+        return BigDecimal.valueOf(ticks / 20d).setScale(scale, RoundingMode.FLOOR).doubleValue();
+    }
     
     public static float timeDiffToFloat(long m1, long m2, int scale) {
         return BigDecimal.valueOf(Math.abs(m1 - m2) / 1000f).setScale(scale, RoundingMode.FLOOR).floatValue();
@@ -209,6 +213,15 @@ public class SmartTools {
 
     public <T> List<T> buildList(Supplier<List<T>> supplier) {
         return supplier.get();
+    }
+
+    public static String getCountdownProgressBar(int currentProgress, int maxProgress, int maxChars, String colored, String uncolored, String filledChar, String emptyChar) {
+        double progress = (double) currentProgress / maxProgress;
+        int filledLength = (int) (progress * maxChars);
+        int emptyLength = maxChars - filledLength;
+
+        return colored + String.valueOf(filledChar).repeat(Math.max(0, filledLength)) +
+                uncolored + String.valueOf(emptyChar).repeat(Math.max(0, emptyLength));
     }
 
     public static String getCountdownText(int current, int max, int maxBlockCount, String occupied, String unoccupied, boolean reverse) {
