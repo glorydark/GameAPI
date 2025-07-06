@@ -66,7 +66,7 @@ public class WorldEditFindCommand extends EasySubCommand {
                                 simple.showToPlayer(player);
                             } else {
                                 AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("Result", "Find " + posList.size() + " specific blocks. The top 50 are listed below!");
-                                for (int i = 0; i < 50; i++) {
+                                for (int i = 0; i < Math.min(50, vector3s.size() - 1); i++) {
                                     Vector3 vector3 = vector3s.get(i);
                                     simple.addButton(
                                             new ResponsiveElementButton(vector3.getFloorX() + ":" + vector3.getFloorY() + ":" + vector3.getFloorZ())
@@ -76,6 +76,7 @@ public class WorldEditFindCommand extends EasySubCommand {
                                                     })
                                     );
                                 }
+                                simple.showToPlayer(player);
                             }
                         } catch (Throwable t) {
                             t.printStackTrace();

@@ -348,20 +348,22 @@ public class Room {
     }
 
     public void allocatePlayerToTeams() {
-        this.allocatePlayerToTeams(false);
+        this.allocatePlayerToTeams(true);
     }
 
     public void allocatePlayerToTeams(boolean balance) {
         if (this.teamCache.keySet().isEmpty()) {
             return;
         }
+        List<Player> allPlayers = this.getPlayers();
+        Collections.shuffle(allPlayers);
         if (balance) {
             List<BaseTeam> list = new ArrayList<>(this.getTeams())
                     .stream()
                     .filter(BaseTeam::isAvailable)
                     .sorted(Comparator.comparing(BaseTeam::getSize))
                     .collect(Collectors.toList());
-            for (Player player : this.getPlayers()) {
+            for (Player player : allPlayers) {
                 if (this.getTeam(player) != null) {
                     continue;
                 }
@@ -372,7 +374,7 @@ public class Room {
                                 .stream()
                                 .filter(BaseTeam::isAvailable)
                                 .sorted(Comparator.comparing(BaseTeam::getSize))
-                                .collect(Collectors.toList());
+                                .toList();
                         player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.team.join", team.getPrefix() + team.getRegistryName()));
                         hasResult = true;
                         break;
@@ -384,7 +386,7 @@ public class Room {
                 }
             }
         } else {
-            for (Player player : this.getPlayers()) {
+            for (Player player : allPlayers) {
                 if (this.getTeam(player) != null) {
                     continue;
                 }
@@ -634,6 +636,7 @@ public class Room {
                     player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                 }
             }
+            GameAPI.getGameDebugManager().info("Player " + player.getName() + " quit the room, reason: " + reason.name());
         }
     }
 
@@ -1064,6 +1067,7 @@ public class Room {
     public void addPlayLevel(Level loadLevel) {
         playLevels.add(loadLevel);
         loadLevel.getGameRules().setGameRule(GameRule.SHOW_TAGS, true);
+        loadLevel.getGameRules().setGameRule(GameRule.LOCATOR_BAR, false);
     }
 
     public void removePlayLevel(Level loadLevel) {

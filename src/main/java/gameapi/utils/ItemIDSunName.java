@@ -445,7 +445,7 @@ public enum ItemIDSunName {
     /**
      * 砖
      */
-    BRICK("砖", 336, 0, "textures/blocks/brick.png"),
+    BRICK("砖", 45, 0, "textures/blocks/brick.png"),
     /**
      * TNT
      */
@@ -506,6 +506,15 @@ public enum ItemIDSunName {
      * 熔炉
      */
     FURNACE("熔炉", 61, 0, "textures/blocks/furnace_front_off.png"),
+    /**
+     * 熔炉
+     */
+    @Deprecated
+    FURNACE_BURN("熔炉", 62, 0, "textures/blocks/furnace_front_on.png"),
+    /**
+     * 木牌
+     */
+    SIGN_POST("木牌", 63, 0, "textures/items/sign_jungle.png"),
     /**
      * 梯子
      */
@@ -993,15 +1002,15 @@ public enum ItemIDSunName {
     /**
      * 海晶石
      */
-    PRISMARINE("海晶石", 168, 0, "textures/blocks/prismarine_dark.png"),
+    PRISMARINE("海晶石", 168, 0, "textures/blocks/prismarine_dark.png"), // todo: no right icon
     /**
      * 暗海晶石
      */
-    DARK_PRISMARINE("暗海晶石", 168, 1, "textures/blocks/prismarine_dark.png"),
+    DARK_PRISMARINE("暗海晶石", 168, 1, "textures/blocks/prismarine_dark.png"), // todo: no right icon
     /**
      * 海晶石砖
      */
-    PRISMARINE_STONE_BRICK("海晶石砖", 168, 2, "textures/blocks/prismarine_bricks.png"),
+    PRISMARINE_STONE_BRICK("海晶石砖", 168, 2, "textures/blocks/prismarine_bricks.png"), // todo: no right icon
     /**
      * 海晶灯
      */
@@ -1187,9 +1196,9 @@ public enum ItemIDSunName {
      */
     PURPUR_STAIRS("紫珀阶梯", 203, 0, "textures/blocks/purpur_block.png"),
     /**
-     * 潜匿之贝箱子
+     * 潜影盒
      */
-    PURPUR_SLAB("潜匿之贝箱子", 205, 0, "textures/items/shulker_shell.png"),
+    PURPUR_SLAB("潜影盒", 205, 0, "textures/items/shulker_shell.png"),
     /**
      * 末地石砖
      */
@@ -1202,6 +1211,70 @@ public enum ItemIDSunName {
      * 末地门2
      */
     END_GATEWAY("末地门2", 209, 0, "textures/blocks/end_gateway.png"),
+    /**
+     * 白色潜影盒
+     */
+    SHULKER("白色潜影盒", 218, 0, "textures/blocks/shulker_top_white.png"),
+    /**
+     * 橙色潜影盒
+     */
+    SHULKER_COLORED_ORANGE("橙色潜影盒", 218, 1, "textures/blocks/shulker_top_orange.png"),
+    /**
+     * 品红色潜影盒
+     */
+    SHULKER_COLORED_MAGENTA("品红色潜影盒", 218, 2, "textures/blocks/shulker_top_magenta.png"),
+    /**
+     * 淡蓝色潜影盒
+     */
+    SHULKER_COLORED_LIGHT_BLUE("淡蓝色潜影盒", 218, 3, "textures/blocks/shulker_top_light_blue.png"),
+    /**
+     * 黄色潜影盒
+     */
+    SHULKER_COLORED_YELLOW("黄色潜影盒", 218, 4, "textures/blocks/shulker_top_yellow.png"),
+    /**
+     * 黄绿色潜影盒
+     */
+    SHULKER_COLORED_LIME("黄绿色潜影盒", 218, 5, "textures/blocks/shulker_top_lime.png"),
+    /**
+     * 粉红色潜影盒
+     */
+    SHULKER_COLORED_PINK("粉红色潜影盒", 218, 6, "textures/blocks/shulker_top_pink.png"),
+    /**
+     * 灰色潜影盒
+     */
+    SHULKER_COLORED_GRAY("灰色潜影盒", 218, 7, "textures/blocks/shulker_top_gray.png"),
+    /**
+     * 淡灰色潜影盒
+     */
+    SHULKER_COLORED_SILVER("淡灰色潜影盒", 218, 8, "textures/blocks/shulker_top_silver.png"),
+    /**
+     * 青色潜影盒
+     */
+    SHULKER_COLORED_CYAN("青色潜影盒", 218, 9, "textures/blocks/shulker_top_cyan.png"),
+    /**
+     * 紫色潜影盒
+     */
+    SHULKER_COLORED_PURPLE("紫色潜影盒", 218, 10, "textures/blocks/shulker_top_purple.png"),
+    /**
+     * 蓝色潜影盒
+     */
+    SHULKER_COLORED_BLUE("蓝色潜影盒", 218, 11, "textures/blocks/shulker_top_blue.png"),
+    /**
+     * 棕色潜影盒
+     */
+    SHULKER_COLORED_BROWN("棕色潜影盒", 218, 12, "textures/blocks/shulker_top_brown.png"),
+    /**
+     * 绿色潜影盒
+     */
+    SHULKER_COLORED_GREEN("绿色潜影盒", 218, 13, "textures/blocks/shulker_top_green.png"),
+    /**
+     * 红色潜影盒
+     */
+    SHULKER_COLORED_RED("红色潜影盒", 218, 14, "textures/blocks/shulker_top_red.png"),
+    /**
+     * 黑色潜影盒
+     */
+    SHULKER_COLORED_BLACK("黑色潜影盒", 218, 15, "textures/blocks/shulker_top_black.png"),
     /**
      * 铁锹
      */
@@ -1747,6 +1820,10 @@ public enum ItemIDSunName {
      */
     FIRE_CHARGE("火球", 385, 0, "textures/items/fireball.png"),
     /**
+     * 鸡刷怪蛋
+     */
+    SPAWN_MOB("鸡刷怪蛋", 383, 10, "textures/items/egg_chicken.png"),
+    /**
      * 绿宝石
      */
     EMERALD("绿宝石", 388, 0, "textures/items/emerald.png"),
@@ -1903,6 +1980,10 @@ public enum ItemIDSunName {
      */
     COOKED_MUTTON("熟羊肉", 424, 0, "textures/items/mutton_cooked.png"),
     /**
+     * 末影水晶
+     * */
+    END_CRYSTAL("末影水晶",426,0,"textures/items/end_crystal.png"),
+    /**
      * 云杉木门
      */
     SPRUCE_DOOR("云杉木门", 427, 0, "textures/items/door_jungle.png"),
@@ -1949,19 +2030,339 @@ public enum ItemIDSunName {
     /**
      * 潜匿之壳
      */
-    BIRCH_BOAT("潜匿之壳", 445, 0, "textures/items/shulker_shell.png"),
-    /**
-     * 鸡刷怪蛋
-     */
-    SPAWN_MOB("鸡刷怪蛋", 383, 10, "textures/items/egg_chicken.png"),
-    /**
-     * 末影水晶
-     * */
-    END_CRYSTAL("末影水晶",426,0,"textures/items/end_crystal.png");
+    SHULKER_SHELL("潜匿之壳", 445, 0, "textures/items/shulker_shell.png"),
+
+    // new_items
+    // no icon
+    BANNER("旗帜", 446, 0, "textures/items/banner_pattern.png"),
+    TOTEM("不死图腾", 450, 0, "textures/items/totem.png"),
+    NUGGET_IRON("铁粒", 452, 0, "textures/items/iron_nugget.png"),
+    TRIDENT("三叉戟", 455, 0, "textures/items/trident.png"),
+    BEETROOT("甜菜根", 457, 0, "textures/items/beetroot.png"),
+    SEEDS_BEETROOT("甜菜种子", 458, 0, "textures/items/seeds_beetroot.png"),
+    BEETROOT_SOUP("甜菜汤", 459, 0, "textures/items/beetroot_soup.png"),
+    SALMON("三文鱼", 460, 0, "textures/items/fish_salmon_raw.png"),
+    CLOWNFISH("小丑鱼", 461, 0, "textures/items/fish_clownfish_raw.png"),
+    PUFFERFISH("河豚", 462, 0, "textures/items/fish_pufferfish_raw.png"),
+    SALMON_COOKED("烤三文鱼", 463, 0, "textures/items/fish_salmon_cooked.png"),
+    DRIED_KELP("干海藻", 464, 0, "textures/items/dried_kelp.png"),
+    NAUTILUS_SHELL("鹦鹉螺壳", 465, 0, "textures/items/nautilus.png"),
+    APPLE_GOLD_ENCHANTED("附魔金苹果", 466, 0, "textures/items/apple_golden.png"),
+    HEART_OF_THE_SEA("海洋之心", 467, 0, "textures/items/heartofthesea_closed.png"),
+    SCUTE("鳞甲", 468, 0, "textures/items/turtle_shell_piece.png"),
+    TURTLE_SHELL("海龟鳞甲", 469, 0, "textures/items/turtle_shell_piece.png"),
+    PHANTOM_MEMBRANE("幻翼膜", 470, 0, "textures/items/phantom_membrane.png"),
+    CROSSBOW("弩", 471, 0, "textures/items/crossbow_standby.png"),
+    SIGN_SPRUCE("云杉木牌", 472, 0, "textures/items/sign_spruce.png"),
+    SIGN_BIRCH("白桦木牌", 473, 0, "textures/items/sign_birch.png"),
+    SIGN_JUNGLE("丛林木牌", 474, 0, "textures/items/sign_jungle.png"),
+    SIGN_ACACIA("金合欢木牌", 475, 0, "textures/items/sign_acacia.png"),
+    SIGN_DARK_OAK("深橡木牌", 476, 0, "textures/items/sign_darkoak.png"),
+
+    RECORD_CAT("音乐唱片 - Cat", 501, 0, "textures/items/record_cat.png"),
+    RECORD_13("音乐唱片 - 13", 500, 0, "textures/items/record_13.png"),
+    RECORD_BLOCKS("音乐唱片 - Blocks", 502, 0, "textures/items/record_blocks.png"),
+    RECORD_CHIRP("音乐唱片 - Chirp", 503, 0, "textures/items/record_chirp.png"),
+    RECORD_FAR("音乐唱片 - Far", 504, 0, "textures/items/record_far.png"),
+    RECORD_MALL("音乐唱片 - Mall", 505, 0, "textures/items/record_mall.png"),
+    RECORD_MELLOHI("音乐唱片 - Mellohi", 506, 0, "textures/items/record_mellohi.png"),
+    RECORD_STAL("音乐唱片 - Stal", 507, 0, "textures/items/record_stal.png"),
+    RECORD_STRAD("音乐唱片 - Strad", 508, 0, "textures/items/record_strad.png"),
+    RECORD_WARD("音乐唱片 - Ward", 509, 0, "textures/items/record_ward.png"),
+    RECORD_11("音乐唱片 - 11", 510, 0, "textures/items/record_11.png"),
+    RECORD_WAIT("音乐唱片 - Wait", 511, 0, "textures/items/record_wait.png"),
+
+    SHIELD("盾牌", 513, 0, "textures/items/empty_armor_slot_shield.png"),
+
+    RECORD_5("音乐唱片 5", 636, 0, "textures/items/record_5.png"),
+    DISC_FRAGMENT_5("唱片残片 5", 637, 0, "textures/items/disc_fragment_5.png"),
+    CHEST_BOAT_OAK("橡木运输船", 638, 0, "textures/items/oak_chest_boat.png"),
+    CHEST_BOAT_BIRCH("白桦木运输船", 639, 0, "textures/items/birch_chest_boat.png"),
+    CHEST_BOAT_JUNGLE("丛林木运输船", 640, 0, "textures/items/jungle_chest_boat.png"),
+    CHEST_BOAT_SPRUCE("云杉木运输船", 641, 0, "textures/items/spruce_chest_boat.png"),
+    CHEST_BOAT_ACACIA("金合欢木运输船", 642, 0, "textures/items/acacia_chest_boat.png"),
+    CHEST_BOAT_DARK_OAK("深色橡木运输船", 643, 0, "textures/items/dark_oak_chest_boat.png"),
+    CHEST_BOAT_MANGROVE("红树木运输船", 644, 0, "textures/items/mangrove_chest_boat.png"),
+    CHEST_RAFT_BAMBOO("竹筏运输船", 648, 0, "textures/items/bamboo_chest_raft.png"),
+    CHEST_BOAT_CHERRY("樱花木运输船", 649, 0, "textures/items/cherry_chest_boat.png"),
+
+    GLOW_BERRIES("发光浆果", 654, 0, "textures/items/glow_berries.png"),
+
+    RECORD_RELIC("音乐唱片 Relic", 701, 0, "textures/items/music_disc_relic.png"),
+
+    CAMPFIRE("营火", 720, 0, "textures/items/campfire.png"),
+
+    SUSPICIOUS_STEW("可疑的炖汤", 734, 0, "textures/items/suspicious_stew.png"),
+
+    HONEYCOMB("蜜脾", 736, 0, "textures/items/honeycomb.png"),
+    HONEY_BOTTLE("蜂蜜瓶", 737, 0, "textures/items/honey_bottle.png"),
+    LODESTONE_COMPASS("磁石指针", 741, 0, "textures/items/lodestonecompass_item.png"),
+    NETHERITE_INGOT("下界合金锭", 742, 0, "textures/items/netherite_ingot.png"),
+    NETHERITE_SWORD("下届合金剑", 743, 0, "textures/items/netherite_sword.png"),
+    NETHERITE_SHOVEL("下届合金铲", 744, 0, "textures/items/netherite_shovel.png"),
+    NETHERITE_PICKAXE("下届合金镐", 745, 0, "textures/items/netherite_pickaxe.png"),
+    NETHERITE_AXE("下届合金斧", 746, 0, "textures/items/netherite_axe.png"),
+    NETHERITE_HOE("下届合金锄", 747, 0, "textures/items/netherite_hoe.png"),
+    NETHERITE_HELMET("下届合金头盔", 748, 0, "textures/items/netherite_helmet.png"),
+    NETHERITE_CHESTPLATE("下届合金盔甲", 749, 0, "textures/items/netherite_chestplate.png"),
+    NETHERITE_LEGGINGS("下届合金裤腿", 750, 0, "textures/items/netherite_leggings.png"),
+    NETHERITE_BOOTS("下届合金靴子", 751, 0, "textures/items/netherite_boots.png"),
+    NETHERITE_SCRAP("下届合金碎片", 752, 0, "textures/items/netherite_scrap.png"),
+    CRIMSON_SIGN("绯红木告示牌", 753, 0, "textures/items/sign_crimson.png"),
+    WARPED_SIGN("诡异木告示牌", 754, 0, "textures/items/sign_warped.png"),
+    CRIMSON_DOOR("绯红木门", 755, 0, "textures/items/crimson_door.png"),
+    WARPED_DOOR("诡异木门", 756, 0, "textures/items/warped_door.png"),
+    WARPED_FUNGUS_ON_A_STICK("诡异菌钓竿", 757, 0, "textures/items/warped_fungus_on_a_stick.png"),
+    CHAIN("锁链", 758, 0, "textures/items/chain.png"),
+    RECORD_PIGSTEP("音乐唱片 Pigstep", 759, 0, "textures/items/record_pigstep.png"),
+    NETHER_SPROUTS("下界苗", 760, 0, "textures/items/nether_sprouts.png"),
+
+    AMETHYST_SHARD("紫水晶碎片", 771, 0, "textures/items/amethyst_shard.png"),
+    SPYGLASS("望远镜", 772, 0, "textures/items/spyglass.png"),
+    RECORD_OTHERSIDE("音乐唱片 otherside", 773, 0, "textures/items/record_otherside.png"),
+
+    SOUL_CAMPFIRE("灵魂营火", 801, 0, "textures/items/soul_campfire.png"),
+    GLOW_ITEM_FRAME("发光物品展示框", 850, 0, "textures/items/glow_item_frame.png"),
+
+    MANGROVE_SIGN("红树木告示牌", 1005, 0, "textures/items/mangrove_sign.png"),
+    BAMBOO_SIGN("竹子告示牌", 1006, 0, "textures/items/bamboo_sign.png"),
+
+    // 材料类
+    INGOT_COPPER("铜锭", "minecraft:copper_ingot", "textures/items/copper_ingot.png"),
+    RAW_IRON("粗铁", "minecraft:raw_iron", "textures/items/raw_iron.png"),
+    RAW_GOLD("粗金", "minecraft:raw_gold", "textures/items/raw_gold.png"),
+    RAW_COPPER("粗铜", "minecraft:raw_copper", "textures/items/raw_copper.png"),
+    ECHO_SHARD("回响碎片", "minecraft:echo_shard", "textures/items/echo_shard.png"),
+    BREEZE_ROD("微风之杖", "minecraft:breeze_rod", "textures/items/breeze_rod.png"),
+    WIND_CHARGE("风弹", "minecraft:wind_charge", "textures/items/wind_charge.png"),
+
+    // 工具与装备
+    RECOVERY_COMPASS("追溯指针", "minecraft:recovery_compass", "textures/items/recovery_compass_item.png"),
+    BRUSH("刷子", "minecraft:brush", "textures/items/brush.png"),
+    MACE("钉锤", "minecraft:mace", "textures/items/mace.png"),
+    GOAT_HORN("山羊角", "minecraft:goat_horn", "textures/items/goat_horn.png"),
+
+    // 锻造模板
+    NETHERITE_UPGRADE_SMITHING_TEMPLATE("下界合金升级锻造模板", "minecraft:netherite_upgrade_smithing_template", "textures/items/netherite_upgrade_smithing_template.png"),
+    SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE("哨兵盔甲纹饰锻造模板", "minecraft:sentry_armor_trim_smithing_template", "textures/items/sentry_armor_trim_smithing_template.png"),
+    DUNE_ARMOR_TRIM_SMITHING_TEMPLATE("沙丘盔甲纹饰锻造模板", "minecraft:dune_armor_trim_smithing_template", "textures/items/dune_armor_trim_smithing_template.png"),
+    COAST_ARMOR_TRIM_SMITHING_TEMPLATE("海岸盔甲纹饰锻造模板", "minecraft:coast_armor_trim_smithing_template", "textures/items/coast_armor_trim_smithing_template.png"),
+    WILD_ARMOR_TRIM_SMITHING_TEMPLATE("荒野盔甲纹饰锻造模板", "minecraft:wild_armor_trim_smithing_template", "textures/items/wild_armor_trim_smithing_template.png"),
+    WARD_ARMOR_TRIM_SMITHING_TEMPLATE("守卫盔甲纹饰锻造模板", "minecraft:ward_armor_trim_smithing_template", "textures/items/ward_armor_trim_smithing_template.png"),
+    EYE_ARMOR_TRIM_SMITHING_TEMPLATE("眼眸盔甲纹饰锻造模板", "minecraft:eye_armor_trim_smithing_template", "textures/items/eye_armor_trim_smithing_template.png"),
+    VEX_ARMOR_TRIM_SMITHING_TEMPLATE("恼鬼盔甲纹饰锻造模板", "minecraft:vex_armor_trim_smithing_template", "textures/items/vex_armor_trim_smithing_template.png"),
+    TIDE_ARMOR_TRIM_SMITHING_TEMPLATE("潮汐盔甲纹饰锻造模板", "minecraft:tide_armor_trim_smithing_template", "textures/items/tide_armor_trim_smithing_template.png"),
+    SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE("猪鼻盔甲纹饰锻造模板", "minecraft:snout_armor_trim_smithing_template", "textures/items/snout_armor_trim_smithing_template.png"),
+    RIB_ARMOR_TRIM_SMITHING_TEMPLATE("肋骨盔甲纹饰锻造模板", "minecraft:rib_armor_trim_smithing_template", "textures/items/rib_armor_trim_smithing_template.png"),
+    SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE("尖塔盔甲纹饰锻造模板", "minecraft:spire_armor_trim_smithing_template", "textures/items/spire_armor_trim_smithing_template.png"),
+    SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE("寂静盔甲纹饰锻造模板", "minecraft:silence_armor_trim_smithing_template", "textures/items/silence_armor_trim_smithing_template.png"),
+    WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE("向导盔甲纹饰锻造模板", "minecraft:wayfinder_armor_trim_smithing_template", "textures/items/wayfinder_armor_trim_smithing_template.png"),
+    RAISER_ARMOR_TRIM_SMITHING_TEMPLATE("抬升盔甲纹饰锻造模板", "minecraft:raiser_armor_trim_smithing_template", "textures/items/raiser_armor_trim_smithing_template.png"),
+    SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE("塑形盔甲纹饰锻造模板", "minecraft:shaper_armor_trim_smithing_template", "textures/items/shaper_armor_trim_smithing_template.png"),
+    HOST_ARMOR_TRIM_SMITHING_TEMPLATE("宿主盔甲纹饰锻造模板", "minecraft:host_armor_trim_smithing_template", "textures/items/host_armor_trim_smithing_template.png"),
+    SMITHING_TEMPLATE_ARMOR_TRIM_FLOW("流动盔甲纹饰锻造模板", "minecraft:flow_armor_trim_smithing_template", "textures/items/flow_armor_trim_smithing_template.png"),
+    SMITHING_TEMPLATE_ARMOR_TRIM_BOLT("闪电盔甲纹饰锻造模板", "minecraft:bolt_armor_trim_smithing_template", "textures/items/bolt_armor_trim_smithing_template.png"),
+
+    // 考古陶片
+    ANGLER_POTTERY_SHERD("渔夫陶片", "minecraft:angler_pottery_sherd", "textures/items/angler_pottery_sherd.png"),
+    ARCHER_POTTERY_SHERD("弓箭手陶片", "minecraft:archer_pottery_sherd", "textures/items/archer_pottery_sherd.png"),
+    ARMS_UP_POTTERY_SHERD("举手陶片", "minecraft:arms_up_pottery_sherd", "textures/items/arms_up_pottery_sherd.png"),
+    BLADE_POTTERY_SHERD("利刃陶片", "minecraft:blade_pottery_sherd", "textures/items/blade_pottery_sherd.png"),
+    BREWER_POTTERY_SHERD("酿药师陶片", "minecraft:brewer_pottery_sherd", "textures/items/brewer_pottery_sherd.png"),
+    BURN_POTTERY_SHERD("燃烧陶片", "minecraft:burn_pottery_sherd", "textures/items/burn_pottery_sherd.png"),
+    DANGER_POTTERY_SHERD("危险陶片", "minecraft:danger_pottery_sherd", "textures/items/danger_pottery_sherd.png"),
+    EXPLORER_POTTERY_SHERD("探险家陶片", "minecraft:explorer_pottery_sherd", "textures/items/explorer_pottery_sherd.png"),
+    FRIEND_POTTERY_SHERD("好友陶片", "minecraft:friend_pottery_sherd", "textures/items/friend_pottery_sherd.png"),
+    HEART_POTTERY_SHERD("心陶片", "minecraft:heart_pottery_sherd", "textures/items/heart_pottery_sherd.png"),
+    HEARTBREAK_POTTERY_SHERD("心碎陶片", "minecraft:heartbreak_pottery_sherd", "textures/items/heartbreak_pottery_sherd.png"),
+    HOWL_POTTERY_SHERD("嚎叫陶片", "minecraft:howl_pottery_sherd", "textures/items/howl_pottery_sherd.png"),
+    MINER_POTTERY_SHERD("矿工陶片", "minecraft:miner_pottery_sherd", "textures/items/miner_pottery_sherd.png"),
+    MOURNER_POTTERY_SHERD("哀悼者陶片", "minecraft:mourner_pottery_sherd", "textures/items/mourner_pottery_sherd.png"),
+    PLENTY_POTTERY_SHERD("丰饶陶片", "minecraft:plenty_pottery_sherd", "textures/items/plenty_pottery_sherd.png"),
+    PRIZE_POTTERY_SHERD("奖品陶片", "minecraft:prize_pottery_sherd", "textures/items/prize_pottery_sherd.png"),
+    SHEAF_POTTERY_SHERD("束捆陶片", "minecraft:sheaf_pottery_sherd", "textures/items/sheaf_pottery_sherd.png"),
+    SHELTER_POTTERY_SHERD("庇护所陶片", "minecraft:shelter_pottery_sherd", "textures/items/shelter_pottery_sherd.png"),
+    SKULL_POTTERY_SHERD("头颅陶片", "minecraft:skull_pottery_sherd", "textures/items/skull_pottery_sherd.png"),
+    SNORT_POTTERY_SHERD("哼唱陶片", "minecraft:snort_pottery_sherd", "textures/items/snort_pottery_sherd.png"),
+    FLOW_POTTERY_SHERD("流动陶片", "minecraft:flow_pottery_sherd", "textures/items/flow_pottery_sherd.png"),
+    GUSTER_POTTERY_SHERD("风袭陶片", "minecraft:guster_pottery_sherd", "textures/items/guster_pottery_sherd.png"),
+    SCRAPE_POTTERY_SHERD("刮擦陶片", "minecraft:scrape_pottery_sherd", "textures/items/scrape_pottery_sherd.png"),
+
+    // 唱片
+    RECORD_CREATOR("音乐唱片 - Creator", "minecraft:music_disc_creator", "textures/items/music_disc_creator.png"),
+    RECORD_CREATOR_MUSIC_BOX("唱片机", "minecraft:music_disc_creator_music_box", "textures/items/music_disc_creator_music_box.png"),
+    RECORD_PRECIPICE("音乐唱片 - Precipice", "minecraft:music_disc_precipice", "textures/items/music_disc_precipice.png"),
+
+    // 其他
+    DOOR_MANGROVE("红树木门", "minecraft:mangrove_door", "textures/items/mangrove_door.png"),
+    TRIAL_KEY("试炼钥匙", "minecraft:trial_key", "textures/items/trial_key.png"),
+    TRIAL_KEY_OMINOUS("不祥试炼钥匙", "minecraft:ominous_trial_key", "textures/items/ominous_trial_key.png"),
+    OMINOUS_BOTTLE("不祥之瓶", "minecraft:ominous_bottle", "textures/items/ominous_bottle.png"),
+    BANNER_PATTERN_FLOW("旗帜图案：流动", "minecraft:flow_banner_pattern", "textures/items/flow_banner_pattern.png"),
+    BANNER_PATTERN_GUSTER("旗帜图案：风袭", "minecraft:guster_banner_pattern", "textures/items/guster_banner_pattern.png"),
+    BLUE_EGG("蓝色蛋", "minecraft:blue_egg", "textures/items/blue_egg.png"),
+    BROWN_EGG("棕色蛋", "minecraft:brown_egg", "textures/items/brown_egg.png"),
+
+    STRIPPED_SPRUCE_LOG("去皮云杉原木", "minecraft:stripped_spruce_log", "textures/blocks/stripped_spruce_log.png"),
+    STRIPPED_BIRCH_LOG("去皮桦木原木", "minecraft:stripped_birch_log", "textures/blocks/stripped_birch_log.png"),
+    STRIPPED_JUNGLE_LOG("去皮丛林木原木", "minecraft:stripped_jungle_log", "textures/blocks/stripped_jungle_log.png"),
+    STRIPPED_ACACIA_LOG("去皮金合欢原木", "minecraft:stripped_acacia_log", "textures/blocks/stripped_acacia_log.png"),
+    STRIPPED_DARK_OAK_LOG("去皮深色橡木原木", "minecraft:stripped_dark_oak_log", -9, "textures/blocks/stripped_dark_oak_log.png"),
+    STRIPPED_OAK_LOG("去皮橡木原木", "minecraft:stripped_oak_log", "textures/blocks/stripped_oak_log.png"),
+    BLUE_ICE("蓝冰", "minecraft:blue_ice", "textures/blocks/blue_ice.png"),
+
+    SEAGRASS("海草", "minecraft:seagrass", "textures/blocks/seagrass.png"),
+    TUBE_CORAL_BLOCK("管珊瑚", "minecraft:tube_coral", 0, "textures/blocks/coral_plant_blue.png"),
+    BRAIN_CORAL_BLOCK("脑纹珊瑚", "minecraft:brain_coral", 1, "textures/blocks/coral_plant_pink.png"),
+    BUBBLE_CORAL_BLOCK("气泡珊瑚", "minecraft:bubble_coral", 2, "textures/blocks/coral_plant_purple.png"),
+    FIRE_CORAL_BLOCK("火珊瑚", "minecraft:fire_coral", 3, "textures/blocks/coral_plant_red.png"),
+    HORN_CORAL_BLOCK("鹿角珊瑚", "minecraft:horn_coral", 4, "textures/blocks/coral_plant_yellow.png"),
+    TUBE_CORAL_FAN("管珊瑚扇", "minecraft:coral_fan", 0, "textures/blocks/coral_fan_blue.png"),
+    BRAIN_CORAL_FAN("脑纹珊瑚扇", "minecraft:coral_fan", 1, "textures/blocks/coral_fan_pink.png"),
+    BUBBLE_CORAL_FAN("气泡珊瑚扇", "minecraft:coral_fan", 2, "textures/blocks/coral_fan_purple.png"),
+    FIRE_CORAL_FAN("火珊瑚扇", "minecraft:coral_fan", 3, "textures/blocks/coral_fan_red.png"),
+    HORN_CORAL_FAN("鹿角珊瑚扇", "minecraft:coral_fan", 4, "textures/blocks/coral_fan_yellow.png"),
+    TUBE_CORAL_FAN_DEAD("失活的管珊瑚扇", "minecraft:dead_coral_fan", 0, "textures/blocks/coral_fan_blue_dead.png"),
+    BRAIN_CORAL_FAN_DEAD("失活的脑纹珊瑚扇", "minecraft:dead_coral_fan", 1, "textures/blocks/coral_fan_pink_dead.png"),
+    BUBBLE_CORAL_FAN_DEAD("失活的气泡珊瑚扇", "minecraft:dead_coral_fan", 2, "textures/blocks/coral_fan_purple_dead.png"),
+    FIRE_CORAL_FAN_DEAD("失活的火珊瑚扇", "minecraft:dead_coral_fan", 3, "textures/blocks/coral_fan_red_dead.png"),
+    HORN_CORAL_FAN_DEAD("失活的鹿角珊瑚扇", "minecraft:dead_coral_fan", 4, "textures/blocks/coral_fan_yellow_dead.png"),
+
+    // coral_fan_hang can not be gained from player, skipping...
+
+    BLOCK_KELP("海带块", "minecraft:kelp_block", "textures/items/kelp.png"), // todo: no proper icon
+    DRIED_KELP_BLOCK("干海带块", "minecraft:dried_kelp_block", "textures/blocks/dried_kelp_top.png"),
+    ACACIA_BUTTON("金合欢按钮", "minecraft:acacia_button", "textures/blocks/planks_acacia.png"), // todo: no icon
+    BIRCH_BUTTON("白桦按钮", "minecraft:birch_button", "textures/blocks/planks_birch.png"), // todo: no icon
+    DARK_OAK_BUTTON("深色橡木按钮", "minecraft:dark_oak_button", "textures/blocks/planks_big_oak.png"), // todo: no icon
+    JUNGLE_BUTTON("丛林木按钮", "minecraft:jungle_button", "textures/blocks/planks_jungle.png"), // todo: no icon
+    SPRUCE_BUTTON("云杉按钮", "minecraft:spruce_button", "textures/blocks/planks_spruce.png"), // todo: no icon
+    ACACIA_TRAPDOOR("金合欢活板门", "minecraft:acacia_trapdoor", "textures/blocks/acacia_trapdoor.png"),
+    BIRCH_TRAPDOOR("白桦活板门", "minecraft:birch_trapdoor", "textures/blocks/birch_trapdoor.png"),
+    DARK_OAK_TRAPDOOR("深色橡木活板门", "minecraft:dark_oak_trapdoor", "textures/blocks/dark_oak_trapdoor.png"),
+    JUNGLE_TRAPDOOR("丛林木活板门", "minecraft:jungle_trapdoor", "textures/blocks/jungle_trapdoor.png"),
+    SPRUCE_TRAPDOOR("云杉活板门", "minecraft:spruce_trapdoor", "textures/blocks/spruce_trapdoor.png"),
+    ACACIA_PRESSURE_PLATE("金合欢压力板", "minecraft:acacia_pressure_plate", "textures/blocks/planks_acacia.png"), // todo: no icon
+    BIRCH_PRESSURE_PLATE("白桦压力板", "minecraft:birch_pressure_plate", "textures/blocks/planks_birch.png"), // todo: no icon
+    DARK_OAK_PRESSURE_PLATE("深色橡木压力板", "minecraft:dark_oak_pressure_plate", "textures/blocks/planks_big_oak.png"), // todo: no icon
+    JUNGLE_PRESSURE_PLATE("丛林木压力板", "minecraft:jungle_pressure_plate", "textures/blocks/planks_jungle.png"), // todo: no icon
+    SPRUCE_PRESSURE_PLATE("云杉压力板", "minecraft:spruce_pressure_plate", "textures/blocks/planks_spruce.png"), // todo: no icon
+    CARVED_PUMPKIN("雕刻过的南瓜", "minecraft:carved_pumpkin", "textures/blocks/pumpkin_face_off.png"),
+    SEA_PICKLE("海泡菜", "minecraft:sea_pickle", "textures/blocks/sea_pickle.png"),
+    CONDUIT("潮涌核心", "minecraft:conduit", "textures/blocks/conduit_closed.png"),
+
+    TURTLE_EGG("海龟蛋", "minecraft:turtle_egg", "textures/items/turtle_egg.png"),
+
+    // bubble column can not be gained from players, skipping...
+
+    BARRIER("屏障", "minecraft:barrier", "textures/blocks/barrier.png"),
+    
+    // todo: no icon start
+    END_STONE_BRICK_SLAB("末地石砖半砖", "minecraft:end_stone_brick_slab", 0, "textures/blocks/end_bricks.png"),
+    SMOOTH_RED_SANDSTONE_SLAB("平滑红砂岩半砖", "minecraft:smooth_red_sandstone_slab", 1, "textures/blocks/red_sandstone_normal.png"),
+    POLISHED_ANDESITE_SLAB("磨制安山岩半砖", "minecraft:polished_andesite_slab", 2, "textures/blocks/stone_andesite_smooth.png"),
+    ANDESITE_SLAB("安山岩半砖", "minecraft:andesite_slab", 3, "textures/blocks/stone_andesite.png"),
+    DIORITE_SLAB("闪长岩半砖", "minecraft:diorite_slab", 4, "textures/blocks/stone_diorite.png"),
+    POLISHED_DIORITE_SLAB("磨制闪长岩半砖", "minecraft:polished_diorite_slab", 5, "textures/blocks/stone_diorite_smooth.png"),
+    GRANITE_SLAB("花岗岩半砖", "minecraft:granite_slab", 6, "textures/blocks/stone_granite.png"),
+    POLISHED_GRANITE_SLAB("磨制花岗岩半砖", "minecraft:polished_granite_slab", 7, "textures/blocks/stone_granite_smooth.png"),
+    // todo: no icon end
+    
+    BAMBOO("竹子", "minecraft:bamboo", "textures/items/bamboo.png"),
+    BAMBOO_SAPLING("竹笋", "minecraft:bamboo_sapling", "textures/blocks/bamboo_sapling.png"),
+    SCAFFOLDING("脚手架", "minecraft:scaffolding", "textures/blocks/scaffolding_top.tga"),
+
+    // todo: no icon start
+    MOSSY_STONE_BRICK_SLAB("苔石砖半砖", "minecraft:mossy_stone_brick_slab", 0, "textures/blocks/stonebrick_mossy.png"),
+    SMOOTH_QUARTZ_SLAB("平滑石英半砖", "minecraft:smooth_quartz_slab", 1, "textures/blocks/quartz_bricks.png"),
+    CUT_SANDSTONE_SLAB("切制砂岩半砖", "minecraft:cut_sandstone_slab", 3, "textures/blocks/sandstone_top.png"),
+    CUT_RED_SANDSTONE_SLAB("切制红砂岩半砖", "minecraft:cut_red_sandstone_slab", 4, "textures/blocks/red_sandstone_normal.png"),
+    // todo: no icon end
+
+    // double stab can not be gained from players, skipping...
+    // todo: no icon start
+    GRANITE_STAIRS("花岗岩楼梯", "minecraft:granite_stairs", "textures/blocks/stone_granite.png"),
+    DIORITE_STAIRS("闪长岩楼梯", "minecraft:diorite_stairs", "textures/blocks/stone_diorite.png"),
+    ANDESITE_STAIRS("安山岩楼梯", "minecraft:andesite_stairs", "textures/blocks/stone_andesite.png"),
+    POLISHED_GRANITE_STAIRS("磨制花岗岩楼梯", "minecraft:polished_granite_stairs", "textures/blocks/stone_granite_smooth.png"),
+    POLISHED_DIORITE_STAIRS("磨制闪长岩楼梯", "minecraft:polished_diorite_stairs", "textures/blocks/stone_diorite_smooth.png"),
+    POLISHED_ANDESITE_STAIRS("磨制安山岩楼梯", "minecraft:polished_andesite_stairs", "textures/blocks/stone_andesite_smooth.png"),
+    MOSSY_STONE_BRICK_STAIRS("苔石砖楼梯", "minecraft:mossy_stone_brick_stairs", "textures/blocks/stonebrick_mossy.png"),
+    SMOOTH_RED_SANDSTONE_STAIRS("平滑红砂岩楼梯", "minecraft:smooth_red_sandstone_stairs", "textures/blocks/red_sandstone_normal.png"),
+    SMOOTH_SANDSTONE_STAIRS("平滑砂岩楼梯", "minecraft:smooth_sandstone_stairs", "textures/blocks/sandstone_smooth.png"),
+    END_BRICK_STAIRS("末地石砖楼梯", "minecraft:end_brick_stairs", "textures/blocks/end_bricks.png"),
+    MOSSY_COBBLESTONE_STAIRS("苔石楼梯", "minecraft:mossy_cobblestone_stairs", "textures/blocks/stonebrick_mossy.png"),
+    NORMAL_STONE_STAIRS("石头楼梯", "minecraft:stone_stairs", "textures/blocks/stone.png"),
+    // todo: no icon end
+
+    SPRUCE_STANDING_SIGN("云杉木告示牌", "minecraft:spruce_standing_sign", "textures/items/sign_spruce.png"),
+    SPRUCE_WALL_SIGN("云杉木墙告示牌", "minecraft:spruce_wall_sign", "textures/ui/hanging_sign_spruce.png"),
+
+    SMOOTH_STONE("平滑石头", "minecraft:smooth_stone", "textures/blocks/stone.png"), // todo: no icon
+
+    RED_NETHER_BRICK_STAIRS("红色下界砖楼梯", "minecraft:red_nether_brick_stairs", "textures/blocks/nether_brick.png"), // todo: no icon
+    SMOOTH_QUARTZ_STAIRS("平滑石英楼梯", "minecraft:smooth_quartz_stairs", "textures/blocks/quartz_bricks.png"), // todo: no icon
+
+    BIRCH_STANDING_SIGN("白桦木告示牌", "minecraft:birch_standing_sign", "textures/items/sign_birch.png"),
+    BIRCH_WALL_SIGN("白桦木墙告示牌", "minecraft:birch_wall_sign", "textures/items/birch_hanging_sign.png"),
+    JUNGLE_STANDING_SIGN("丛林木告示牌", "minecraft:jungle_standing_sign", "textures/items/sign_jungle.png"),
+    JUNGLE_WALL_SIGN("丛林木墙告示牌", "minecraft:jungle_wall_sign", "textures/items/jungle_hanging_sign.png"),
+    ACACIA_STANDING_SIGN("金合欢木告示牌", "minecraft:acacia_standing_sign", "textures/items/sign_acacia.png"),
+    ACACIA_WALL_SIGN("金合欢木墙告示牌", "minecraft:acacia_wall_sign", "textures/items/acacia_hanging_sign.png"),
+    DARKOAK_STANDING_SIGN("深色橡木告示牌", "minecraft:darkoak_standing_sign", "textures/items/sign_darkoak.png"),
+    DARKOAK_WALL_SIGN("深色橡木墙告示牌", "minecraft:darkoak_wall_sign", "textures/items/dark_oak_hanging_sign.png"),
+
+    LECTERN("讲台", "minecraft:lectern", "textures/blocks/lectern_base.png"), // todo: no icon
+    GRINDSTONE("砂轮", "minecraft:grindstone", "textures/blocks/grindstone_side.tga"),
+
+    // 450 end
+    PEARLESCENT_FROGLIGHT("珠光蛙明灯", "minecraft:pearlescent_froglight", "textures/blocks/pearlescent_froglight_side.png"),
+    VERDANT_FROGLIGHT("翠绿蛙明灯", "minecraft:verdant_froglight", "textures/blocks/verdant_froglight_side.png"),
+    OCHRE_FROGLIGHT("赭黄蛙明灯", "minecraft:ochre_froglight", "textures/blocks/ochre_froglight_side.png"),
+
+    WHITE_CANDLE("白色蜡烛", "minecraft:white_candle", "textures/items/candles/white_candle.png"),
+    ORANGE_CANDLE("橙色蜡烛", "minecraft:orange_candle", "textures/items/candles/orange_candle.png"),
+    MAGENTA_CANDLE("品红色蜡烛", "minecraft:magenta_candle", "textures/items/candles/magenta_candle.png"),
+    LIGHT_BLUE_CANDLE("淡蓝色蜡烛", "minecraft:light_blue_candle", "textures/items/candles/light_blue_candle.png"),
+    YELLOW_CANDLE("黄色蜡烛", "minecraft:yellow_candle", "textures/items/candles/yellow_candle.png"),
+    LIME_CANDLE("黄绿色蜡烛", "minecraft:lime_candle", "textures/items/candles/lime_candle.png"),
+    PINK_CANDLE("粉红色蜡烛", "minecraft:pink_candle", "textures/items/candles/pink_candle.png"),
+    GRAY_CANDLE("灰色蜡烛", "minecraft:gray_candle", "textures/items/candles/gray_candle.png"),
+    LIGHT_GRAY_CANDLE("淡灰色蜡烛", "minecraft:light_gray_candle", "textures/items/candles/light_gray_candle.png"),
+    CYAN_CANDLE("青色蜡烛", "minecraft:cyan_candle", "textures/items/candles/cyan_candle.png"),
+    PURPLE_CANDLE("紫色蜡烛", "minecraft:purple_candle", "textures/items/candles/purple_candle.png"),
+    BLUE_CANDLE("蓝色蜡烛", "minecraft:blue_candle", "textures/items/candles/blue_candle.png"),
+    BROWN_CANDLE("棕色蜡烛", "minecraft:brown_candle", "textures/items/candles/brown_candle.png"),
+    GREEN_CANDLE("绿色蜡烛", "minecraft:green_candle", "textures/items/candles/green_candle.png"),
+    RED_CANDLE("红色蜡烛", "minecraft:red_candle", "textures/items/candles/red_candle.png"),
+    BLACK_CANDLE("黑色蜡烛", "minecraft:black_candle", "textures/items/candles/black_candle.png"),
+
+    // 樱桃木系列方块
+    CHERRY_LOG("樱桃木原木", "minecraft:cherry_log", "textures/blocks/cherry_log_top.png"),
+    CHERRY_PLANKS("樱桃木板", "minecraft:cherry_planks", "textures/blocks/cherry_planks.png"),
+    CHERRY_PRESSURE_PLATE("樱桃木压力板", "minecraft:cherry_pressure_plate", "textures/blocks/cherry_planks.png"),
+    CHERRY_SLAB("樱桃木半砖", "minecraft:cherry_slab", "textures/blocks/cherry_planks.png"),
+    CHERRY_STAIRS("樱桃木楼梯", "minecraft:cherry_stairs", "textures/blocks/cherry_planks.png"),
+    CHERRY_STANDING_SIGN("樱桃木立式告示牌", "minecraft:cherry_sign", "textures/items/cherry_sign.png"),  // 实际使用自定义实体渲染
+    CHERRY_TRAPDOOR("樱桃木活板门", "minecraft:cherry_trapdoor", "textures/blocks/cherry_trapdoor.png"),
+    CHERRY_WALL_SIGN("樱桃木墙式告示牌", "minecraft:cherry_wall_sign", "textures/items/cherry_hanging_sign.png"),  // 实际使用自定义实体渲染
+    STRIPPED_CHERRY_WOOD("去皮樱桃木", "minecraft:stripped_cherry_wood", "textures/blocks/stripped_cherry_log_top.png"),
+    CHERRY_WOOD("樱桃木", "minecraft:cherry_wood", "textures/blocks/cherry_log_top.png"),  // 与原木纹理相同
+    CHERRY_SAPLING("樱桃树苗", "minecraft:cherry_sapling", "textures/blocks/cherry_sapling.png"),
+    CHERRY_LEAVES("樱桃树叶", "minecraft:cherry_leaves", "textures/blocks/cherry_leaves.png"),
+
+    WITHER_SKELETON_SKULL("凋灵骷髅头颅", "minecraft:wither_skeleton_skull", "textures/items/spawn_eggs/spawn_egg_wither_skeleton.png"),
+    ZOMBIE_HEAD("僵尸头颅", "minecraft:zombie_head", "textures/items/spawn_eggs/spawn_egg_zombie.png"),
+    PLAYER_HEAD("玩家头颅", "minecraft:player_head", "textures/ui/icon_steve.png"),  // 实际使用玩家皮肤
+    CREEPER_HEAD("苦力怕头颅", "minecraft:creeper_head", "textures/items/spawn_eggs/spawn_egg_creeper.png"),
+    DRAGON_HEAD("末影龙头颅", "minecraft:dragon_head", "textures/items/dragon_egg.png"),
+    PIGLIN_HEAD("猪灵头颅", "minecraft:piglin_head", "textures/items/spawn_eggs/spawn_egg_piglin.png");
 
 
 
     private final int id, damage;
+
+    private final String stringIdentifier;
 
     private final String name, path;
 
@@ -1995,15 +2396,49 @@ public enum ItemIDSunName {
         }
     }
 
+    /**
+     * 联合id与damage
+     * */
+    private static class StringIdDamageKey {
+        private final String id;
+        private final int damage;
+
+        StringIdDamageKey(String id, int damage) {
+            this.id = id;
+            this.damage = damage;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            StringIdDamageKey that = (StringIdDamageKey) o;
+            return id.equals(that.id) && damage == that.damage;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, damage);
+        }
+    }
 
     private static final Map<String, ItemIDSunName> NAME_MAP = new HashMap<>();
     private static final Map<IdDamageKey, ItemIDSunName> ID_DAMAGE_MAP = new HashMap<>();
+    private static final Map<StringIdDamageKey, ItemIDSunName> STRING_ID_DAMAGE_MAP = new HashMap<>();
 
     // 静态块，初始化缓存
     static {
         for (ItemIDSunName item : values()) {
             NAME_MAP.put(item.name, item);
-            ID_DAMAGE_MAP.put(new IdDamageKey(item.id, item.damage), item);
+            if (item.id != 255) {
+                ID_DAMAGE_MAP.put(new IdDamageKey(item.id, item.damage), item);
+            } else {
+                STRING_ID_DAMAGE_MAP.put(new StringIdDamageKey(item.stringIdentifier, item.damage), item);
+            }
         }
     }
 
@@ -2058,7 +2493,12 @@ public enum ItemIDSunName {
      * @return 物品中文名
      * */
     public static String getNameByItem(Item item) {
-        return getNameByIdAndDamage(item.getId(),item.getDamage());
+        if (item.getId() == 255) {
+            ItemIDSunName stringIdDamageKey = STRING_ID_DAMAGE_MAP.get(new StringIdDamageKey(item.getNamespaceId(), item.getDamage()));
+            return stringIdDamageKey != null ? stringIdDamageKey.name : "未知";
+        } else {
+            return getNameByIdAndDamage(item.getId(), item.getDamage());
+        }
     }
 
     /**
@@ -2110,11 +2550,27 @@ public enum ItemIDSunName {
         this.name = name;
         this.damage = damage;
         this.path = path;
+        this.stringIdentifier = "";
     }
 
+    /**
+     * @param name   物品名称
+     * @param path   物品贴图路径
+     */
+    ItemIDSunName(String name, String stringIdentifier, String path) {
+        this(name, stringIdentifier, 0, path);
+    }
 
-
-
-
-
+    /**
+     * @param name   物品名称
+     * @param damage 物品特殊值
+     * @param path   物品贴图路径
+     */
+    ItemIDSunName(String name, String stringIdentifier, int damage, String path) {
+        this.id = 255;
+        this.name = name;
+        this.damage = damage;
+        this.path = path;
+        this.stringIdentifier = stringIdentifier;
+    }
 }

@@ -1,12 +1,8 @@
 package gameapi;
 
-import gameapi.tools.CalendarTools;
+import gameapi.utils.ItemIDSunName;
 
 import java.io.File;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Month;
-import java.util.Calendar;
 
 /**
  * @author glorydark
@@ -14,6 +10,7 @@ import java.util.Calendar;
 public class Test {
 
     public static void main(String[] args) {
+        /*
         System.out.println(BigDecimal.valueOf(18 / 20d).setScale(1, RoundingMode.FLOOR).doubleValue());
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, 4);
@@ -24,5 +21,13 @@ public class Test {
 
         calendar.set(Calendar.DAY_OF_WEEK_IN_MONTH, 12);
         System.out.println(CalendarTools.getWeekString(calendar));
+         */
+
+        for (ItemIDSunName value : ItemIDSunName.values()) {
+            File file = new File("D:/VanillaResourcePack/" + value.getPath());
+            if (!file.exists()) {
+                System.out.println("Error: " + value.getPath());
+            }
+        }
     }
 }

@@ -459,10 +459,12 @@ public class BaseEventListener implements Listener {
                     return;
                 }
                 if (!room1.getTeams().isEmpty()) {
-                    if (room1.getTeam(victim) != null && room1.getTeam(victim) == room2.getTeam(damager)) {
-                        victim.sendMessage(GameAPI.getLanguage().getTranslation(damager, "baseEvent.team_damage.not_allowed"));
-                        event.setCancelled(true);
-                        return;
+                    if (victim != damager) {
+                        if (room1.getTeam(victim) != null && room1.getTeam(victim) == room2.getTeam(damager)) {
+                            damager.sendMessage(GameAPI.getLanguage().getTranslation(damager, "baseEvent.team_damage.not_allowed"));
+                            event.setCancelled(true);
+                            return;
+                        }
                     }
                 }
                 if (!room1.getRoomRule().isUseDefaultAttackCooldown()) {
