@@ -7,6 +7,7 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.inventory.*;
+import cn.nukkit.event.player.PlayerDropItemEvent;
 import cn.nukkit.event.player.PlayerFormRespondedEvent;
 import cn.nukkit.event.player.PlayerInteractEntityEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
@@ -14,6 +15,7 @@ import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.form.window.FormWindow;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryHolder;
+import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.inventory.transaction.InventoryTransaction;
 import cn.nukkit.inventory.transaction.action.InventoryAction;
 import cn.nukkit.item.Item;
@@ -106,20 +108,54 @@ public class AdvancedFormListener implements Listener {
     }
 
     @EventHandler
+    public void PlayerDropItemEvent(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        if (chestFormMap.containsKey(player)) {
+            AdvancedBlockFakeBlockInventory inv = chestFormMap.get(player);
+            if (inv != null) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
     public void InventoryTransactionEvent(InventoryTransactionEvent event) {
-        for (Inventory inventory : event.getTransaction().getInventories()) {
-            if (this.isChestInventory(inventory)) {
-                AdvancedBlockFakeBlockInventoryImpl form = (AdvancedBlockFakeBlockInventoryImpl) inventory;
-                InventoryTransaction transaction = event.getTransaction();
-                for (InventoryAction action : transaction.getActions()) {
-                    for (Player player : inventory.getViewers()) {
-                        Item item = action.getSourceItem();
-                        for (Map.Entry<Integer, Item> entry : form.getContents().entrySet()) {
-                            int slot = entry.getKey();
-                            Item item1 = entry.getValue();
-                            if (item.equals(item1)) {
-                                form.dealOnClickResponse(player, new BlockInventoryResponse(form, slot, item1));
+        /*
+        for (InventoryAction inventoryAction : event.getTransaction().getActionList()) { // TEST
+            GameAPI.getGameDebugManager().info("----------------------------");
+            Player player = event.getTransaction().getSource();
+            GameAPI.getGameDebugManager().info("Player: " + player.getName());
+            GameAPI.getGameDebugManager().info("Type: " + event.getTransaction().getInventories());
+            GameAPI.getGameDebugManager().info("Source: " + inventoryAction.getSourceItem());
+            GameAPI.getGameDebugManager().info("Target: " + inventoryAction.getTargetItem());
+            GameAPI.getGameDebugManager().info("Cursor: " + player.getCursorInventory().getItem(0));
+            GameAPI.getGameDebugManager().info("----------------------------");
+        }
+         */
+        Player player = event.getTransaction().getSource();
+        InventoryTransaction transaction = event.getTransaction();
+        for (Inventory inventory : transaction.getInventories()) {
+            if (inventory.getType() == InventoryType.PLAYER) {
+                if (chestFormMap.containsKey(player)) {
+                    AdvancedBlockFakeBlockInventory inv = chestFormMap.get(player);
+                    if (inv != null) {
+                        if (!inv.isItemTakeIntoInventory()) {
+                            if (player.getCursorInventory().getItem(0).getId() != 0) {
+                                event.setCancelled();
+                                break;
                             }
+                        }
+                    }
+                }
+            } else if (this.isChestInventory(inventory)) {
+                AdvancedBlockFakeBlockInventoryImpl form = (AdvancedBlockFakeBlockInventoryImpl) inventory;
+                for (InventoryAction action : transaction.getActions()) {
+                    Item item = action.getSourceItem();
+                    for (Map.Entry<Integer, Item> entry : form.getContents().entrySet()) {
+                        int slot = entry.getKey();
+                        Item item1 = entry.getValue();
+                        if (item.equals(item1)) {
+                            form.dealOnClickResponse(player, new BlockInventoryResponse(form, slot, item1));
                         }
                     }
                 }

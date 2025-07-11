@@ -87,13 +87,18 @@ public class PlayerTools {
         if (!subtitle.isEmpty()) {
             setSubtitle(players, subtitle);
         }
-
         setTitle(players, title);
     }
 
     public static void sendTitle(Collection<Player> players, TitleData titleData) {
         for (Player player : players) {
-            player.sendTitle(titleData.getTitle().getText(player), titleData.getSubtitle().getText(player), titleData.getFadeIn(), titleData.getDuration(), titleData.getFadeOut());
+            player.sendTitle(
+                    titleData.getTitle().getText(player),
+                    titleData.getSubtitle().getText(player),
+                    titleData.getFadeIn(),
+                    titleData.getDuration(),
+                    titleData.getFadeOut()
+            );
         }
     }
 

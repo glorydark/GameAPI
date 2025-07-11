@@ -28,7 +28,7 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
     protected Map<Integer, BiConsumer<Player, BlockInventoryResponse>> responseMap = new LinkedHashMap<>();
     protected boolean itemMovable;
     @Deprecated
-    protected boolean itemCanPick;
+    protected boolean itemTakeIntoInventory;
     private List<FakeBlockCacheData> fakeBlockList = new ArrayList<>();
 
     public AdvancedBlockFakeBlockInventory(BlockFakeInventoryType fakeBlockFormType) {
@@ -119,16 +119,16 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
         return itemMovable;
     }
 
-    public boolean isItemCanPick() {
-        return itemCanPick;
+    public boolean isItemTakeIntoInventory() {
+        return itemTakeIntoInventory;
     }
 
     public void setItemMovable(boolean itemMovable) {
         this.itemMovable = itemMovable;
     }
 
-    public void setItemCanPick(boolean itemCanPick) {
-        this.itemCanPick = itemCanPick;
+    public void setItemTakeIntoInventory(boolean itemTakeIntoInventory) {
+        this.itemTakeIntoInventory = itemTakeIntoInventory;
     }
 
     protected CompoundTag getBlockEntityDataAt(Vector3 position, String title, boolean pair) {

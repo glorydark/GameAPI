@@ -5,12 +5,8 @@ import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
-import cn.nukkit.entity.weather.EntityLightning;
-import cn.nukkit.level.Location;
 import cn.nukkit.utils.TextFormat;
 import gameapi.commands.base.EasySubCommand;
-import gameapi.tools.SpatialTools;
-import gameapi.utils.AdvancedLocation;
 
 public class ImprovedXpCommand extends EasySubCommand {
 

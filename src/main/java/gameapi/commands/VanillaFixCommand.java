@@ -1,6 +1,5 @@
 package gameapi.commands;
 
-import cn.nukkit.command.CommandSender;
 import gameapi.commands.base.EasyCommand;
 import gameapi.commands.vanilla.ImprovedCameraCommand;
 import gameapi.commands.vanilla.ImprovedTeleportCommand;

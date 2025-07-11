@@ -174,11 +174,13 @@ public class WorldTools {
     }
 
     public static void initLevel(Level level) {
+        level.getGameRules().setGameRule(GameRule.SHOW_TAGS, true);
+        level.getGameRules().setGameRule(GameRule.LOCATOR_BAR, false);
+        level.getGameRules().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
         level.setThundering(false);
         level.setRaining(false);
         level.setAutoSave(false);
         level.setSaveOnUnloadEnabled(false);
-        level.getGameRules().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
     }
 
     public static int getNewBackUpLoadId(String gameName) {

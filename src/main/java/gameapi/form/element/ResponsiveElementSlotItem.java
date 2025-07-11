@@ -32,7 +32,7 @@ public class ResponsiveElementSlotItem {
     }
 
     public ResponsiveElementSlotItem(String itemString) {
-        this.item = Item.fromString(itemString);
+        this(Item.fromString(itemString));
     }
 
     public ResponsiveElementSlotItem(Item item) {

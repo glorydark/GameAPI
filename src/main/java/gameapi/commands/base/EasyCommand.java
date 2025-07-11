@@ -29,6 +29,10 @@ public class EasyCommand extends Command {
         }
     }
 
+    public boolean preExecute(CommandSender commandSender, String s, String[] strings) {
+        return true;
+    }
+
     public void onExecuteDefault(CommandSender commandSender) {
 
     }
@@ -36,6 +40,9 @@ public class EasyCommand extends Command {
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (!this.hasPermission(commandSender)) {
+            return false;
+        }
+        if (!this.preExecute(commandSender, s, strings)) {
             return false;
         }
         if (strings.length == 0) {

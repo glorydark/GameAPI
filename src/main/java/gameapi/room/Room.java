@@ -6,7 +6,6 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.item.Item;
-import cn.nukkit.level.GameRule;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockVector3;
@@ -139,47 +138,45 @@ public class Room {
     public static final String INTERNAL_KEY_ROOM_INTERNAL = "room_internal";
     public static final String INTERNAL_KEY_VISIBLE_TO_PLAYERS = "visible_to_players";
 
-    public static final BiFunction<Room, Player, Boolean> DEFAULT_ROOM_ADD_PLAYER_CHECK = new BiFunction<Room, Player, Boolean>() {
-        @Override
-        public Boolean apply(Room room, Player player) {
-            switch (room.getRoomStatus()) {
-                case ROOM_MAP_LOAD_FAILED:
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
-                    return true;
-                case ROOM_MAP_INITIALIZING:
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.resetting"));
-                    return true;
-                case ROOM_HALTED:
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
-                    return true;
-                case ROOM_STATUS_READY_START:
-                    if (room.getRoomRule().isAllowJoinAfterReadyStart()) {
-                        break;
-                    } else {
-                        room.processSpectatorJoin(player);
-                    }
-                    return true;
-                case ROOM_STATUS_START:
-                    if (!room.getRoomRule().isAllowJoinAfterStart()) {
-                        if (room.getRoomRule().isAllowSpectators()) {
-                            room.processSpectatorJoin(player);
-                            return true;
-                        } else {
-                            player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
-                        }
-                    } else if (room.getRoomRule().isAllowSpectators()) {
+    public static final BiFunction<Room, Player, Boolean> DEFAULT_ROOM_ADD_PLAYER_CHECK = (room, player) -> {
+        switch (room.getRoomStatus()) {
+            case ROOM_MAP_LOAD_FAILED:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
+                return true;
+            case ROOM_MAP_INITIALIZING:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.resetting"));
+                return true;
+            case ROOM_HALTED:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
+                return true;
+            case ROOM_STATUS_READY_START:
+                if (room.getRoomRule().isAllowJoinAfterReadyStart()) {
+                    break;
+                } else {
+                    room.processSpectatorJoin(player);
+                }
+                return true;
+            case ROOM_STATUS_START:
+            case ROOM_STATUS_NEXT_ROUND_PRESTART:
+                if (!room.getRoomRule().isAllowJoinAfterStart()) {
+                    if (room.getRoomRule().isAllowSpectators()) {
                         room.processSpectatorJoin(player);
                         return true;
+                    } else {
+                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
                     }
-                    break;
-                case ROOM_STATUS_GAME_END:
-                case ROOM_STATUS_CEREMONY:
-                case ROOM_STATUS_END:
-                    player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                } else if (room.getRoomRule().isAllowSpectators()) {
+                    room.processSpectatorJoin(player);
                     return true;
-            }
-            return false;
+                }
+                break;
+            case ROOM_STATUS_GAME_END:
+            case ROOM_STATUS_CEREMONY:
+            case ROOM_STATUS_END:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                return true;
         }
+        return false;
     };
 
     // If returned with true, it means this function is enough to do with the join process.
@@ -637,6 +634,9 @@ public class Room {
                 }
             }
             GameAPI.getGameDebugManager().info("Player " + player.getName() + " quit the room, reason: " + reason.name());
+
+            RoomPlayerPostLeaveEvent roomPlayerPostLeaveEvent = new RoomPlayerPostLeaveEvent(this, player, reason);
+            GameListenerRegistry.callEvent(this, roomPlayerPostLeaveEvent);
         }
     }
 
@@ -1066,8 +1066,6 @@ public class Room {
 
     public void addPlayLevel(Level loadLevel) {
         playLevels.add(loadLevel);
-        loadLevel.getGameRules().setGameRule(GameRule.SHOW_TAGS, true);
-        loadLevel.getGameRules().setGameRule(GameRule.LOCATOR_BAR, false);
     }
 
     public void removePlayLevel(Level loadLevel) {

@@ -1,6 +1,7 @@
 package gameapi.utils;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
