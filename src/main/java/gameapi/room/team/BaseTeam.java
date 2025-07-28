@@ -14,29 +14,18 @@ import java.util.*;
 @Data
 @ToString
 public class BaseTeam {
-    private String registryName;
-
-    private int score = 0;
-
-    private String prefix;
-
-    private List<Player> players = new ArrayList<>();
-
-    private Room room;
-
-    private List<Integer> spawnIndexList;
-
-    private int maxPlayer;
-
-    private boolean alive = true;
-
-    private boolean eliminated = false;
-
-    private DyeColor dyeColor = DyeColor.WHITE;
-
-    private Map<String, Object> properties = new LinkedHashMap<>();
-
     protected Map<Player, Map<String, Object>> playerProperties = new LinkedHashMap<>();
+    private String registryName;
+    private int score = 0;
+    private String prefix;
+    private List<Player> players = new ArrayList<>();
+    private Room room;
+    private List<Integer> spawnIndexList;
+    private int maxPlayer;
+    private boolean alive = true;
+    private boolean eliminated = false;
+    private DyeColor dyeColor = DyeColor.WHITE;
+    private Map<String, Object> properties = new LinkedHashMap<>();
 
     public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, int spawnIndex) {
         this(room, registryName, prefix, maxPlayer, Collections.singletonList(spawnIndex));

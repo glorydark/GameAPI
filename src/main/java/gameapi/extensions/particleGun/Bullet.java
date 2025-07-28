@@ -21,12 +21,9 @@ public class Bullet {
     private final Weapon weapon;
 
     private final Location startPos;
-
-    private Vector3 currentPos;
-
     private final Vector3 movingMotion;
-
     protected boolean alive = true;
+    private Vector3 currentPos;
 
     public Bullet(Player owner, Weapon weapon) {
         this.startPos = owner.add(0, 1.25, 0);
@@ -38,7 +35,7 @@ public class Bullet {
 
         double x = -Math.sin(yawRad) * Math.cos(pitchRad);
         double y = -Math.sin(pitchRad);
-        double z =  Math.cos(yawRad) * Math.cos(pitchRad);
+        double z = Math.cos(yawRad) * Math.cos(pitchRad);
         this.movingMotion = owner.getDirectionVector().add(x, y, z);
     }
 

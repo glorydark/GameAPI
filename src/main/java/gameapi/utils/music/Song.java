@@ -19,16 +19,6 @@ import java.util.Map;
 @EqualsAndHashCode(of = {"songName", "title"})
 public class Song {
 
-    private final Map<Integer, Layer> layerHashMap;
-    private final short songHeight;
-    private final short length;
-    private final String title;
-    private final String author;
-    private final String description;
-    private final float speed;
-    private final float delay;
-    private final String songName;
-
     public static final Map<Integer, Sound> SOUNDS = new Int2ObjectOpenHashMap<Sound>() {{
         put(0, Sound.NOTE_HARP);
         put(1, Sound.NOTE_BASS);
@@ -41,7 +31,6 @@ public class Song {
         put(8, Sound.NOTE_CHIME);
         put(9, Sound.NOTE_XYLOPHONE);
     }};
-
     private static final Map<Integer, Float> KEYS = new LinkedHashMap<Integer, Float>() {{
         put(0, 0.5f);
         put(1, 0.529732f);
@@ -69,6 +58,15 @@ public class Song {
         put(23, 1.887749f);
         put(24, 2.0f);
     }};
+    private final Map<Integer, Layer> layerHashMap;
+    private final short songHeight;
+    private final short length;
+    private final String title;
+    private final String author;
+    private final String description;
+    private final float speed;
+    private final float delay;
+    private final String songName;
 
     public Song(float speed,
                 Map<Integer, Layer> layerHashMap,

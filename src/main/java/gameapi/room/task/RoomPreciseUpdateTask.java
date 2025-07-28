@@ -7,10 +7,8 @@ import gameapi.room.Room;
  */
 public abstract class RoomPreciseUpdateTask {
 
-    private boolean cancelled = false;
-
     private final long startMillis;
-
+    private boolean cancelled = false;
     private int tick;
 
     public RoomPreciseUpdateTask() {
@@ -27,12 +25,12 @@ public abstract class RoomPreciseUpdateTask {
 
     public abstract void onUpdate(Room room);
 
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
-
     public boolean isCancelled() {
         return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 
     public long getStartMillis() {

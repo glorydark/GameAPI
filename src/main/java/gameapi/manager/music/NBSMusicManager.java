@@ -15,33 +15,19 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class NBSMusicManager {
 
-    protected Room room;
-
-    protected List<Song> playList;
-
-    protected PlayType playType;
-
-    private Song currentSong = null;
-
     protected final List<Player> stopMusicPlayers = new ArrayList<>();
-
+    protected Room room;
+    protected List<Song> playList;
+    protected PlayType playType;
     protected int currentTick = 0;
-
     protected long lastPlayed = 0L;
-
     protected boolean stopped = true;
+    private Song currentSong = null;
 
     public NBSMusicManager(Room room, PlayType playType) {
         this.room = room;
         this.playList = new ArrayList<>();
         this.playType = playType;
-    }
-
-    public enum PlayType {
-        SINGLE_TRACK_LOOP,
-        LIST_LOOP,
-        SHUFFLE,
-        LIST
     }
 
     public void start() {
@@ -186,5 +172,12 @@ public class NBSMusicManager {
 
     public Song getCurrentSong() {
         return currentSong;
+    }
+
+    public enum PlayType {
+        SINGLE_TRACK_LOOP,
+        LIST_LOOP,
+        SHUFFLE,
+        LIST
     }
 }

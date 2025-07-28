@@ -236,13 +236,13 @@ public class ImprovedCameraCommand extends EasySubCommand {
                     if (remainedIndex < 3) {
                         continue;
                     }
-                    Vector3f vector3f =  new Vector3f(
-                            args[subStartIndex].equals("~")?
-                                    player.asVector3f().getX(): Float.parseFloat(args[subStartIndex]),
-                            args[subStartIndex + 1].equals("~")?
-                                    player.asVector3f().getY(): Float.parseFloat(args[subStartIndex + 1]),
-                            args[subStartIndex + 2].equals("~")?
-                                    player.asVector3f().getZ(): Float.parseFloat(args[subStartIndex + 2]));
+                    Vector3f vector3f = new Vector3f(
+                            args[subStartIndex].equals("~") ?
+                                    player.asVector3f().getX() : Float.parseFloat(args[subStartIndex]),
+                            args[subStartIndex + 1].equals("~") ?
+                                    player.asVector3f().getY() : Float.parseFloat(args[subStartIndex + 1]),
+                            args[subStartIndex + 2].equals("~") ?
+                                    player.asVector3f().getZ() : Float.parseFloat(args[subStartIndex + 2]));
                     pk.getSetInstruction().setPos(vector3f);
                     i += 3;
                     break;
@@ -252,8 +252,8 @@ public class ImprovedCameraCommand extends EasySubCommand {
                     }
                     pk.getSetInstruction().setRot(
                             new Vector2f(
-                                    args[subStartIndex].equals("~")? (float) player.getYaw(): Float.parseFloat(args[subStartIndex]),
-                                    args[subStartIndex + 1].equals("~")? (float) player.getPitch(): Float.parseFloat(args[subStartIndex + 1])
+                                    args[subStartIndex].equals("~") ? (float) player.getYaw() : Float.parseFloat(args[subStartIndex]),
+                                    args[subStartIndex + 1].equals("~") ? (float) player.getPitch() : Float.parseFloat(args[subStartIndex + 1])
                             ));
                     i += 2;
                     break;

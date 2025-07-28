@@ -20,17 +20,12 @@ import java.util.Map;
 @Data
 public class CheckpointManager {
 
-    private List<CheckpointData> checkpointDataList = new ArrayList<>();
-
-    private Map<Player, PlayerCheckpointData> playerCheckpointData = new LinkedHashMap<>();
-
-    private int minFinishCheckpoint = -1;
-
-    private int maxLap = 1;
-
-    private CheckpointData endPoint = null;
-
     private final Room room;
+    private List<CheckpointData> checkpointDataList = new ArrayList<>();
+    private Map<Player, PlayerCheckpointData> playerCheckpointData = new LinkedHashMap<>();
+    private int minFinishCheckpoint = -1;
+    private int maxLap = 1;
+    private CheckpointData endPoint = null;
 
     public CheckpointManager(Room room) {
         this.room = room;

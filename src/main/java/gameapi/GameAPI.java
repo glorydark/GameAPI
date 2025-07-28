@@ -48,16 +48,14 @@ public class GameAPI extends PluginBase implements Listener {
 
     public static final int GAME_TASK_INTERVAL = 1; // this value should not be modified for the roomUpdateTask
     protected static final int THREAD_POOL_SIZE = 8;
-
-    protected boolean glorydarkRelatedFeature;
-    protected boolean tipsEnabled;
-    protected boolean saveTempStates = false;
-    protected String timestampApi;
-    protected static GameDebugManager gameDebugManager;
     protected static final Language language = new Language("GameAPI");
     public static Set<Player> worldEditPlayers = new HashSet<>();
     public static List<EditProcess> editProcessList = new ArrayList<>();
     public static ForkJoinPool WORLDEDIT_THREAD_POOL_EXECUTOR;
+    // Since v_1_21_70, before opening another inventory, the action should wait at least 9 ticks to avoid lapping.
+    public static int OPEN_INVENTORY_DELAY_TICKS = 9;
+    public static boolean enableParticleWeapon = true;
+    protected static GameDebugManager gameDebugManager;
     protected static String path;
     protected static GameAPI instance;
     protected static ScheduledExecutorService roomTaskExecutor;
@@ -73,10 +71,10 @@ public class GameAPI extends PluginBase implements Listener {
     };
     protected static boolean experimentalFeature = false;
     protected static boolean isFirstLaunch = true;
-    // Since v_1_21_70, before opening another inventory, the action should wait at least 9 ticks to avoid lapping.
-    public static int OPEN_INVENTORY_DELAY_TICKS = 9;
-
-    public static boolean enableParticleWeapon = true;
+    protected boolean glorydarkRelatedFeature;
+    protected boolean tipsEnabled;
+    protected boolean saveTempStates = false;
+    protected String timestampApi;
 
     public static void addRoomEdit(EditProcess editProcess) {
         editProcessList.add(editProcess);
@@ -96,6 +94,14 @@ public class GameAPI extends PluginBase implements Listener {
 
     public static Language getLanguage() {
         return language;
+    }
+
+    public static GameDebugManager getGameDebugManager() {
+        return gameDebugManager;
+    }
+
+    public static boolean isExperimentalFeature() {
+        return experimentalFeature;
     }
 
     @Override
@@ -183,6 +189,9 @@ public class GameAPI extends PluginBase implements Listener {
             }
         }, 0, 1, TimeUnit.SECONDS);
         roomTaskExecutor.scheduleAtFixedRate(() -> new ArrayList<>(GameAPI.getGameDebugManager().getPlayers()).forEach(player -> {
+            if (!player.isOnline() || player.getInventory() == null) {
+                return;
+            }
             try {
                 if (player.isOp()) {
                     DecimalFormat df = new DecimalFormat("#0.00");
@@ -190,7 +199,7 @@ public class GameAPI extends PluginBase implements Listener {
                     out += "所在位置: [" + df.format(player.getX()) + ":" + df.format(player.getY()) + ":" + df.format(player.getZ()) + "] 世界名: " + player.getLevel().getName() + "\n";
                     out += "yaw: " + df.format(player.getYaw()) + " pitch: " + df.format(player.pitch) + " headYaw: " + df.format(player.headYaw) + "\n";
                     Item item = player.getInventory().getItemInHand();
-                    out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + " (" + item.getId()  + ":" + item.getDamage() + ")] 数量:" + item.getCount() + "\n";
+                    out += "手持物品id: [" + ItemTools.getIdentifierAndMetaString(item) + " (" + item.getId() + ":" + item.getDamage() + ")] 数量:" + item.getCount() + "\n";
                     Block block = player.getTargetBlock(32);
                     if (block != null) {
                         //out += "所指方块id: [" + block.toItem().getNamespaceId() + "] 方块名称:" + block.getName() + "\n";
@@ -298,13 +307,5 @@ public class GameAPI extends PluginBase implements Listener {
 
     public String getTimestampApi() {
         return timestampApi;
-    }
-
-    public static GameDebugManager getGameDebugManager() {
-        return gameDebugManager;
-    }
-
-    public static boolean isExperimentalFeature() {
-        return experimentalFeature;
     }
 }

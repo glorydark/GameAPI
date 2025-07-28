@@ -85,9 +85,11 @@ public class RoomUpdateTask implements Runnable {
                 }
             }
 
-            if (!this.room.getCheckpointManager().getCheckpointDataList().isEmpty()) {
-                for (CheckpointData checkPointData : this.room.getCheckpointManager().getCheckpointDataList()) {
-                    checkPointData.showParticleMarks(this.room.getPlayLevels().get(0));
+            if (Server.getInstance().getTick() % 20 == 0) {
+                if (!this.room.getCheckpointManager().getCheckpointDataList().isEmpty()) {
+                    for (CheckpointData checkPointData : this.room.getCheckpointManager().getCheckpointDataList()) {
+                        checkPointData.showParticleMarks(this.room.getPlayLevels().get(0));
+                    }
                 }
             }
 

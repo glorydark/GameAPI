@@ -1,10 +1,7 @@
 package gameapi.commands;
 
 import gameapi.commands.base.EasyCommand;
-import gameapi.commands.vanilla.ImprovedCameraCommand;
-import gameapi.commands.vanilla.ImprovedTeleportCommand;
-import gameapi.commands.vanilla.ImprovedThunderCommand;
-import gameapi.commands.vanilla.ImprovedXpCommand;
+import gameapi.commands.vanilla.*;
 
 /**
  * @author glorydark
@@ -17,5 +14,7 @@ public class VanillaFixCommand extends EasyCommand {
         this.registerCommand(new ImprovedTeleportCommand("tp"));
         this.registerCommand(new ImprovedThunderCommand("thunder"));
         this.registerCommand(new ImprovedXpCommand("xp"));
+        this.registerCommand(new ImprovedEffectCommand("effect"));
+        this.registerCommand(new ImprovedParticleCommand("particle"));
     }
 }

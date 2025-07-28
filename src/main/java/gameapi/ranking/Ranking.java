@@ -16,6 +16,13 @@ import java.util.stream.Collectors;
 
 @Data
 public class Ranking {
+    private static final String SEQUENCE_ASCEND = "ascend";
+    private static final String TYPE_DOUBLE = "double";
+    private static final String TYPE_LONG_TO_TIME = "long_to_time";
+    private static final String TYPE_FLOAT = "float";
+    private static final String TYPE_LONG = "long";
+    private static final String TYPE_INTEGER = "integer";
+    private static final String FORMAT_RESET = "§f";
     private final RankingValueType type;
     // This only stores the inner compared values
     protected Map<String, ?> rankingData;
@@ -27,16 +34,6 @@ public class Ranking {
     private RankingListEntity entity;
     private int maxDisplayCount;
     private long lastUpdateMillis = 0L;
-
-    private static final String SEQUENCE_ASCEND = "ascend";
-
-    private static final String TYPE_DOUBLE = "double";
-    private static final String TYPE_LONG_TO_TIME = "long_to_time";
-    private static final String TYPE_FLOAT = "float";
-    private static final String TYPE_LONG = "long";
-    private static final String TYPE_INTEGER = "integer";
-
-    private static final String FORMAT_RESET = "§f";
 
     public Ranking(RankingValueType valueType, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence, int maxDisplayCount) {
         this.title = title;

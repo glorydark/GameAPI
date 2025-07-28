@@ -17,13 +17,11 @@ import java.util.Map;
  */
 public class GameActivityManager {
 
+    public static String path;
+    public static Map<String, ActivityData> activityDataMap = new LinkedHashMap<>();
     protected static String STATUS_UNDER_PREPARATION = "§c[未开始]";
     protected static String STATUS_START = "§e[进行中]";
     protected static String STATUS_EXPIRED = "§c[已结束]";
-
-    public static String path;
-
-    public static Map<String, ActivityData> activityDataMap = new LinkedHashMap<>();
 
     public static void init() {
         path = GameAPI.getPath() + File.separator + "activities" + File.separator;
@@ -62,7 +60,7 @@ public class GameActivityManager {
         for (Map.Entry<String, ActivityData> entry : activityDataMap.entrySet()) {
             ActivityData activityData = entry.getValue();
             simple.addButton(new ResponsiveElementButton(
-                    (activityData.isStarted()? (activityData.isExpired()? STATUS_EXPIRED: STATUS_START): STATUS_UNDER_PREPARATION)
+                    (activityData.isStarted() ? (activityData.isExpired() ? STATUS_EXPIRED : STATUS_START) : STATUS_UNDER_PREPARATION)
                             + " " + activityData.getName()
                             + "\n" + activityData.getDescription()));
         }

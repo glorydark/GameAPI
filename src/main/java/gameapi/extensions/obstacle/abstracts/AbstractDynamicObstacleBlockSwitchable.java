@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * @author glorydark
- *
+ * <p>
  * This aims at realising multi-state block-changing obstacles
  */
 public abstract class AbstractDynamicObstacleBlockSwitchable extends DynamicObstacle implements DynamicObstacleBlockSwitchable {

@@ -62,8 +62,50 @@ import java.util.stream.Collectors;
 @Setter
 public class Room {
 
-    private int roomNumber = -1;
+    public static final String INTERNAL_KEY_ROOM_INTERNAL = "room_internal";
+    public static final String INTERNAL_KEY_VISIBLE_TO_PLAYERS = "visible_to_players";
+    public static final BiFunction<Room, Player, Boolean> DEFAULT_ROOM_ADD_PLAYER_CHECK = (room, player) -> {
+        switch (room.getRoomStatus()) {
+            case ROOM_MAP_LOAD_FAILED:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
+                return true;
+            case ROOM_MAP_INITIALIZING:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.resetting"));
+                return true;
+            case ROOM_HALTED:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
+                return true;
+            case ROOM_STATUS_READY_START:
+                if (room.getRoomRule().isAllowJoinAfterReadyStart()) {
+                    break;
+                } else {
+                    room.processSpectatorJoin(player);
+                }
+                return true;
+            case ROOM_STATUS_START:
+            case ROOM_STATUS_NEXT_ROUND_PRESTART:
+                if (!room.getRoomRule().isAllowJoinAfterStart()) {
+                    if (room.getRoomRule().isAllowSpectators()) {
+                        room.processSpectatorJoin(player);
+                        return true;
+                    } else {
+                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                    }
+                } else if (room.getRoomRule().isAllowSpectators()) {
+                    room.processSpectatorJoin(player);
+                    return true;
+                }
+                break;
+            case ROOM_STATUS_GAME_END:
+            case ROOM_STATUS_CEREMONY:
+            case ROOM_STATUS_END:
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
+                return true;
+        }
+        return false;
+    };
     private final long createMillis;
+    public long maxTempRoomWaitMillis = 1800000L;
     @Setter(AccessLevel.NONE)
     protected ConcurrentHashMap<String, BaseTeam> teamCache = new ConcurrentHashMap<>();
     @Setter(AccessLevel.NONE)
@@ -73,6 +115,12 @@ public class Room {
     @Setter(AccessLevel.NONE)
     protected LinkedHashMap<String, LinkedHashMap<String, Object>> internalProperties = new LinkedHashMap<>();
     protected String joinPassword = "";
+    protected List<TextEntity> textEntities = new ArrayList<>();
+    protected List<BlockVector3> blocks = new ArrayList<>();
+    // If returned with true, it means this function is enough to do with the join process.
+    // Other default logic will be defunct.
+    protected BiFunction<Room, Player, Boolean> addPlayerCheck = DEFAULT_ROOM_ADD_PLAYER_CHECK;
+    private int roomNumber = -1;
     // Used as a temporary room and will be deleted after the game.
     private RoomExecutor statusExecutor = new BaseRoomExecutor(this);
     private boolean temporary = false;
@@ -129,59 +177,8 @@ public class Room {
     private List<String> whitelists = new ArrayList<>();
     private boolean enableWhitelist = false;
     private int accelerateWaitCountDownPlayerCount = 2;
-    protected List<TextEntity> textEntities = new ArrayList<>();
-    protected List<BlockVector3> blocks = new ArrayList<>();
     private Map<Entity, List<EntityDamageSource>> lastEntityReceiveDamageSource = new LinkedHashMap<>();
     private String prevChangeStatusReason = "";
-    public long maxTempRoomWaitMillis = 1800000L;
-
-    public static final String INTERNAL_KEY_ROOM_INTERNAL = "room_internal";
-    public static final String INTERNAL_KEY_VISIBLE_TO_PLAYERS = "visible_to_players";
-
-    public static final BiFunction<Room, Player, Boolean> DEFAULT_ROOM_ADD_PLAYER_CHECK = (room, player) -> {
-        switch (room.getRoomStatus()) {
-            case ROOM_MAP_LOAD_FAILED:
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.load_failed"));
-                return true;
-            case ROOM_MAP_INITIALIZING:
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.resetting"));
-                return true;
-            case ROOM_HALTED:
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.map.halted"));
-                return true;
-            case ROOM_STATUS_READY_START:
-                if (room.getRoomRule().isAllowJoinAfterReadyStart()) {
-                    break;
-                } else {
-                    room.processSpectatorJoin(player);
-                }
-                return true;
-            case ROOM_STATUS_START:
-            case ROOM_STATUS_NEXT_ROUND_PRESTART:
-                if (!room.getRoomRule().isAllowJoinAfterStart()) {
-                    if (room.getRoomRule().isAllowSpectators()) {
-                        room.processSpectatorJoin(player);
-                        return true;
-                    } else {
-                        player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
-                    }
-                } else if (room.getRoomRule().isAllowSpectators()) {
-                    room.processSpectatorJoin(player);
-                    return true;
-                }
-                break;
-            case ROOM_STATUS_GAME_END:
-            case ROOM_STATUS_CEREMONY:
-            case ROOM_STATUS_END:
-                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.started"));
-                return true;
-        }
-        return false;
-    };
-
-    // If returned with true, it means this function is enough to do with the join process.
-    // Other default logic will be defunct.
-    protected BiFunction<Room, Player, Boolean> addPlayerCheck = DEFAULT_ROOM_ADD_PLAYER_CHECK;
 
     public Room(String gameName, RoomRule roomRule, int round) {
         this(gameName, roomRule, "", round);
@@ -720,7 +717,15 @@ public class Room {
             if (playLevel == null || playLevel.getProvider() == null) {
                 continue;
             }
+            boolean b = this.getEndSpawn() != null && this.getEndSpawn().getLocation() != null && this.getEndSpawn().getLocation().isValid();
             if (playLevel != Server.getInstance().getDefaultLevel()) {
+                for (Player player : playLevel.getPlayers().values()) {
+                    if (b) {
+                        this.getEndSpawn().teleport(player);
+                    } else {
+                        player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    }
+                }
                 for (Player player : playLevel.getPlayers().values()) {
                     player.kick("Teleport error!");
                 }
@@ -919,7 +924,7 @@ public class Room {
     }
 
     public void setDeath(Player player) {
-        this.setDeath(player, true, true, GameAPI.getLanguage().getTranslation(player, "room.died.title"),  GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"));
+        this.setDeath(player, true, true, GameAPI.getLanguage().getTranslation(player, "room.died.title"), GameAPI.getLanguage().getTranslation(player, "room.died.subtitle"));
     }
 
     public void setDeath(Player player, boolean teleport, boolean sendTitle, String title, String subtitle) {
@@ -1246,13 +1251,13 @@ public class Room {
     public void addEntityDamageSource(Entity victim, Entity damager, float damage) {
         AtomicReference<Float> damageAll = new AtomicReference<>(0f);
         new ArrayList<>(this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>())).stream().filter(
-                entityDamageSource -> entityDamageSource != null && damager == entityDamageSource.getDamager())
+                        entityDamageSource -> entityDamageSource != null && damager == entityDamageSource.getDamager())
                 .forEach(
                         entityDamageSource -> {
                             damageAll.updateAndGet(v -> v + entityDamageSource.getFinalDamage());
                             this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>()).remove(entityDamageSource);
-                }
-        );
+                        }
+                );
         this.getLastEntityReceiveDamageSource().computeIfAbsent(victim, o -> new ArrayList<>()).add(new EntityDamageSource(damager, damage, damageAll.get() + damage, System.currentTimeMillis()));
     }
 
@@ -1267,7 +1272,7 @@ public class Room {
                     || entity.isClosed();
         });
         List<EntityDamageSource> result = entityDamageSources.stream().filter(entityDamageSource -> !entityDamageSource.getDamager().isPlayer).collect(Collectors.toList());
-        return result.isEmpty()? Optional.empty(): Optional.of(result.get(result.size() - 1));
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(result.size() - 1));
     }
 
     public Optional<EntityDamageSource> getLastEntityDamageByPlayerSource(Entity victim) {
@@ -1280,6 +1285,6 @@ public class Room {
                     || entity.isClosed();
         });
         List<EntityDamageSource> result = entityDamageSources.stream().filter(entityDamageSource -> entityDamageSource.getDamager().isPlayer).collect(Collectors.toList());
-        return result.isEmpty()? Optional.empty(): Optional.of(result.get(result.size() - 1));
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(result.size() - 1));
     }
 }

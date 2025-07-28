@@ -75,7 +75,7 @@ public class ResponsiveElementSlotItem {
     }
 
     public ResponsiveElementSlotItem tag(Consumer<CompoundTag> tagConsumer) {
-        CompoundTag current = this.item.getNamedTag() == null? new CompoundTag() : this.item.getNamedTag();
+        CompoundTag current = this.item.getNamedTag() == null ? new CompoundTag() : this.item.getNamedTag();
         tagConsumer.accept(current);
         this.item.setCompoundTag(current);
         return this;

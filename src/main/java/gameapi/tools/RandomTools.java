@@ -73,7 +73,7 @@ public class RandomTools {
     }
 
     public static String getRandomCode(int length) {
-        char[]nonceChars = new char[length];//指定长度为6位/自己可以要求设置
+        char[] nonceChars = new char[length];//指定长度为6位/自己可以要求设置
         for (int index = 0; index < nonceChars.length; ++index) {
             nonceChars[index] = SYMBOLS.charAt(RANDOM.nextInt(SYMBOLS.length()));
         }

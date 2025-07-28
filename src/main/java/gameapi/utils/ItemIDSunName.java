@@ -10,7 +10,6 @@ import java.util.Objects;
 /**
  * @author Winfxk
  * @author Anders233
- *
  */
 
 public enum ItemIDSunName {
@@ -25,7 +24,7 @@ public enum ItemIDSunName {
     /**
      * 磨制花岗岩
      */
-    STONE_GRANITE_SMOOTH("磨制花岗岩", 1, 2, "textures/blocks/stone_granite_smooth.png"),
+    STONE_GRANITE_POLISHED("磨制花岗岩", 1, 2, "textures/blocks/stone_granite_smooth.png"),
     /**
      * 闪长岩
      */
@@ -33,7 +32,7 @@ public enum ItemIDSunName {
     /**
      * 磨制闪长岩
      */
-    STONE_DIORITE_SMOOTH("磨制闪长岩", 1, 4, "textures/blocks/stone_diorite_smooth.png"),
+    STONE_DIORITE_POLISHED("磨制闪长岩", 1, 4, "textures/blocks/stone_diorite_smooth.png"),
     /**
      * 安山岩
      */
@@ -41,7 +40,7 @@ public enum ItemIDSunName {
     /**
      * 磨制安山岩
      */
-    STONE_ANDESITE_SMOOTH("磨制安山岩", 1, 6, "textures/blocks/stone_andesite_smooth.png"),
+    STONE_ANDESITE_POLISHED("磨制安山岩", 1, 6, "textures/blocks/stone_andesite_smooth.png"),
     /**
      * 草方块
      */
@@ -209,7 +208,7 @@ public enum ItemIDSunName {
     /**
      * 錾制沙石
      */
-    SANDSTONE_CARVED("錾制沙石", 24, 1, "textures/blocks/sandstone_carved.png"),
+    SANDSTONE_CHISELED("錾制沙石", 24, 1, "textures/blocks/sandstone_carved.png"),
     /**
      * 光滑沙石
      */
@@ -253,7 +252,7 @@ public enum ItemIDSunName {
     /**
      * 枯死的灌木
      */
-    DEADBUSH("枯死的灌木", 32, 0, "textures/blocks/deadbush.png"),
+    DEAD_BUSH("枯死的灌木", 32, 0, "textures/blocks/deadbush.png"),
     /**
      * 活塞
      */
@@ -329,23 +328,23 @@ public enum ItemIDSunName {
     /**
      * 黄花
      */
-    YELLOW_FLOWER("黄花", 37, 0, "textures/blocks/glazed_terracotta_yellow.png"),
+    DANDELION("蒲公英", 37, 0, "textures/blocks/flower_dandelion.png"),
     /**
      * 罂粟
      */
-    RED_FLOWER("罂粟", 38, 0, "textures/blocks/flower_rose.png"),
+    POPPY("虞美人", 38, 0, "textures/blocks/flower_rose.png"),
     /**
      * 蓝色的兰花
      */
-    FLOWER_BLUE_ORCHID("蓝色的兰花", 38, 1, "textures/blocks/flower_blue_orchid.png"),
+    BLUE_ORCHID("兰花", 38, 1, "textures/blocks/flower_blue_orchid.png"),
     /**
      * 绒球葱
      */
-    FLOWER_ALLIUM("绒球葱", 38, 2, "textures/blocks/flower_allium.png"),
+    ALLIUM("绒球葱", 38, 2, "textures/blocks/flower_allium.png"),
     /**
      * 茜草花
      */
-    FLOWER_HOUSTONIA("茜草花", 38, 3, "textures/blocks/flower_houstonia.png"),
+    AZURE_BLUET("兰花美耳草", 38, 3, "textures/blocks/flower_houstonia.png"),
     /**
      * 红色郁金香
      */
@@ -366,6 +365,8 @@ public enum ItemIDSunName {
      * 滨菊
      */
     FLOWER_OXEYE_DAISY("滨菊", 38, 8, "textures/blocks/flower_oxeye_daisy.png"),
+    CORN_FLOWER("矢车菊", 38, 10, "textures/blocks/flower_cornflower.png"),
+    LILY_OF_THE_VALLEY("铃兰", 38, 10, "textures/blocks/flower_lily_of_the_valley.png"),
     /**
      * 棕色蘑菇
      */
@@ -638,7 +639,7 @@ public enum ItemIDSunName {
     /**
      * 錾制石砖
      */
-    STONEBRICK_CARVED("錾制石砖", 98, 3, "textures/blocks/stonebrick_carved.png"),
+    STONEBRICK_CHISELED("錾制石砖", 98, 3, "textures/blocks/stonebrick_carved.png"),
     /**
      * 棕色蘑菇块
      */
@@ -699,6 +700,9 @@ public enum ItemIDSunName {
      * 附魔台
      */
     ENCHANTING_TABLE("附魔台", 116, 0, "textures/blocks/enchanting_table_side.png"),
+
+    LOG_ACACIA("金合欢木", 162, 0, "textures/blocks/log_acacia.png"),
+    LOG_DARK_OAK("深色橡木", 162, 1, "textures/blocks/stripped_dark_oak_log.png"),
     /**
      * 酿造台
      */
@@ -862,7 +866,7 @@ public enum ItemIDSunName {
     /**
      * 黄绿色粘土
      */
-    OLIVINE_STAINED_HARDENED_CLAY("黄绿色粘土", 159, 5, "textures/blocks/hardened_clay_stained_lime.png"),
+    LIME_STAINED_HARDENED_CLAY("黄绿色粘土", 159, 5, "textures/blocks/hardened_clay_stained_lime.png"),
     /**
      * 粉红色粘土
      */
@@ -926,7 +930,7 @@ public enum ItemIDSunName {
     /**
      * 黄绿色玻璃板
      */
-    OLIVINE_STAINED_GLASS_PANE("黄绿色玻璃板", 160, 5, "textures/blocks/glass_pane_top_lime.png"),
+    LIME_STAINED_GLASS_PANE("黄绿色玻璃板", 160, 5, "textures/blocks/glass_pane_top_lime.png"),
     /**
      * 粉红色玻璃板
      */
@@ -1042,7 +1046,7 @@ public enum ItemIDSunName {
     /**
      * 黄绿色地毯
      */
-    OLIVINE_CARPET("黄绿色地毯", 171, 5, "textures/blocks/wool_colored_lime.png"),
+    LIME_CARPET("黄绿色地毯", 171, 5, "textures/blocks/wool_colored_lime.png"),
     /**
      * 粉红色地毯
      */
@@ -1191,6 +1195,8 @@ public enum ItemIDSunName {
      * 紫珀方块
      */
     PURPUR_BLOCK("紫珀方块", 201, 0, "textures/blocks/purpur_block.png"),
+
+    PURPUR_PILLAR("紫珀柱子", 201, 2, "textures/blocks/purpur_pillar.png"),
     /**
      * 紫珀阶梯
      */
@@ -1198,7 +1204,7 @@ public enum ItemIDSunName {
     /**
      * 潜影盒
      */
-    PURPUR_SLAB("潜影盒", 205, 0, "textures/items/shulker_shell.png"),
+    SHULKER_BOX("潜影盒", 205, 0, "textures/items/shulker_shell.png"),
     /**
      * 末地石砖
      */
@@ -1214,7 +1220,7 @@ public enum ItemIDSunName {
     /**
      * 白色潜影盒
      */
-    SHULKER("白色潜影盒", 218, 0, "textures/blocks/shulker_top_white.png"),
+    SHULKER_COLORED_WHITE("白色潜影盒", 218, 0, "textures/blocks/shulker_top_white.png"),
     /**
      * 橙色潜影盒
      */
@@ -1275,6 +1281,134 @@ public enum ItemIDSunName {
      * 黑色潜影盒
      */
     SHULKER_COLORED_BLACK("黑色潜影盒", 218, 15, "textures/blocks/shulker_top_black.png"),
+    /**
+     * 白色玻璃
+     */
+    WHITE_STAINED_GLASS("白色玻璃", 160, 0, "textures/blocks/glass_white.png"),
+    /**
+     * 橙色玻璃
+     */
+    ORANGE_STAINED_GLASS("橙色玻璃", 160, 1, "textures/blocks/glass_orange.png"),
+    /**
+     * 品红色玻璃
+     */
+    MAGNETA_STAINED_GLASS("品红色玻璃", 160, 2, "textures/blocks/glass_magenta.png"),
+    /**
+     * 淡蓝色玻璃
+     */
+    LIGHT_BLUE_STAINED_GLASS("淡蓝色玻璃", 160, 3, "textures/blocks/glass_light_blue.png"),
+    /**
+     * 黄色玻璃
+     */
+    YELLOW_STAINED_GLASS("黄色玻璃", 160, 4, "textures/blocks/glass_yellow.png"),
+    /**
+     * 黄绿色玻璃
+     */
+    LIME_STAINED_GLASS("黄绿色玻璃", 160, 5, "textures/blocks/glass_lime.png"),
+    /**
+     * 粉红色玻璃
+     */
+    PINK_STAINED_GLASS("粉红色玻璃", 160, 6, "textures/blocks/glass_pink.png"),
+    /**
+     * 灰色玻璃
+     */
+    GRAY_STAINED_GLASS("灰色玻璃", 160, 7, "textures/blocks/glass_gray.png"),
+    /**
+     * 淡灰色玻璃
+     */
+    LIGHT_GRAY_STAINED_GLASS("淡灰色玻璃", 160, 8, "textures/blocks/glass_silver.png"),
+    /**
+     * 青色玻璃
+     */
+    CYAN_STAINED_GLASS("青色玻璃", 160, 9, "textures/blocks/glass_cyan.png"),
+    /**
+     * 紫色玻璃
+     */
+    PURPLE_STAINED_GLASS("紫色玻璃", 160, 10, "textures/blocks/glass_purple.png"),
+    /**
+     * 蓝色玻璃
+     */
+    BLUE_STAINED_GLASS("蓝色玻璃", 160, 11, "textures/blocks/glass_blue.png"),
+    /**
+     * 棕色玻璃
+     */
+    BROWN_STAINED_GLASS("棕色玻璃", 160, 12, "textures/blocks/glass_brown.png"),
+    /**
+     * 绿色玻璃
+     */
+    GREEN_STAINED_GLASS("绿色玻璃", 160, 13, "textures/blocks/glass_green.png"),
+    /**
+     * 红色玻璃
+     */
+    RED_STAINED_GLASS("红色玻璃", 160, 14, "textures/blocks/glass_red.png"),
+    /**
+     * 黑色玻璃
+     */
+    BLACK_STAINED_GLASS("黑色玻璃", 160, 15, "textures/blocks/glass_black.png"),
+    /**
+     * 白色混凝土
+     */
+    WHITE_CONCRETE("白色混凝土", 160, 0, "textures/blocks/concrete_white.png"),
+    /**
+     * 橙色混凝土
+     */
+    ORANGE_CONCRETE("橙色混凝土", 160, 1, "textures/blocks/concrete_orange.png"),
+    /**
+     * 品红色混凝土
+     */
+    MAGENTA_CONCRETE("品红色混凝土", 160, 2, "textures/blocks/concrete_magenta.png"),
+    /**
+     * 淡蓝色混凝土
+     */
+    LIGHT_BLUE_CONCRETE("淡蓝色混凝土", 160, 3, "textures/blocks/concrete_light_blue.png"),
+    /**
+     * 黄色混凝土
+     */
+    YELLOW_CONCRETE("黄色混凝土", 160, 4, "textures/blocks/concrete_yellow.png"),
+    /**
+     * 黄绿色混凝土
+     */
+    LIME_CONCRETE("黄绿色混凝土", 160, 5, "textures/blocks/concrete_lime.png"),
+    /**
+     * 粉红色混凝土
+     */
+    PINK_CONCRETE("粉红色混凝土", 160, 6, "textures/blocks/concrete_pink.png"),
+    /**
+     * 灰色混凝土
+     */
+    GRAY_CONCRETE("灰色混凝土", 160, 7, "textures/blocks/concrete_gray.png"),
+    /**
+     * 淡灰色混凝土
+     */
+    LIGHT_GRAY_CONCRETE("淡灰色混凝土", 160, 8, "textures/blocks/concrete_silver.png"),
+    /**
+     * 青色混凝土
+     */
+    CYAN_CONCRETE("青色混凝土", 160, 9, "textures/blocks/concrete_cyan.png"),
+    /**
+     * 紫色混凝土
+     */
+    PURPLE_CONCRETE("紫色混凝土", 160, 10, "textures/blocks/concrete_purple.png"),
+    /**
+     * 蓝色混凝土
+     */
+    BLUE_CONCRETE("蓝色混凝土", 160, 11, "textures/blocks/concrete_blue.png"),
+    /**
+     * 棕色混凝土
+     */
+    BROWN_CONCRETE("棕色混凝土", 160, 12, "textures/blocks/concrete_brown.png"),
+    /**
+     * 绿色混凝土
+     */
+    GREEN_CONCRETE("绿色混凝土", 160, 13, "textures/blocks/concrete_green.png"),
+    /**
+     * 红色混凝土
+     */
+    RED_CONCRETE("红色混凝土", 160, 14, "textures/blocks/concrete_red.png"),
+    /**
+     * 黑色混凝土
+     */
+    BLACK_CONCRETE("黑色混凝土", 160, 15, "textures/blocks/concrete_black.png"),
     /**
      * 铁锹
      */
@@ -1559,6 +1693,14 @@ public enum ItemIDSunName {
      * 桶
      */
     BUCKET("桶", 325, 0, "textures/items/bucket_empty.png"),
+
+    WATER_BUCKET("水桶", 325, 8, "textures/items/bucket_water.png"),
+    TROPICAL_FISH_BUCKET("热带鱼桶", 325, 4, "textures/items/bucket_tropical.png"),
+    PUFFERFISH_BUCKET("河豚桶", 325, 5, "textures/items/bucket_pufferfish.png"),
+    SALMON_BUCKET("鲑鱼桶", 325, 3, "textures/items/bucket_salmon.png"),
+    COD_BUCKET("鳕鱼桶", 325, 2, "textures/items/bucket_cod.png"),
+    AXOLOTL_BUCKET("美西螈桶", 325, 12, "textures/items/bucket_axolotl.png"),
+
     /**
      * 矿车
      */
@@ -1650,7 +1792,7 @@ public enum ItemIDSunName {
     /**
      * 可可豆
      */
-    BROWN_DYE("可可豆", 351, 3, "textures/items/dye_powder_brown.png"),
+    COCOA("可可豆", 351, 3, "textures/items/dye_powder_brown.png"),
     /**
      * 蓝色染料
      */
@@ -1735,6 +1877,7 @@ public enum ItemIDSunName {
      * 西瓜
      */
     MELON("西瓜", 360, 0, "textures/items/melon.png"),
+    PUMPKIN_SEEDS("南瓜种子", 360, 0, "textures/items/seeds_pumpkin.png"),
     /**
      * 南瓜种子
      */
@@ -1981,8 +2124,8 @@ public enum ItemIDSunName {
     COOKED_MUTTON("熟羊肉", 424, 0, "textures/items/mutton_cooked.png"),
     /**
      * 末影水晶
-     * */
-    END_CRYSTAL("末影水晶",426,0,"textures/items/end_crystal.png"),
+     */
+    END_CRYSTAL("末影水晶", 426, 0, "textures/items/end_crystal.png"),
     /**
      * 云杉木门
      */
@@ -2127,6 +2270,15 @@ public enum ItemIDSunName {
     MANGROVE_SIGN("红树木告示牌", 1005, 0, "textures/items/mangrove_sign.png"),
     BAMBOO_SIGN("竹子告示牌", 1006, 0, "textures/items/bamboo_sign.png"),
 
+    // 照明
+    SHROOMLIGHT("菌光体", "minecraft:shroomlight", "textures/blocks/shroomlight.png"),
+    LANTERN("灯", "minecraft:lantern", "textures/items/lantern.png"),
+    SOUL_LANTERN("灵魂灯", "minecraft:soul_lantern", "textures/items/soul_lantern.png"),
+    SOUL_TORCH("灵魂火把", "minecraft:soul_torch", "textures/blocks/soul_torch.png"),
+
+    // 水景
+    KELP("海带", "minecraft:kelp", "textures/items/kelp.png"),
+
     // 材料类
     INGOT_COPPER("铜锭", "minecraft:copper_ingot", "textures/items/copper_ingot.png"),
     RAW_IRON("粗铁", "minecraft:raw_iron", "textures/items/raw_iron.png"),
@@ -2211,7 +2363,7 @@ public enum ItemIDSunName {
     STRIPPED_OAK_LOG("去皮橡木原木", "minecraft:stripped_oak_log", "textures/blocks/stripped_oak_log.png"),
     BLUE_ICE("蓝冰", "minecraft:blue_ice", "textures/blocks/blue_ice.png"),
 
-    SEAGRASS("海草", "minecraft:seagrass", "textures/blocks/seagrass.png"),
+    SEAGRASS("海草", "minecraft:seagrass", "textures/blocks/seagrass_carried.png"),
     TUBE_CORAL_BLOCK("管珊瑚", "minecraft:tube_coral", 0, "textures/blocks/coral_plant_blue.png"),
     BRAIN_CORAL_BLOCK("脑纹珊瑚", "minecraft:brain_coral", 1, "textures/blocks/coral_plant_pink.png"),
     BUBBLE_CORAL_BLOCK("气泡珊瑚", "minecraft:bubble_coral", 2, "textures/blocks/coral_plant_purple.png"),
@@ -2256,7 +2408,7 @@ public enum ItemIDSunName {
     // bubble column can not be gained from players, skipping...
 
     BARRIER("屏障", "minecraft:barrier", "textures/blocks/barrier.png"),
-    
+
     // todo: no icon start
     END_STONE_BRICK_SLAB("末地石砖半砖", "minecraft:end_stone_brick_slab", 0, "textures/blocks/end_bricks.png"),
     SMOOTH_RED_SANDSTONE_SLAB("平滑红砂岩半砖", "minecraft:smooth_red_sandstone_slab", 1, "textures/blocks/red_sandstone_normal.png"),
@@ -2267,7 +2419,7 @@ public enum ItemIDSunName {
     GRANITE_SLAB("花岗岩半砖", "minecraft:granite_slab", 6, "textures/blocks/stone_granite.png"),
     POLISHED_GRANITE_SLAB("磨制花岗岩半砖", "minecraft:polished_granite_slab", 7, "textures/blocks/stone_granite_smooth.png"),
     // todo: no icon end
-    
+
     BAMBOO("竹子", "minecraft:bamboo", "textures/items/bamboo.png"),
     BAMBOO_SAPLING("竹笋", "minecraft:bamboo_sapling", "textures/blocks/bamboo_sapling.png"),
     SCAFFOLDING("脚手架", "minecraft:scaffolding", "textures/blocks/scaffolding_top.tga"),
@@ -2320,6 +2472,7 @@ public enum ItemIDSunName {
     VERDANT_FROGLIGHT("翠绿蛙明灯", "minecraft:verdant_froglight", "textures/blocks/verdant_froglight_side.png"),
     OCHRE_FROGLIGHT("赭黄蛙明灯", "minecraft:ochre_froglight", "textures/blocks/ochre_froglight_side.png"),
 
+    CANDLE("蜡烛", "minecraft:candle", "textures/items/candles/candle.png"),
     WHITE_CANDLE("白色蜡烛", "minecraft:white_candle", "textures/items/candles/white_candle.png"),
     ORANGE_CANDLE("橙色蜡烛", "minecraft:orange_candle", "textures/items/candles/orange_candle.png"),
     MAGENTA_CANDLE("品红色蜡烛", "minecraft:magenta_candle", "textures/items/candles/magenta_candle.png"),
@@ -2358,17 +2511,159 @@ public enum ItemIDSunName {
     DRAGON_HEAD("末影龙头颅", "minecraft:dragon_head", "textures/items/dragon_egg.png"),
     PIGLIN_HEAD("猪灵头颅", "minecraft:piglin_head", "textures/items/spawn_eggs/spawn_egg_piglin.png");
 
+    private static final Map<String, ItemIDSunName> NAME_MAP = new HashMap<>();
+    private static final Map<IdDamageKey, ItemIDSunName> ID_DAMAGE_MAP = new HashMap<>();
+    private static final Map<StringIdDamageKey, ItemIDSunName> STRING_ID_DAMAGE_MAP = new HashMap<>();
 
+    // 静态块，初始化缓存
+    static {
+        for (ItemIDSunName item : values()) {
+            NAME_MAP.put(item.name, item);
+            if (item.id != 255) {
+                ID_DAMAGE_MAP.put(new IdDamageKey(item.id, item.damage), item);
+            } else {
+                STRING_ID_DAMAGE_MAP.put(new StringIdDamageKey(item.stringIdentifier, item.damage), item);
+            }
+        }
+    }
 
     private final int id, damage;
-
     private final String stringIdentifier;
-
     private final String name, path;
+    /**
+     * @param name   物品名称
+     * @param id     物品ID
+     * @param damage 物品特殊值
+     * @param path   物品贴图路径
+     */
+    ItemIDSunName(String name, int id, int damage, String path) {
+        this.id = id;
+        this.name = name;
+        this.damage = damage;
+        this.path = path;
+        this.stringIdentifier = "";
+    }
+
+    /**
+     * @param name 物品名称
+     * @param path 物品贴图路径
+     */
+    ItemIDSunName(String name, String stringIdentifier, String path) {
+        this(name, stringIdentifier, 0, path);
+    }
+
+    /**
+     * @param name   物品名称
+     * @param damage 物品特殊值
+     * @param path   物品贴图路径
+     */
+    ItemIDSunName(String name, String stringIdentifier, int damage, String path) {
+        this.id = 255;
+        this.name = name;
+        this.damage = damage;
+        this.path = path;
+        this.stringIdentifier = stringIdentifier;
+    }
+
+    /**
+     * 根据物品名称获取贴图路径
+     *
+     * @param name 物品名称
+     * @return 贴图路径
+     */
+    public static String getPathByName(String name) {
+        ItemIDSunName item = NAME_MAP.get(name);
+        return item != null ? item.path : null;
+    }
+
+    /**
+     * 根据物品Id与特殊值获取贴图路径
+     *
+     * @param id     物品id
+     * @param damage 物品特殊值
+     * @return 贴图路径
+     */
+    public static String getPathByIdAndDamage(int id, int damage) {
+        ItemIDSunName item = ID_DAMAGE_MAP.get(new IdDamageKey(id, damage));
+        return item != null ? item.path : "";
+    }
+
+    /**
+     * 根据物品Id获取贴图路径
+     *
+     * @param id 物品id
+     * @return 贴图路径
+     */
+    public static String getPathById(int id) {
+        return getPathByIdAndDamage(id, 0);
+    }
+
+    /**
+     * 根据物品获取贴图路径
+     *
+     * @param item 物品
+     * @return 贴图路径
+     */
+    public static String getPathByItem(Item item) {
+        return getPathByIdAndDamage(item.getId(), item.getDamage());
+    }
+
+    /**
+     * 根据物品获取物品中文名
+     *
+     * @param item 物品
+     * @return 物品中文名
+     */
+    public static String getNameByItem(Item item) {
+        if (item.getId() == 255) {
+            ItemIDSunName stringIdDamageKey = STRING_ID_DAMAGE_MAP.get(new StringIdDamageKey(item.getNamespaceId(), item.getDamage()));
+            return stringIdDamageKey != null ? stringIdDamageKey.name : "未知";
+        } else {
+            return getNameByIdAndDamage(item.getId(), item.getDamage());
+        }
+    }
+
+    /**
+     * 根据物品获取物品中文名
+     *
+     * @param id 物品Id
+     * @return 物品中文名
+     */
+    public static String getNameById(int id) {
+        return getNameByIdAndDamage(id, 0);
+    }
+
+    /**
+     * 根据物品获取物品中文名
+     *
+     * @param id     物品id
+     * @param damage 物品特殊值
+     * @return 物品中文名
+     */
+    public static String getNameByIdAndDamage(int id, int damage) {
+        ItemIDSunName item = ID_DAMAGE_MAP.get(new IdDamageKey(id, damage));
+        return item != null ? item.name : "未知";
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPath() {
+        return path;
+    }
 
     /**
      * 联合id与damage
-     * */
+     */
     private static class IdDamageKey {
         private final int id;
         private final int damage;
@@ -2398,7 +2693,7 @@ public enum ItemIDSunName {
 
     /**
      * 联合id与damage
-     * */
+     */
     private static class StringIdDamageKey {
         private final String id;
         private final int damage;
@@ -2424,153 +2719,5 @@ public enum ItemIDSunName {
         public int hashCode() {
             return Objects.hash(id, damage);
         }
-    }
-
-    private static final Map<String, ItemIDSunName> NAME_MAP = new HashMap<>();
-    private static final Map<IdDamageKey, ItemIDSunName> ID_DAMAGE_MAP = new HashMap<>();
-    private static final Map<StringIdDamageKey, ItemIDSunName> STRING_ID_DAMAGE_MAP = new HashMap<>();
-
-    // 静态块，初始化缓存
-    static {
-        for (ItemIDSunName item : values()) {
-            NAME_MAP.put(item.name, item);
-            if (item.id != 255) {
-                ID_DAMAGE_MAP.put(new IdDamageKey(item.id, item.damage), item);
-            } else {
-                STRING_ID_DAMAGE_MAP.put(new StringIdDamageKey(item.stringIdentifier, item.damage), item);
-            }
-        }
-    }
-
-    /**
-     * 根据物品名称获取贴图路径
-     * @param name 物品名称
-     * @return 贴图路径
-     * */
-    public static String getPathByName(String name) {
-        ItemIDSunName item = NAME_MAP.get(name);
-        return item != null ? item.path : null;
-    }
-
-
-
-    /**
-     * 根据物品Id与特殊值获取贴图路径
-     * @param id 物品id
-     * @param damage 物品特殊值
-     *
-     * @return 贴图路径
-     * */
-    public static String getPathByIdAndDamage(int id, int damage) {
-        ItemIDSunName item = ID_DAMAGE_MAP.get(new IdDamageKey(id, damage));
-        return item != null ? item.path : "";
-    }
-
-    /**
-     * 根据物品Id获取贴图路径
-     * @param id 物品id
-     *
-     * @return 贴图路径
-     * */
-    public static String getPathById(int id) {
-        return getPathByIdAndDamage(id,0);
-    }
-
-    /**
-     * 根据物品获取贴图路径
-     * @param item 物品
-     *
-     * @return 贴图路径
-     * */
-    public static String getPathByItem(Item item) {
-        return getPathByIdAndDamage(item.getId(),item.getDamage());
-    }
-
-    /**
-     * 根据物品获取物品中文名
-     * @param item 物品
-     *
-     * @return 物品中文名
-     * */
-    public static String getNameByItem(Item item) {
-        if (item.getId() == 255) {
-            ItemIDSunName stringIdDamageKey = STRING_ID_DAMAGE_MAP.get(new StringIdDamageKey(item.getNamespaceId(), item.getDamage()));
-            return stringIdDamageKey != null ? stringIdDamageKey.name : "未知";
-        } else {
-            return getNameByIdAndDamage(item.getId(), item.getDamage());
-        }
-    }
-
-    /**
-     * 根据物品获取物品中文名
-     * @param id 物品Id
-     *
-     * @return 物品中文名
-     * */
-    public static String getNameById(int id) {
-        return getNameByIdAndDamage(id,0);
-    }
-
-    /**
-     * 根据物品获取物品中文名
-     * @param id 物品id
-     * @param damage 物品特殊值
-     *
-     * @return 物品中文名
-     * */
-    public static String getNameByIdAndDamage(int id,int damage) {
-        ItemIDSunName item = ID_DAMAGE_MAP.get(new IdDamageKey(id, damage));
-        return item != null ? item.name : "未知";
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getDamage() {
-        return damage;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    /**
-     * @param name   物品名称
-     * @param id     物品ID
-     * @param damage 物品特殊值
-     * @param path   物品贴图路径
-     */
-    ItemIDSunName(String name, int id, int damage, String path) {
-        this.id = id;
-        this.name = name;
-        this.damage = damage;
-        this.path = path;
-        this.stringIdentifier = "";
-    }
-
-    /**
-     * @param name   物品名称
-     * @param path   物品贴图路径
-     */
-    ItemIDSunName(String name, String stringIdentifier, String path) {
-        this(name, stringIdentifier, 0, path);
-    }
-
-    /**
-     * @param name   物品名称
-     * @param damage 物品特殊值
-     * @param path   物品贴图路径
-     */
-    ItemIDSunName(String name, String stringIdentifier, int damage, String path) {
-        this.id = 255;
-        this.name = name;
-        this.damage = damage;
-        this.path = path;
-        this.stringIdentifier = stringIdentifier;
     }
 }

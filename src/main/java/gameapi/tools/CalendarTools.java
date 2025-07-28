@@ -50,6 +50,14 @@ public class CalendarTools {
         return year + "-" + week;
     }
 
+    public static String getMonthString(Calendar calendar) {
+        return calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH);
+    }
+
+    public static String getYearString(Calendar calendar) {
+        return calendar.get(Calendar.YEAR) + "";
+    }
+
     public static String getDateStringByDefault(long millis) {
         Date date = new Date(millis);
         SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT_DETAILED);

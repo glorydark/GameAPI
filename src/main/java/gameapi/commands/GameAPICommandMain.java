@@ -34,6 +34,7 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new RoomStartCommand("roomstart"));
         this.registerCommand(new RoomStatusCommand("status"));
         this.registerCommand(new RoomFastCommand("fast"));
+        this.registerCommand(new RoomAddStartPassCommand("addstartpass"));
 
         // dev tools
         this.registerCommand(new PlayerEverCommand("playerever"));
@@ -51,6 +52,7 @@ public class GameAPICommandMain extends EasyCommand {
 
         this.registerCommand(new GetBlockPosCommand("blockpos"));
         this.registerCommand(new GetChestPosCommand("getchestpos"));
+        this.registerCommand(new GetBlockSpaceCommand("blockspace"));
 
         this.registerCommand(new GetLoginChainCommand("loginchain"));
         this.registerCommand(new SaveSkinCommand("saveskin"));
@@ -79,6 +81,8 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new TeleportAllOutOfGameCommand("tpallog"));
         this.registerCommand(new RecoverTempDataCommand("recovertempdata"));
         this.registerCommand(new SeeTempDataCommand("seetempdata"));
+        this.registerCommand(new RoomListCommand("roomlist"));
+        this.registerCommand(new TransferCommand("transfer"));
 
         // fix
         this.registerCommand(new ResetSpeedCommand("resetspeed"));

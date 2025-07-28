@@ -4,6 +4,7 @@ package org.jnbt;
  * The {@code TAG_Int_Array} tag.
  */
 public final class IntArrayTag extends Tag {
+    private static final long serialVersionUID = 1L;
     /**
      * The value.
      */
@@ -11,7 +12,8 @@ public final class IntArrayTag extends Tag {
 
     /**
      * Creates the tag.
-     * @param name The name.
+     *
+     * @param name  The name.
      * @param value The value.
      */
     public IntArrayTag(String name, int[] value) {
@@ -27,7 +29,7 @@ public final class IntArrayTag extends Tag {
     public String toString() {
         StringBuilder hex = new StringBuilder();
         if (value.length <= 8) {
-            for (int i: value) {
+            for (int i : value) {
                 String hexDigits = Integer.toHexString(i).toUpperCase();
                 hex.append("00000000", 0, 8 - hexDigits.length());
                 hex.append(hexDigits).append(" ");
@@ -47,7 +49,7 @@ public final class IntArrayTag extends Tag {
         }
         String name = getName();
         String append = "";
-        if ((name != null) && (! name.equals(""))) {
+        if ((name != null) && (!name.equals(""))) {
             append = "(\"" + this.getName() + "\")";
         }
         return "TAG_Int_Array" + append + ": " + ((hex.length() > 0) ? hex.substring(0, hex.length() - 1) : "empty");
@@ -59,6 +61,4 @@ public final class IntArrayTag extends Tag {
         clone.value = value.clone();
         return clone;
     }
-
-    private static final long serialVersionUID = 1L;
 }

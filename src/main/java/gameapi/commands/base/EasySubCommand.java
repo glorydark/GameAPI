@@ -11,9 +11,8 @@ import java.util.Map;
  */
 public abstract class EasySubCommand {
 
-    private final String name;
-
     public final Map<String, CommandParameter[]> commandParameters = new LinkedHashMap<>();
+    private final String name;
 
     public EasySubCommand(String name) {
         this.name = name;

@@ -19,26 +19,18 @@ import java.util.function.BiFunction;
 @Getter
 public class AwardData {
 
-    private final ActivityData activityData;
-
-    private final String name;
-
-    private BiFunction<ActivityData, Player, Boolean> checkFinish = null;
-
-    private BiFunction<ActivityData, Player, Boolean> checkClaimStatus = null;
-
-    private BiConsumer<ActivityData, Player> claimProcess = null;
-
-    private final List<String> commands = new ArrayList<>();
-
-    private final List<String> messages = new ArrayList<>();
-
-    private ElementButtonImageData elementButtonImageData = new ElementButtonImageData("path", "");
-
     public static final String PLAYER_REPLACEMENT = "{player}";
     protected static String STATUS_CLAIMED = "§6[已领取]";
     protected static String STATUS_UNCLAIMED = "§a[可领取]";
     protected static String STATUS_NOT_QUALIFIED = "§c[未满足条件]";
+    private final ActivityData activityData;
+    private final String name;
+    private final List<String> commands = new ArrayList<>();
+    private final List<String> messages = new ArrayList<>();
+    private BiFunction<ActivityData, Player, Boolean> checkFinish = null;
+    private BiFunction<ActivityData, Player, Boolean> checkClaimStatus = null;
+    private BiConsumer<ActivityData, Player> claimProcess = null;
+    private ElementButtonImageData elementButtonImageData = new ElementButtonImageData("path", "");
 
     public AwardData(ActivityData activityData, String name) {
         this.activityData = activityData;

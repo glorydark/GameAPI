@@ -64,7 +64,7 @@ public class ActivityParkourMonthlyCompetition202412 {
                     );
                 }
             }
-            if (PlayerGameDataManager.getPlayerGameData(activityId, "activity_award_distributed", "is_operated", false)){
+            if (PlayerGameDataManager.getPlayerGameData(activityId, "activity_award_distributed", "is_operated", false)) {
                 simple.addButton(
                         new ResponsiveElementButton("获奖公示")
                                 .onRespond(ActivityParkourMonthlyCompetition202412::showCompetitionFinalRank)

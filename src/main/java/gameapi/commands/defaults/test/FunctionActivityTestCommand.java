@@ -19,7 +19,7 @@ public class FunctionActivityTestCommand extends EasySubCommand {
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
         switch (args[0]) {
-            case "1" :
+            case "1":
                 ActivityData activityData = new ActivityData("test_activity", "test", "test description", "2024-10-19 20-20-00", "2025-10-19 20-20-00");
                 activityData.addAward(
                         new AwardData(activityData, "test_award")

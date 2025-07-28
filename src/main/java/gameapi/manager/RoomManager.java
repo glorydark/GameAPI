@@ -45,8 +45,8 @@ public class RoomManager {
     public static void unloadRoom(Room room) {
         if (room.getRoomTaskExecutor() != null) {
             room.getRoomTaskExecutor().shutdownNow();
-            room.setRoomTaskExecutor(null);
             GameAPI.getGameDebugManager().info("关闭线程池成功: " + room.getRoomTaskExecutor().toString());
+            room.setRoomTaskExecutor(null);
         }
 
         for (Player player : room.getPlayers()) {
@@ -59,6 +59,9 @@ public class RoomManager {
 
         if (!room.getPlayers().isEmpty()) {
             for (Player player : room.getPlayers()) {
+                player.kick("Teleport Error...");
+            }
+            for (Player player : room.getSpectators()) {
                 player.kick("Teleport Error...");
             }
         }

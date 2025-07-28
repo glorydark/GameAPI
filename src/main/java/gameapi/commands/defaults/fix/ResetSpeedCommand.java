@@ -23,7 +23,7 @@ public class ResetSpeedCommand extends EasySubCommand {
         player.setSwimming(false);
         player.setSneaking(false);
         player.removeAllEffects();
-        player.teleport(player.add(0, 1,0), PlayerTeleportEvent.TeleportCause.PLUGIN);
+        player.teleport(player.add(0, 1, 0), PlayerTeleportEvent.TeleportCause.PLUGIN);
         player.setMovementSpeed(0.1f);
         return false;
     }

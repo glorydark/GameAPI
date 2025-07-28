@@ -20,6 +20,10 @@ import java.util.Map;
 public class SkinTools {
 
     public static Skin loadSkin(String skinPath, String loadName) {
+        return loadSkin(skinPath, loadName, true);
+    }
+
+    public static Skin loadSkin(String skinPath, String loadName, boolean checkValid) {
         File skinDataFile = new File(skinPath + "/skin.png");
         File skinJsonFile = new File(skinPath + "/skin.json");
         File skinAnimJsonFile = new File(skinPath + "/skin.animation.json");
@@ -77,7 +81,7 @@ public class SkinTools {
                 }
             }
             skin.setTrusted(true);
-            if (skin.isValid()) {
+            if (!checkValid || skin.isValid()) {
                 GameAPI.getInstance().getLogger().info("皮肤 " + loadName + " 读取完成");
                 return skin;
             } else {

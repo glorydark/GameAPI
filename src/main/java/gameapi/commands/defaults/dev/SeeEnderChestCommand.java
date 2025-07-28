@@ -36,7 +36,8 @@ public class SeeEnderChestCommand extends EasySubCommand {
                 OfflinePlayer offlinePlayer = (OfflinePlayer) Server.getInstance().getOfflinePlayer(args[0]);
                 if (offlinePlayer != null) {
                     commandSender.sendMessage("该玩家末影箱物品如下: ");
-                    CompoundTag namedTag = Server.getInstance().getOfflinePlayerData(offlinePlayer.getUniqueId(), false);;
+                    CompoundTag namedTag = Server.getInstance().getOfflinePlayerData(offlinePlayer.getUniqueId(), false);
+                    ;
 
                     if (namedTag.contains("EnderItems") && namedTag.get("EnderItems") instanceof ListTag) {
                         ListTag<CompoundTag> inventoryList = namedTag.getList("EnderItems", CompoundTag.class);

@@ -33,14 +33,12 @@ public class ActivityData {
     private final long endTime;
 
     private final List<AwardData> awardDataList = new ArrayList<>();
-
+    public Map<String, ActivityPlayerDataCache> activityPlayerDataCacheMap = new LinkedHashMap<>();
     private TriConsumer<Player, ActivityData, AdvancedFormWindowSimple> activityFormBuilder = (player, activityData, simple) -> {
         for (AwardData awardData : activityData.awardDataList) {
             simple.addButton(awardData.getElementButton(player));
         }
     };
-
-    public Map<String, ActivityPlayerDataCache> activityPlayerDataCacheMap = new LinkedHashMap<>();
 
     public ActivityData(String activityId, String name, String description, String startTime, String endTime) {
         this.activityId = activityId;

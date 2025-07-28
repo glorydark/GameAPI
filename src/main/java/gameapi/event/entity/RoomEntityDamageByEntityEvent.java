@@ -53,12 +53,12 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
         return this.getDamage(EntityDamageEvent.DamageModifier.BASE);
     }
 
-    public float getDamage(EntityDamageEvent.DamageModifier damageModifier) {
-        return this.damageModifierFloatMap.getOrDefault(damageModifier, 0f);
-    }
-
     public void setDamage(float damage) {
         this.setDamage(EntityDamageEvent.DamageModifier.BASE, damage);
+    }
+
+    public float getDamage(EntityDamageEvent.DamageModifier damageModifier) {
+        return this.damageModifierFloatMap.getOrDefault(damageModifier, 0f);
     }
 
     public void setDamage(EntityDamageEvent.DamageModifier damageModifier, float value) {

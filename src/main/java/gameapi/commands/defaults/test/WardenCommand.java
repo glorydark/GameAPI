@@ -90,9 +90,9 @@ public class WardenCommand extends EasySubCommand {
         ConfigSection details = undone.getSection(key);
         simple.setContent(
                 "处理员: " + TextFormat.YELLOW + details.getString("manager") + TextFormat.RESET + "\n" +
-                "玩家: " + TextFormat.YELLOW + details.getString("name") + TextFormat.RESET + "\n" +
-                "作弊游戏: " + TextFormat.YELLOW + details.getString("game") + TextFormat.RESET + "\n" +
-                "原因: " + TextFormat.YELLOW + details.getString("reason")
+                        "玩家: " + TextFormat.YELLOW + details.getString("name") + TextFormat.RESET + "\n" +
+                        "作弊游戏: " + TextFormat.YELLOW + details.getString("game") + TextFormat.RESET + "\n" +
+                        "原因: " + TextFormat.YELLOW + details.getString("reason")
         );
         simple.addButton(
                 new ResponsiveElementButton(TextFormat.GREEN + "处理无误")
@@ -134,7 +134,7 @@ public class WardenCommand extends EasySubCommand {
         for (Player p : Server.getInstance().getOnlinePlayers().values()) {
             playerOnline.add(p.getName());
         }
-        custom.label(new ElementLabel(content.isEmpty()? TextFormat.RED + "请务必在封禁前留存视频证据或对局录像证据，恶意处理将被处罚！": content));
+        custom.label(new ElementLabel(content.isEmpty() ? TextFormat.RED + "请务必在封禁前留存视频证据或对局录像证据，恶意处理将被处罚！" : content));
         custom.dropdown(new ResponsiveElementDropdown("玩家名", playerOnline));
         custom.input(new ElementInput("玩家名（离线）", "", ""));
         custom.dropdown(new ElementDropdown("作弊游戏", Arrays.asList("主城跑酷", "跑酷练习", "跑酷乐园", "PVP", "PVE"), gameType));

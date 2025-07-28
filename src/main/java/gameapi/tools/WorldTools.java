@@ -45,7 +45,7 @@ public class WorldTools {
     }
 
     protected static boolean deleteWorld(String saveWorld) {
-        String worldPath = Server.getInstance().getDataPath()  + File.separator + "worlds" + File.separator + saveWorld + File.separator;
+        String worldPath = Server.getInstance().getDataPath() + File.separator + "worlds" + File.separator + saveWorld + File.separator;
         File file = new File(worldPath);
         return FileTools.delete(file);
     }
@@ -154,21 +154,35 @@ public class WorldTools {
     }
 
     public static boolean loadLevelFromBackup(String loadName, String backupName) {
+        return loadLevelFromBackup(loadName, new File(GameAPI.getPath() + File.separator + "worlds" + File.separator + backupName + File.separator));
+    }
+
+    public static boolean loadLevelFromBackup(String loadName, File path) {
         Level level = Server.getInstance().getLevelByName(loadName);
         if (level != null) {
             unloadLevel(level, true);
         }
-
-        String savePath = GameAPI.getPath() + File.separator + "worlds" + File.separator + backupName + File.separator;
         String worldPath = Server.getInstance().getDataPath() + File.separator + "worlds" + File.separator + loadName + File.separator;
 
-        if (new File(savePath).exists()) {
-            if (FileTools.copyFiles(savePath, worldPath)) {
+        if (path.exists()) {
+            if (FileTools.copyFiles(path.getPath(), worldPath)) {
                 if (Server.getInstance().loadLevel(loadName)) {
                     initLevel(Server.getInstance().getLevelByName(loadName));
                     return true;
                 }
             }
+        }
+        return false;
+    }
+
+    public static boolean saveFromLevel(String levelName, File savePath) {
+        Level level = Server.getInstance().getLevelByName(levelName);
+        if (level != null) {
+            unloadLevel(level, true);
+        }
+        savePath.mkdirs();
+        if (FileTools.copyFiles(GameAPI.getInstance().getServer().getDataPath() + "/worlds/" + levelName + "/", savePath.getPath())) {
+            return true;
         }
         return false;
     }

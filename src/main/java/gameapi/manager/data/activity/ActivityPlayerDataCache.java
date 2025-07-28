@@ -11,11 +11,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class ActivityPlayerDataCache {
 
-    private ConfigSection section;
-
-    private long createTime;
-
     protected static final long EXPIRE_MILLIS = 300000L;
+    private ConfigSection section;
+    private long createTime;
 
     public boolean isExpired() {
         return System.currentTimeMillis() - this.createTime >= EXPIRE_MILLIS;

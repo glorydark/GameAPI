@@ -17,33 +17,19 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class OggMusicManager {
 
-    protected Room room;
-
-    protected Map<String, OggMusicData> songMap;
-
-    protected PlayType playType;
-
-    private String currentSongId = "";
-
     protected final List<Player> stopMusicPlayers = new ArrayList<>();
-
+    protected Room room;
+    protected Map<String, OggMusicData> songMap;
+    protected PlayType playType;
     protected int currentTick = 0;
-
     protected long lastPlayed = 0L;
-
     protected boolean stopped = true;
+    private String currentSongId = "";
 
     public OggMusicManager(Room room, PlayType playType) {
         this.room = room;
         this.songMap = new LinkedHashMap<>();
         this.playType = playType;
-    }
-
-    public enum PlayType {
-        SINGLE_TRACK_LOOP,
-        LIST_LOOP,
-        SHUFFLE,
-        LIST
     }
 
     public void start() {
@@ -195,5 +181,12 @@ public class OggMusicManager {
 
     public String getCurrentSongId() {
         return currentSongId;
+    }
+
+    public enum PlayType {
+        SINGLE_TRACK_LOOP,
+        LIST_LOOP,
+        SHUFFLE,
+        LIST
     }
 }

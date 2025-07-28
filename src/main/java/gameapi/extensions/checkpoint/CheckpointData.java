@@ -27,6 +27,8 @@ public class CheckpointData {
 
     private Particle particle = new DustParticle(new Vector3(0, 0, 0), BlockColor.YELLOW_BLOCK_COLOR);
 
+    private String particleEffectId = "";
+
     private String name;
 
     private boolean particleMarked;
@@ -68,7 +70,12 @@ public class CheckpointData {
      */
     public void showParticleMarks(Level level) {
         if (this.particleMarked) {
-            ParticleTools.drawCircle(this.particle, this.getLocation(level).add(0, 1, 0), this.horizontalRadius);
+            if (this.particleEffectId.isEmpty()) {
+                ParticleTools.drawCircle(this.particle, this.getLocation(level).add(0, 1, 0), this.horizontalRadius);
+            } else {
+                SimpleAxisAlignedBB bb = (SimpleAxisAlignedBB) new SimpleAxisAlignedBB(this.vector3, this.vector3).grow(this.horizontalRadius, this.verticalRadius, this.horizontalRadius);
+                ParticleTools.lineSpace(this.particleEffectId, level, bb, level.getPlayers().values().toArray(new Player[0]));
+            }
         }
     }
 

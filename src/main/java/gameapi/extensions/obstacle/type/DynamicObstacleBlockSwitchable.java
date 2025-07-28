@@ -23,9 +23,9 @@ public interface DynamicObstacleBlockSwitchable {
 
     List<Block> getSwitchBlock();
 
-    void addSwitchBlock(Block switchBlock);
-
     void setSwitchBlock(List<Block> switchBlock);
+
+    void addSwitchBlock(Block switchBlock);
 
     int getBlockChangeStateIndex();
 

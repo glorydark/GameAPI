@@ -157,7 +157,7 @@ public class ItemTools {
     }
 
     public static CompoundTag parseCompoundTag(Item item, Map<String, Object> map) {
-        CompoundTag compoundTag = item.hasCompoundTag()? item.getNamedTag(): new CompoundTag();
+        CompoundTag compoundTag = item.hasCompoundTag() ? item.getNamedTag() : new CompoundTag();
         Map<String, Object> tagMap = (Map<String, Object>) map.getOrDefault("tags", new LinkedHashMap<>());
         for (Map.Entry<String, Object> entry : tagMap.entrySet()) {
             String key = entry.getKey();

@@ -130,6 +130,7 @@ public class BaseEventListener implements Listener {
                 if (block != null) {
                     if (block.getId() != 0) {
                         player.sendMessage("方块: " + block.toItem().getNamespaceId() + ", 位置: " + block.getFloorX() + ":" + block.getFloorY() + ":" + block.getFloorZ());
+                        GameAPI.getGameDebugManager().info("方块: " + block.toItem().getNamespaceId() + ", 位置: " + block.getFloorX() + ":" + block.getFloorY() + ":" + block.getFloorZ());
                     }
                 }
             }
@@ -735,7 +736,7 @@ public class BaseEventListener implements Listener {
                     }
                 }
                 if (remove) {
-                    event.getRecipients().removeIf(o-> o.getName().equals(commandSender.getName()));
+                    event.getRecipients().removeIf(o -> o.getName().equals(commandSender.getName()));
                 }
             }
         }

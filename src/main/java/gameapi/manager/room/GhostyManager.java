@@ -24,11 +24,9 @@ import java.util.function.Consumer;
 @Getter
 public class GhostyManager {
 
-    protected Room room;
-
-    protected List<LevelRecordEngine> levelRecordEngines;
-
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+    protected Room room;
+    protected List<LevelRecordEngine> levelRecordEngines;
 
     public GhostyManager(Room room) {
         this.levelRecordEngines = new ArrayList<>();

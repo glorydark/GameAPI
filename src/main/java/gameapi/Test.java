@@ -1,8 +1,8 @@
 package gameapi;
 
-import gameapi.utils.ItemIDSunName;
+import gameapi.tools.CalendarTools;
 
-import java.io.File;
+import java.util.Calendar;
 
 /**
  * @author glorydark
@@ -23,11 +23,7 @@ public class Test {
         System.out.println(CalendarTools.getWeekString(calendar));
          */
 
-        for (ItemIDSunName value : ItemIDSunName.values()) {
-            File file = new File("D:/VanillaResourcePack/" + value.getPath());
-            if (!file.exists()) {
-                System.out.println("Error: " + value.getPath());
-            }
-        }
+        Calendar calendar = Calendar.getInstance();
+        System.out.println(CalendarTools.getWeekString(calendar));
     }
 }

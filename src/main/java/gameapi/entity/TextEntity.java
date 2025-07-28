@@ -2,6 +2,7 @@ package gameapi.entity;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.item.EntityArmorStand;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -27,10 +28,12 @@ public class TextEntity extends Entity {
         this.setNameTagAlwaysVisible(true);
         this.setImmobile(true);
         this.getDataProperties().putLong(0, 65536L);
+        this.setScale(0.0f);
+        this.setCanBeSavedWithChunk(false);
     }
 
     public int getNetworkId() {
-        return 64;
+        return EntityArmorStand.NETWORK_ID;
     }
 
     public void onAsyncUpdate(int currentTick) {

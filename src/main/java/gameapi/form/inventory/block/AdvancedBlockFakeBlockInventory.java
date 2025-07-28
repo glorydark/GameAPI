@@ -118,12 +118,12 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
         return itemMovable;
     }
 
-    public boolean isItemTakeIntoInventory() {
-        return itemTakeIntoInventory;
-    }
-
     public void setItemMovable(boolean itemMovable) {
         this.itemMovable = itemMovable;
+    }
+
+    public boolean isItemTakeIntoInventory() {
+        return itemTakeIntoInventory;
     }
 
     public void setItemTakeIntoInventory(boolean itemTakeIntoInventory) {

@@ -30,8 +30,8 @@ import java.util.Map;
  */
 public class RankingManager {
 
-    public static int rankingTextEntityRefreshIntervals;
     protected static final Map<String, Ranking> rankingFactory = new LinkedHashMap<>();
+    public static int rankingTextEntityRefreshIntervals;
 
     public static void init() {
         Config config = new Config(GameAPI.getPath() + "/rankings.yml");

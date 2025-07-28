@@ -4,6 +4,7 @@ package org.jnbt;
  * The {@code TAG_Long_Array} tag.
  */
 public final class LongArrayTag extends Tag {
+    private static final long serialVersionUID = 1L;
     /**
      * The value.
      */
@@ -11,7 +12,8 @@ public final class LongArrayTag extends Tag {
 
     /**
      * Creates the tag.
-     * @param name The name.
+     *
+     * @param name  The name.
      * @param value The value.
      */
     public LongArrayTag(String name, long[] value) {
@@ -27,7 +29,7 @@ public final class LongArrayTag extends Tag {
     public String toString() {
         StringBuilder hex = new StringBuilder();
         if (value.length <= 4) {
-            for (long l: value) {
+            for (long l : value) {
                 String hexDigits = Long.toHexString(l).toUpperCase();
                 hex.append("000000000000000", 0, 16 - hexDigits.length());
                 hex.append(hexDigits).append(" ");
@@ -59,6 +61,4 @@ public final class LongArrayTag extends Tag {
         clone.value = value.clone();
         return clone;
     }
-
-    private static final long serialVersionUID = 1L;
 }

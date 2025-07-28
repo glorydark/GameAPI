@@ -31,51 +31,6 @@ public class RankingMonthlyConclusionCommand extends EasySubCommand {
         super(name);
     }
 
-    @Override
-    public boolean execute(CommandSender commandSender, String s, String[] args) {
-        int i = 1;
-        if (commandSender.isPlayer()) {
-            Map<String, Double> map = getDetailedMap().getOrDefault(commandSender.getName(), new LinkedHashMap<>());
-            StringBuilder stringBuilder = new StringBuilder();
-            for (Map.Entry<String, Double> all : getDetailedMap().get("all").entrySet()) {
-                switch (i) {
-                    case 1:
-                        stringBuilder.append(TextFormat.GOLD);
-                        break;
-                    case 2:
-                        stringBuilder.append(TextFormat.GRAY);
-                        break;
-                    case 3:
-                        stringBuilder.append(TextFormat.MATERIAL_COPPER);
-                        break;
-                    default:
-                        stringBuilder.append(TextFormat.RESET);
-                        break;
-                }
-                stringBuilder.append("[").append(i).append("] ")
-                        .append(all.getKey())
-                        .append(" - ")
-                        .append(all.getValue())
-                        .append("\n");
-                i++;
-            }
-            stringBuilder.append("--------------").append("\nPersonal Mark Breakdown").append("\n");
-            for (Map.Entry<String, Double> entry : map.entrySet()) {
-                stringBuilder.append(entry.getKey()).append(": ").append(entry.getValue())
-                        .append("\n");
-            }
-            AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("本月全图跑酷榜单");
-            simple.setContent(stringBuilder.toString());
-            simple.showToPlayer(commandSender.asPlayer());
-        } else {
-            for (Map.Entry<String, Double> all : getDetailedMap().get("all").entrySet()) {
-                GameAPI.getInstance().getLogger().info("[" + i + "] " + all.getKey() + " - " + all.getValue());
-                i++;
-            }
-        }
-        return false;
-    }
-
     public static Map<String, Map<String, Double>> getDetailedMap() {
         Map<String, Double> map = new LinkedHashMap<>();
         Map<String, Map<String, Double>> details = new LinkedHashMap<>();
@@ -193,5 +148,50 @@ public class RankingMonthlyConclusionCommand extends EasySubCommand {
             details.computeIfAbsent("all", s1 -> new LinkedHashMap<>()).put(entry.getKey(), entry.getValue());
         }
         return details;
+    }
+
+    @Override
+    public boolean execute(CommandSender commandSender, String s, String[] args) {
+        int i = 1;
+        if (commandSender.isPlayer()) {
+            Map<String, Double> map = getDetailedMap().getOrDefault(commandSender.getName(), new LinkedHashMap<>());
+            StringBuilder stringBuilder = new StringBuilder();
+            for (Map.Entry<String, Double> all : getDetailedMap().get("all").entrySet()) {
+                switch (i) {
+                    case 1:
+                        stringBuilder.append(TextFormat.GOLD);
+                        break;
+                    case 2:
+                        stringBuilder.append(TextFormat.GRAY);
+                        break;
+                    case 3:
+                        stringBuilder.append(TextFormat.MATERIAL_COPPER);
+                        break;
+                    default:
+                        stringBuilder.append(TextFormat.RESET);
+                        break;
+                }
+                stringBuilder.append("[").append(i).append("] ")
+                        .append(all.getKey())
+                        .append(" - ")
+                        .append(all.getValue())
+                        .append("\n");
+                i++;
+            }
+            stringBuilder.append("--------------").append("\nPersonal Mark Breakdown").append("\n");
+            for (Map.Entry<String, Double> entry : map.entrySet()) {
+                stringBuilder.append(entry.getKey()).append(": ").append(entry.getValue())
+                        .append("\n");
+            }
+            AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("本月全图跑酷榜单");
+            simple.setContent(stringBuilder.toString());
+            simple.showToPlayer(commandSender.asPlayer());
+        } else {
+            for (Map.Entry<String, Double> all : getDetailedMap().get("all").entrySet()) {
+                GameAPI.getInstance().getLogger().info("[" + i + "] " + all.getKey() + " - " + all.getValue());
+                i++;
+            }
+        }
+        return false;
     }
 }

@@ -1,4 +1,3 @@
-
 package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;

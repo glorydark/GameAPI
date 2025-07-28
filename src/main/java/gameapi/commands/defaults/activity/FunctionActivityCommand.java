@@ -18,7 +18,8 @@ public class FunctionActivityCommand extends EasySubCommand {
         if (args.length == 1) {
             GameActivityManager.showActivityForm(commandSender.asPlayer(), args[0]);
         } else {
-            GameActivityManager.showAllActivityForm(commandSender.asPlayer());;
+            GameActivityManager.showAllActivityForm(commandSender.asPlayer());
+            ;
         }
         return false;
     }

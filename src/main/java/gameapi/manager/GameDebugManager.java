@@ -19,10 +19,8 @@ import java.util.logging.Logger;
 public class GameDebugManager {
 
     private final Logger logger;
-
-    private boolean enableConsoleDebug = true;
-
     protected List<Player> players = new ArrayList<>();
+    private boolean enableConsoleDebug = true;
 
     public GameDebugManager(String name, File saveDir) {
         try {
@@ -117,11 +115,11 @@ public class GameDebugManager {
         return players;
     }
 
-    public void setEnableConsoleDebug(boolean enableConsoleDebug) {
-        this.enableConsoleDebug = enableConsoleDebug;
-    }
-
     public boolean isEnableConsoleDebug() {
         return this.enableConsoleDebug;
+    }
+
+    public void setEnableConsoleDebug(boolean enableConsoleDebug) {
+        this.enableConsoleDebug = enableConsoleDebug;
     }
 }

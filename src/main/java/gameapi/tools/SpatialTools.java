@@ -79,18 +79,15 @@ public class SpatialTools {
     public static UndefinedLevelLocation parseUndefinedLevelLocation(String locationString) {
         String[] positions = locationString.split(":");
         UndefinedLevelLocation loc = new UndefinedLevelLocation();
-        if (positions.length < 4) {
-            if (positions.length == 3) {
-                loc.setPos(new Location(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2])));
-                return loc;
-            }
+        if (positions.length < 3) {
             GameAPI.getInstance().getLogger().warning("Wrong Location Format! Please check it again, text: " + locationString);
             return null;
         }
+        loc.setPos(new Vector3(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]), Double.parseDouble(positions[2])));
         if (positions.length >= 5) {
-            loc.setPos(new Location(Double.parseDouble(positions[3]), Double.parseDouble(positions[4]), 0));
+            loc.setRotation(new Vector3(Double.parseDouble(positions[3]), Double.parseDouble(positions[4]), 0));
             if (positions.length == 6) {
-                loc.setPos(new Location(Double.parseDouble(positions[3]), Double.parseDouble(positions[4]), Double.parseDouble(positions[5])));
+                loc.setRotation(new Vector3(Double.parseDouble(positions[3]), Double.parseDouble(positions[4]), Double.parseDouble(positions[5])));
             }
         }
         return loc;

@@ -42,7 +42,7 @@ public class PlayerCheckpointData {
         }
         this.globalMultiplier *= data.getGlobalMultiplier();
         this.score += data.getScore();
-        this.checkpointRecordMap.put(data, (System.currentTimeMillis() - (this.lastReachMillis == -1? manager.getRoom().getStartMillis(): this.lastReachMillis)));
+        this.checkpointRecordMap.put(data, (System.currentTimeMillis() - (this.lastReachMillis == -1 ? manager.getRoom().getStartMillis() : this.lastReachMillis)));
         this.lastReachMillis = System.currentTimeMillis();
         return true;
     }

@@ -452,7 +452,7 @@ public class WorldEditTools {
         createBall(player, v2, player.getLevel(), block, platformRadius, true, true);
         createBall(player, v3, player.getLevel(), block, platformRadius, true, true);
         createBall(player, v4, player.getLevel(), block, platformRadius, true, true);
-        for (int angle = 0; angle < 90; angle+=angleRotation) {
+        for (int angle = 0; angle < 90; angle += angleRotation) {
             Vector3 v5 = SpatialTools.rotateByYAxis(center, v1, angle);
             Vector3 v6 = SpatialTools.rotateByYAxis(center, v2, angle);
             Vector3 v7 = SpatialTools.rotateByYAxis(center, v3, angle);

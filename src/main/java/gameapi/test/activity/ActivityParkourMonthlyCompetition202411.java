@@ -72,7 +72,7 @@ public class ActivityParkourMonthlyCompetition202411 {
                 );
             }
         }
-        if (PlayerGameDataManager.getPlayerGameData(activityId, "activity_award_distributed", "is_operated", false)){
+        if (PlayerGameDataManager.getPlayerGameData(activityId, "activity_award_distributed", "is_operated", false)) {
             simple.addButton(
                     new ResponsiveElementButton("获奖公示")
                             .onRespond(ActivityParkourMonthlyCompetition202411::showCompetitionFinalRank)
@@ -156,7 +156,7 @@ public class ActivityParkourMonthlyCompetition202411 {
             simple.addButton(
                     new ResponsiveElementButton("确认成绩并发放奖励")
                             .onRespond(player1 -> {
-                                if (!PlayerGameDataManager.getPlayerGameData(activityId, "activity_award_distributed", "is_operated", false)){
+                                if (!PlayerGameDataManager.getPlayerGameData(activityId, "activity_award_distributed", "is_operated", false)) {
                                     PlayerGameDataManager.setPlayerGameData(activityId, "activity_award_distributed", "is_operated", true);
                                     Server.getInstance().dispatchCommand(new ConsoleCommandSender(), "prefix give " + "\"" + finalChampion + "\" 跑酷月赛冠军 2592000000");
                                     Server.getInstance().dispatchCommand(new ConsoleCommandSender(), "gameapi giveachievement " + "\"" + finalChampion + "\" 2024年11月跑酷月赛 competition_202411_champion 比赛奖励发放");

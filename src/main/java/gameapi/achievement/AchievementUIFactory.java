@@ -80,23 +80,23 @@ public class AchievementUIFactory {
                 switch (achievementData.getIconPathType()) {
                     case "url":
                         if (hasAchievement) {
-                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_HAS_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_URL, achievementData.getIconPath())));
+                            simple.addButton(new ElementButton(achievementName + "\n" + TextFormat.RESET + UI_STATUS_HAS_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_URL, achievementData.getIconPath())));
                         } else {
-                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_UNCLAIMED_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_URL, achievementData.getIconPath())));
+                            simple.addButton(new ElementButton(achievementName + "\n" + TextFormat.RESET + UI_STATUS_UNCLAIMED_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_URL, achievementData.getIconPath())));
                         }
                         break;
                     case "path":
                         if (hasAchievement) {
-                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_HAS_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_PATH, achievementData.getIconPath())));
+                            simple.addButton(new ElementButton(achievementName + "\n" + TextFormat.RESET + UI_STATUS_HAS_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_PATH, achievementData.getIconPath())));
                         } else {
-                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_UNCLAIMED_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_PATH, achievementData.getIconPath())));
+                            simple.addButton(new ElementButton(achievementName + "\n" + TextFormat.RESET + UI_STATUS_UNCLAIMED_ACHIEVEMENT, new ElementButtonImageData(ElementButtonImageData.IMAGE_DATA_TYPE_PATH, achievementData.getIconPath())));
                         }
                         break;
                     default:
                         if (hasAchievement) {
-                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_HAS_ACHIEVEMENT));
+                            simple.addButton(new ElementButton(achievementName + "\n" + TextFormat.RESET + UI_STATUS_HAS_ACHIEVEMENT));
                         } else {
-                            simple.addButton(new ElementButton( achievementName + "\n" + TextFormat.RESET + UI_STATUS_UNCLAIMED_ACHIEVEMENT));
+                            simple.addButton(new ElementButton(achievementName + "\n" + TextFormat.RESET + UI_STATUS_UNCLAIMED_ACHIEVEMENT));
                         }
                         break;
                 }

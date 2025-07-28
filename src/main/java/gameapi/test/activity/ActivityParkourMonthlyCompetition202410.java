@@ -64,14 +64,14 @@ public class ActivityParkourMonthlyCompetition202410 {
             if (joinTimes >= 3) {
                 long time = Long.parseLong(PlayerGameDataManager.getPlayerGameData("Activity_Parkour_241001", "time", player.getName(), "0"));
                 simple.addButton(
-                        new ElementButton("立即开始挑战\n" + TextFormat.YELLOW + "[" + (time > 0? SmartTools.timeMillisToString(time): "NAN") + "]")
+                        new ElementButton("立即开始挑战\n" + TextFormat.YELLOW + "[" + (time > 0 ? SmartTools.timeMillisToString(time) : "NAN") + "]")
                 );
             } else {
                 simple.addButton(
                         new ResponsiveElementButton("立即开始挑战\n" + TextFormat.GREEN + "[您还有" + TextFormat.YELLOW + (3 - joinTimes) + TextFormat.GREEN + "次挑战机会]")
                                 .onRespond(ActivityParkourMonthlyCompetition202410::showCompetitionCheckBox)
                 );
-                }
+            }
         } else {
             simple.addButton(new ElementButton("立即开始挑战\n" + TextFormat.GRAY + "[已结束]"));
         }
