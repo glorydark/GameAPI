@@ -2,6 +2,7 @@ package gameapi.event.player;
 
 import cn.nukkit.Player;
 import cn.nukkit.event.entity.EntityDamageEvent;
+import cn.nukkit.level.Location;
 import gameapi.event.Cancellable;
 import gameapi.room.Room;
 import gameapi.utils.EntityDamageSource;
@@ -32,8 +33,11 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     protected boolean respawn;
 
+    protected final Location deathLocation;
+
     public RoomPlayerDeathEvent(Room room, Player player, boolean sendTitle, EntityDamageEvent.DamageCause cause) {
         super(room, player);
+        this.deathLocation = player.getLocation();
         this.respawn = room.getRoomRule().isAllowRespawn();
         //导入的伤害来源
         this.lastDamageByPlayerSource = room.getLastEntityDamageByPlayerSource(player).orElse(null);
@@ -109,5 +113,9 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     public Optional<EntityDamageSource> getLastDamageByPlayerSource() {
         return Optional.ofNullable(lastDamageByPlayerSource);
+    }
+
+    public Location getDeathLocation() {
+        return deathLocation;
     }
 }

@@ -191,6 +191,7 @@ public class WorldTools {
         level.getGameRules().setGameRule(GameRule.SHOW_TAGS, true);
         level.getGameRules().setGameRule(GameRule.LOCATOR_BAR, false);
         level.getGameRules().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+        level.getGameRules().setGameRule(GameRule.SPAWN_RADIUS, 0);
         level.setThundering(false);
         level.setRaining(false);
         level.setAutoSave(false);

@@ -584,8 +584,8 @@ public class BaseEventListener implements Listener {
     @EventHandler
     public void onMotion(EntityMotionEvent event) {
         Entity entity = event.getEntity();
-        Level level = entity.getLevel();
-        for (Room room : RoomManager.getRooms(level)) {
+        if (entity instanceof Player player) {
+            Room room = RoomManager.getRoom(player);
             BasicAttackSetting basicAttackSetting = room.getRoomRule().getBasicAttackSetting();
             if (basicAttackSetting != null) {
                 Vector3 v = event.getMotion();

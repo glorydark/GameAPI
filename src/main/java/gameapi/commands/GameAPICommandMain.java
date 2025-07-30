@@ -95,6 +95,7 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new ThunderCommand("thunder"));
 
         this.registerCommand(new HideChatCommand("hidechat"));
+        this.registerCommand(new AwardAchievementCommand("awardachievement"));
 
         // experimental && personal test
         if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {

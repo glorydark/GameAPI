@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Adapted from SmallAsWater's method
@@ -16,6 +18,22 @@ import java.util.Map;
  */
 
 public class ItemTools {
+
+    private static final Pattern ITEM_STRING_PATTERN = Pattern.compile(
+            "^(?:" +
+                    "(\\d+)(?::(-?\\d+))?(?::(\\d+))?(?::([\\w+/=-]+))?" +  // 数字ID格式
+                    "|" +
+                    "(?:([a-z_]\\w*):)?([a-z._]\\w*)(?::(-?\\d+))?(?::(\\d+))?(?::([\\w+/=-]+))?" +  // 命名空间ID格式
+                    ")$",
+            Pattern.CASE_INSENSITIVE
+    );
+
+    public static final int OFFLINE_SLOT_FAST_START = 9;
+    public static final int OFFLINE_SLOT_FAST_HELMET = 45;
+    public static final int OFFLINE_SLOT_FAST_CHESTPLATE = 46;
+    public static final int OFFLINE_SLOT_FAST_LEGGINGS = 47;
+    public static final int OFFLINE_SLOT_FAST_BOOTS = 48;
+    public static final int OFFLINE_SLOT_FAST_OFFHAND = 49;
 
     public static byte[] hexStringToBytes(String hexString) {
         if (hexString == null || hexString.equals("null")) {
@@ -204,37 +222,43 @@ public class ItemTools {
     }
 
     public static Item toItem(String itemString) {
-        if (itemString.startsWith("0:")) {
+        if (itemString == null || itemString.isEmpty() || itemString.startsWith("0:")) {
             return Item.get(0);
         }
-        String[] strings = itemString.split(":");
-        if (strings.length < 4) {
-            return Item.get(0);
-        }
-        boolean isNumericId = false;
-        try {
-            int test = Integer.parseInt(strings[0]);
-            isNumericId = true;
-        } catch (Exception ignored) {
 
+        Matcher matcher = ITEM_STRING_PATTERN.matcher(itemString.trim().replace(' ', '_'));
+        if (!matcher.matches()) {
+            return Item.get(0);
         }
-        if (isNumericId) {
-            Item item = Item.get(Integer.parseInt(strings[0]), Integer.parseInt(strings[1]), Integer.parseInt(strings[2]));
-            item.setCompoundTag(hexStringToBytes(strings[3]));
-            return item;
-        } else {
-            int countIndex = strings.length - 2;
-            StringBuilder identifierAndMeta = new StringBuilder();
-            for (int i = 0; i < strings.length - 2; i++) {
-                identifierAndMeta.append(strings[i]);
-                if (i != strings.length - 3) {
-                    identifierAndMeta.append(":");
-                }
+
+        try {
+            // 解析数字ID格式
+            if (matcher.group(1) != null) {
+                int id = Integer.parseInt(matcher.group(1));
+                int meta = matcher.group(2) != null ? Integer.parseInt(matcher.group(2)) : 0;
+                int count = matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 1;
+                byte[] nbt = hexStringToBytes(matcher.group(4));
+
+                Item item = Item.get(id, meta, count);
+                item.setCompoundTag(nbt);
+                return item;
             }
-            Item item = Item.fromString(identifierAndMeta.toString());
-            item.setCount(Integer.parseInt(strings[countIndex]));
-            item.setCompoundTag(hexStringToBytes(strings[countIndex + 1]));
+
+            // 解析命名空间ID格式
+            String namespace = matcher.group(5);
+            String id = matcher.group(6);
+            String fullId = (namespace != null) ? namespace + ":" + id : "minecraft:" + id;
+
+            int meta = matcher.group(7) != null ? Integer.parseInt(matcher.group(7)) : 0;
+            int count = matcher.group(8) != null ? Integer.parseInt(matcher.group(8)) : 1;
+            byte[] nbt = hexStringToBytes(matcher.group(9));
+
+            Item item = Item.fromString(fullId + (meta != 0 ? ":" + meta : ""));
+            item.setCount(count);
+            item.setCompoundTag(nbt);
             return item;
+        } catch (Exception e) {
+            return Item.get(0);  // 解析失败返回空气
         }
     }
 }

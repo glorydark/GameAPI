@@ -24,7 +24,7 @@ public class BaseTeam {
     private int maxPlayer;
     private boolean alive = true;
     private boolean eliminated = false;
-    private DyeColor dyeColor = DyeColor.WHITE;
+    private DyeColor dyeColor;
     private Map<String, Object> properties = new LinkedHashMap<>();
 
     public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, int spawnIndex) {
@@ -32,11 +32,20 @@ public class BaseTeam {
     }
 
     public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, List<Integer> spawnIndexList) {
+        this(room, registryName, prefix, maxPlayer, DyeColor.WHITE, spawnIndexList);
+    }
+
+    public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, DyeColor dyeColor, int spawnIndex) {
+        this(room, registryName, prefix, maxPlayer, dyeColor, Collections.singletonList(spawnIndex));
+    }
+
+    public BaseTeam(Room room, String registryName, String prefix, int maxPlayer, DyeColor dyeColor, List<Integer> spawnIndexList) {
         this.room = room;
         this.registryName = registryName;
         this.prefix = prefix;
         this.spawnIndexList = spawnIndexList;
         this.maxPlayer = maxPlayer;
+        this.dyeColor = dyeColor;
     }
 
     public boolean addPlayer(Player player) {
