@@ -586,6 +586,9 @@ public class BaseEventListener implements Listener {
         Entity entity = event.getEntity();
         if (entity instanceof Player player) {
             Room room = RoomManager.getRoom(player);
+            if (room == null) {
+                return;
+            }
             BasicAttackSetting basicAttackSetting = room.getRoomRule().getBasicAttackSetting();
             if (basicAttackSetting != null) {
                 Vector3 v = event.getMotion();
