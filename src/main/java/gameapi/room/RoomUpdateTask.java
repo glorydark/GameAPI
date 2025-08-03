@@ -141,27 +141,21 @@ public class RoomUpdateTask implements Runnable {
 
     protected void onUpdateRoomBlockTreadEvent(Player player) {
         // Tread Block Event
-        Vector3 vector3 = player.getPosition().floor().subtract(0, 1, 0);
-        SimpleAxisAlignedBB bb = (SimpleAxisAlignedBB) new SimpleAxisAlignedBB(vector3, vector3).expand(1, 1, 1);
-        bb.forEach(((i, i1, i2) -> {
-            Block block = player.getLevel().getBlock(i, i1, i2).getLevelBlock();
-            if (!(block.getId() == 0 || block instanceof BlockLiquid)) {
-                RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(this.room, block, player);
-                GameListenerRegistry.callEvent(this.room, roomBlockTreadEvent);
-                if (!roomBlockTreadEvent.isCancelled()) {
-                    for (DynamicObstacle dynamicObstacle : new ArrayList<>(this.room.getDynamicObstacles())) {
-                        if (!dynamicObstacle.isEnabled()) {
-                            continue;
-                        }
-                        for (Block dynamicObstacleBlock : dynamicObstacle.getBlocks()) {
-                            if (dynamicObstacleBlock.distanceSquared(block) < 1d) {
-                                dynamicObstacle.onTread(dynamicObstacleBlock);
-                            }
-                        }
+        Block block = player.add(-0.5, -1, -0.5).floor().getLevelBlock();
+        RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(this.room, block, player);
+        GameListenerRegistry.callEvent(this.room, roomBlockTreadEvent);
+        if (!roomBlockTreadEvent.isCancelled()) {
+            for (DynamicObstacle dynamicObstacle : new ArrayList<>(this.room.getDynamicObstacles())) {
+                if (!dynamicObstacle.isEnabled()) {
+                    continue;
+                }
+                for (Block dynamicObstacleBlock : dynamicObstacle.getBlocks()) {
+                    if (dynamicObstacleBlock.distanceSquared(block) < 1d) {
+                        dynamicObstacle.onTread(dynamicObstacleBlock);
                     }
                 }
             }
-        }));
+        }
     }
 
     protected void onUpdateRoomPlayerEnterPortalEvent(Player player) {

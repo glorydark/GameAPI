@@ -5,6 +5,8 @@ import lombok.Data;
 @Data
 public class RankingFormat {
 
+    public static final RankingFormat DEFAULT_RANKING = new RankingFormat();
+
     private String scoreShowFormat;
 
     private String championPrefix;

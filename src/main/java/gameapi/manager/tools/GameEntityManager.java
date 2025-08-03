@@ -29,10 +29,6 @@ public class GameEntityManager {
             try {
                 TextEntity textEntity = textEntityData.getEntity();
                 if (textEntity != null) {
-                    if (textEntity.isInvalid()) {
-                        textEntityDataList.remove(textEntityData);
-                        return;
-                    }
                     if (!textEntity.isAlive() || textEntity.isClosed()) {
                         textEntity.close();
                         textEntity.respawn();
@@ -101,11 +97,12 @@ public class GameEntityManager {
 
     public static void closeAll() {
         RankingManager.getRankingFactory().clear();
+        textEntityDataList.clear();
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
-                if (entity instanceof TextEntity) {
-                    entity.despawnFromAll();
-                    entity.close();
+                if (entity instanceof TextEntity textEntity) {
+                    textEntity.despawnFromAll();
+                    textEntity.close();
                 }
             }
         }

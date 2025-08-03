@@ -243,6 +243,7 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onDisable() {
+        roomTaskExecutor.shutdownNow();
         try {
             AdvancedFormListener.closeAllForms();
             RoomManager.close();
@@ -254,7 +255,6 @@ public class GameAPI extends PluginBase implements Listener {
             }
         } catch (Throwable t) {
         }
-        roomTaskExecutor.shutdownNow();
         WORLDEDIT_THREAD_POOL_EXECUTOR.shutdownNow();
         this.getLogger().info("GameAPI Disabled!");
     }

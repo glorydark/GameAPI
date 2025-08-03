@@ -15,7 +15,7 @@ public class TextEntity extends Entity {
 
     private final Map<String, Object> extraProperties = new LinkedHashMap<>();
 
-    private boolean invalid = false;
+    private int maxShowDistance = -1;
 
     public TextEntity(FullChunk chunk, String text, CompoundTag nbt) {
         super(chunk, nbt);
@@ -28,7 +28,7 @@ public class TextEntity extends Entity {
         this.setNameTagAlwaysVisible(true);
         this.setImmobile(true);
         this.getDataProperties().putLong(0, 65536L);
-        this.setScale(0.0f);
+        this.setScale(0f);
         this.setCanBeSavedWithChunk(false);
     }
 
@@ -45,13 +45,13 @@ public class TextEntity extends Entity {
             this.getLevel().addEntity(this);
         }
          */
-        for (Player player : new ArrayList<>(this.getViewers().values())) {
+        for (Player player : new ArrayList<>(this.getLevel().getPlayers().values())) {
             if (this.getViewers().containsKey(player.getLoaderId())) {
-                if (!player.isOnline() || player.getLevel() != this.getLevel()) {
+                if (!player.isOnline() || player.getLevel() != this.getLevel() || (this.maxShowDistance != -1 && player.distance(this) > this.maxShowDistance)) {
                     this.despawnFrom(player);
                 }
             } else {
-                if (player.getLevel() == this.getLevel()) {
+                if (player.getLevel() == this.getLevel() && (this.maxShowDistance == -1 || player.distance(this) <= this.maxShowDistance)) {
                     this.spawnTo(player);
                 }
             }
@@ -77,14 +77,6 @@ public class TextEntity extends Entity {
 
     }
 
-    public boolean isInvalid() {
-        return invalid;
-    }
-
-    public void setInvalid(boolean invalid) {
-        this.invalid = invalid;
-    }
-
     @Override
     public boolean canBeSavedWithChunk() {
         return false;
@@ -97,5 +89,13 @@ public class TextEntity extends Entity {
 
     public Map<String, Object> getExtraProperties() {
         return extraProperties;
+    }
+
+    public void setMaxShowDistance(int maxShowDistance) {
+        this.maxShowDistance = maxShowDistance;
+    }
+
+    public int getMaxShowDistance() {
+        return maxShowDistance;
     }
 }

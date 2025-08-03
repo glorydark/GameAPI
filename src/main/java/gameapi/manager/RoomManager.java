@@ -206,7 +206,6 @@ public class RoomManager {
         for (String gameName : prefixes) {
             WorldTools.delWorldByPrefix(gameName);
         }
-        GameEntityManager.closeAll();
         loadedRooms.clear();
         playerRoomHashMap.clear();
     }

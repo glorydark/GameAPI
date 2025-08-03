@@ -51,18 +51,15 @@ public class RankingManager {
             }
             String rankingIdentifier = map.getOrDefault("game_name", "") + "_" + map.getOrDefault("data_name", "");
             if (!rankingFactory.containsKey(rankingIdentifier)) {
-                rankingFactory.put(
-                        rankingIdentifier,
-                        new SimpleRanking(Ranking.getRankingValueType((String) map.getOrDefault("value_type", "")),
-                                (String) map.getOrDefault("game_name", ""),
-                                (String) map.getOrDefault("data_name", ""),
-                                (String) map.getOrDefault("title", "Undefined"),
-                                "暂无数据",
-                                new RankingFormat(),
-                                Ranking.getRankingSortSequence((String) map.getOrDefault("sort_sequence", "descend")),
-                                (Integer) map.getOrDefault("max_show_count", 15)
-                        )
-                );
+                registerRanking(rankingIdentifier,
+                        (String) map.getOrDefault("game_name", ""),
+                        (String) map.getOrDefault("data_name", ""),
+                        (String) map.getOrDefault("title", "Undefined"),
+                        "暂无数据",
+                        RankingFormat.DEFAULT_RANKING,
+                        Ranking.getRankingValueType((String) map.getOrDefault("value_type", "")),
+                        Ranking.getRankingSortSequence((String) map.getOrDefault("sort_sequence", "descend")),
+                        (Integer) map.getOrDefault("max_show_count", 15));
             }
             Location location;
             AdvancedLocation advancedLocation = SpatialTools.parseLocation(map.getOrDefault("x", 0) + ":" + map.getOrDefault("y", 0) + ":" + map.getOrDefault("z", 0) + ":" + level);
@@ -84,10 +81,14 @@ public class RankingManager {
     }
 
     public static boolean registerRanking(String identifier, String gameName, String dataName, String title, String noDataContent, RankingFormat rankingFormat, RankingValueType rankingValueType, RankingSortSequence rankingSortSequence) {
+        return registerRanking(identifier, gameName, dataName, title, noDataContent, rankingFormat, rankingValueType, rankingSortSequence, -1);
+    }
+
+    public static boolean registerRanking(String identifier, String gameName, String dataName, String title, String noDataContent, RankingFormat rankingFormat, RankingValueType rankingValueType, RankingSortSequence rankingSortSequence, int maxCount) {
         if (rankingFactory.containsKey(identifier)) {
             return false;
         }
-        rankingFactory.put(identifier, new SimpleRanking(rankingValueType, gameName, dataName, title, noDataContent, rankingFormat, rankingSortSequence, -1));
+        rankingFactory.put(identifier, new SimpleRanking(rankingValueType, gameName, dataName, title, noDataContent, rankingFormat, rankingSortSequence, maxCount));
         return true;
     }
 
@@ -104,15 +105,14 @@ public class RankingManager {
     }
 
     public static void despawnAllRankingEntities() {
+        GameEntityManager.textEntityDataList.clear();
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof RankingListEntity) {
-                    ((RankingListEntity) entity).setInvalid(true);
                     entity.close();
                 }
             }
         }
-        GameEntityManager.textEntityDataList.clear();
     }
 
     public static void spawnRankingListEntity(Location location, Ranking ranking) {
@@ -135,6 +135,7 @@ public class RankingManager {
         }
         ranking.refreshRankingData();
         RankingListEntity entity = new RankingListEntity(ranking, chunk, RankingListEntity.getDefaultNBT(new Vector3(location.x, location.y, location.z)));
+        entity.setMaxShowDistance(32);
         entity.setImmobile(true);
         entity.spawnToAll();
         GameEntityManager.textEntityDataList.add(new RankingEntityData(ranking, entity, location));
@@ -165,7 +166,7 @@ public class RankingManager {
                     dataName,
                     title,
                     "No data",
-                    new RankingFormat(),
+                    RankingFormat.DEFAULT_RANKING,
                     rankingSortSequence,
                     15));
         }
