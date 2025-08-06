@@ -7,9 +7,7 @@ import gameapi.event.Cancellable;
 import gameapi.room.Room;
 import gameapi.utils.EntityDamageSource;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable {
 
@@ -42,13 +40,19 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
         //导入的伤害来源
         this.lastDamageByPlayerSource = room.getLastEntityDamageByPlayerSource(player).orElse(null);
         this.lastDamageByEntitySource = room.getLastEntityDamageByEntitySource(player).orElse(null);
-        List<EntityDamageSource> entityDamageSources = new ArrayList<>(room.getLastEntityReceiveDamageSource().getOrDefault(player, new ArrayList<>()));
-        entityDamageSources.remove(this.lastDamageByEntitySource);
-        entityDamageSources.remove(this.lastDamageByPlayerSource);
+        // 创建防御性副本并过滤null值
+        List<EntityDamageSource> damageSources = Optional.of(new HashMap<>(room.getLastEntityReceiveDamageSource()))
+                .map(map -> map.get(player))
+                .orElseGet(ArrayList::new);
+        List<EntityDamageSource> filteredSources = new ArrayList<>(damageSources
+                .stream()
+                .filter(Objects::nonNull)
+                .toList());
+        filteredSources.removeIf(source -> source == this.lastDamageByEntitySource || source == this.lastDamageByPlayerSource);
         this.cause = cause;
         this.sendTitle = sendTitle;
-        this.assistingDamageSource = entityDamageSources;
-        room.getLastEntityReceiveDamageSource().remove(player);
+        this.assistingDamageSource = filteredSources;
+        // room.getLastEntityReceiveDamageSource().remove(player);
     }
 
     public EntityDamageEvent.DamageCause getCause() {

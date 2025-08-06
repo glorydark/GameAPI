@@ -51,7 +51,6 @@ import lombok.Setter;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -534,9 +533,12 @@ public class Room {
             if (this.hasPlayer(player) || this.hasSpectator(player)) {
                 player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.already_in_this_room"));
             } else {
+                RoomManager.getPlayerRoomHashMap().put(player, this);
                 RoomPlayerPreJoinEvent ev = new RoomPlayerPreJoinEvent(this, player);
                 GameListenerRegistry.callEvent(this, ev);
-                if (!ev.isCancelled()) {
+                if (ev.isCancelled()) {
+                    RoomManager.getPlayerRoomHashMap().remove(player);
+                } else {
                     for (Player player1 : this.getPlayers()) {
                         if (this.getInternalPlayerProperty(player, INTERNAL_KEY_VISIBLE_TO_PLAYERS, false)) {
                             player.hidePlayer(player1);
@@ -545,7 +547,6 @@ public class Room {
                     this.roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
                     this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
                     this.players.add(player);
-                    RoomManager.getPlayerRoomHashMap().put(player, this);
                     this.waitSpawn.teleport(player);
                     player.setGamemode(2);
                     player.getFoodData().reset();
@@ -868,31 +869,21 @@ public class Room {
             GameAPI.getLanguage().getTranslation("room.spectator.join.not_allowed");
             return;
         }
-        RoomSpectatorJoinEvent roomSpectatorJoinEvent = new RoomSpectatorJoinEvent(this, player);
-        GameListenerRegistry.callEvent(this, roomSpectatorJoinEvent);
-        if (roomSpectatorJoinEvent.isCancelled()) {
-            return;
-        }
-        this.spectators.add(player);
-        RoomManager.getPlayerRoomHashMap().put(player, this);
-        player.removeAllEffects();
-        player.setNameTagVisible(false);
-        player.setNameTagAlwaysVisible(false);
+        Location defaultTeleportLocation = null;
         switch (this.getRoomStatus()) {
             case ROOM_STATUS_READY_START:
             case ROOM_STATUS_START:
                 if (!this.getSpectatorSpawn().isEmpty()) {
                     int randomInt = ThreadLocalRandom.current().nextInt(this.getSpectatorSpawn().size());
-                    AdvancedLocation location = this.getSpectatorSpawn().get(randomInt);
-                    location.teleport(player);
+                    defaultTeleportLocation = this.getSpectatorSpawn().get(randomInt).getLocation();
                 } else {
                     if (!this.getStartSpawn().isEmpty()) {
                         Random random = new Random(this.getStartSpawn().size());
                         AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
-                        location.teleport(player);
+                        defaultTeleportLocation = location.getLocation();
                     } else {
                         if (!this.players.isEmpty()) {
-                            player.teleport(this.players.get(0).getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                            defaultTeleportLocation = this.players.get(0).getLocation();
                         }
                     }
                 }
@@ -900,9 +891,23 @@ public class Room {
             case ROOM_STATUS_WAIT:
             case ROOM_STATUS_PRESTART:
                 if (this.getWaitSpawn() != null) {
-                    this.getWaitSpawn().teleport(player);
+                    defaultTeleportLocation = this.getWaitSpawn().getLocation();
                 }
                 break;
+        }
+        RoomManager.getPlayerRoomHashMap().put(player, this);
+        RoomSpectatorJoinEvent roomSpectatorJoinEvent = new RoomSpectatorJoinEvent(this, player, defaultTeleportLocation);
+        GameListenerRegistry.callEvent(this, roomSpectatorJoinEvent);
+        if (roomSpectatorJoinEvent.isCancelled()) {
+            RoomManager.getPlayerRoomHashMap().remove(player);
+            return;
+        }
+        this.spectators.add(player);
+        player.removeAllEffects();
+        player.setNameTagVisible(false);
+        player.setNameTagAlwaysVisible(false);
+        if (roomSpectatorJoinEvent.teleportLocation != null) {
+            player.teleport(roomSpectatorJoinEvent.getTeleportLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
         }
         if (GameAPI.getInstance().isTipsEnabled()) {
             for (Level playLevel : this.getPlayLevels()) {
@@ -939,9 +944,6 @@ public class Room {
             if (!ev.isKeepInventory()) {
                 player.getInventory().clearAll();
             }
-            if (this.roomRule.isVirtualHealth()) {
-                this.roomVirtualHealthManager.setHealth(player, this.roomVirtualHealthManager.getMaxHealth());
-            }
             if (ev.isSendTitle()) {
                 player.sendTitle(ev.getTitle(), ev.getSubtitle(), 10, 20, 10);
             }
@@ -960,7 +962,12 @@ public class Room {
                     }
                 }
             }
-            player.setHealth(player.getMaxHealth());
+            if (this.getRoomRule().isVirtualHealth()) {
+                this.roomVirtualHealthManager.setAlive(false);
+                this.roomVirtualHealthManager.resetHealth(player);
+            } else {
+                player.setHealth(player.getMaxHealth());
+            }
             player.getFoodData().reset();
             player.extinguish();
             this.resetSpeed(player);
@@ -995,6 +1002,7 @@ public class Room {
                         }
                         if (this.getRoomRule().isVirtualHealth()) {
                             this.roomVirtualHealthManager.resetHealth(player);
+                            this.roomVirtualHealthManager.setAlive(true);
                         } else {
                             player.setHealth(player.getMaxHealth());
                         }
@@ -1007,12 +1015,13 @@ public class Room {
                     player.setGamemode(this.roomRule.getGameMode());
                     player.getEffects().clear();
                     if (ev.getRespawnLocation() == null) {
-                        teleportToSpawn(player);
+                        this.teleportToSpawn(player);
                     } else {
                         player.teleport(ev.getRespawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                     }
                     if (this.getRoomRule().isVirtualHealth()) {
                         this.roomVirtualHealthManager.resetHealth(player);
+                        this.roomVirtualHealthManager.setAlive(true);
                     } else {
                         player.setHealth(player.getMaxHealth());
                     }
@@ -1248,16 +1257,27 @@ public class Room {
     }
 
     public void addEntityDamageSource(Entity victim, Entity damager, float damage) {
-        AtomicReference<Float> damageAll = new AtomicReference<>(0f);
-        new ArrayList<>(this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>())).stream().filter(
-                        entityDamageSource -> entityDamageSource != null && damager == entityDamageSource.getDamager())
-                .forEach(
-                        entityDamageSource -> {
-                            damageAll.updateAndGet(v -> v + entityDamageSource.getFinalDamage());
-                            this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>()).remove(entityDamageSource);
-                        }
-                );
-        this.getLastEntityReceiveDamageSource().computeIfAbsent(victim, o -> new ArrayList<>()).add(new EntityDamageSource(damager, damage, damageAll.get() + damage, System.currentTimeMillis()));
+        // 获取或创建damage sources列表
+        Map<Entity, List<EntityDamageSource>> lastDamageSources = this.getLastEntityReceiveDamageSource();
+        List<EntityDamageSource> entityDamageSources = lastDamageSources.getOrDefault(victim, new ArrayList<>());
+
+        // 计算总伤害并过滤无效项
+        float totalDamage = (float) entityDamageSources.stream()
+                .filter(Objects::nonNull)
+                .mapToDouble(EntityDamageSource::getFinalDamage)
+                .sum();
+
+        // 移除已处理的伤害源
+        entityDamageSources.removeIf(Objects::nonNull);
+
+        // 添加新的伤害源
+        EntityDamageSource newSource = new EntityDamageSource(
+                damager,
+                damage,
+                totalDamage + damage,
+                System.currentTimeMillis()
+        );
+        lastDamageSources.computeIfAbsent(victim, o -> new ArrayList<>()).add(newSource);
     }
 
     public Optional<EntityDamageSource> getLastEntityDamageByEntitySource(Entity victim) {
@@ -1265,12 +1285,9 @@ public class Room {
         entityDamageSources.removeIf(Objects::isNull);
         entityDamageSources.removeIf(entityDamageSource -> {
             Entity entity = entityDamageSource.getDamager();
-            return System.currentTimeMillis() - entityDamageSource.getMilliseconds() > 6000L
-                    || entity == null
-                    || !entity.isAlive()
-                    || entity.isClosed();
+            return entity == null || entity.isClosed();
         });
-        List<EntityDamageSource> result = entityDamageSources.stream().filter(entityDamageSource -> !entityDamageSource.getDamager().isPlayer).collect(Collectors.toList());
+        List<EntityDamageSource> result = entityDamageSources.stream().filter(entityDamageSource -> !entityDamageSource.getDamager().isPlayer).toList();
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(result.size() - 1));
     }
 
@@ -1278,12 +1295,9 @@ public class Room {
         List<EntityDamageSource> entityDamageSources = this.getLastEntityReceiveDamageSource().getOrDefault(victim, new ArrayList<>());
         entityDamageSources.removeIf(entityDamageSource -> {
             Entity entity = entityDamageSource.getDamager();
-            return System.currentTimeMillis() - entityDamageSource.getMilliseconds() > 6000L
-                    || entity == null
-                    || !entity.isAlive()
-                    || entity.isClosed();
+            return entity == null || entity.isClosed();
         });
-        List<EntityDamageSource> result = entityDamageSources.stream().filter(entityDamageSource -> entityDamageSource.getDamager().isPlayer).collect(Collectors.toList());
+        List<EntityDamageSource> result = entityDamageSources.stream().filter(entityDamageSource -> entityDamageSource.getDamager().isPlayer).toList();
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(result.size() - 1));
     }
 }
