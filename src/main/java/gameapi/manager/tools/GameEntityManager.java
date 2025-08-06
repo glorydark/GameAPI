@@ -11,6 +11,7 @@ import gameapi.entity.RankingListEntity;
 import gameapi.entity.TextEntity;
 import gameapi.entity.data.RankingEntityData;
 import gameapi.entity.data.TextEntityData;
+import gameapi.extensions.particleGun.entity.ParticleGunFakeBullet;
 import gameapi.manager.data.RankingManager;
 import gameapi.ranking.Ranking;
 
@@ -101,8 +102,9 @@ public class GameEntityManager {
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof TextEntity textEntity) {
-                    textEntity.despawnFromAll();
                     textEntity.close();
+                } else if (entity instanceof ParticleGunFakeBullet entityFakeBullet) {
+                    entityFakeBullet.close();
                 }
             }
         }

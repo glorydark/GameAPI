@@ -8,12 +8,8 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class PlayerWeaponData {
+public class PlayerGunData {
 
     private int ammo;
-
     private int maxAmmo;
-
-    private long lastUsedMillis;
-
 }

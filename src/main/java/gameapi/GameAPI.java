@@ -17,8 +17,8 @@ import gameapi.commands.GameAPICommandMain;
 import gameapi.commands.VanillaFixCommand;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.defaults.room.HubCommand;
-import gameapi.extensions.particleGun.Weapon;
-import gameapi.extensions.particleGun.WeaponManager;
+import gameapi.extensions.particleGun.ParticleGun;
+import gameapi.manager.extension.ParticleGunManager;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -234,9 +234,9 @@ public class GameAPI extends PluginBase implements Listener {
         WORLDEDIT_THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
 
         if (enableParticleWeapon) {
-            WeaponManager.init();
-            WeaponManager.REGISTERED_WEAPONS.put("test", new Weapon("test", "测试武器", "描述", Item.fromString("minecraft:emerald"), 10, 180, new DustParticle(Position.fromObject(new Vector3()), BlockColor.YELLOW_BLOCK_COLOR), 30, 1, 1.0, 30, 1.0, 1, true, true));
-            this.getServer().getPluginManager().registerEvents(new WeaponManager(), this);
+            ParticleGunManager.init();
+            ParticleGunManager.registerParticleGun(new ParticleGun("test", "测试武器", "描述", Item.fromString("minecraft:fishing_rod"), 80, 240, new DustParticle(Position.fromObject(new Vector3()), BlockColor.YELLOW_BLOCK_COLOR), 30, 1, 1.0, 30, 1.0, 1, false, true, true));
+            this.getServer().getPluginManager().registerEvents(new ParticleGunManager(), this);
         }
         this.getLogger().info("§aDGameAPI Enabled!");
     }
@@ -245,15 +245,24 @@ public class GameAPI extends PluginBase implements Listener {
     public void onDisable() {
         roomTaskExecutor.shutdownNow();
         try {
-            AdvancedFormListener.closeAllForms();
             RoomManager.close();
-            PlayerGameDataManager.close();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        AdvancedFormListener.closeAllForms();
+        PlayerGameDataManager.close();
+        GameListenerRegistry.clearAllRegisters();
+        try {
             GameEntityManager.closeAll();
-            GameListenerRegistry.clearAllRegisters();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        try {
             if (enableParticleWeapon) {
-                WeaponManager.EXECUTOR.shutdownNow();
+                ParticleGunManager.disable();
             }
         } catch (Throwable t) {
+            t.printStackTrace();
         }
         WORLDEDIT_THREAD_POOL_EXECUTOR.shutdownNow();
         this.getLogger().info("GameAPI Disabled!");

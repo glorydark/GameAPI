@@ -6,7 +6,6 @@ import cn.nukkit.level.Level;
 import gameapi.GameAPI;
 import gameapi.annotation.Internal;
 import gameapi.listener.base.GameListenerRegistry;
-import gameapi.manager.tools.GameEntityManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.room.edit.EditProcess;
