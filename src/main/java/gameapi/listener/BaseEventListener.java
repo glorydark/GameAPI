@@ -504,15 +504,16 @@ public class BaseEventListener implements Listener {
                 if (roomEntityDamageByEntityEvent.isCancelled()) {
                     event.setCancelled(true);
                 } else {
-                    if (event.getEntity() instanceof Player && room1.getRoomRule().isVirtualHealth()) {
-                        if (entity.getHealth() - event.getFinalDamage() <= 0f) {
+                    room1.addEntityDamageSource(victim, damager, event.getFinalDamage());
+                    if (event.getEntity() instanceof Player entityPlayer && room1.getRoomRule().isVirtualHealth()) {
+                        if (room1.getRoomVirtualHealthManager().getHealth(entityPlayer) - roomEntityDamageByEntityEvent.getFinalDamage() <= 0f) {
                             room1.setDeath(victim); // 设置死亡
                         } else if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
                             room1.setDeath(victim); // 设置死亡
                         } else {
                             room1.getRoomVirtualHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getFinalDamage()).doubleValue());
-                            event.setDamage(0);
                         }
+                        event.setDamage(0f);
                     } else {
                         for (EntityDamageEvent.DamageModifier value : EntityDamageEvent.DamageModifier.values()) {
                             event.setDamage(roomEntityDamageByEntityEvent.getDamage(value), value);
@@ -520,7 +521,6 @@ public class BaseEventListener implements Listener {
                     }
                     event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
                     event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
-                    room1.addEntityDamageSource(victim, damager, event.getFinalDamage());
                 }
             }
         } else {
@@ -556,11 +556,12 @@ public class BaseEventListener implements Listener {
                 if (roomEntityDamageByEntityEvent.isCancelled()) {
                     event.setCancelled(true);
                 } else {
+                    room.addEntityDamageSource(entity, event.getDamager(), event.getFinalDamage());
+                    room.setPlayerProperty(entity.getName(), DefaultPropertyKey.KEY_LAST_RECEIVE_ENTITY_DAMAGE_MILLIS, System.currentTimeMillis());
                     event.setKnockBack(roomEntityDamageByEntityEvent.getKnockBack());
                     event.setAttackCooldown(roomEntityDamageByEntityEvent.getAttackCoolDown());
                     event.setDamage(roomEntityDamageByEntityEvent.getDamage());
-                    if (event.getDamager() instanceof Player) {
-                        Player damager = (Player) event.getDamager();
+                    if (event.getDamager() instanceof Player damager) {
                         Item item = damager.getInventory().getItemInHand();
                         RoomItemBase roomItemBase = room.getRoomItem(RoomItemBase.getRoomItemIdentifier(item));
                         if (roomItemBase != null) {
@@ -574,8 +575,6 @@ public class BaseEventListener implements Listener {
                         room.getRoomVirtualHealthManager().reduceHealth((Player) event.getEntity(), BigDecimal.valueOf(roomEntityDamageByEntityEvent.getFinalDamage()).doubleValue());
                         event.setDamage(0);
                     }
-                    room.addEntityDamageSource(entity, event.getDamager(), event.getFinalDamage());
-                    room.setPlayerProperty(entity.getName(), DefaultPropertyKey.KEY_LAST_RECEIVE_ENTITY_DAMAGE_MILLIS, System.currentTimeMillis());
                 }
             }
         }

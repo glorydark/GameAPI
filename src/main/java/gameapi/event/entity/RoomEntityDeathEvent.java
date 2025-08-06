@@ -21,6 +21,8 @@ public class RoomEntityDeathEvent extends RoomEntityEvent {
 
     private EntityDamageSource lastDamageSourceFromPlayer = null;
 
+    protected boolean clearDamageSource = false;
+
     public RoomEntityDeathEvent(Room room, EntityLiving entity) {
         this(room, entity, new Item[0]);
     }
@@ -35,7 +37,7 @@ public class RoomEntityDeathEvent extends RoomEntityEvent {
         Optional<EntityDamageSource> pSource = room.getLastEntityDamageByPlayerSource(entity);
         pSource.ifPresent(playerDamageSource -> this.lastDamageSourceFromPlayer = playerDamageSource);
 
-        room.getLastEntityReceiveDamageSource().remove(entity);
+        // room.getLastEntityReceiveDamageSource().remove(entity);
     }
 
     public static HandlerList getHandlers() {
@@ -60,5 +62,13 @@ public class RoomEntityDeathEvent extends RoomEntityEvent {
 
     public Optional<EntityDamageSource> getLastDamageSourceFromPlayer() {
         return Optional.ofNullable(lastDamageSourceFromPlayer);
+    }
+
+    public void setClearDamageSource(boolean clearDamageSource) {
+        this.clearDamageSource = clearDamageSource;
+    }
+
+    public boolean isClearDamageSource() {
+        return clearDamageSource;
     }
 }
