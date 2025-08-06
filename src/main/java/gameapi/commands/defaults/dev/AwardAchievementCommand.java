@@ -3,9 +3,6 @@ package gameapi.commands.defaults.dev;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
-import cn.nukkit.level.biome.Biome;
-import cn.nukkit.level.biome.EnumBiome;
-import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.network.protocol.AwardAchievementPacket;
 import gameapi.commands.base.EasySubCommand;
 
