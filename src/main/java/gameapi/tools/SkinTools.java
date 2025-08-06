@@ -1,6 +1,9 @@
 package gameapi.tools;
 
+import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.entity.data.Skin;
+import cn.nukkit.network.protocol.PlayerSkinPacket;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.SerializedImage;
 import cn.nukkit.utils.Utils;
@@ -26,7 +29,6 @@ public class SkinTools {
     public static Skin loadSkin(String skinPath, String loadName, boolean checkValid) {
         File skinDataFile = new File(skinPath + "/skin.png");
         File skinJsonFile = new File(skinPath + "/skin.json");
-        File skinAnimJsonFile = new File(skinPath + "/skin.animation.json");
         if (skinDataFile.exists()) {
             Skin skin = new Skin();
             skin.setSkinId(loadName);
@@ -74,9 +76,6 @@ public class SkinTools {
                         skin.setSkinResourcePatch("{\"geometry\":{\"default\":\"" + geometryName + "\"}}");
                         skin.setGeometryName(geometryName);
                         skin.setGeometryData(readFile(skinJsonFile));
-                        if (skinAnimJsonFile.exists()) {
-                            skin.setAnimationData(readFile(skinAnimJsonFile));
-                        }
                         break;
                 }
             }
@@ -156,5 +155,16 @@ public class SkinTools {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void setSkin(Player player, Skin skin) {
+        player.setSkin(skin);
+        PlayerSkinPacket pk = new PlayerSkinPacket();
+        pk.skin = skin;
+        pk.oldSkinName = "";
+        pk.newSkinName = skin.getSkinId();
+        pk.uuid = player.getUniqueId();
+        pk.premium = skin.isPremium();
+        Server.broadcastPacket(Server.getInstance().getOnlinePlayers().values(), pk);
     }
 }
