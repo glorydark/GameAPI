@@ -24,6 +24,10 @@ public class PlayerGunDataStorage {
 
     protected long lastInteractMillis = -1L;
 
+    protected long lastShootInterval = 0;
+
+    protected String lastUpdateWeaponSpeedId = "";
+
     public PlayerGunDataStorage() {
 
     }
@@ -145,5 +149,21 @@ public class PlayerGunDataStorage {
             playerGunData.setAmmo(playerGunData.getAmmo() - 1);
             gun.shoot(player);
         }
+    }
+
+    public void setLastShootInterval(long lastShootInterval) {
+        this.lastShootInterval = lastShootInterval;
+    }
+
+    public long getLastShootInterval() {
+        return lastShootInterval;
+    }
+
+    public String getLastUpdateWeaponSpeedId() {
+        return lastUpdateWeaponSpeedId;
+    }
+
+    public void setLastUpdateWeaponSpeedId(String lastUpdateWeaponSpeedId) {
+        this.lastUpdateWeaponSpeedId = lastUpdateWeaponSpeedId;
     }
 }

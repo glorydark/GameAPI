@@ -53,13 +53,17 @@ public class RoomTask extends Task {
             // This is specifically designed for some special events that lasts for few seconds
             for (StageState stageState : new ArrayList<>(room.getStageStates())) {
                 try {
-                    if (stageState.getTime() == 0) {
+                    if (!stageState.isExecuteStartAction()) {
                         stageState.onStart(room);
+                        stageState.setExecuteStartAction(true);
                     }
                     stageState.setTime(stageState.getTime() + 1);
                     if (stageState.isEnd()) {
-                        stageState.onEnd(room);
-                        room.getStageStates().remove(stageState);
+                        if (!stageState.isExecuteEndAction()) {
+                            stageState.onEnd(room);
+                            stageState.setExecuteEndAction(true);
+                            room.getStageStates().remove(stageState);
+                        }
                     } else {
                         stageState.onTick(room);
                     }

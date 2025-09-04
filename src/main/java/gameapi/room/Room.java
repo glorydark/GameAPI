@@ -935,6 +935,7 @@ public class Room {
     public void setDeath(Player player, boolean teleport, boolean sendTitle, String title, String subtitle) {
         RoomPlayerDeathEvent ev = new RoomPlayerDeathEvent(this, player, sendTitle, EntityDamageEvent.DamageCause.VOID);
         ev.setTitle(title);
+        ev.setTeleport(true);
         ev.setSubtitle(subtitle);
         GameListenerRegistry.callEvent(this, ev);
         if (!ev.isCancelled()) {
@@ -947,21 +948,6 @@ public class Room {
             if (ev.isSendTitle()) {
                 player.sendTitle(ev.getTitle(), ev.getSubtitle(), 10, 20, 10);
             }
-            if (teleport) {
-                if (!this.getSpectatorSpawn().isEmpty()) {
-                    int randomInt = ThreadLocalRandom.current().nextInt(this.getSpectatorSpawn().size());
-                    AdvancedLocation location = this.getSpectatorSpawn().get(randomInt);
-                    location.teleport(player);
-                } else {
-                    if (!this.getStartSpawn().isEmpty()) {
-                        Random random = new Random(this.getStartSpawn().size());
-                        AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
-                        location.teleport(player);
-                    } else {
-                        player.teleport(this.players.get(0).getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    }
-                }
-            }
             if (this.getRoomRule().isVirtualHealth()) {
                 this.roomVirtualHealthManager.setAlive(false);
                 this.roomVirtualHealthManager.resetHealth(player);
@@ -971,17 +957,22 @@ public class Room {
             player.getFoodData().reset();
             player.extinguish();
             this.resetSpeed(player);
-            if (this.getRoomRule().isAllowRespawn() && ev.isRespawn()) {
+
+            if (ev.isTeleport()) {
+                this.teleportToSpectatorSpawn(player);
+            }
+
+            if (this.roomRule.isAllowRespawn() || ev.isRespawn()) {
                 int respawnTicks = this.getRoomRule().getRespawnCoolDownTick();
                 this.addRespawnTask(player, respawnTicks);
             } else {
-                player.setGamemode(this.roomRule.getSpectatorGameMode());
+                player.setGamemode(this.getRoomRule().getSpectatorGameMode());
             }
         }
     }
 
     public void addRespawnTask(Player player) {
-        addRespawnTask(player, roomRule.getRespawnCoolDownTick());
+        this.addRespawnTask(player, roomRule.getRespawnCoolDownTick());
     }
 
     public void addRespawnTask(Player player, int tick) {
@@ -1036,20 +1027,31 @@ public class Room {
 
     public void teleportToSpawn(Player player) {
         if (this.getTeam(player) != null) {
-            this.getTeam(player).teleportToSpawn(player);
-            return;
+            if (this.getTeam(player).teleportToSpawn(player)) {
+                return;
+            }
         }
         if (this.startSpawn.size() > 1) {
-            BaseTeam team = this.getTeam(player);
-            if (team == null) {
-                Random random = new Random(System.currentTimeMillis());
-                AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
-                location.teleport(player);
-            } else {
-                team.teleportToSpawn(player);
-            }
+            Random random = new Random(System.currentTimeMillis());
+            AdvancedLocation location = this.getStartSpawn().get(random.nextInt(this.getStartSpawn().size()));
+            location.teleport(player);
         } else if (this.getStartSpawn().size() == 1) {
             AdvancedLocation location = this.getStartSpawn().get(0);
+            location.teleport(player);
+        }
+    }
+
+    public void teleportToSpectatorSpawn(Player player) {
+        if (this.spectatorSpawn.isEmpty()) {
+            if (this.getPlayersWithoutCreate().isEmpty()) {
+                if (!this.getPlayLevels().isEmpty()) {
+                    player.teleport(this.getPlayLevels().get(0).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                }
+            } else {
+                player.teleport(this.getPlayersWithoutCreate().get(0), PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
+        } else {
+            AdvancedLocation location = this.getSpectatorSpawn().get(ThreadLocalRandom.current().nextInt(this.getStartSpawn().size()));
             location.teleport(player);
         }
     }
@@ -1238,13 +1240,9 @@ public class Room {
         }
     }
 
+    @Deprecated
     public void resetSpeed(Player player) {
-        player.removeAllEffects();
-        player.setSprinting(false);
-        player.setSneaking(false);
-        player.setCrawling(false);
-        player.setSwimming(false);
-        player.setMovementSpeed(0.1f);
+        PlayerTools.resetSpeed(player, 0.1f);
     }
 
     public boolean setRoomNumber(int number) {
@@ -1256,10 +1254,10 @@ public class Room {
         }
     }
 
-    public void addEntityDamageSource(Entity victim, Entity damager, float damage) {
+    public void addEntityDamageSource(Entity victim, Entity damager, Item item, float damage, EntityDamageEvent sourceEvent) {
         // 获取或创建damage sources列表
         Map<Entity, List<EntityDamageSource>> lastDamageSources = this.getLastEntityReceiveDamageSource();
-        List<EntityDamageSource> entityDamageSources = lastDamageSources.getOrDefault(victim, new ArrayList<>());
+        List<EntityDamageSource> entityDamageSources = new ArrayList<>(lastDamageSources.getOrDefault(victim, new ArrayList<>()));
 
         // 计算总伤害并过滤无效项
         float totalDamage = (float) entityDamageSources.stream()
@@ -1269,15 +1267,17 @@ public class Room {
 
         // 移除已处理的伤害源
         entityDamageSources.removeIf(Objects::nonNull);
-
         // 添加新的伤害源
         EntityDamageSource newSource = new EntityDamageSource(
                 damager,
+                item,
                 damage,
                 totalDamage + damage,
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                sourceEvent
         );
-        lastDamageSources.computeIfAbsent(victim, o -> new ArrayList<>()).add(newSource);
+        entityDamageSources.add(newSource);
+        lastDamageSources.put(victim, entityDamageSources);
     }
 
     public Optional<EntityDamageSource> getLastEntityDamageByEntitySource(Entity victim) {

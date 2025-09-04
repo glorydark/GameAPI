@@ -72,12 +72,12 @@ public class OggMusicManager {
     }
 
     public void onQuit(Player player) {
-        SoundTools.stopAllSound(player);
+        SoundTools.stopSound(player, this.currentSongId);
     }
 
     public void stop() {
         for (Player player : this.room.getPlayers()) {
-            SoundTools.stopAllSound(player);
+            SoundTools.stopSound(player, this.currentSongId);
         }
         this.stopped = true;
     }
@@ -125,6 +125,7 @@ public class OggMusicManager {
     public void setPlayingSong(String string) {
         if (this.songMap.containsKey(string)) {
             this.currentTick = 0;
+            String lastSongId = this.currentSongId;
             this.currentSongId = string;
             GameAPI.getGameDebugManager().info("[游戏|" + this.room.getGameName() + "] " + this.room.getRoomName() + " 开始播放 [" + new ArrayList<>(this.songMap.keySet()).indexOf(this.currentSongId) + "] " + this.currentSongId);
             OggMusicData songData = this.getSongMap().get(this.currentSongId);
@@ -132,14 +133,14 @@ public class OggMusicManager {
                 if (this.stopMusicPlayers.contains(player)) {
                     continue;
                 }
-                SoundTools.stopAllSound(player);
+                SoundTools.stopSound(player, lastSongId);
                 SoundTools.addSoundToPlayer(player, this.currentSongId, songData.getVolume(), songData.getPitch());
             }
             for (Player player : this.room.getSpectators()) {
                 if (this.stopMusicPlayers.contains(player)) {
                     continue;
                 }
-                SoundTools.stopAllSound(player);
+                SoundTools.stopSound(player, lastSongId);
                 SoundTools.addSoundToPlayer(player, this.currentSongId, songData.getVolume(), songData.getPitch());
             }
         } else {

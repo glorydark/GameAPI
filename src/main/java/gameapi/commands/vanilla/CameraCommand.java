@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ImprovedCameraCommand extends EasySubCommand {
+public class CameraCommand extends EasySubCommand {
 
     public static final String[] EASE_TYPES = Arrays.stream(CameraEase.values()).map(CameraEase::getSerializeName).toArray(String[]::new);
 
-    public ImprovedCameraCommand(String name) {
+    public CameraCommand(String name) {
         super(name);
         this.getCommandParameters().clear();
         this.commandParameters.put("clear", new CommandParameter[]{

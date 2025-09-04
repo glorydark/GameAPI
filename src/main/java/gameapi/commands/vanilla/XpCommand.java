@@ -8,9 +8,9 @@ import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.utils.TextFormat;
 import gameapi.commands.base.EasySubCommand;
 
-public class ImprovedXpCommand extends EasySubCommand {
+public class XpCommand extends EasySubCommand {
 
-    public ImprovedXpCommand(String name) {
+    public XpCommand(String name) {
         super(name);
         this.getCommandParameters().clear();
         this.commandParameters.put("default", new CommandParameter[]{

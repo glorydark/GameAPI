@@ -2,6 +2,7 @@ package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.lang.TextContainer;
 import cn.nukkit.lang.TranslationContainer;
 import cn.nukkit.network.protocol.OnScreenTextureAnimationPacket;
@@ -279,5 +280,16 @@ public class PlayerTools {
         } else {
             return player.getName().substring(0, maxLength - 4) + "...";
         }
+    }
+
+    public static void resetSpeed(Player player, float moveSpeed) {
+        player.setSprinting(false);
+        player.setGliding(false);
+        player.setCrawling(false);
+        player.setSwimming(false);
+        player.setSneaking(false);
+        player.removeAllEffects();
+        player.teleport(player.add(0, 0.1, 0), PlayerTeleportEvent.TeleportCause.ENDER_PEARL);
+        player.setMovementSpeed(moveSpeed);
     }
 }

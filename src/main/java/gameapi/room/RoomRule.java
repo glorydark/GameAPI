@@ -124,6 +124,8 @@ public class RoomRule {
 
     private boolean allowAttackEntityBeforeStart = false;
 
+    private boolean allowChangeSkin = false;
+
     public RoomRule(Integer gameMode) {
         this.gameMode = gameMode;
         this.tipHideElements = new HashSet<>(DEFAULT_HIDE_ELEMENT_TYPE);

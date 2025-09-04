@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Data
 @ToString
@@ -89,9 +90,9 @@ public class BaseTeam {
         this.teleportToSpawn(this.getPlayers().toArray(new Player[0]));
     }
 
-    public void teleportToSpawn(Player... players) {
+    public boolean teleportToSpawn(Player... players) {
         if (this.room.getStartSpawn().isEmpty()) {
-            return;
+            return false;
         }
         int spawnIndexSize = this.spawnIndexList.size();
         if (spawnIndexSize > 0) {
@@ -99,7 +100,7 @@ public class BaseTeam {
                 int spawnIndex = this.spawnIndexList.get(0);
                 if (spawnIndex >= this.room.getStartSpawn().size()) {
                     GameAPI.getGameDebugManager().warning("Find spawn index bigger than the room has, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
-                    return;
+                    return false;
                 }
                 AdvancedLocation location = this.room.getStartSpawn().get(spawnIndex);
                 for (Player player : players) {
@@ -107,23 +108,13 @@ public class BaseTeam {
                 }
             } else {
                 for (Player player : players) {
-                    int playerIndex = this.players.indexOf(player);
-                    int spawnIndex;
-                    if (playerIndex >= this.spawnIndexList.size()) {
-                        spawnIndex = this.spawnIndexList.get(0);
-                        GameAPI.getGameDebugManager().warning("Find spawns are not satisfied with real performance, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
-                    } else {
-                        spawnIndex = this.spawnIndexList.get(playerIndex);
-                    }
-                    if (spawnIndex >= this.room.getStartSpawn().size()) {
-                        GameAPI.getGameDebugManager().warning("Find spawn index bigger than the room has, game name: " + room.getGameName() + ", room name: " + room.getRoomName());
-                        return;
-                    }
-                    AdvancedLocation location = this.room.getStartSpawn().get(spawnIndex);
+                    int randIndex = this.getSpawnIndexList().get(ThreadLocalRandom.current().nextInt(this.getSpawnIndexList().size()));
+                    AdvancedLocation location = this.room.getStartSpawn().get(randIndex);
                     location.teleport(player);
                 }
             }
         }
+        return true;
     }
 
     public void sendMessageToAll(String string) {

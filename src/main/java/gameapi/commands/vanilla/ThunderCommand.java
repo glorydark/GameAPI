@@ -9,9 +9,9 @@ import gameapi.commands.base.EasySubCommand;
 import gameapi.tools.SpatialTools;
 import gameapi.utils.AdvancedLocation;
 
-public class ImprovedThunderCommand extends EasySubCommand {
+public class ThunderCommand extends EasySubCommand {
 
-    public ImprovedThunderCommand(String name) {
+    public ThunderCommand(String name) {
         super(name);
         this.commandParameters.put("clear", new CommandParameter[]{
                 CommandParameter.newType("x", false, CommandParamType.FLOAT),

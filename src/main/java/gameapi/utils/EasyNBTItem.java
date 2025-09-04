@@ -51,8 +51,15 @@ public class EasyNBTItem {
         this.meta = meta;
     }
 
-    public EasyNBTItem lore(String... strings) {
-        this.lore = strings;
+    public EasyNBTItem loreIfPresent(String... lines) {
+        if (lines.length == 0 || Arrays.stream(lines).allMatch(String::isEmpty)) {
+            return this;
+        }
+        return this.lore(lines);
+    }
+
+    public EasyNBTItem lore(String... lines) {
+        this.lore = lines;
         return this;
     }
 
@@ -67,6 +74,9 @@ public class EasyNBTItem {
     }
 
     public EasyNBTItem customName(String customName) {
+        if (customName.isEmpty()) {
+            return this;
+        }
         this.customName = customName;
         return this;
     }

@@ -14,6 +14,9 @@ public class StageState {
     public int maxTime;
     private boolean end = false;
 
+    protected boolean executeStartAction = false;
+    protected boolean executeEndAction = false;
+
     public StageState(int maxTime) {
         this.maxTime = maxTime;
     }

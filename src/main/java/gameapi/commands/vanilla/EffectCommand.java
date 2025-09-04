@@ -10,9 +10,9 @@ import cn.nukkit.event.entity.EntityPotionEffectEvent;
 import cn.nukkit.potion.Effect;
 import gameapi.commands.base.EasySubCommand;
 
-public class ImprovedEffectCommand extends EasySubCommand {
+public class EffectCommand extends EasySubCommand {
 
-    public ImprovedEffectCommand(String name) {
+    public EffectCommand(String name) {
         super(name);
         this.getCommandParameters().clear();
         this.commandParameters.put("default", new CommandParameter[]{

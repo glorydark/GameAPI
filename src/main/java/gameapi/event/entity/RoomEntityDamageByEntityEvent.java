@@ -3,6 +3,7 @@ package gameapi.event.entity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
+import cn.nukkit.item.Item;
 import gameapi.event.Cancellable;
 import gameapi.room.Room;
 
@@ -16,18 +17,24 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
 
     protected float knockBack;
 
-    protected Entity damager;
+    protected final Entity damager;
+
+    protected final Item item;
 
     protected EntityDamageEvent.DamageCause cause;
 
     protected Map<EntityDamageByEntityEvent.DamageModifier, Float> damageModifierFloatMap = new LinkedHashMap<>();
 
-    public RoomEntityDamageByEntityEvent(Room room, Entity entity, Entity damager, int attackCoolDown, float knockBack, EntityDamageEvent.DamageCause cause) {
+    protected final EntityDamageByEntityEvent sourceEvent;
+
+    public RoomEntityDamageByEntityEvent(Room room, Entity entity, Entity damager, Item item, int attackCoolDown, float knockBack, EntityDamageEvent.DamageCause cause, EntityDamageByEntityEvent sourceEvent) {
         super(room, entity);
         this.attackCoolDown = attackCoolDown;
+        this.item = item.clone();
         this.damager = damager;
         this.knockBack = knockBack;
         this.cause = cause;
+        this.sourceEvent = sourceEvent;
     }
 
     public void parseDamageModifierFloatMap(EntityDamageByEntityEvent entityDamageByEntityEvent) {
@@ -89,5 +96,13 @@ public class RoomEntityDamageByEntityEvent extends RoomEntityEvent implements Ca
 
     public Map<EntityDamageByEntityEvent.DamageModifier, Float> getDamageModifierFloatMap() {
         return damageModifierFloatMap;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public EntityDamageByEntityEvent getSourceEvent() {
+        return sourceEvent;
     }
 }

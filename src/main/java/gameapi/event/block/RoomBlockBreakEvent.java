@@ -39,11 +39,6 @@ public class RoomBlockBreakEvent extends RoomBlockEvent implements Cancellable {
         return item;
     }
 
-    @Override
-    public Block getBlock() {
-        return super.getBlock();
-    }
-
     public BlockFace getFace() {
         return face;
     }

@@ -8,9 +8,9 @@ import cn.nukkit.command.data.CommandParameter;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.tools.ParticleTools;
 
-public class ImprovedParticleCommand extends EasySubCommand {
+public class ParticleCommand extends EasySubCommand {
 
-    public ImprovedParticleCommand(String name) {
+    public ParticleCommand(String name) {
         super(name);
         this.getCommandParameters().clear();
         this.commandParameters.put("default", new CommandParameter[]{

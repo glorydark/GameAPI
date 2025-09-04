@@ -31,7 +31,7 @@ public class WorldEditFindCommand extends EasySubCommand {
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
         if (commandSender.isPlayer()) {
-            Player player = commandSender.asPlayer();
+            Player player = asPlayer(commandSender);
             if (player == null) {
                 return false;
             }

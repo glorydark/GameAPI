@@ -3,9 +3,12 @@ package gameapi.tools;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.item.EntityArmorStand;
 import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.entity.item.EntityXPOrb;
+import cn.nukkit.entity.projectile.*;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemID;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
@@ -17,6 +20,7 @@ import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.MobArmorEquipmentPacket;
 import cn.nukkit.network.protocol.MobEquipmentPacket;
 import cn.nukkit.network.protocol.SetEntityMotionPacket;
+import gameapi.extensions.particleGun.entity.ParticleGunFakeBullet;
 import gameapi.utils.Animation;
 import gameapi.utils.protocol.AnimateEntityPacketV2;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -109,22 +113,22 @@ public class EntityTools {
     }
 
     public static void bigJump(Entity entity, double XzKB, double yKB, boolean directionReverse) {
-        Vector3 motion = entity.getMotion();
-        if (motion.x == 0) {
-            motion.x = entity.getDirectionVector().x;
-        }
-        if (motion.y == 0) {
-            motion.y = 1;
-        }
-        if (motion.z == 0) {
-            motion.z = entity.getDirectionVector().z;
-        }
+        // Vector3 motion = entity.getMotion();
+
+        // 获取玩家的 yaw（角度制）
+        double yaw = entity.getYaw();
+        // 转换为弧度制（Math.sin/cos 需要弧度）
+        double radians = Math.toRadians(yaw);
+        // 计算 x 和 z 单位向量
+        double x = -Math.sin(radians); // 注意负号
+        double z = Math.cos(radians);
+
+        Vector3 motion = new Vector3(x, yKB, z);
         motion.x *= XzKB;
-        motion.y *= yKB;
         motion.z *= XzKB;
         if (directionReverse) {
-            motion.multiply(-1);
-            motion.y *= -1; // 保证y不动
+            motion.x *= -1;
+            motion.z *= -1;
         }
 
         // GameDebugManager.info("mot: " + motion + ", directVec: " + entity.getDirectionVector());
@@ -153,7 +157,6 @@ public class EntityTools {
 
     public static void knockBackV2(Entity attacker, Entity victim, double base, double XzKB, double yKB) {
         knockBackV2(attacker, victim, base, XzKB, yKB, false);
-
     }
 
     public static void knockBackV2(Entity attacker, Entity victim, double base, double XzKB, double yKB, boolean directionReverse) {
@@ -244,13 +247,6 @@ public class EntityTools {
         return inventory;
     }
 
-    public static Item getEntityItemInHand(Entity entity) {
-        if (entity.namedTag.contains("Item")) {
-            return NBTIO.getItemHelper(entity.namedTag.getCompound("Item"));
-        }
-        return Item.AIR_ITEM;
-    }
-
     public static EntityItem getEntityItem(Item item, Position position, boolean display) {
         try {
             CompoundTag itemTag = NBTIO.putItemHelper(item);
@@ -280,5 +276,36 @@ public class EntityTools {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static Item getEntityItemInHand(Entity entity) {
+        if (entity instanceof Player player) {
+            return player.getInventory().getItemInHand();
+        } else {
+            if (entity.namedTag != null && entity.namedTag.contains("Item")) {
+                return NBTIO.getItemHelper(entity.namedTag.getCompound("Item"));
+            }
+        }
+        return Item.AIR_ITEM;
+    }
+
+    public static Item getEntityProjectileItem(Entity entity) {
+        return switch (entity.getNetworkId()) {
+            case EntitySnowball.NETWORK_ID -> Item.get(ItemID.SNOWBALL);
+            case EntityGhastFireBall.NETWORK_ID -> Item.get(ItemID.FIRE_CHARGE);
+            case EntityArrow.NETWORK_ID, EntitySmallFireBall.NETWORK_ID -> Item.get(ItemID.ARROW);
+            case EntityWindCharge.NETWORK_ID -> Item.fromString("minecraft:wind_charge");
+            case EntityEnderPearl.NETWORK_ID -> Item.get(ItemID.ENDER_PEARL);
+            case EntityEnderCharge.NETWORK_ID -> Item.get(ItemID.DRAGON_BREATH);
+            case EntityEgg.NETWORK_ID -> Item.get(ItemID.EGG);
+            case EntityThrownTrident.NETWORK_ID -> Item.get(ItemID.TRIDENT);
+            case EntityArmorStand.NETWORK_ID -> {
+                if (entity instanceof ParticleGunFakeBullet bullet) {
+                    yield bullet.getItem();
+                }
+                yield Item.AIR_ITEM;
+            }
+            default -> Item.AIR_ITEM;
+        };
     }
 }

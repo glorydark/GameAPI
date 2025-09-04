@@ -20,18 +20,17 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
     protected EntityDamageEvent.DamageCause cause;
 
     protected boolean keepInventory = true;
-
     protected boolean keepExp = true;
 
     protected boolean sendTitle;
-
     protected String title = "";
-
     protected String subtitle = "";
 
     protected boolean respawn;
-
+    protected boolean teleport = true;
     protected final Location deathLocation;
+
+    protected boolean keepDamageSource = false;
 
     public RoomPlayerDeathEvent(Room room, Player player, boolean sendTitle, EntityDamageEvent.DamageCause cause) {
         super(room, player);
@@ -52,7 +51,9 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
         this.cause = cause;
         this.sendTitle = sendTitle;
         this.assistingDamageSource = filteredSources;
-        // room.getLastEntityReceiveDamageSource().remove(player);
+        if (!this.keepDamageSource) {
+            room.getLastEntityReceiveDamageSource().remove(player);
+        }
     }
 
     public EntityDamageEvent.DamageCause getCause() {
@@ -107,6 +108,14 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
         this.respawn = respawn;
     }
 
+    public boolean isTeleport() {
+        return teleport;
+    }
+
+    public void setTeleport(boolean teleport) {
+        this.teleport = teleport;
+    }
+
     public List<EntityDamageSource> getAssistingDamageSource() {
         return assistingDamageSource;
     }
@@ -121,5 +130,13 @@ public class RoomPlayerDeathEvent extends RoomPlayerEvent implements Cancellable
 
     public Location getDeathLocation() {
         return deathLocation;
+    }
+
+    public boolean isKeepDamageSource() {
+        return keepDamageSource;
+    }
+
+    public void setKeepDamageSource(boolean keepDamageSource) {
+        this.keepDamageSource = keepDamageSource;
     }
 }

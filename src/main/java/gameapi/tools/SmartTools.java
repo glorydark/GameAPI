@@ -40,6 +40,10 @@ public class SmartTools {
     }
 
     public static String timeMillisToString(long diff, boolean saveMillis) {
+        return timeMillisToString(diff, saveMillis, false);
+    }
+
+    public static String timeMillisToString(long diff, boolean saveMillis, boolean alignToTick) {
         long hour = diff / 3600000;
         long minute = diff / 60000 - hour * 60;
         long second = (diff - hour * 3600000 - minute * 60000) / 1000;
@@ -75,6 +79,9 @@ public class SmartTools {
                 return sb.toString();
             }
         }
+        if (alignToTick) {
+            millis = (millis / 50) * 50; // 转换回 Minecraft 的标准时间（450, 500, 550...）
+        }
         if (millis > 0) {
             if (millis >= 100) {
                 sb.append(millis);
@@ -89,6 +96,10 @@ public class SmartTools {
             sb.append("000");
         }
         return sb.toString();
+    }
+
+    public static long timeMillisAlignToTick(long millis) {
+        return (millis / 50) * 50;
     }
 
     public static String secToTime(int seconds) {

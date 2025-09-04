@@ -49,6 +49,14 @@ public class DecimalTools {
         return BigDecimal.valueOf(v).setScale(scale, roundingMode).doubleValue();
     }
 
+    public static float getFloat(float v, int scale) {
+        return getFloat(v, scale, RoundingMode.FLOOR);
+    }
+
+    public static float getFloat(float v, int scale, RoundingMode roundingMode) {
+        return Float.parseFloat(getFloatByFormat(v, scale, roundingMode));
+    }
+
     public static double getFloatToDouble(float v, int scale) {
         return getFloatToDouble(v, scale, RoundingMode.FLOOR);
     }

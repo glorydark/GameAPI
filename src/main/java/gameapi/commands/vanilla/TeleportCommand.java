@@ -12,9 +12,9 @@ import gameapi.tools.SpatialTools;
 /**
  * @author glorydark
  */
-public class ImprovedTeleportCommand extends EasySubCommand {
+public class TeleportCommand extends EasySubCommand {
 
-    public ImprovedTeleportCommand(String name) {
+    public TeleportCommand(String name) {
         super(name);
         this.getCommandParameters().clear();
         this.commandParameters.put("default", new CommandParameter[]{

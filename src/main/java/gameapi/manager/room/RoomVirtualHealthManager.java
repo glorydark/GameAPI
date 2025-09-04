@@ -92,6 +92,7 @@ public class RoomVirtualHealthManager {
 
     public void resetHealth(Player player) {
         double max = this.getMaxHealth(player);
+        this.alive = true;
         this.healthMap.put(player, max);
         this.resetHealthBar(player, max);
     }

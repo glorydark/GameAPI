@@ -18,7 +18,7 @@ public class WorldEditPos1Command extends EasySubCommand {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
-        Player player = commandSender.asPlayer();
+        Player player = asPlayer(commandSender);
         if (!WorldEditCommand.posSetLinkedHashMap.containsKey(player)) {
             WorldEditCommand.posSetLinkedHashMap.put(player, new PosSet());
         }

@@ -5,7 +5,7 @@
 
     <groupId>glorydark.nukkit</groupId>
     <artifactId>GameAPI</artifactId>
-    <version>1.7.2</version>
+    <version>1.7.4</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -25,12 +25,12 @@
 
     <repositories>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <repository>
             <id>repo-lanink-cn</id>
             <url>https://repo.lanink.cn/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 

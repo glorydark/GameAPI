@@ -17,21 +17,19 @@ public class RankingListEntity extends TextEntity {
         this.ranking = ranking;
     }
 
-    public boolean onUpdate(int currentTick) {
+    @Override
+    public boolean onAsyncUpdate(int currentTick) {
         if (this.isClosed()) {
             return false;
         }
-        if (currentTick % RankingManager.rankingTextEntityRefreshIntervals != 0) {
-            return super.onUpdate(currentTick);
-        }
         if (this.getLevel().getPlayers().isEmpty()) {
-            return super.onUpdate(currentTick);
+            return false;
         }
-        if (System.currentTimeMillis() - this.lastUpdateMillis >= RankingManager.rankingTextEntityRefreshIntervals) {
+        if (RankingManager.rankingTextEntityRefreshIntervals <= 0 || System.currentTimeMillis() - this.lastUpdateMillis >= RankingManager.rankingTextEntityRefreshIntervals) {
             this.ranking.refreshRankingData();
             this.setNameTag(this.ranking.getDisplayContent());
             this.lastUpdateMillis = System.currentTimeMillis();
         }
-        return super.onUpdate(currentTick);
+        return super.onAsyncUpdate(currentTick);
     }
 }

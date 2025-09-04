@@ -7,6 +7,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import gameapi.form.response.BlockInventoryResponse;
 import gameapi.room.items.RoomItemBase;
 
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -51,8 +52,18 @@ public class ResponsiveElementSlotItem {
 
     // basic parts
     public ResponsiveElementSlotItem customName(String name) {
+        if (name.isEmpty()) {
+            return this;
+        }
         this.getItem().setCustomName(name);
         return this;
+    }
+
+    public ResponsiveElementSlotItem loreIfPresent(String... lines) {
+        if (lines.length == 0 || Arrays.stream(lines).allMatch(String::isEmpty)) {
+            return this;
+        }
+        return this.lore(lines);
     }
 
     public ResponsiveElementSlotItem lore(String... lines) {

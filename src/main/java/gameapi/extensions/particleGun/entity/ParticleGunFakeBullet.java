@@ -4,12 +4,14 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityArmorStand;
 import cn.nukkit.entity.projectile.EntityProjectile;
-import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Sound;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import gameapi.event.extra.EntityDamageByEntityByGunEvent;
 import gameapi.extensions.particleGun.ParticleGunBullet;
+import gameapi.tools.EntityTools;
 
 /**
  * @author glorydark
@@ -18,9 +20,12 @@ public class ParticleGunFakeBullet extends EntityProjectile {
 
     public ParticleGunBullet particleGunBullet;
 
-    public ParticleGunFakeBullet(FullChunk chunk, CompoundTag nbt, ParticleGunBullet particleGunBullet) {
+    public final Item item;
+
+    public ParticleGunFakeBullet(FullChunk chunk, CompoundTag nbt, ParticleGunBullet particleGunBullet, Item item) {
         super(chunk, nbt);
         this.particleGunBullet = particleGunBullet;
+        this.item = item;
     }
 
     protected void initEntity() {
@@ -29,7 +34,8 @@ public class ParticleGunFakeBullet extends EntityProjectile {
         this.setScale(0f);
     }
 
-    public void collide(Entity entity) {
+    public void collide(Entity entity, EntityDamageByEntityByGunEvent.AttackPos attackPos) {
+        float damage = this.particleGunBullet.getBulletDamage(attackPos);
         if (this.particleGunBullet.getGun().isDamageEntity()) {
             if (entity == this.particleGunBullet.getOwner() || !entity.isAlive()) {
                 return;
@@ -42,9 +48,11 @@ public class ParticleGunFakeBullet extends EntityProjectile {
                     return;
                 }
             }
-            EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(this.particleGunBullet.getOwner(), entity, EntityDamageEvent.DamageCause.ENTITY_ATTACK, this.particleGunBullet.getGun().getBulletDamage());
+            EntityDamageByEntityByGunEvent event = new EntityDamageByEntityByGunEvent(this.particleGunBullet.getOwner(), entity, EntityDamageEvent.DamageCause.ENTITY_ATTACK, damage, this.particleGunBullet.getGun().getItem(false), attackPos);
+            event.setKnockBack(0f);
             event.setAttackCooldown(0);
             entity.attack(event);
+            EntityTools.bigJump(entity, 1.2, 0.1, true);
         } else {
             if (this.particleGunBullet.getGun().isDamagePlayer()) {
                 if (entity == this.particleGunBullet.getOwner() || !entity.isPlayer || !entity.isAlive()) {
@@ -57,15 +65,10 @@ public class ParticleGunFakeBullet extends EntityProjectile {
                 if (this.particleGunBullet.getOwner().getLevel().getBlock(this).isSolid()) {
                     this.particleGunBullet.setPassedLayerTick(this.particleGunBullet.getPassedLayerTick() + 1);
                 }
-                if (this.particleGunBullet.getPassedLayerTick() > 3) {
-                    this.particleGunBullet.setAlive(false);
-                    this.close();
-                    return;
-                }
                 boolean crit = this.getY() > entity.getEyeHeight() + entity.getY();
-                EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(this.particleGunBullet.getOwner(), entity, EntityDamageEvent.DamageCause.ENTITY_ATTACK, particleGunBullet.getGun().getBulletDamage());
+                EntityDamageByEntityByGunEvent event = new EntityDamageByEntityByGunEvent(this.particleGunBullet.getOwner(), entity, EntityDamageEvent.DamageCause.ENTITY_ATTACK, damage, particleGunBullet.getGun().getItem(false), attackPos);
                 if (this.particleGunBullet.getPassedLayerTick() > 0) {
-                    event.setDamage(event.getDamage() * (this.particleGunBullet.getPassedLayerTick() / 5f));
+                    event.setDamage(event.getDamage() * ((float) this.particleGunBullet.getPassedLayerTick() / this.particleGunBullet.getMaxPassedLayerTick()));
                 }
                 if (crit) {
                     event.setDamage(event.getDamage() * 1.5f);
@@ -74,9 +77,10 @@ public class ParticleGunFakeBullet extends EntityProjectile {
                 } else {
                     this.particleGunBullet.getOwner().getLevel().addSound(this.particleGunBullet.getOwner(), Sound.NOTE_BASS, 1.0f, 1.0f, this.particleGunBullet.getOwner());
                 }
+                event.setKnockBack(0f);
                 event.setAttackCooldown(0);
                 entity.attack(event);
-                this.close();
+                EntityTools.bigJump(entity, this.particleGunBullet.getGun().getBulletKnockback(this.particleGunBullet.getOwner()), 0.1, true);
             }
         }
     }
@@ -103,5 +107,9 @@ public class ParticleGunFakeBullet extends EntityProjectile {
 
     public int getNetworkId() {
         return EntityArmorStand.NETWORK_ID;
+    }
+
+    public Item getItem() {
+        return item;
     }
 }

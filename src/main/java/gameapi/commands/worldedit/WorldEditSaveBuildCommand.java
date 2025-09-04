@@ -19,7 +19,7 @@ public class WorldEditSaveBuildCommand extends EasySubCommand {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
-        Player player = commandSender.asPlayer();
+        Player player = asPlayer(commandSender);
         if (WorldEditCommand.isTwoPosHasUndefined(player)) {
             return false;
         }

@@ -5,9 +5,11 @@ import cn.nukkit.Server;
 import cn.nukkit.entity.item.EntityFirework;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemFirework;
+import cn.nukkit.item.ItemID;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.EntityEventPacket;
 import cn.nukkit.utils.DyeColor;
 
@@ -18,6 +20,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * Glorydark added some changes to make it more convenient to spawn a firework
  */
 public class FireworkTools {
+
+    private static final int BIT_MASK = 0xff;
 
     public static void spawnRandomFirework(Location location) {
         spawnRandomFirework(location, null);
@@ -162,5 +166,44 @@ public class FireworkTools {
             return DyeColor.WHITE;
         }
         return result;
+    }
+
+    public static Item getFireworkStarItem(DyeColor dyeColor, ItemFirework.FireworkExplosion.ExplosionType explosionType, boolean flicker, boolean trail, DyeColor... fade) {
+        Item item = Item.get(ItemID.FIREWORKSCHARGE);
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("customColor", getColoredFireworkStarCustomColor(dyeColor));
+        CompoundTag itemTag = new CompoundTag();
+        byte[] fds = new byte[fade.length];
+        for(int i = 0; i < fds.length; ++i) {
+            fds[i] = (byte) fade[i].getDyeData();
+        }
+        itemTag.putByteArray("FireworkFade", fds);
+        itemTag.putByte("FireworkColor", dyeColor.getDyeData());
+        itemTag.putByte("FireworkType", explosionType.ordinal());
+        itemTag.putByte("FireworkTrail", trail? 1: 0);
+        itemTag.putByte("FireworkFlicker", flicker? 1: 0);
+        return item;
+    }
+
+    public static int getColoredFireworkStarCustomColor(DyeColor dyeColor) {
+        return switch (dyeColor) {
+            // its sequence stands equal to dyeColor sequence.
+            case BLACK -> -14869215; // 0b
+            case RED -> -5231066; // 1b
+            case GREEN -> -10585066; // 2b
+            case BROWN -> -8170446; // 3b
+            case BLUE -> -12827478; // 4b
+            case PURPLE -> -7785800; // 5b
+            case CYAN -> -15295332; // 6b
+            case LIGHT_GRAY -> -6447721; // 7b
+            case GRAY -> -12103854; // 8b
+            case PINK -> -816214; // 9b
+            case LIME -> -8337633; // 10b
+            case YELLOW -> -75715; // 11b
+            case LIGHT_BLUE -> -12930086; // 12b
+            case MAGENTA -> -3715395; // 13b
+            case ORANGE -> -425955; // 14b
+            case WHITE -> -986896; // 15b
+        };
     }
 }

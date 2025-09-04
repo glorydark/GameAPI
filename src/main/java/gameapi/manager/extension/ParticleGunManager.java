@@ -13,6 +13,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.AnimatePacket;
 import cn.nukkit.network.protocol.InventoryTransactionPacket;
 import cn.nukkit.utils.TextFormat;
+import gameapi.annotation.Description;
 import gameapi.extensions.particleGun.ParticleGun;
 import gameapi.extensions.particleGun.data.PlayerGunData;
 import gameapi.extensions.particleGun.data.PlayerGunDataStorage;
@@ -121,6 +122,7 @@ public class ParticleGunManager implements Listener {
         return PARTICLE_GUN_USING_CACHES.containsKey(player) && PARTICLE_GUN_USING_CACHES.get(player).isReloading();
     }
 
+    @Description(usage = "You'd better use this method to remove player cache after he leaves the gun game in avoidance of unstoppable task checking.")
     public static void removeShootingStorage(Player player) {
         PARTICLE_GUN_USING_CACHES.remove(player);
     }
@@ -174,9 +176,6 @@ public class ParticleGunManager implements Listener {
                 return;
             }
             if (gun.isAutoShoot()) {
-                if (isReloading(player)) {
-                    return;
-                }
                 if (isShooting(player)) {
                     stopAutoShooting(player);
                 } else {
@@ -186,9 +185,9 @@ public class ParticleGunManager implements Listener {
                 if (playerGunDataStorage.isReloading()) {
                     return;
                 }
-                if (playerGunData.getAmmo() > 0) {
-                    playerGunData.setAmmo(playerGunData.getAmmo() - 1);
-                    gun.shoot(player);
+                if (System.currentTimeMillis() - playerGunDataStorage.getLastShootInterval() >= gun.getShootInterval()) {
+                    playerGunDataStorage.setLastShootInterval(System.currentTimeMillis());
+                    playerGunDataStorage.shoot(player, item, gun);
                 }
             }
         }
@@ -219,19 +218,19 @@ public class ParticleGunManager implements Listener {
                         if (playerGunData.getMaxAmmo() == 0) {
                             return;
                         }
-                        event.setCancelled(true);
                         if (gun.isAutoShoot()) {
-                            if (isReloading(player)) {
-                                return;
-                            }
                             if (isShooting(player)) {
                                 stopAutoShooting(player);
                             } else {
                                 startAutoShooting(player);
                             }
                         } else {
-                            playerGunDataStorage.shoot(player, item, gun);
+                            if (System.currentTimeMillis() - playerGunDataStorage.getLastShootInterval() >= gun.getShootInterval()) {
+                                playerGunDataStorage.setLastShootInterval(System.currentTimeMillis());
+                                playerGunDataStorage.shoot(player, item, gun);
+                            }
                         }
+                        event.setCancelled(true);
                     }
                     break;
             }
@@ -257,16 +256,16 @@ public class ParticleGunManager implements Listener {
                 }
                 event.setCancelled(true);
                 if (gun.isAutoShoot()) {
-                    if (isReloading(player)) {
-                        return;
-                    }
                     if (isShooting(player)) {
                         stopAutoShooting(player);
                     } else {
                         startAutoShooting(player);
                     }
                 } else {
-                    playerGunDataStorage.shoot(player, item, gun);
+                    if (System.currentTimeMillis() - playerGunDataStorage.getLastShootInterval() >= gun.getShootInterval()) {
+                        playerGunDataStorage.setLastShootInterval(System.currentTimeMillis());
+                        playerGunDataStorage.shoot(player, item, gun);
+                    }
                 }
             }
         }

@@ -6,44 +6,40 @@ import cn.nukkit.level.particle.Particle;
 import cn.nukkit.nbt.tag.CompoundTag;
 import gameapi.manager.extension.ParticleGunManager;
 import gameapi.room.task.EasyTask;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * @author glorydark
  */
 @Data
-@AllArgsConstructor
 public class ParticleGun {
 
     private final String identifier;
-
     private final String name;
-
     private final String description;
-
     private final Item item;
 
     private final int ammo;
-
     private final int maxAmmo;
 
-    private final Particle shootParticle;
+    private final Particle vanillaBulletParticle;
+    private final String customBulletParticle;
 
     private final int reloadTick;
-
-    private final int shootInterval;
-
-    private final double moveSpeedBonus;
+    private final long shootInterval;
+    private final float moveSpeedMultiplier;
 
     private final int bulletMoveDist;
-
     private final double bulletMoveSpeed;
 
-    private final float bulletDamage;
+    private final float bulletDamageHead;
+    private final float bulletDamageChest;
+    private final float bulletDamageLeg;
+    private final float bulletDamageArm;
+
+    private double bulletKnockback;
 
     private boolean damageEntity;
-
     private boolean damagePlayer;
 
     private boolean autoShoot;
@@ -51,6 +47,65 @@ public class ParticleGun {
     // This aims at marking each item with unique ids
     // for caching particle gun data with map instead of saving in item nbt.
     private static int ID = 1;
+
+    @Deprecated
+    public ParticleGun(String identifier, String name, String description, Item item,
+                       int ammo, int maxAmmo, Particle vanillaBulletParticle, String customBulletParticle,
+                       int reloadTick, int shootInterval, float moveSpeedMultiplier, double bulletKnockback,
+                       int bulletMoveDist, double bulletMoveSpeed,
+                       float bulletDamageHead, float bulletDamageChest, float bulletDamageLeg, float bulletDamageArm,
+                       boolean damageEntity, boolean damagePlayer, boolean autoShoot) {
+
+        this.identifier = identifier;
+        this.name = name;
+        this.description = description;
+        this.item = item;
+        this.ammo = ammo;
+        this.maxAmmo = maxAmmo;
+        this.vanillaBulletParticle = vanillaBulletParticle;
+        this.customBulletParticle = customBulletParticle;
+        this.reloadTick = reloadTick;
+        this.shootInterval = shootInterval;
+        this.moveSpeedMultiplier = moveSpeedMultiplier;
+        this.bulletMoveDist = bulletMoveDist;
+        this.bulletMoveSpeed = bulletMoveSpeed;
+        this.bulletDamageHead = bulletDamageHead;
+        this.bulletDamageChest = bulletDamageChest;
+        this.bulletDamageLeg = bulletDamageLeg;
+        this.bulletDamageArm = bulletDamageArm;
+        this.damageEntity = damageEntity;
+        this.damagePlayer = damagePlayer;
+        this.autoShoot = autoShoot;
+        this.bulletKnockback = bulletKnockback;
+    }
+
+    public ParticleGun(String identifier, String name, String description, Item item,
+                       int ammo, int maxAmmo, String customBulletParticle,
+                       int reloadTick, int shootInterval, float moveSpeedMultiplier, double bulletKnockback,
+                       int bulletMoveDist, double bulletMoveSpeed,
+                       float bulletDamageHead, float bulletDamageChest, float bulletDamageLeg, float bulletDamageArm,
+                       boolean damageEntity, boolean damagePlayer, boolean autoShoot) {
+        this(identifier, name, description,
+                item, ammo, maxAmmo,
+                null, customBulletParticle, reloadTick,
+                shootInterval, moveSpeedMultiplier, bulletKnockback, bulletMoveDist, bulletMoveSpeed,
+                bulletDamageHead, bulletDamageChest, bulletDamageLeg, bulletDamageArm,
+                damageEntity, damagePlayer, autoShoot);
+    }
+
+    public ParticleGun(String identifier, String name, String description, Item item,
+                       int ammo, int maxAmmo, Particle vanillaBulletParticle,
+                       int reloadTick, int shootInterval, float moveSpeedMultiplier, double bulletKnockback,
+                       int bulletMoveDist, double bulletMoveSpeed,
+                       float bulletDamageHead, float bulletDamageChest, float bulletDamageLeg, float bulletDamageArm,
+                       boolean damageEntity, boolean damagePlayer, boolean autoShoot) {
+        this(identifier, name, description,
+                item, ammo, maxAmmo,
+                vanillaBulletParticle, "", reloadTick,
+                shootInterval, moveSpeedMultiplier, bulletKnockback, bulletMoveDist, bulletMoveSpeed,
+                bulletDamageHead, bulletDamageChest, bulletDamageLeg, bulletDamageArm,
+                damageEntity, damagePlayer, autoShoot);
+    }
 
     public void shoot(Player player) {
         ParticleGunBullet particleGunBullet = new ParticleGunBullet(player, this);
@@ -68,6 +123,10 @@ public class ParticleGun {
     }
 
     public Item getItem() {
+        return this.getItem(true);
+    }
+
+    public Item getItem(boolean createId) {
         Item item1 = this.item.clone();
         CompoundTag tag = new CompoundTag();
         if (item1.hasCompoundTag()) {
@@ -91,5 +150,9 @@ public class ParticleGun {
 
     public void onShoot(Player player) {
 
+    }
+
+    public double getBulletKnockback(Player player) {
+        return this.getBulletKnockback();
     }
 }

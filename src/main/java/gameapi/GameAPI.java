@@ -5,11 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
-import cn.nukkit.level.Position;
-import cn.nukkit.level.particle.DustParticle;
-import cn.nukkit.math.Vector3;
 import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.utils.BlockColor;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import gameapi.achievement.AchievementManager;
@@ -17,23 +13,24 @@ import gameapi.commands.GameAPICommandMain;
 import gameapi.commands.VanillaFixCommand;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.defaults.room.HubCommand;
-import gameapi.extensions.particleGun.ParticleGun;
-import gameapi.manager.extension.ParticleGunManager;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
+import gameapi.listener.mot.BaseEventListenerMOTPatch;
 import gameapi.manager.GameDebugManager;
 import gameapi.manager.RoomManager;
 import gameapi.manager.data.GameActivityManager;
 import gameapi.manager.data.GlobalSettingsManager;
 import gameapi.manager.data.PlayerGameDataManager;
 import gameapi.manager.data.RankingManager;
+import gameapi.manager.extension.ParticleGunManager;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.room.edit.EditProcess;
 import gameapi.task.RoomTask;
 import gameapi.tools.BlockTools;
 import gameapi.tools.ItemTools;
 import gameapi.utils.Language;
+import gameapi.utils.NukkitTypeUtils;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -126,7 +123,8 @@ public class GameAPI extends PluginBase implements Listener {
         path = this.getDataFolder().getPath();
         instance = this;
         roomTaskExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE, threadFactory);
-        gameDebugManager = new GameDebugManager("gameapi_log", new File(path + File.separator + "logs" + File.separator));
+        gameDebugManager = new GameDebugManager("gameapi_log", new File(path + File.separator + "logs" + File.separator), true);
+        gameDebugManager.setEnableConsoleDebug(true);
         this.getDataFolder().mkdir();
         this.saveDefaultConfig();
         this.saveResource("rankings.yml", false);
@@ -164,13 +162,14 @@ public class GameAPI extends PluginBase implements Listener {
         GameActivityManager.init();
         AchievementManager.load();
 
-        if (isFirstLaunch) {
-            GameListenerRegistry.clearAllRegisters();
-            this.getServer().getScheduler().scheduleRepeatingTask(instance, new RoomTask(), 20);
-            this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
-            this.getServer().getPluginManager().registerEvents(new AdvancedFormListener(), this);
-            isFirstLaunch = false;
+        GameListenerRegistry.clearAllRegisters();
+        this.getServer().getScheduler().scheduleRepeatingTask(instance, new RoomTask(), 20);
+        this.getServer().getPluginManager().registerEvents(new BaseEventListener(), this);
+        this.getServer().getPluginManager().registerEvents(new AdvancedFormListener(), this);
+        if (NukkitTypeUtils.getNukkitType() == NukkitTypeUtils.NukkitType.MOT) {
+            this.getServer().getPluginManager().registerEvents(new BaseEventListenerMOTPatch(), this);
         }
+
         // this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
         this.getServer().getCommandMap().register("", new GameAPICommandMain("gameapi"));
         this.getServer().getCommandMap().register("", new WorldEditCommand("worldedit"));
@@ -235,7 +234,6 @@ public class GameAPI extends PluginBase implements Listener {
 
         if (enableParticleWeapon) {
             ParticleGunManager.init();
-            ParticleGunManager.registerParticleGun(new ParticleGun("test", "测试武器", "描述", Item.fromString("minecraft:fishing_rod"), 80, 240, new DustParticle(Position.fromObject(new Vector3()), BlockColor.YELLOW_BLOCK_COLOR), 30, 1, 1.0, 30, 1.0, 1, false, true, true));
             this.getServer().getPluginManager().registerEvents(new ParticleGunManager(), this);
         }
         this.getLogger().info("§aDGameAPI Enabled!");
@@ -243,6 +241,7 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onDisable() {
+        GameAPI.getGameDebugManager().disable();
         roomTaskExecutor.shutdownNow();
         try {
             RoomManager.close();
@@ -264,7 +263,9 @@ public class GameAPI extends PluginBase implements Listener {
         } catch (Throwable t) {
             t.printStackTrace();
         }
-        WORLDEDIT_THREAD_POOL_EXECUTOR.shutdownNow();
+        if (WORLDEDIT_THREAD_POOL_EXECUTOR != null) {
+            WORLDEDIT_THREAD_POOL_EXECUTOR.shutdownNow();
+        }
         this.getLogger().info("GameAPI Disabled!");
     }
 

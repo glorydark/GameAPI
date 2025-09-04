@@ -1,28 +1,28 @@
 package gameapi.commands.defaults.dev;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
-import cn.nukkit.network.protocol.AwardAchievementPacket;
 import gameapi.commands.base.EasySubCommand;
+import gameapi.room.Room;
+import gameapi.room.RoomRule;
 
 /**
  * @author glorydark
  */
-public class AwardAchievementCommand extends EasySubCommand {
+public class TestRoomCommand extends EasySubCommand {
 
-    public AwardAchievementCommand(String name) {
+    public TestRoomCommand(String name) {
         super(name);
     }
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
-        Player player = Server.getInstance().getPlayer(args[0]);
-        int achievementId = Integer.parseInt(args[1]);
-
-        AwardAchievementPacket pk = new AwardAchievementPacket();
-        pk.achievementId = achievementId;
-        player.dataPacket(pk);
+        Player player = commandSender.asPlayer();
+        RoomRule roomRule = new RoomRule(0);
+        roomRule.setAllowAttackEntityBeforeStart(true);
+        roomRule.setAllowAttackPlayerBeforeStart(true);
+        Room room = new Room("test", roomRule, 1);
+        room.addPlayer(player);
         return false;
     }
 

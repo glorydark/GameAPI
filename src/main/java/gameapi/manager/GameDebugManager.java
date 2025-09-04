@@ -5,38 +5,58 @@ import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.logger.CustomFormatter;
 import gameapi.tools.CalendarTools;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.FileHandler;
+import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 /**
  * @author glorydark
  */
+@Slf4j
 public class GameDebugManager {
 
     private final Logger logger;
     protected List<Player> players = new ArrayList<>();
-    private boolean enableConsoleDebug = true;
+    private boolean enableConsoleDebug = false;
 
-    public GameDebugManager(String name, File saveDir) {
+    public GameDebugManager(String name, File savePath) {
+        this(name, savePath, false);
+    }
+
+    public GameDebugManager(String name, File saveDir, boolean gameapiDebugFeature) {
         try {
-            String date = CalendarTools.getDateStringWithoutDetailsByDefault(System.currentTimeMillis());
-            File dic = new File(saveDir.getPath() + File.separator + date + File.separator);
-            dic.mkdirs();
             logger = Logger.getLogger(name);
             logger.setUseParentHandlers(false);
-            FileHandler fileHandler = new FileHandler(dic.getPath() + File.separator + CalendarTools.getDateStringWithoutDetailsByDefault(System.currentTimeMillis()).replace(" ", "_") + ".log", true);
-            // Set a formatter to format log records
             CustomFormatter formatter = new CustomFormatter();
+            FileHandler fileHandler;
+            if (gameapiDebugFeature) {
+                String date = CalendarTools.getDateStringWithoutDetailsByDefault(System.currentTimeMillis());
+                File dic = new File(saveDir.getPath() + File.separator);
+                dic.mkdirs();
+                fileHandler = new FileHandler(
+                        dic.getPath() + File.separator
+                                + date.replace(" ", "_") + ".log", true);
+            } else {
+                fileHandler = new FileHandler(saveDir.getPath(), true);
+            }
             fileHandler.setFormatter(formatter);
+            // Set a formatter to format log records
             // Add the FileHandler to the logger
             logger.addHandler(fileHandler);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void disable() {
+        for (Handler handler : logger.getHandlers()) {
+            handler.close();
         }
     }
 
@@ -81,9 +101,11 @@ public class GameDebugManager {
     }
 
     public void printError(Throwable t, String reason) {
-        StringBuilder message = new StringBuilder("Error caused by: " + t);
+        StringBuilder message = new StringBuilder("Error caused by: ");
         if (t.getCause() != null) {
             message.append(t.getCause().toString());
+        } else {
+            message.append(t);
         }
         message.append("\n");
         if (reason != null) {

@@ -25,7 +25,7 @@ public class SoundTools {
      * @param player : 玩家
      * @description 停止播放材质包音乐
      */
-    public static void stopResourcePackOggSound(Player player, String sound) {
+    public static void stopSound(Player player, String sound) {
         StopSoundPacket pk = new StopSoundPacket();
         pk.name = sound;
         pk.stopAll = false;
@@ -40,9 +40,19 @@ public class SoundTools {
         addSoundToPlayer(Arrays.asList(players), sound, volume, pitch);
     }
 
+    public static void addSoundToPlayer(Player[] players, String sound, float volume, float pitch) {
+         addSoundToPlayer(Arrays.asList(players), sound, volume, pitch);
+    }
+
     public static void addSoundToPlayer(Collection<Player> players, Sound sound, float volume, float pitch) {
         for (Player player : players) {
             addSoundToPlayer(player, sound.getSound(), volume, pitch);
+        }
+    }
+
+    public static void addSoundToPlayer(Collection<Player> players, String sound, float volume, float pitch) {
+        for (Player player : players) {
+            addSoundToPlayer(player, sound, volume, pitch);
         }
     }
 

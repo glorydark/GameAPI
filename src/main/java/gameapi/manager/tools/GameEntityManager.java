@@ -110,6 +110,12 @@ public class GameEntityManager {
         }
     }
 
+    public static void spawnTextEntity(TextEntity entity) {
+        entity.setImmobile(true);
+        entity.spawnToAll();
+        textEntityDataList.add(new TextEntityData(entity, entity.getLocation(), entity.getName()));
+    }
+
     public static void spawnTextEntity(Location location, String content) {
         FullChunk chunk = location.getChunk();
         if (chunk == null) {
@@ -125,9 +131,7 @@ public class GameEntityManager {
             }
         }
         TextEntity entity = new TextEntity(chunk, content, RankingListEntity.getDefaultNBT(new Vector3(location.x, location.y, location.z)));
-        entity.setImmobile(true);
-        entity.spawnToAll();
-        textEntityDataList.add(new TextEntityData(entity, location, content));
+        spawnTextEntity(entity);
     }
 
 }

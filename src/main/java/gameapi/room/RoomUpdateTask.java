@@ -137,18 +137,20 @@ public class RoomUpdateTask implements Runnable {
     }
 
     protected void onUpdateRoomBlockTreadEvent(Player player) {
-        // Tread Block Event
-        Block block = player.add(-0.5, -1, -0.5).floor().getLevelBlock();
-        RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(this.room, block, player);
-        GameListenerRegistry.callEvent(this.room, roomBlockTreadEvent);
-        if (!roomBlockTreadEvent.isCancelled()) {
-            for (DynamicObstacle dynamicObstacle : new ArrayList<>(this.room.getDynamicObstacles())) {
-                if (!dynamicObstacle.isEnabled()) {
-                    continue;
-                }
-                for (Block dynamicObstacleBlock : dynamicObstacle.getBlocks()) {
-                    if (dynamicObstacleBlock.distanceSquared(block) < 1d) {
-                        dynamicObstacle.onTread(dynamicObstacleBlock);
+        if (player.isValid() && player.getLevel().getProvider() != null) {
+            // Tread Block Event
+            Block block = player.add(-0.5, -1, -0.5).floor().getLevelBlock();
+            RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(this.room, block, player);
+            GameListenerRegistry.callEvent(this.room, roomBlockTreadEvent);
+            if (!roomBlockTreadEvent.isCancelled()) {
+                for (DynamicObstacle dynamicObstacle : new ArrayList<>(this.room.getDynamicObstacles())) {
+                    if (!dynamicObstacle.isEnabled()) {
+                        continue;
+                    }
+                    for (Block dynamicObstacleBlock : dynamicObstacle.getBlocks()) {
+                        if (dynamicObstacleBlock.distanceSquared(block) < 1d) {
+                            dynamicObstacle.onTread(dynamicObstacleBlock);
+                        }
                     }
                 }
             }

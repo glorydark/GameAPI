@@ -14,11 +14,13 @@ public class RoomEntityDamageEvent extends RoomEntityEvent implements Cancellabl
     private static final HandlerList handlers = new HandlerList();
     private final EntityDamageEvent.DamageCause cause;
     private float damage;
+    protected EntityDamageEvent sourceEvent;
 
-    public RoomEntityDamageEvent(Room room, Entity entity, EntityDamageEvent.DamageCause cause, final float damage) {
+    public RoomEntityDamageEvent(Room room, Entity entity, EntityDamageEvent.DamageCause cause, final float damage, EntityDamageEvent sourceEvent) {
         super(room, entity);
         this.cause = cause;
         this.damage = damage;
+        this.sourceEvent = sourceEvent;
     }
 
     public static HandlerList getHandlers() {
@@ -29,12 +31,15 @@ public class RoomEntityDamageEvent extends RoomEntityEvent implements Cancellabl
         return this.cause;
     }
 
-
     public float getDamage() {
         return damage;
     }
 
     public void setDamage(float damage) {
         this.damage = damage;
+    }
+
+    public EntityDamageEvent getSourceEvent() {
+        return sourceEvent;
     }
 }

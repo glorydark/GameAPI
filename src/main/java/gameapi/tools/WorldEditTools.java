@@ -20,6 +20,7 @@ import gameapi.annotation.Internal;
 import gameapi.task.BlockFillTask;
 import gameapi.task.BlockReplaceTask;
 import gameapi.utils.IntegerAxisAlignBB;
+import gameapi.utils.NukkitTypeUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -206,7 +207,7 @@ public class WorldEditTools {
                         int x = startPosition.getFloorX() + blocks.getInt("x");
                         int y = startPosition.getFloorY() + blocks.getInt("y");
                         int z = startPosition.getFloorZ() + blocks.getInt("z");
-                        if (y > 256 || y < 0) {
+                        if (y > level.getMaxBlockY() || y < level.getMinBlockY()) {
                             System.out.println("Out of world's bound!");
                             continue;
                         }
@@ -345,87 +346,91 @@ public class WorldEditTools {
         AtomicLong readBlockCountAll = new AtomicLong(0);
         AtomicInteger sectionCount = new AtomicInteger(0);
         CompletableFuture.runAsync(() -> {
-            for (int bbsIndex = 0; bbsIndex < bbs.length; bbsIndex++) {
-                IntegerAxisAlignBB newBB = bbs[bbsIndex];
-                sender.sendMessage("Starting task " + bbsIndex + "...");
-                long startMillisForSection = System.currentTimeMillis();
-                // Based on them to check whether it's finished or not
-                AtomicLong queryBlockTimes = new AtomicLong(0);
-                long maxCount = newBB.getSize();
-                AtomicLong lastTipPercentage = new AtomicLong(0);
-                AtomicLong readBlockCountForSection = new AtomicLong(0);
-                CompoundTag tag = new CompoundTag().putList(new ListTag<>("blocks"));
-                int finalBbsIndex = bbsIndex;
-                newBB.forEach(((i, i1, i2) -> {
-                    Position position = new Position(i, i1, i2, level);
-                    if (!position.getChunk().isLoaded()) {
-                        try {
-                            position.getChunk().load(true);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    Block blockAtPosition = level.getBlock(position, true);
-                    if (blockAtPosition.getId() != Block.AIR) {
-                        int x = i - centerPos.getFloorX();
-                        int y = i1 - centerPos.getFloorY();
-                        int z = i2 - centerPos.getFloorZ();
-                        CompoundTag addTag = new CompoundTag()
-                                .putInt("x", x)
-                                .putInt("y", y)
-                                .putInt("z", z)
-                                .putInt("blockId", blockAtPosition.getId())
-                                .putInt("damage", blockAtPosition.getDamage());
-                        Block blockLayer1 = level.getBlock(position, 1, true);
-                        if (blockLayer1.getId() != BlockID.AIR) {
-                            addTag.putCompound("layer1", new CompoundTag()
-                                    .putInt("blockId", blockLayer1.getId())
-                                    .putInt("damage", blockLayer1.getDamage())
-                            );
-                        }
-                        tag.getList("blocks", CompoundTag.class).add(addTag);
-                        readBlockCountAll.getAndIncrement();
-                        readBlockCountForSection.getAndIncrement();
-                    }
-                    queryBlockTimes.getAndIncrement();
-                    if (queryBlockTimes.get() > (maxCount / 100) * (lastTipPercentage.get() + 5)) {
-                        GameAPI.getInstance().getLogger().info("[" + finalBbsIndex + "] Saving sections... §e" + lastTipPercentage + "%");
-                        lastTipPercentage.getAndAdd(5);
-                    }
-                    if (queryBlockTimes.get() >= newBB.getSize()) {
-                        if (readBlockCountForSection.get() != 0) {
-                            new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + "/").mkdirs();
-                            File file = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + File.separator + System.currentTimeMillis() + "_" + UUID.randomUUID() + ".nbt");
-                            if (file.exists()) {
-                                try {
-                                    file.createNewFile();
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-                                fileOutputStream.write(NBTIO.write(tag));
+            try {
+                for (int bbsIndex = 0; bbsIndex < bbs.length; bbsIndex++) {
+                    IntegerAxisAlignBB newBB = bbs[bbsIndex];
+                    sender.sendMessage("Starting task " + bbsIndex + "...");
+                    long startMillisForSection = System.currentTimeMillis();
+                    // Based on them to check whether it's finished or not
+                    AtomicLong queryBlockTimes = new AtomicLong(0);
+                    long maxCount = newBB.getSize();
+                    AtomicLong lastTipPercentage = new AtomicLong(0);
+                    AtomicLong readBlockCountForSection = new AtomicLong(0);
+                    CompoundTag tag = new CompoundTag().putList(new ListTag<>("blocks"));
+                    int finalBbsIndex = bbsIndex;
+                    newBB.forEach(((i, i1, i2) -> {
+                        Position position = new Position(i, i1, i2, level);
+                        if (!position.getChunk().isLoaded()) {
+                            try {
+                                position.getChunk().load(true);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
-                            sectionCount.getAndIncrement();
-                            StringBuilder builder = new StringBuilder();
-                            builder.append("[").append(finalBbsIndex).append("] ")
-                                    .append("Finish saving building in ")
-                                    .append(name)
-                                    .append(" | ")
-                                    .append("Time Cost: ").append(SmartTools.timeDiffMillisToString(startMillisForSection, System.currentTimeMillis()));
-                            sender.sendMessage(builder.toString());
-                            GameAPI.getInstance().getLogger().info(builder.toString());
-                        } else {
-                            StringBuilder builder = new StringBuilder();
-                            builder.append("[").append(finalBbsIndex).append("] ")
-                                    .append(" Finish reading the section. The section contains nothing but air blocks. Turning into next sections...");
-                            sender.sendMessage(builder.toString());
-                            GameAPI.getInstance().getLogger().info(builder.toString());
                         }
-                    }
-                }));
+                        Block blockAtPosition = level.getBlock(position, true);
+                        if (blockAtPosition.getId() != Block.AIR) {
+                            int x = i - centerPos.getFloorX();
+                            int y = i1 - centerPos.getFloorY();
+                            int z = i2 - centerPos.getFloorZ();
+                            CompoundTag addTag = new CompoundTag()
+                                    .putInt("x", x)
+                                    .putInt("y", y)
+                                    .putInt("z", z)
+                                    .putInt("blockId", blockAtPosition.getId())
+                                    .putInt("damage", blockAtPosition.getDamage());
+                            if (NukkitTypeUtils.getNukkitType() == NukkitTypeUtils.NukkitType.MOT) {
+                                Block blockLayer1 = level.getBlock(position, 1, true);
+                                addTag.putCompound("layer1", new CompoundTag()
+                                        .putInt("blockId", blockLayer1.getId())
+                                        .putInt("damage", blockLayer1.getDamage())
+                                );
+                            }
+                            tag.getList("blocks", CompoundTag.class).add(addTag);
+                            readBlockCountAll.getAndIncrement();
+                            readBlockCountForSection.getAndIncrement();
+                        }
+                        queryBlockTimes.getAndIncrement();
+                        if (queryBlockTimes.get() > (maxCount / 100) * (lastTipPercentage.get() + 5)) {
+                            GameAPI.getInstance().getLogger().info("[" + finalBbsIndex + "] Saving sections... §e" + lastTipPercentage + "%");
+                            lastTipPercentage.getAndAdd(5);
+                        }
+                        if (queryBlockTimes.get() >= newBB.getSize()) {
+                            if (readBlockCountForSection.get() != 0) {
+                                new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + "/").mkdirs();
+                                File file = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + File.separator + System.currentTimeMillis() + "_" + UUID.randomUUID() + ".nbt");
+                                if (file.exists()) {
+                                    try {
+                                        file.createNewFile();
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                                try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                                    fileOutputStream.write(NBTIO.write(tag));
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                sectionCount.getAndIncrement();
+                                StringBuilder builder = new StringBuilder();
+                                builder.append("[").append(finalBbsIndex).append("] ")
+                                        .append("Finish saving building in ")
+                                        .append(name)
+                                        .append(" | ")
+                                        .append("Time Cost: ").append(SmartTools.timeDiffMillisToString(startMillisForSection, System.currentTimeMillis()));
+                                sender.sendMessage(builder.toString());
+                                GameAPI.getInstance().getLogger().info(builder.toString());
+                            } else {
+                                StringBuilder builder = new StringBuilder();
+                                builder.append("[").append(finalBbsIndex).append("] ")
+                                        .append(" Finish reading the section. The section contains nothing but air blocks. Turning into next sections...");
+                                sender.sendMessage(builder.toString());
+                                GameAPI.getInstance().getLogger().info(builder.toString());
+                            }
+                        }
+                    }));
+                }
+            } catch (Throwable t) {
+                GameAPI.getGameDebugManager().printError(t);
             }
         }, GameAPI.WORLDEDIT_THREAD_POOL_EXECUTOR).thenRun(() -> {
                     StringBuilder builder = new StringBuilder();

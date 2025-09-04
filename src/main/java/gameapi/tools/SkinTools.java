@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author glorydark
@@ -166,5 +167,35 @@ public class SkinTools {
         pk.uuid = player.getUniqueId();
         pk.premium = skin.isPremium();
         Server.broadcastPacket(Server.getInstance().getOnlinePlayers().values(), pk);
+    }
+
+    public static Skin clone(Skin oldSkin) {
+        Skin skin = new Skin();
+        skin.setSkinId(UUID.randomUUID().toString());
+        skin.setSkinResourcePatch(oldSkin.getSkinResourcePatch());
+        skin.setGeometryDataEngineVersion(oldSkin.getGeometryDataEngineVersion());
+        skin.setGeometryData(oldSkin.getGeometryData());
+        skin.setSkinData(oldSkin.getSkinData());
+        skin.setOverridingPlayerAppearance(oldSkin.isOverridingPlayerAppearance());
+        skin.setPrimaryUser(oldSkin.isPrimaryUser());
+        skin.setPlayFabId(oldSkin.getPlayFabId());
+
+        // special
+        skin.setPremium(oldSkin.isPremium());
+        skin.setPersona(oldSkin.isPersona());
+        skin.setSkinColor(oldSkin.getSkinColor());
+        skin.setArmSize(oldSkin.getArmSize());
+        skin.setAnimationData(oldSkin.getAnimationData());
+        skin.getPersonaPieces().addAll(oldSkin.getPersonaPieces());
+        skin.getTintColors().addAll(oldSkin.getTintColors());
+        skin.getAnimations().addAll(oldSkin.getAnimations());
+        skin.isLegacySlim = oldSkin.isLegacySlim;
+
+        // cape
+        skin.setCapeData(oldSkin.getCapeData());
+        skin.setCapeId(oldSkin.getCapeId());
+        skin.setCapeOnClassic(oldSkin.isCapeOnClassic());
+        skin.setTrusted(true);
+        return skin;
     }
 }

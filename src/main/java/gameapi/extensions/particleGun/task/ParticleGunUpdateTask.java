@@ -6,10 +6,12 @@ import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.utils.TextFormat;
 import gameapi.extensions.particleGun.ParticleGun;
-import gameapi.manager.extension.ParticleGunManager;
 import gameapi.extensions.particleGun.data.PlayerGunData;
 import gameapi.extensions.particleGun.data.PlayerGunDataStorage;
+import gameapi.manager.extension.ParticleGunManager;
 import gameapi.room.task.EasyTask;
+import gameapi.tools.DecimalTools;
+import gameapi.tools.PlayerTools;
 
 /**
  * @author glorydark
@@ -28,12 +30,22 @@ public class ParticleGunUpdateTask extends EasyTask {
                 if (!item.hasCompoundTag()) {
                     continue;
                 }
+                PlayerGunDataStorage playerGunDataStorage = ParticleGunManager.PARTICLE_GUN_USING_CACHES.computeIfAbsent(player, k -> new PlayerGunDataStorage());
                 CompoundTag tag = item.getNamedTag();
                 ParticleGun gun = ParticleGunManager.getParticleGun(tag.getString("gameapi:gun"));
                 if (gun == null) {
+                    if (!playerGunDataStorage.getLastUpdateWeaponSpeedId().isEmpty()) {
+                        PlayerTools.resetSpeed(player, 0.1f);
+                        playerGunDataStorage.setLastUpdateWeaponSpeedId("");
+                    }
                     continue;
                 }
-                PlayerGunDataStorage playerGunDataStorage = ParticleGunManager.PARTICLE_GUN_USING_CACHES.computeIfAbsent(player, k -> new PlayerGunDataStorage());
+                if (!playerGunDataStorage.getLastUpdateWeaponSpeedId().equals(gun.getIdentifier())) {
+                    float modifiedSpeed = gun.getMoveSpeedMultiplier() * 0.1f;
+                    modifiedSpeed = DecimalTools.getFloat(modifiedSpeed, 1);
+                    PlayerTools.resetSpeed(player, modifiedSpeed);
+                    playerGunDataStorage.setLastUpdateWeaponSpeedId(gun.getIdentifier());
+                }
                 String particleGunId = gun.getIdentifier() + "_" + tag.getInt("id");
                 ParticleGunManager.getPlayerParticleGunDataMap().computeIfAbsent(particleGunId, s -> new PlayerGunData(gun.getAmmo(), gun.getMaxAmmo()));
                 PlayerGunData playerGunData = ParticleGunManager.getPlayerParticleGunDataMap().get(particleGunId);

@@ -28,13 +28,6 @@ public class ItemTools {
             Pattern.CASE_INSENSITIVE
     );
 
-    public static final int OFFLINE_SLOT_FAST_START = 9;
-    public static final int OFFLINE_SLOT_FAST_HELMET = 45;
-    public static final int OFFLINE_SLOT_FAST_CHESTPLATE = 46;
-    public static final int OFFLINE_SLOT_FAST_LEGGINGS = 47;
-    public static final int OFFLINE_SLOT_FAST_BOOTS = 48;
-    public static final int OFFLINE_SLOT_FAST_OFFHAND = 49;
-
     public static byte[] hexStringToBytes(String hexString) {
         if (hexString == null || hexString.equals("null")) {
             return new byte[0];

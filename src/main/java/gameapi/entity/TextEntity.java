@@ -36,9 +36,9 @@ public class TextEntity extends Entity {
         return EntityArmorStand.NETWORK_ID;
     }
 
-    public void onAsyncUpdate(int currentTick) {
+    public boolean onAsyncUpdate(int currentTick) {
         if (this.isClosed()) {
-            return;
+            return false;
         }
         /*
         if (Arrays.stream(this.level.getEntities()).noneMatch(entity -> entity == this)) {
@@ -56,6 +56,7 @@ public class TextEntity extends Entity {
                 }
             }
         }
+        return true;
     }
 
     public boolean respawn() {
