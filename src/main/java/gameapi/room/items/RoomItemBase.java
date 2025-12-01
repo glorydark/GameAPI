@@ -1,6 +1,7 @@
 package gameapi.room.items;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.Block;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.item.Item;
@@ -18,6 +19,7 @@ public abstract class RoomItemBase {
     public static final String KEY_IDENTIFIER = "room_item";
     protected Item item;
     protected String identifier;
+    protected boolean isCancelBlockPlaceEvent = false;
 
     public RoomItemBase(String identifier, String name, Item item) {
         this(identifier, name, item, ItemLockType.NONE);
@@ -65,6 +67,10 @@ public abstract class RoomItemBase {
 
     }
 
+    public void onClick(Room room, Player player, Item item, PlayerInteractEvent.Action action) {
+
+    }
+
     public void onHurt(Item item, RoomEntityDamageEvent event) {
 
     }
@@ -73,6 +79,11 @@ public abstract class RoomItemBase {
 
     }
 
+    public void onBlockPlace(Room room, Player player, Item item, Block block) {
+
+    }
+
+    @Deprecated
     public void onBlockPlace(Room room, Player player, Item item) {
 
     }
@@ -95,5 +106,13 @@ public abstract class RoomItemBase {
         NONE,
         LOCK_IN_SLOT,
         LOCK_IN_INVENTORY
+    }
+
+    public boolean isCancelBlockPlaceEvent() {
+        return this.isCancelBlockPlaceEvent;
+    }
+
+    public void setCancelBlockPlaceEvent(boolean cancelBlockPlaceEvent) {
+        this.isCancelBlockPlaceEvent = cancelBlockPlaceEvent;
     }
 }

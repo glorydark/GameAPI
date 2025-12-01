@@ -9,6 +9,7 @@ import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
 import gameapi.room.edit.EditProcess;
+import gameapi.room.status.base.CustomRoomStatus;
 import gameapi.room.utils.reason.QuitRoomReason;
 import gameapi.tools.RandomTools;
 import gameapi.tools.WorldTools;
@@ -32,6 +33,15 @@ public class RoomManager {
         rooms.add(room);
         loadedRooms.put(room.getGameName(), rooms);
         room.setRoomStatus(baseStatus, "internal");
+        room.getRoomTaskExecutor().scheduleAtFixedRate(room.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
+    }
+
+    public static void loadRoom(Room room, CustomRoomStatus baseStatus) {
+        RoomNameUtils.initializeRoomNameAndId(room);
+        List<Room> rooms = new ArrayList<>(loadedRooms.getOrDefault(room.getGameName(), new ArrayList<>()));
+        rooms.add(room);
+        loadedRooms.put(room.getGameName(), rooms);
+        room.setCurrentRoomStatus(baseStatus, "internal");
         room.getRoomTaskExecutor().scheduleAtFixedRate(room.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
     }
 

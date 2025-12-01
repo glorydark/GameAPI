@@ -86,7 +86,7 @@ public class RankingManager {
 
     public static boolean registerRanking(String identifier, String gameName, String dataName, String title, String noDataContent, RankingFormat rankingFormat, RankingValueType rankingValueType, RankingSortSequence rankingSortSequence, int maxCount) {
         if (rankingFactory.containsKey(identifier)) {
-            return false;
+            GameAPI.getGameDebugManager().info("Registering a duplicated ranking " + identifier + ", replacing the new with the old...");
         }
         rankingFactory.put(identifier, new SimpleRanking(rankingValueType, gameName, dataName, title, noDataContent, rankingFormat, rankingSortSequence, maxCount));
         return true;

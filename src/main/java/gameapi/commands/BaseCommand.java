@@ -15,6 +15,7 @@ import gameapi.GameAPI;
 import gameapi.manager.RoomManager;
 import gameapi.room.Room;
 import gameapi.room.RoomStatus;
+import gameapi.room.status.factory.RoomDefaultStatusFactory;
 import gameapi.tools.BlockTools;
 import gameapi.tools.ItemTools;
 import gameapi.tools.SmartTools;
@@ -45,7 +46,7 @@ public class BaseCommand extends Command {
                         if (saveDic.exists() || saveDic.mkdirs()) {
                             for (Map.Entry<String, List<Room>> entry : RoomManager.getLoadedRooms().entrySet()) {
                                 for (Room room : entry.getValue()) {
-                                    if (room.getRoomStatus().equals(RoomStatus.ROOM_STATUS_START)) {
+                                    if (room.getCurrentRoomStatus().equals(RoomStatus.ROOM_STATUS_START)) {
                                         File file = new File(saveDic.getPath() + File.separator + entry.getKey() + "_" + room.getRoomName() + ".json");
                                         Config config = new Config(file, Config.JSON);
                                         LinkedHashMap<String, Object> players = new LinkedHashMap<>();
@@ -74,7 +75,7 @@ public class BaseCommand extends Command {
                                 player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
                                 RoomManager.getPlayerRoomHashMap().remove(player);
                             }
-                            room.setRoomStatus(RoomStatus.ROOM_STOPPED, "internal");
+                            room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STOPPED, "internal");
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.stop"));
                         } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));
@@ -85,7 +86,7 @@ public class BaseCommand extends Command {
                     if (commandSender.isOp() && strings.length == 3) {
                         Room room = RoomManager.getRoom(strings[1], strings[2]);
                         if (room != null) {
-                            if (room.getRoomStatus() != RoomStatus.ROOM_STATUS_START) {
+                            if (room.getCurrentRoomStatus() != RoomDefaultStatusFactory.ROOM_STATUS_GAME_START) {
                                 commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room.not_start_yet"));
                                 return true;
                             }
@@ -93,7 +94,7 @@ public class BaseCommand extends Command {
                                 player.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                                 player.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.halt"));
                             }
-                            room.setRoomStatus(RoomStatus.ROOM_HALTED, "internal");
+                            room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_HALTED, "internal");
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.halt"));
                         } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));
@@ -112,7 +113,7 @@ public class BaseCommand extends Command {
                                     commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.player_offline", player.getName()));
                                 }
                             }
-                            room.setRoomStatus(RoomStatus.ROOM_STATUS_START, "internal");
+                            room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_GAME_START, "internal");
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.battle.restart"));
                         } else {
                             commandSender.sendMessage(GameAPI.getLanguage().getTranslation(commandSender, "command.error.room_not_found"));

@@ -6,6 +6,7 @@ import cn.nukkit.entity.item.EntityArmorStand;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.RemoveEntityPacket;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -49,6 +50,9 @@ public class TextEntity extends Entity {
             if (this.getViewers().containsKey(player.getLoaderId())) {
                 if (!player.isOnline() || player.getLevel() != this.getLevel() || (this.maxShowDistance != -1 && player.distance(this) > this.maxShowDistance)) {
                     this.despawnFrom(player);
+                    RemoveEntityPacket pk = new RemoveEntityPacket();
+                    pk.eid = this.id;
+                    player.dataPacket(pk);
                 }
             } else {
                 if (player.getLevel() == this.getLevel() && (this.maxShowDistance == -1 || player.distance(this) <= this.maxShowDistance)) {

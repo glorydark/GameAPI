@@ -9,7 +9,7 @@ import gameapi.extensions.checkpoint.CheckpointData;
 import gameapi.extensions.checkpoint.PlayerCheckpointData;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
-import gameapi.room.RoomStatus;
+import gameapi.room.status.factory.RoomDefaultStatusFactory;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class CheckpointManager {
         if (this.getCheckpointDataList().isEmpty() && this.getEndPoint() == null) {
             return;
         }
-        if (this.room != null && this.room.getRoomStatus() == RoomStatus.ROOM_STATUS_START) {
+        if (this.room != null && this.room.getCurrentRoomStatus() == RoomDefaultStatusFactory.ROOM_STATUS_GAME_START) {
             if (!this.room.getPlayLevels().contains(player.getLevel())) {
                 return;
             }

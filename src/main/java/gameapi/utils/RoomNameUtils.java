@@ -20,11 +20,7 @@ public class RoomNameUtils {
         room.setId(num);
         if (room.getRoomName().isEmpty()) {
             if (room.isTemporary()) {
-                if (!tempRoomRecord.containsKey(room.getGameName())) {
-                    tempRoomRecord.put(room.getGameName(), 0);
-                }
-                String name = room.getGameName() + "_temp_" + num;
-                tempRoomRecord.put(room.getGameName(), num);
+                String name = getNumericNumberName(room.getGameName());
                 if (RoomManager.getRoom(room.getGameName(), name) != null) {
                     initializeRoomNameAndId(room);
                     return;
@@ -39,5 +35,15 @@ public class RoomNameUtils {
                 }
             }
         }
+    }
+
+    public static String getNumericNumberName(String gameName) {
+        int num = tempRoomRecord.getOrDefault(gameName, 0) + 1;
+        if (!tempRoomRecord.containsKey(gameName)) {
+            tempRoomRecord.put(gameName, 0);
+        }
+        String name = gameName + "_temp_" + num;
+        tempRoomRecord.put(gameName, num);
+        return name;
     }
 }

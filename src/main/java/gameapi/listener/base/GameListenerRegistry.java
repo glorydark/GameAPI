@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.Function;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Experimental
@@ -24,12 +25,25 @@ public class GameListenerRegistry {
 
     private static ConcurrentHashMap<String, List<RoomListener>> listeners = new ConcurrentHashMap<>();
 
+    private static final Map<String, Map<Class<?>, List<Consumer<?>>>> newListeners = new LinkedHashMap<>();
+
     public static void clearAllRegisters() {
         listeners = new ConcurrentHashMap<>();
     }
 
     public static void registerGlobalEvents(GameListener listener, Plugin plugin) {
         registerEvents(KEY_GLOBAL_LISTENER, listener, plugin);
+    }
+
+    public static <T> void registerGlobalEvents(Class<T> eventType, Consumer<T> handler) {
+        registerEvents(KEY_GLOBAL_LISTENER, eventType, handler);
+    }
+
+    public static <T> void registerEvents(String gameName, Class<T> eventType, Consumer<T> handler) {
+        newListeners
+                .computeIfAbsent(gameName, k -> new LinkedHashMap<>())
+                .computeIfAbsent(eventType, k -> new ArrayList<>())
+                .add(handler);
     }
 
     public static void registerEvents(String gameName, GameListener listener, Plugin plugin) {
@@ -65,12 +79,20 @@ public class GameListenerRegistry {
     }
 
     public static void callEvent(Room room, RoomEvent event) {
+        callNewEvent(room, event); // call new event
+        callOldEvent(room, event);
+    }
+
+    public static void callOldEvent(Room room, RoomEvent event) {
         String gameName = room.getGameName();
+
         List<RoomListener> find = new ArrayList<>(listeners.getOrDefault(gameName, new ArrayList<>()));
         find.addAll(listeners.getOrDefault(KEY_GLOBAL_LISTENER, new ArrayList<>()));
         find = find.stream().sorted(Comparator.comparingInt(o -> o.getPriority().getSlot())).collect(Collectors.toList());
-        for (RoomListener listener : find) {
-            listener.callEvent(gameName, event);
+        if (!find.isEmpty()) {
+            for (RoomListener listener : find) {
+                listener.callEvent(gameName, event);
+            }
         }
         if (event instanceof RoomBlockEvent) {
             room.getAdvancedBlockManager().triggerBlock((RoomBlockEvent) event);
@@ -79,8 +101,26 @@ public class GameListenerRegistry {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    protected static <T> void callNewEvent(Room room, T event) {
+        Map<Class<?>, List<Consumer<?>>> gameListeners = newListeners.get(room.getGameName());
+        if (gameListeners == null) return;
+
+        List<Consumer<?>> handlers = gameListeners.getOrDefault(event.getClass(), new ArrayList<>());
+        handlers.addAll(newListeners.getOrDefault(KEY_GLOBAL_LISTENER, new LinkedHashMap<>()).getOrDefault(event.getClass(), new ArrayList<>()));
+        for (Consumer<?> handler : handlers) {
+            if (handler != null) {
+                ((Consumer<T>) handler).accept(event);
+            }
+        }
+    }
+
     public static ConcurrentHashMap<String, List<RoomListener>> getListeners() {
         return listeners;
+    }
+
+    public static Map<String, Map<Class<?>, List<Consumer<?>>>> getNewListeners() {
+        return newListeners;
     }
 
     public void unregisterAllEvents(String gameName) {

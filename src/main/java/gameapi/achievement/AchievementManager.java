@@ -1,6 +1,5 @@
 package gameapi.achievement;
 
-import cn.nukkit.Server;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 import cn.nukkit.utils.TextFormat;
@@ -27,7 +26,7 @@ public class AchievementManager {
         playerDataDir.mkdirs();
         categoryDir.mkdirs();
         for (File file : Objects.requireNonNull(categoryDir.listFiles())) {
-            Config config = new Config(file, Config.JSON);
+            Config config = new Config(file, Config.YAML);
             String categoryId = file.getName().substring(0, file.getName().lastIndexOf("."));
             AchievementCategoryData achievementCategoryData = new AchievementCategoryData(
                     categoryId,
@@ -51,8 +50,8 @@ public class AchievementManager {
         }
         for (File file : Objects.requireNonNull(playerDataDir.listFiles())) {
             Config config = new Config(file, Config.YAML);
-            String playerName = file.getName().substring(0, file.getName().lastIndexOf("."));
-            ownedAchievementCaches.put(playerName, config.getRootSection());
+            String achievementId = file.getName().substring(0, file.getName().lastIndexOf("."));
+            ownedAchievementCaches.put(achievementId, config.getRootSection());
         }
         GameAPI.getInstance().getLogger().info(TextFormat.GREEN + "成功加载 " + achievements.size() + " 个成就类别及其下属成就！");
     }
@@ -66,41 +65,40 @@ public class AchievementManager {
     }
 
     public static void endowAchievement(String player, String category, String achievementId, String reason) {
-        if (!Server.getInstance().lookupName(player).isPresent()) {
-            GameAPI.getGameDebugManager().info(TextFormat.RED + "玩家不存在，玩家名：" + player);
-            return;
-        }
         long endowMillis = System.currentTimeMillis();
-        ConfigSection section = ownedAchievementCaches.computeIfAbsent(player, s -> new ConfigSection());
-        ConfigSection categorySection = section.getSection(category);
-        categorySection.set(achievementId, new ConfigSection() {
+        ConfigSection section = ownedAchievementCaches.computeIfAbsent(category, s -> new ConfigSection());
+
+        ConfigSection subSection = section.getSection(achievementId);
+        subSection.set(player, new ConfigSection() {
             {
                 this.put("time_millis", endowMillis);
                 this.put("reason", reason);
             }
         });
-        section.set(category, categorySection);
-        Config config = new Config(GameAPI.getPath() + File.separator + "achievements" + File.separator + "player_data" + File.separator + player + ".yml", Config.YAML);
+        section.set(achievementId, subSection);
+
+        Config config = new Config(GameAPI.getPath() + File.separator + "achievements" + File.separator + "player_data" + File.separator + category + ".yml", Config.YAML);
         config.setAll(section);
         config.save();
         GameAPI.getGameDebugManager().info(TextFormat.GREEN + "成功给予玩家 " + player + " 成就 " + achievementId + ", 所属类别：" + category + ", 原因：" + reason);
     }
 
     public static void removeAchievement(String player, String category, String achievementId) {
-        ConfigSection section = ownedAchievementCaches.computeIfAbsent(player, s -> new ConfigSection());
-        section.getSection(category).remove(achievementId);
-        Config config = new Config(GameAPI.getPath() + File.separator + "achievements" + File.separator + "player_data" + File.separator + player + ".yml", Config.YAML);
+        ConfigSection section = ownedAchievementCaches.computeIfAbsent(category, s -> new ConfigSection());
+        Config config = new Config(GameAPI.getPath() + File.separator + "achievements" + File.separator + "player_data" + File.separator + category + ".yml", Config.YAML);
+
+        section.getSection(achievementId).remove(player);
         config.setAll(section);
         config.save();
     }
 
     public static boolean hasAchievement(String player, String category, String achievementId) {
-        ConfigSection section = ownedAchievementCaches.computeIfAbsent(player, s -> new ConfigSection());
-        return section.getSection(category).exists(achievementId);
+        ConfigSection section = ownedAchievementCaches.computeIfAbsent(category, s -> new ConfigSection());
+        return section.getSection(achievementId).containsKey(player);
     }
 
     public static Long getEndowedAchievementTimeMillis(String player, String category, String achievementId) {
-        ConfigSection section = ownedAchievementCaches.computeIfAbsent(player, s -> new ConfigSection());
-        return section.getSection(category).getSection(achievementId).get("time_millis", null);
+        ConfigSection section = ownedAchievementCaches.computeIfAbsent(category, s -> new ConfigSection());
+        return section.getSection(achievementId).getSection(player).get("time_millis", null);
     }
 }

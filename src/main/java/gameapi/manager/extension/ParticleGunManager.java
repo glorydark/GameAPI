@@ -78,7 +78,7 @@ public class ParticleGunManager implements Listener {
 
     public static void startAutoShooting(Player player) {
         if (PARTICLE_GUN_USING_CACHES.containsKey(player)) {
-            PlayerGunDataStorage playerGunDataStorage = PARTICLE_GUN_USING_CACHES.get(player);
+            PlayerGunDataStorage playerGunDataStorage = ParticleGunManager.getShootingStorageOrCreate(player);
             if (System.currentTimeMillis() - playerGunDataStorage.getLastChangeStateMillis() > 50L) {
                 playerGunDataStorage.setShooting(true);
                 playerGunDataStorage.setLastChangeStateMillis(System.currentTimeMillis());
@@ -93,7 +93,7 @@ public class ParticleGunManager implements Listener {
 
     public static void stopAutoShooting(Player player) {
         if (PARTICLE_GUN_USING_CACHES.containsKey(player)) {
-            PlayerGunDataStorage playerGunDataStorage = PARTICLE_GUN_USING_CACHES.get(player);
+            PlayerGunDataStorage playerGunDataStorage = getShootingStorageOrCreate(player);
             if (System.currentTimeMillis() - playerGunDataStorage.getLastChangeStateMillis() > 50L) {
                 Item item = player.getInventory().getItemInHand();
                 if (item.hasCompoundTag()) {
@@ -127,8 +127,8 @@ public class ParticleGunManager implements Listener {
         PARTICLE_GUN_USING_CACHES.remove(player);
     }
 
-    public static PlayerGunDataStorage getShootingStorage(Player player) {
-        return PARTICLE_GUN_USING_CACHES.getOrDefault(player, new PlayerGunDataStorage());
+    public static PlayerGunDataStorage getShootingStorageOrCreate(Player player) {
+        return ParticleGunManager.PARTICLE_GUN_USING_CACHES.computeIfAbsent(player, k -> new PlayerGunDataStorage());
     }
 
     public static void registerParticleGun(ParticleGun gun) {
@@ -151,7 +151,7 @@ public class ParticleGunManager implements Listener {
         if (item.hasCompoundTag()) {
             ParticleGun gun = REGISTERED_PARTICLE_GUNS.get(item.getNamedTag().getString("gameapi:gun"));
             if (gun != null) {
-                PlayerGunDataStorage playerGunDataStorage = PARTICLE_GUN_USING_CACHES.getOrDefault(player, new PlayerGunDataStorage());
+                PlayerGunDataStorage playerGunDataStorage = getShootingStorageOrCreate(player);
                 if (!playerGunDataStorage.isReloading()) {
                     playerGunDataStorage.reload(player, item, heldIndex, gun);
                 }
@@ -169,7 +169,7 @@ public class ParticleGunManager implements Listener {
                 return;
             }
             String particleGunId = gun.getIdentifier() + "_" + item.getNamedTag().getInt("id");
-            PlayerGunDataStorage playerGunDataStorage = ParticleGunManager.PARTICLE_GUN_USING_CACHES.computeIfAbsent(player, k -> new PlayerGunDataStorage());
+            PlayerGunDataStorage playerGunDataStorage = getShootingStorageOrCreate(player);
             ParticleGunManager.getPlayerParticleGunDataMap().computeIfAbsent(particleGunId, s -> new PlayerGunData(gun.getAmmo(), gun.getMaxAmmo()));
             PlayerGunData playerGunData = ParticleGunManager.getPlayerParticleGunDataMap().get(particleGunId);
             if (playerGunData.getMaxAmmo() == 0) {
@@ -212,7 +212,7 @@ public class ParticleGunManager implements Listener {
                             return;
                         }
                         String particleGunId = gun.getIdentifier() + "_" + item.getNamedTag().getInt("id");
-                        PlayerGunDataStorage playerGunDataStorage = ParticleGunManager.PARTICLE_GUN_USING_CACHES.computeIfAbsent(player, k -> new PlayerGunDataStorage());
+                        PlayerGunDataStorage playerGunDataStorage = getShootingStorageOrCreate(player);
                         ParticleGunManager.getPlayerParticleGunDataMap().computeIfAbsent(particleGunId, s -> new PlayerGunData(gun.getAmmo(), gun.getMaxAmmo()));
                         PlayerGunData playerGunData = ParticleGunManager.getPlayerParticleGunDataMap().get(particleGunId);
                         if (playerGunData.getMaxAmmo() == 0) {
@@ -248,7 +248,7 @@ public class ParticleGunManager implements Listener {
                     return;
                 }
                 String particleGunId = gun.getIdentifier() + "_" + item.getNamedTag().getInt("id");
-                PlayerGunDataStorage playerGunDataStorage = ParticleGunManager.PARTICLE_GUN_USING_CACHES.computeIfAbsent(player, k -> new PlayerGunDataStorage());
+                PlayerGunDataStorage playerGunDataStorage = getShootingStorageOrCreate(player);
                 ParticleGunManager.getPlayerParticleGunDataMap().computeIfAbsent(particleGunId, s -> new PlayerGunData(gun.getAmmo(), gun.getMaxAmmo()));
                 PlayerGunData playerGunData = ParticleGunManager.getPlayerParticleGunDataMap().get(particleGunId);
                 if (playerGunData.getMaxAmmo() == 0) {

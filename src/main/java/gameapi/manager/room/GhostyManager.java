@@ -1,6 +1,7 @@
 package gameapi.manager.room;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.Block;
 import cn.nukkit.level.Level;
 import com.google.gson.JsonObject;
 import gameapi.GameAPI;
@@ -64,12 +65,18 @@ public class GhostyManager {
      * For common purpose, these two methods are okay.
      */
     public void startWorldRecord(Level level) {
-        if (this.levelRecordEngines.stream().anyMatch(levelRecordEngine -> levelRecordEngine.getLevel() == level)) {
+        LevelRecordEngine levelRecordEngine = new LevelRecordEngine(level);
+        this.startWorldRecord(levelRecordEngine);
+    }
+
+    public void startWorldRecord(LevelRecordEngine engine) {
+        if (this.levelRecordEngines.stream()
+                .anyMatch(levelRecordEngine -> levelRecordEngine.getLevel() == engine.getLevel())) {
             GameAPI.getGameDebugManager().info("Already find a recoding in the same room records the same map.");
+            
             return;
         }
-        LevelRecordEngine levelRecordEngine = new LevelRecordEngine(level);
-        this.levelRecordEngines.add(levelRecordEngine);
+        this.levelRecordEngines.add(engine);
     }
 
     public void stopAllRecords() {
@@ -184,5 +191,9 @@ public class GhostyManager {
 
     public void recordCustomEvent(LevelRecordEngine levelRecordEngine, JsonObject message) {
         levelRecordEngine.recordCustomEvent(message);
+    }
+
+    public void recordBlockChange(LevelRecordEngine levelRecordEngine, Block block) {
+        levelRecordEngine.onLevelBlockSet(block);
     }
 }

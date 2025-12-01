@@ -70,7 +70,7 @@ public class RoomRule {
     private boolean experimentalFeature = false;
     private List<String> allowJoinPlayers = new ArrayList<>();
     private boolean virtualHealth = false;
-    private boolean autoStartTeleport = true;
+    private boolean autoStartTeleport = false;
     private List<String> allowCommands = new ArrayList<>();
     private boolean autoAllocatePlayerToTeam = true;
     private boolean allowQuitByTeleport = true;

@@ -1,5 +1,6 @@
 package gameapi.event;
 
+import gameapi.listener.base.GameListenerRegistry;
 import gameapi.listener.base.exceptions.GameEventException;
 import gameapi.room.Room;
 
@@ -38,5 +39,9 @@ public abstract class RoomEvent {
 
     public Room getRoom() {
         return room;
+    }
+
+    public void call() {
+        GameListenerRegistry.callEvent(this.room, this);
     }
 }

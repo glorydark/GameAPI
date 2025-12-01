@@ -29,6 +29,7 @@ import gameapi.room.edit.EditProcess;
 import gameapi.task.RoomTask;
 import gameapi.tools.BlockTools;
 import gameapi.tools.ItemTools;
+import gameapi.tools.PlayerTools;
 import gameapi.utils.Language;
 import gameapi.utils.NukkitTypeUtils;
 
@@ -208,7 +209,7 @@ public class GameAPI extends PluginBase implements Listener {
                         out += "所指方块id: [无] 方块名称:无" + "\n";
                         out += "所指方块位置: [无]" + "\n";
                     }
-                    Block under = player.getLocation().add(0, 0, 0).getLevelBlock();
+                    Block under = PlayerTools.getBlockUnderPlayer(player);
                     if (under != null) {
                         //out += "所踩方块: " + under.toItem().getNamespaceId();
                         out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);

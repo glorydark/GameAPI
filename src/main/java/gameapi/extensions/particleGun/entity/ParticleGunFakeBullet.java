@@ -16,6 +16,7 @@ import gameapi.tools.EntityTools;
 /**
  * @author glorydark
  */
+@Deprecated
 public class ParticleGunFakeBullet extends EntityProjectile {
 
     public ParticleGunBullet particleGunBullet;

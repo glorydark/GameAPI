@@ -5,6 +5,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.block.BlockUnknown;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
@@ -52,6 +53,10 @@ public class WorldEditTools {
     }
 
     public static void fill(CommandSender sender, Vector3 pos1, Vector3 pos2, Level level, Block block, boolean isReplacedExistedBlock) {
+        fill(sender, pos1, pos2, level, block, false, isReplacedExistedBlock);
+    }
+
+    public static void fill(CommandSender sender, Vector3 pos1, Vector3 pos2, Level level, Block block, boolean isHollow, boolean isReplacedExistedBlock) {
         SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(pos1, pos2);
         if (block == null) {
             if (sender != null) {
@@ -60,6 +65,20 @@ public class WorldEditTools {
         } else {
             BlockFillTask fillTask = new BlockFillTask(level, block);
             bb.forEach((i, i1, i2) -> {
+                // 检查是否在外层边界上（六个面）
+                boolean isOnXFace = (i == bb.getMinX() || i == bb.getMaxX());
+                boolean isOnYFace = (i1 == bb.getMinY() || i1 == bb.getMaxY());
+                boolean isOnZFace = (i2 == bb.getMinZ() || i2 == bb.getMaxZ());
+
+                // 对于空心填充，只填充构成六个面的方块
+                // 即至少在一个轴向上处于边界位置
+                boolean isOnOuterSurface = isOnXFace || isOnYFace || isOnZFace;
+
+                if (isHollow) {
+                    if (!isOnOuterSurface) {
+                        return; // 不在外层表面上，跳过（保持空心）
+                    }
+                }
                 Vector3 pos = new Vector3(i, i1, i2);
                 if (!isReplacedExistedBlock && level.getBlock(pos).getId() != 0) {
                     return;
@@ -68,6 +87,14 @@ public class WorldEditTools {
             });
             GameAPI.WORLDEDIT_THREAD_POOL_EXECUTOR.invoke(fillTask);
         }
+    }
+
+    public static void fill(Vector3 pos1, Vector3 pos2, Level level, Block block, boolean isReplacedExistedBlock) {
+        fill(new ConsoleCommandSender(), pos1, pos2, level, block, false, isReplacedExistedBlock);
+    }
+
+    public static void fill(Vector3 pos1, Vector3 pos2, Level level, Block block, boolean isHollow, boolean isReplacedExistedBlock) {
+        fill(new ConsoleCommandSender(), pos1, pos2, level, block, isHollow, isReplacedExistedBlock);
     }
 
     public static void createCircle(Location centerPos, Block block, double radius, boolean fillInside) {
@@ -83,6 +110,16 @@ public class WorldEditTools {
     }
 
     public static void createCircle(CommandSender sender, Vector3 centerPos, Level level, Block block, double radius, boolean fillInside) {
+        createCircle(sender, centerPos, level, block, radius, fillInside? CircleType.DEFAULT: CircleType.EMPTY_INSIDE);
+    }
+
+    public static enum CircleType {
+        DEFAULT,
+        EMPTY_INSIDE,
+        IGNORE_PERIPHERY
+    }
+
+    public static void createCircle(CommandSender sender, Vector3 centerPos, Level level, Block block, double radius, CircleType fillType) {
         final Vector3 centerPosFloored = centerPos.floor();
         AxisAlignedBB bb = new SimpleAxisAlignedBB(centerPos, centerPos);
         bb = bb.expand(radius, 0, radius);
@@ -90,8 +127,18 @@ public class WorldEditTools {
         bb.forEach((i, i1, i2) -> {
             Vector3 pos = new Vector3(i, i1, i2);
             if (pos.distance(centerPosFloored) <= radius) {
-                if (!fillInside && pos.distance(centerPosFloored) <= radius - 1) {
-                    return;
+                boolean periphery = pos.distance(centerPosFloored) <= radius - 1;
+                switch (fillType) {
+                    case EMPTY_INSIDE -> {
+                        if (periphery) {
+                            return;
+                        }
+                    }
+                    case IGNORE_PERIPHERY -> {
+                        if (!periphery) {
+                            return;
+                        }
+                    }
                 }
                 fillTask.addPos(pos);
             }
@@ -136,6 +183,11 @@ public class WorldEditTools {
         }
     }
 
+
+    public static void createCircle(Vector3 centerPos, Level level, Block block, double radius, boolean fillInside, boolean halfHorizontally) {
+        createBall(new ConsoleCommandSender(), centerPos, level, block, radius, fillInside, halfHorizontally);
+    }
+
     public static void replaceBlock(Location pos1, Location pos2, Block sourceBlock, Block targetBlock, boolean checkDamage) {
         if (!pos1.isValid() || !pos2.isValid()) {
             GameAPI.getGameDebugManager().info(TextFormat.RED + "Center pos hasn't defined the level yet!");
@@ -162,6 +214,100 @@ public class WorldEditTools {
                 sender.sendMessage(TextFormat.GREEN + "Already replace " + replaceTask.getImmutablePosList().size() + " blocks from " + sourceBlock.getName() + " to " + targetBlock.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), replaceTask.getEndMillis())));
             }
         }
+    }
+
+    public static void replaceBlock(Vector3 pos1, Vector3 pos2, Level level, Block sourceBlock, Block targetBlock, boolean checkDamage) {
+        replaceBlock(new ConsoleCommandSender(), pos1, pos2, level, sourceBlock, targetBlock, checkDamage);
+    }
+
+    public static void fillTetrahedron(Player player, Vector3 pos1, Vector3 pos2, Vector3 pos3, Vector3 pos4, Block block) {
+        fillTetrahedron(pos1, pos2, pos3, pos4, player.getLevel(), block, false);
+    }
+
+    public static void fillTetrahedron(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, Level level, Block block, boolean hollow) {
+        // 获取包围盒
+        AxisAlignedBB box = new SimpleAxisAlignedBB(
+                Math.min(Math.min(p1.x, p2.x), Math.min(p3.x, p4.x)),
+                Math.min(Math.min(p1.y, p2.y), Math.min(p3.y, p4.y)),
+                Math.min(Math.min(p1.z, p2.z), Math.min(p3.z, p4.z)),
+                Math.max(Math.max(p1.x, p2.x), Math.max(p3.x, p4.x)),
+                Math.max(Math.max(p1.y, p2.y), Math.max(p3.y, p4.y)),
+                Math.max(Math.max(p1.z, p2.z), Math.max(p3.z, p4.z))
+        );
+
+        double totalVol = tetraVolume(p1, p2, p3, p4);
+        if (totalVol <= 0) return; // 共面情况
+
+        double eps = totalVol * 1e-4; // 原来是 1e-6
+
+        box.forEach((x, y, z) -> {
+            Vector3 p = new Vector3(x + 0.5, y + 0.5, z + 0.5);
+
+            // 判断该点是否在四面体内
+            double v1 = tetraVolume(p, p2, p3, p4);
+            double v2 = tetraVolume(p1, p, p3, p4);
+            double v3 = tetraVolume(p1, p2, p, p4);
+            double v4 = tetraVolume(p1, p2, p3, p);
+            // double sum = v1 + v2 + v3 + v4;
+
+            if (isBlockInsideTetra(x, y, z, p1, p2, p3, p4, totalVol, eps)) {
+                if (hollow) {
+                    if (!isSurface(x, y, z, p1, p2, p3, p4, totalVol, eps)) return;
+                }
+                level.setBlock(new Vector3(x, y, z), block);
+            }
+        });
+    }
+
+    // 判断是否在四面体表面上
+    private static boolean isSurface(int x, int y, int z, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, double totalVol, double eps) {
+        int[][] dirs = {{1,0,0},{-1,0,0},{0,1,0},{0,-1,0},{0,0,1},{0,0,-1}};
+        for (int[] d : dirs) {
+            Vector3 np = new Vector3(x + 0.5 + d[0], y + 0.5 + d[1], z + 0.5 + d[2]);
+            double v1 = tetraVolume(np, p2, p3, p4);
+            double v2 = tetraVolume(p1, np, p3, p4);
+            double v3 = tetraVolume(p1, p2, np, p4);
+            double v4 = tetraVolume(p1, p2, p3, np);
+            double sum = v1 + v2 + v3 + v4;
+            if (Math.abs(sum - totalVol) > eps) return true; // 邻居在外面
+        }
+        return false;
+    }
+
+    private static boolean isBlockInsideTetra(int x, int y, int z,
+                                              Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4,
+                                              double totalVol, double eps) {
+        // 方块的8个角
+        double[] offsets = {0, 1};
+        for (double dx : offsets) {
+            for (double dy : offsets) {
+                for (double dz : offsets) {
+                    Vector3 corner = new Vector3(x + dx, y + dy, z + dz);
+                    double v1 = tetraVolume(corner, p2, p3, p4);
+                    double v2 = tetraVolume(p1, corner, p3, p4);
+                    double v3 = tetraVolume(p1, p2, corner, p4);
+                    double v4 = tetraVolume(p1, p2, p3, corner);
+                    double sum = v1 + v2 + v3 + v4;
+                    if (Math.abs(sum - totalVol) <= eps) return true; // 任意一个角在内即可
+                }
+            }
+        }
+        return false;
+    }
+
+
+    // 四面体体积（混合积）
+    private static double tetraVolume(Vector3 a, Vector3 b, Vector3 c, Vector3 d) {
+        double ax = a.x - d.x, ay = a.y - d.y, az = a.z - d.z;
+        double bx = b.x - d.x, by = b.y - d.y, bz = b.z - d.z;
+        double cx = c.x - d.x, cy = c.y - d.y, cz = c.z - d.z;
+
+        double crossX = by * cz - bz * cy;
+        double crossY = bz * cx - bx * cz;
+        double crossZ = bx * cy - by * cx;
+
+        double det = ax * crossX + ay * crossY + az * crossZ;
+        return Math.abs(det) / 6.0;
     }
 
     @Internal

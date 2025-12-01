@@ -11,7 +11,6 @@ import gameapi.extensions.particleGun.data.PlayerGunDataStorage;
 import gameapi.manager.extension.ParticleGunManager;
 import gameapi.room.task.EasyTask;
 import gameapi.tools.DecimalTools;
-import gameapi.tools.PlayerTools;
 
 /**
  * @author glorydark
@@ -30,12 +29,12 @@ public class ParticleGunUpdateTask extends EasyTask {
                 if (!item.hasCompoundTag()) {
                     continue;
                 }
-                PlayerGunDataStorage playerGunDataStorage = ParticleGunManager.PARTICLE_GUN_USING_CACHES.computeIfAbsent(player, k -> new PlayerGunDataStorage());
+                PlayerGunDataStorage playerGunDataStorage = ParticleGunManager.getShootingStorageOrCreate(player);
                 CompoundTag tag = item.getNamedTag();
                 ParticleGun gun = ParticleGunManager.getParticleGun(tag.getString("gameapi:gun"));
                 if (gun == null) {
                     if (!playerGunDataStorage.getLastUpdateWeaponSpeedId().isEmpty()) {
-                        PlayerTools.resetSpeed(player, 0.1f);
+                        // PlayerTools.resetSpeed(player, 0.1f);
                         playerGunDataStorage.setLastUpdateWeaponSpeedId("");
                     }
                     continue;
@@ -43,7 +42,7 @@ public class ParticleGunUpdateTask extends EasyTask {
                 if (!playerGunDataStorage.getLastUpdateWeaponSpeedId().equals(gun.getIdentifier())) {
                     float modifiedSpeed = gun.getMoveSpeedMultiplier() * 0.1f;
                     modifiedSpeed = DecimalTools.getFloat(modifiedSpeed, 1);
-                    PlayerTools.resetSpeed(player, modifiedSpeed);
+                    // PlayerTools.resetSpeed(player, modifiedSpeed);
                     playerGunDataStorage.setLastUpdateWeaponSpeedId(gun.getIdentifier());
                 }
                 String particleGunId = gun.getIdentifier() + "_" + tag.getInt("id");

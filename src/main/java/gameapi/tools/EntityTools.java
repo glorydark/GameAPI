@@ -2,6 +2,7 @@ package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityArmorStand;
 import cn.nukkit.entity.item.EntityItem;
@@ -20,13 +21,13 @@ import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.MobArmorEquipmentPacket;
 import cn.nukkit.network.protocol.MobEquipmentPacket;
 import cn.nukkit.network.protocol.SetEntityMotionPacket;
+import cn.nukkit.utils.BlockIterator;
 import gameapi.extensions.particleGun.entity.ParticleGunFakeBullet;
 import gameapi.utils.Animation;
 import gameapi.utils.protocol.AnimateEntityPacketV2;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -307,5 +308,95 @@ public class EntityTools {
             }
             default -> Item.AIR_ITEM;
         };
+    }
+
+    public static boolean isBlockBetween(Entity damager, Entity victim) {
+        Location loc1 = damager.getLocation().add(0, damager.getEyeHeight(), 0); // e1的眼睛位置
+        Location loc2 = victim.getLocation().add(0, victim.getEyeHeight(), 0); // e2的眼睛位置
+
+        // 计算两点之间的向量
+        double dx = loc2.getX() - loc1.getX();
+        double dy = loc2.getY() - loc1.getY();
+        double dz = loc2.getZ() - loc1.getZ();
+
+        double distance = loc1.distance(loc2);
+        double step = 0.3; // 采样间隔，越小越精确但性能开销越大
+
+        Block block = getTargetBlock(damager, 5);
+
+        // 从e1到e2直线采样
+        for (double d = step; d < distance; d += step) {
+            double progress = d / distance; // 进度比例 0~1
+
+            double x = loc1.getX() + dx * progress;
+            double y = loc1.getY() + dy * progress;
+            double z = loc1.getZ() + dz * progress;
+
+            if (block.isSolid() && block.getBoundingBox().isVectorInside(new Vector3(x, y, z))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static Block getTargetBlock(Entity entity, int maxDistance) {
+        return getTargetBlock(entity, maxDistance, new Integer[0]);
+    }
+
+    public static Block getTargetBlock(Entity entity, int maxDistance, Map<Integer, Object> transparent) {
+        return getTargetBlock(entity, maxDistance, (Integer[])transparent.keySet().toArray(new Integer[0]));
+    }
+
+    public static Block getTargetBlock(Entity entity, int maxDistance, Integer[] transparent) {
+        return getTargetBlock(entity, maxDistance, (Set)(new HashSet(Arrays.asList(transparent))));
+    }
+
+    public static Block getTargetBlock(Entity entity, int maxDistance, Set<Integer> transparent) {
+        try {
+            Block[] blocks = getLineOfSight(entity, maxDistance, 1, transparent);
+            Block block = blocks[0];
+            if (block != null) {
+                if (transparent == null || transparent.isEmpty()) {
+                    return block;
+                }
+
+                if (transparent.contains(block.getId())) {
+                    return block;
+                }
+            }
+        } catch (Exception var5) {
+        }
+
+        return null;
+    }
+
+    public static Block[] getLineOfSight(Entity entity, int maxDistance, int maxLength, Set<Integer> transparent) {
+        if (maxDistance > 120) {
+            maxDistance = 120;
+        }
+
+        boolean useTransparent = transparent != null && !transparent.isEmpty();
+        LinkedList<Block> blocks = new LinkedList();
+        BlockIterator itr = new BlockIterator(entity.level, entity.getPosition(), entity.getDirectionVector(), entity.getEyeHeight(), maxDistance);
+
+        while(itr.hasNext()) {
+            Block block = itr.next();
+            blocks.add(block);
+            if (maxLength != 0 && blocks.size() > maxLength) {
+                blocks.pollFirst();
+            }
+
+            int id = block.getId();
+            if (useTransparent) {
+                if (!transparent.contains(id)) {
+                    break;
+                }
+            } else if (id != 0) {
+                break;
+            }
+        }
+
+        return blocks.toArray(Block.EMPTY_ARRAY);
     }
 }

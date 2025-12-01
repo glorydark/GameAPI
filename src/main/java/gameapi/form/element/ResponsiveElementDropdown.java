@@ -65,4 +65,9 @@ public class ResponsiveElementDropdown extends ElementDropdown {
         this.getOptions().addAll(supplier.get());
         return this;
     }
+
+    public ResponsiveElementDropdown toolTip(String s) {
+        this.setTooltip(s);
+        return this;
+    }
 }

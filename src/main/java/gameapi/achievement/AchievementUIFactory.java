@@ -75,7 +75,7 @@ public class AchievementUIFactory {
                 return 0;
             }).forEach(entry -> {
                 AchievementData achievementData = entry.getValue();
-                boolean hasAchievement = AchievementManager.hasAchievement(player.getName(), achievementCategoryData.id, entry.getKey());
+                boolean hasAchievement = AchievementManager.hasAchievement(player.getName(), achievementData.getCategory(), entry.getKey());
                 String achievementName = achievementData.getDisplayName();
                 switch (achievementData.getIconPathType()) {
                     case "url":

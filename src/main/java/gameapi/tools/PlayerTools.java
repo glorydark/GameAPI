@@ -2,14 +2,22 @@ package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockID;
 import cn.nukkit.event.player.PlayerTeleportEvent;
+import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemID;
 import cn.nukkit.lang.TextContainer;
 import cn.nukkit.lang.TranslationContainer;
-import cn.nukkit.network.protocol.OnScreenTextureAnimationPacket;
-import cn.nukkit.network.protocol.SetTitlePacket;
-import cn.nukkit.network.protocol.TextPacket;
+import cn.nukkit.level.Level;
+import cn.nukkit.level.Location;
+import cn.nukkit.math.Vector3;
+import cn.nukkit.network.protocol.*;
+import cn.nukkit.network.protocol.types.inventory.ContainerSlotType;
+import cn.nukkit.network.protocol.types.inventory.FullContainerName;
 import gameapi.utils.Language;
 import gameapi.utils.TitleData;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -199,6 +207,30 @@ public class PlayerTools {
         }
     }
 
+    public static void fakeTotemUsing(Player player) {
+        boolean totemOwned = false;
+        if (player.getInventory().getItemInHandFast().getId() == ItemID.TOTEM) {
+            totemOwned = true;
+        }
+        if (player.getOffhandInventory().getItemFast(0).getId() == ItemID.TOTEM) {
+            totemOwned = true;
+        }
+        if (!totemOwned) {
+            InventoryContentPacket offhandPacket = new InventoryContentPacket();
+            offhandPacket.containerNameData = new FullContainerName(ContainerSlotType.OFFHAND, null);
+            offhandPacket.inventoryId = InventoryContentPacket.SPECIAL_OFFHAND;
+            offhandPacket.slots = new Item[]{Item.get(ItemID.TOTEM)};
+            player.dataPacket(offhandPacket);
+        }
+        player.getLevel().addLevelEvent(player.getPosition(), LevelEventPacket.EVENT_SOUND_TOTEM);
+        EntityEventPacket pk = new EntityEventPacket();
+        pk.eid = player.getId();
+        pk.event = EntityEventPacket.CONSUME_TOTEM;
+        player.dataPacket(pk);
+        if (totemOwned) {
+            player.getOffhandInventory().sendSlot(0);
+        }
+    }
 
     // Translation
 
@@ -291,5 +323,51 @@ public class PlayerTools {
         player.removeAllEffects();
         player.teleport(player.add(0, 0.1, 0), PlayerTeleportEvent.TeleportCause.ENDER_PEARL);
         player.setMovementSpeed(moveSpeed);
+    }
+
+    //边缘检测
+    private static final double PLAYER_BOUNDINGBOX_ADD = 0.3;
+
+    @Nullable
+    public static Block getBlockUnderPlayer(Player player) {
+        Block block = null;
+        int y = player.getLevelBlock().getFloorY();
+        for (int i = 0; i <= 1; i++) {
+            block = getBlockUnderPlayer(y, player.getLocation());
+            y--;
+            if (block != null) {
+                break;
+            }
+        }
+        return block;
+    }
+
+    @Nullable
+    public static Block getBlockUnderPlayer(int y, Location location) {
+        return getBlockUnderPlayer(y, location, location.getLevel());
+    }
+
+    @Nullable
+    public static Block getBlockUnderPlayer(int y, Vector3 pos, Level level) {
+        Location loc = new Location(pos.getX(), y, pos.getZ(), level);
+        loc.setY(y);
+        Block b11 = loc.add(+PLAYER_BOUNDINGBOX_ADD,0, -PLAYER_BOUNDINGBOX_ADD).getLevelBlock();
+        if (b11.getId() != BlockID.AIR) {
+            return b11;
+        }
+        Block b12 = loc.add(-PLAYER_BOUNDINGBOX_ADD,0, +PLAYER_BOUNDINGBOX_ADD).getLevelBlock();
+        if (b12.getId() != BlockID.AIR) {
+            return b12;
+        }
+        Block b21 = loc.add(+PLAYER_BOUNDINGBOX_ADD,0, +PLAYER_BOUNDINGBOX_ADD).getLevelBlock();
+        if (b21.getId() != BlockID.AIR) {
+            return b21;
+        }
+        Block b22 = loc.add(-PLAYER_BOUNDINGBOX_ADD,0, -PLAYER_BOUNDINGBOX_ADD).getLevelBlock();
+        if (b22.getId() != BlockID.AIR) {
+            return b22;
+        }
+
+        return null;
     }
 }

@@ -44,7 +44,7 @@ public class RoomListCommand extends EasySubCommand {
             simple.addButton(
                     new ResponsiveElementButton(
                             room.getRoomName() + "(" + room.getPlayers().size() + "/" + room.getMaxPlayer() + ")\n"
-                                    + room.getRoomStatus())
+                                    + room.getCurrentRoomStatus())
                             .onRespond(player1 -> showRoomJoinChoice(player1, room))
             );
         }

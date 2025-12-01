@@ -16,6 +16,7 @@ import gameapi.extensions.obstacle.DynamicObstacle;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.items.RoomItemBase;
 import gameapi.room.task.RoomPreciseUpdateTask;
+import gameapi.tools.PlayerTools;
 import gameapi.tools.VanillaCustomMusicTools;
 
 import java.util.*;
@@ -139,17 +140,19 @@ public class RoomUpdateTask implements Runnable {
     protected void onUpdateRoomBlockTreadEvent(Player player) {
         if (player.isValid() && player.getLevel().getProvider() != null) {
             // Tread Block Event
-            Block block = player.add(-0.5, -1, -0.5).floor().getLevelBlock();
-            RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(this.room, block, player);
-            GameListenerRegistry.callEvent(this.room, roomBlockTreadEvent);
-            if (!roomBlockTreadEvent.isCancelled()) {
-                for (DynamicObstacle dynamicObstacle : new ArrayList<>(this.room.getDynamicObstacles())) {
-                    if (!dynamicObstacle.isEnabled()) {
-                        continue;
-                    }
-                    for (Block dynamicObstacleBlock : dynamicObstacle.getBlocks()) {
-                        if (dynamicObstacleBlock.distanceSquared(block) < 1d) {
-                            dynamicObstacle.onTread(dynamicObstacleBlock);
+            Block block = PlayerTools.getBlockUnderPlayer(player);
+            if (block != null) {
+                RoomBlockTreadEvent roomBlockTreadEvent = new RoomBlockTreadEvent(this.room, block, player);
+                GameListenerRegistry.callEvent(this.room, roomBlockTreadEvent);
+                if (!roomBlockTreadEvent.isCancelled()) {
+                    for (DynamicObstacle dynamicObstacle : new ArrayList<>(this.room.getDynamicObstacles())) {
+                        if (!dynamicObstacle.isEnabled()) {
+                            continue;
+                        }
+                        for (Block dynamicObstacleBlock : dynamicObstacle.getBlocks()) {
+                            if (dynamicObstacleBlock.distanceSquared(block) < 1d) {
+                                dynamicObstacle.onTread(dynamicObstacleBlock);
+                            }
                         }
                     }
                 }

@@ -44,6 +44,9 @@ public class HubCommand extends Command {
                     if (SURVIVAL_WORLDS.contains(player.getLevelName())) {
                         commandSender.sendMessage(TextFormat.GREEN + "已返回主城！");
                         player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    } else if (player.getLevelName().startsWith("SimpleParkour")) {
+                        commandSender.sendMessage(TextFormat.GREEN + "已返回主城！");
+                        player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                     }
                 }
             }

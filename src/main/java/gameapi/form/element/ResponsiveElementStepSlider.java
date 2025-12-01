@@ -65,4 +65,9 @@ public class ResponsiveElementStepSlider extends ElementStepSlider {
         this.getSteps().addAll(supplier.get());
         return this;
     }
+
+    public ResponsiveElementStepSlider toolTip(String s) {
+        this.setTooltip(s);
+        return this;
+    }
 }

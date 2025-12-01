@@ -43,4 +43,9 @@ public class ResponsiveElementSlider extends ElementSlider {
         this.setText(supplier.get());
         return this;
     }
+
+    public ResponsiveElementSlider toolTip(String s) {
+        this.setTooltip(s);
+        return this;
+    }
 }

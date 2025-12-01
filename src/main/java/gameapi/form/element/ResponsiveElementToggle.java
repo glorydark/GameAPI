@@ -39,4 +39,9 @@ public class ResponsiveElementToggle extends ElementToggle {
         this.setText(supplier.get());
         return this;
     }
+
+    public ResponsiveElementToggle toolTip(String s) {
+        this.setTooltip(s);
+        return this;
+    }
 }

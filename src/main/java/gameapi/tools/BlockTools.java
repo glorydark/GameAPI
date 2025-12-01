@@ -8,6 +8,7 @@ import cn.nukkit.level.Location;
 import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.level.particle.DestroyBlockParticle;
 import cn.nukkit.math.AxisAlignedBB;
+import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.Vector3;
 import gameapi.utils.NukkitTypeUtils;
 
@@ -100,5 +101,11 @@ public class BlockTools {
 
     public static Block getBlockfromString(String string) {
         return Item.fromString(string).getBlockUnsafe();
+    }
+
+    public static void placeBlock(Block block, Vector3 vector3, Level level) {
+        block.setComponents(vector3);
+        block.setLevel(level);
+        block.place(null, block, block, BlockFace.DOWN, 0, 0, 0, null);
     }
 }

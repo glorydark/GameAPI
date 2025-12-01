@@ -6,6 +6,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Location;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.network.protocol.RemoveEntityPacket;
 import gameapi.GameAPI;
 import gameapi.entity.RankingListEntity;
 import gameapi.entity.TextEntity;
@@ -22,7 +23,12 @@ public class GameEntityManager {
 
     public static List<TextEntityData> textEntityDataList = new ArrayList<>();
 
+    public static boolean update = true;
+
     public static void onUpdate() {
+        if (!update) {
+            return;
+        }
         if (Server.getInstance().getOnlinePlayers().isEmpty()) {
             return;
         }
@@ -50,12 +56,21 @@ public class GameEntityManager {
                                 textEntityDataList.remove(textEntityData);
                                 textEntity.despawnFromAll();
                                 textEntity.close();
+
+                                RemoveEntityPacket pk = new RemoveEntityPacket();
+                                pk.eid = textEntity.getId();
+                                Server.broadcastPacket(Server.getInstance().getOnlinePlayers().values(), pk);
+
                                 GameEntityManager.spawnTextEntity(textEntity.getLocation(), textEntityData.getDefaultText());
                                 // GameAPI.getGameDebugManager().info("Respawn text entity: " + textEntityData.getDefaultText() + " at " + textEntityData.getPosition().asVector3f());
                             } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
                                 textEntityDataList.remove(textEntityData);
                                 textEntity.despawnFromAll();
                                 textEntity.close();
+
+                                RemoveEntityPacket pk = new RemoveEntityPacket();
+                                pk.eid = textEntity.getId();
+                                Server.broadcastPacket(Server.getInstance().getOnlinePlayers().values(), pk);
                                 GameEntityManager.spawnTextEntity(textEntity.getLocation(), textEntityData.getDefaultText());
                             } else {
                                 textEntity.onAsyncUpdate(Server.getInstance().getTick());
@@ -77,12 +92,20 @@ public class GameEntityManager {
                                 textEntityDataList.remove(textEntityData);
                                 textEntity.despawnFromAll();
                                 textEntity.close();
+
+                                RemoveEntityPacket pk = new RemoveEntityPacket();
+                                pk.eid = textEntity.getId();
+                                Server.broadcastPacket(Server.getInstance().getOnlinePlayers().values(), pk);
                                 RankingManager.spawnRankingListEntity(textEntityData.getLocation(), ranking);
                                 // GameAPI.getGameDebugManager().info("Respawn ranking: " + ranking.getTitle() + " at " + textEntityData.getPosition().asVector3f());
                             } else if (System.currentTimeMillis() - textEntityData.getStartMillis() >= 300000L) {
                                 textEntityDataList.remove(textEntityData);
                                 textEntity.despawnFromAll();
                                 textEntity.close();
+
+                                RemoveEntityPacket pk = new RemoveEntityPacket();
+                                pk.eid = textEntity.getId();
+                                Server.broadcastPacket(Server.getInstance().getOnlinePlayers().values(), pk);
                                 RankingManager.spawnRankingListEntity(textEntityData.getLocation(), ranking);
                             } else {
                                 textEntity.onAsyncUpdate(Server.getInstance().getTick());
@@ -97,13 +120,16 @@ public class GameEntityManager {
     }
 
     public static void closeAll() {
+        update = false;
         RankingManager.getRankingFactory().clear();
         textEntityDataList.clear();
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof TextEntity textEntity) {
+                    textEntity.despawnFromAll();
                     textEntity.close();
                 } else if (entity instanceof ParticleGunFakeBullet entityFakeBullet) {
+                    entityFakeBullet.despawnFromAll();
                     entityFakeBullet.close();
                 }
             }

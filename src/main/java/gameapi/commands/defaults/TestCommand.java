@@ -23,6 +23,9 @@ public class TestCommand extends EasySubCommand {
         pk.rowingTime = 0;
         Server.broadcastPacket(player.getViewers().values(), pk);
          */
+        // PlayerTools.showOnScreenTextureAnimation(commandSender.asPlayer(), Integer.parseInt(args[0]));
+        // Player player = commandSender.asPlayer();
+        // player.setItemCoolDown(Integer.parseInt(args[1]), args[0]);
         commandSender.asPlayer().getInventory().addItem(ParticleGunManager.getParticleGun("gun:ak47").getItem());
         return false;
     }

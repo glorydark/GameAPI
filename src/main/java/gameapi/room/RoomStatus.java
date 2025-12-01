@@ -5,33 +5,32 @@ package gameapi.room;
  */
 public enum RoomStatus {
 
-    ROOM_STATUS_WAIT,
+    ROOM_STATUS_WAIT("wait"),
+    ROOM_STATUS_PRESTART("prestart"),
+    ROOM_STATUS_READY_START("ready_start"),
+    ROOM_STATUS_START("game_start"),
+    ROOM_STATUS_GAME_END("game_end"),
+    ROOM_STATUS_CEREMONY("ceremony"),
+    ROOM_STATUS_NEXT_ROUND_PRESTART("next_round_prestart"),
 
-    ROOM_STATUS_PRESTART,
+    ROOM_STATUS_END("room_end"),
+    ROOM_MAP_INITIALIZING("map_initializing"),
+    ROOM_MAP_LOAD_FAILED("map_load_failed"),
 
-    ROOM_STATUS_READY_START,
+    ROOM_HALTED("room_halted"),
+    ROOM_STOPPED("room_stopped"),
 
-    ROOM_STATUS_START,
+    ROOM_PLAYBACK("room_playback"),
+    ROOM_EDIT("room_edit"),
+    ROOM_INITIALIZING("room_initializing");
 
-    ROOM_STATUS_GAME_END,
+    private final String identifier;
 
-    ROOM_STATUS_CEREMONY,
+    RoomStatus(String identifier) {
+        this.identifier = identifier;
+    }
 
-    ROOM_STATUS_NEXT_ROUND_PRESTART,
-
-    ROOM_STATUS_END,
-
-    ROOM_MAP_INITIALIZING,
-
-    ROOM_MAP_LOAD_FAILED,
-
-    ROOM_HALTED,
-
-    ROOM_STOPPED,
-
-    ROOM_PLAYBACK,
-
-    ROOM_EDIT,
-
-    ROOM_INITIALIZING
+    public String getIdentifier() {
+        return identifier;
+    }
 }

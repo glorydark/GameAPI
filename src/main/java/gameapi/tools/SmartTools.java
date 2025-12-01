@@ -99,7 +99,7 @@ public class SmartTools {
     }
 
     public static long timeMillisAlignToTick(long millis) {
-        return (millis / 50) * 50;
+        return Math.round(millis / 50.0) * 50;
     }
 
     public static String secToTime(int seconds) {

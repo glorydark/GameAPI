@@ -43,4 +43,9 @@ public class ResponsiveElementInput extends ElementInput {
         this.setText(supplier.get());
         return this;
     }
+
+    public ResponsiveElementInput toolTip(String s) {
+        this.setTooltip(s);
+        return this;
+    }
 }

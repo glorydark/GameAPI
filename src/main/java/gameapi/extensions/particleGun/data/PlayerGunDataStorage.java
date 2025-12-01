@@ -28,6 +28,8 @@ public class PlayerGunDataStorage {
 
     protected String lastUpdateWeaponSpeedId = "";
 
+    protected boolean showParticle = true;
+
     public PlayerGunDataStorage() {
 
     }
@@ -38,6 +40,14 @@ public class PlayerGunDataStorage {
 
     public void setShooting(boolean shooting) {
         this.shooting = shooting;
+    }
+
+    public boolean isShowBulletParticle() {
+        return showParticle;
+    }
+
+    public void setShowParticle(boolean showParticle) {
+        this.showParticle = showParticle;
     }
 
     public long getLastInteractMillis() {

@@ -30,12 +30,12 @@ public class FileTools {
      */
     public static boolean copyFiles(File from, File target) {
 
-        GameAPI.getInstance().getLogger().info("Copying world from backup {" + from.getName() + "} to {" + target.getName() + "}...");
+        GameAPI.getInstance().getLogger().info("Copying from {" + from.getName() + "} to {" + target.getName() + "}...");
         int load = 1;
         File[] files = from.listFiles();
         if (files != null) {
             for (File value : files) {
-                GameAPI.getInstance().getLogger().info("Copy World ... " + ((load / (float) files.length) * 100) + "%");
+                GameAPI.getInstance().getLogger().info("Copy directory ... " + ((load / (float) files.length) * 100) + "%");
                 load++;
                 if (value.isFile()) {
                     File file1 = new File(target + File.separator + value.getName());
