@@ -46,7 +46,7 @@ public class RoomDefaultStatusFactory {
     public static final CustomRoomStatus ROOM_STATUS_GAME_END = register(new RoomStatusGameEnd());
     public static final CustomRoomStatus ROOM_STATUS_CEREMONY = register(new RoomStatusCeremony());
     public static final CustomRoomStatus ROOM_STATUS_NEXT_ROUND_PRESTART = register(new RoomStatusNextRoundPrestart());
-    public static final CustomRoomStatus ROOM_STATUS_ROOM_END = register(new DefaultCustomRoomStatus(ROOM_STATUS_ROOM_END_ID));
+    public static final CustomRoomStatus ROOM_STATUS_ROOM_END = register(new RoomStatusEnd());
 
     public static final CustomRoomStatus ROOM_MAP_INITIALIZING = register(new DefaultCustomRoomStatus(ROOM_MAP_INITIALIZING_ID));
     public static final CustomRoomStatus ROOM_MAP_LOAD_FAILED = register(new DefaultCustomRoomStatus(ROOM_MAP_LOAD_FAILED_ID));

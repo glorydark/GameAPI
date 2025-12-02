@@ -11,6 +11,7 @@ import cn.nukkit.level.Location;
 import cn.nukkit.math.BlockVector3;
 import cn.nukkit.network.protocol.CreativeContentPacket;
 import gameapi.GameAPI;
+import gameapi.annotation.Description;
 import gameapi.commands.defaults.dev.HideChatCommand;
 import gameapi.entity.TextEntity;
 import gameapi.event.player.*;
@@ -160,7 +161,10 @@ public class Room {
     private List<String> loseConsoleCommands = new ArrayList<>();
     // Save data of room's chat history.
     private List<RoomChatData> chatDataList = new ArrayList<>();
+    @Description(usage = "to save the game start millis of every game start inside plugins")
     private long startMillis;
+    @Description(usage = "to save the server tick when game starts")
+    private int gameStartTick;
     private String tempWorldPrefixOverride = "";
     private int id = -1;
     private List<StageState> stageStates = new ArrayList<>();
@@ -703,33 +707,9 @@ public class Room {
             GameAPI.getGameDebugManager().warning("Found duplicated move in setting the same status for a room, room: " + this.getRoomName() + ", reason: " + reason + ", lastReason: " + prevReason + ", status: " + this.currentRoomStatus);
             return;
         }
+        status.onEnter(this);
         this.time = 0;
-        switch (status.getIdentifier()) {
-            case RoomDefaultStatusFactory.ROOM_STATUS_PRESTART_ID:
-                GameListenerRegistry.callEvent(this, new RoomPreStartEvent(this));
-                break;
-            case RoomDefaultStatusFactory.ROOM_STATUS_READY_START_ID:
-                GameListenerRegistry.callEvent(this, new RoomReadyStartEvent(this));
-                break;
-            case RoomDefaultStatusFactory.ROOM_STATUS_GAME_START_ID:
-                GameListenerRegistry.callEvent(this, new RoomGameStartEvent(this));
-                break;
-            case RoomDefaultStatusFactory.ROOM_STATUS_GAME_END_ID:
-                GameListenerRegistry.callEvent(this, new RoomGameEndEvent(this));
-                break;
-            case RoomDefaultStatusFactory.ROOM_STATUS_CEREMONY_ID:
-                GameListenerRegistry.callEvent(this, new RoomCeremonyEvent(this));
-                break;
-            case RoomDefaultStatusFactory.ROOM_STATUS_NEXT_ROUND_PRESTART_ID:
-                GameListenerRegistry.callEvent(this, new RoomNextRoundPreStartEvent(this));
-                break;
-            case RoomDefaultStatusFactory.ROOM_STATUS_ROOM_END_ID:
-                GameListenerRegistry.callEvent(this, new RoomEndEvent(this));
-                break;
-            default:
-                GameListenerRegistry.callEvent(this, new RoomCustomStatusChangeEvent(this, prevStatus, status));
-                break;
-        }
+        GameListenerRegistry.callEvent(this, new RoomCustomStatusChangeEvent(this, prevStatus, status));
         this.currentRoomStatus = status;
     }
 

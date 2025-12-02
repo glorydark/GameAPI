@@ -10,6 +10,7 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.entity.item.EntityItem;
+import cn.nukkit.entity.item.EntityVehicle;
 import cn.nukkit.entity.projectile.EntityEnderPearl;
 import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.event.EventHandler;
@@ -868,6 +869,18 @@ public class BaseEventListener implements Listener {
     }
 
     @EventHandler
+    public void EntityInteractEvent(EntityInteractEvent event) {
+        Entity entity = event.getEntity();
+        for (Room room : RoomManager.getRooms(entity.getLevel())) {
+            RoomEntityInteractEvent ev = new RoomEntityInteractEvent(room, entity, event.getBlock());
+            GameListenerRegistry.callEvent(room, ev);
+            if (ev.isCancelled()) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
     public void PlayerInteractEvent(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Room room = RoomManager.getRoom(player);
@@ -1242,6 +1255,32 @@ public class BaseEventListener implements Listener {
         if (room != null) {
             RoomPlayerMissedSwingEvent roomEvent = new RoomPlayerMissedSwingEvent(room, event.getPlayer());
             GameListenerRegistry.callEvent(room, roomEvent);
+        }
+    }
+
+    @EventHandler
+    public void onVehicleEnter(EntityVehicleEnterEvent event) {
+        Entity entity = event.getEntity();
+        EntityVehicle vehicle = event.getVehicle();
+        for (Room room : RoomManager.getRooms(vehicle.getLevel())) {
+            RoomEntityVehicleEnterEvent rev = new RoomEntityVehicleEnterEvent(room, entity, vehicle);
+            rev.call();
+            if (rev.isCancelled()) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onVehicleExit(EntityVehicleExitEvent event) {
+        Entity entity = event.getEntity();
+        EntityVehicle vehicle = event.getVehicle();
+        for (Room room : RoomManager.getRooms(vehicle.getLevel())) {
+            RoomEntityVehicleExitEvent rev = new RoomEntityVehicleExitEvent(room, entity, vehicle);
+            rev.call();
+            if (rev.isCancelled()) {
+                event.setCancelled(true);
+            }
         }
     }
 

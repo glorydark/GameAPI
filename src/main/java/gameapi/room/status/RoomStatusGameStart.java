@@ -1,5 +1,7 @@
 package gameapi.room.status;
 
+import cn.nukkit.Server;
+import gameapi.event.room.RoomGameStartEvent;
 import gameapi.event.room.RoomGameStartTickEvent;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
@@ -17,6 +19,16 @@ public class RoomStatusGameStart extends InternalRoomStatus {
     }
 
     @Override
+    public void onEnter(Room room) {
+        room.setRound(room.getRound() + 1);
+        room.getStatusExecutor().beginGameStart();
+        room.setStartMillis(System.currentTimeMillis());
+        room.setGameStartTick(Server.getInstance().getTick());
+        new RoomGameStartEvent(room).call();
+        room.getStatusExecutor().beginGameStart();
+    }
+
+    @Override
     public boolean onTick(Room room) {
         if (!this.hasEnoughPlayerWithTeam(room)) {
             room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
@@ -31,10 +43,8 @@ public class RoomStatusGameStart extends InternalRoomStatus {
     public void onStateUpdate(Room room) {
         if (!room.getRoomRule().isNoTimeLimit() && room.getTime() >= room.getGameTime()) {
             if (room.getRound() >= room.getMaxRound()) {
-                room.getStatusExecutor().beginGameEnd();
                 room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_GAME_END, "internal");
             } else {
-                room.getStatusExecutor().beginNextRoundPreStart();
                 room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_NEXT_ROUND_PRESTART, "internal");
             }
         } else {

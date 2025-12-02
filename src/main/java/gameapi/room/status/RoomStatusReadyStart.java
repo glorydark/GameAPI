@@ -1,5 +1,6 @@
 package gameapi.room.status;
 
+import gameapi.event.room.RoomReadyStartEvent;
 import gameapi.event.room.RoomReadyStartTickEvent;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
@@ -28,11 +29,14 @@ public class RoomStatusReadyStart extends InternalRoomStatus {
         return false;
     }
 
+    @Override
+    public void onEnter(Room room) {
+        new RoomReadyStartEvent(room).call();
+        room.getStatusExecutor().beginReadyStart();
+    }
+
     public void onStateUpdate(Room room) {
         if (room.getTime() >= room.getGameWaitTime()) {
-            room.setRound(room.getRound() + 1);
-            room.getStatusExecutor().beginGameStart();
-            room.setStartMillis(System.currentTimeMillis());
             CustomRoomStatus status = this.getNextRoomStatus(room);
             if (status == null) {
                 status = RoomDefaultStatusFactory.ROOM_STATUS_GAME_START;

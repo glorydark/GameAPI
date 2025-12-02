@@ -1,5 +1,6 @@
 package gameapi.room.status;
 
+import gameapi.event.room.RoomPreStartEvent;
 import gameapi.event.room.RoomPreStartTickEvent;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
@@ -19,6 +20,13 @@ public class RoomStatusPrestart extends InternalRoomStatus {
     }
 
     @Override
+    public void onEnter(Room room) {
+        room.setRound(0);
+        new RoomPreStartEvent(room).call();
+        room.getStatusExecutor().beginPreStart();
+    }
+
+    @Override
     public boolean onTick(Room room) {
         if (!this.hasEnoughPlayer(room)) {
             room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
@@ -32,7 +40,6 @@ public class RoomStatusPrestart extends InternalRoomStatus {
 
     public void onStateUpdate(Room room) {
         if (room.getTime() >= room.getWaitTime()) {
-            room.getStatusExecutor().beginReadyStart();
             CustomRoomStatus status = this.getNextRoomStatus(room);
             if (status == null) {
                 status = RoomDefaultStatusFactory.ROOM_STATUS_READY_START;

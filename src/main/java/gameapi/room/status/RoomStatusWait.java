@@ -42,8 +42,6 @@ public class RoomStatusWait extends InternalRoomStatus {
                     status = RoomDefaultStatusFactory.ROOM_STATUS_PRESTART;
                 }
                 room.setCurrentRoomStatus(status, "internal");
-                room.setRound(0);
-                room.getStatusExecutor().beginPreStart();
             } else {
                 room.getStatusExecutor().onWait();
             }

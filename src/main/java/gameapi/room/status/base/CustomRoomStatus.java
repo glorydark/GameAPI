@@ -24,6 +24,10 @@ public abstract class CustomRoomStatus {
         this.allowSpectatorJoin = allowSpectatorJoin;
     }
 
+    public void onEnter(Room room) {
+
+    }
+
     public String getIdentifier() {
         return identifier;
     }

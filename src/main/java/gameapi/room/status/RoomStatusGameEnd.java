@@ -1,5 +1,6 @@
 package gameapi.room.status;
 
+import gameapi.event.room.RoomGameEndEvent;
 import gameapi.event.room.RoomGameEndTickEvent;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
@@ -17,6 +18,12 @@ public class RoomStatusGameEnd extends InternalRoomStatus {
     }
 
     @Override
+    public void onEnter(Room room) {
+        new RoomGameEndEvent(room).call();
+        room.getStatusExecutor().beginGameEnd();
+    }
+
+    @Override
     public boolean onTick(Room room) {
         if (!this.hasEnoughPlayerWithTeam(room)) {
             room.resetAll(ResetAllReason.NO_ENOUGH_PLAYERS);
@@ -29,7 +36,6 @@ public class RoomStatusGameEnd extends InternalRoomStatus {
     public boolean onStateUpdate(Room room) {
         if (room.getTime() >= room.getGameEndTime()) {
             if (room.getRoomRule().isHasCeremony()) {
-                room.getStatusExecutor().beginCeremony();
                 room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_CEREMONY, "internal");
             } else {
                 room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_ROOM_END, "internal");
