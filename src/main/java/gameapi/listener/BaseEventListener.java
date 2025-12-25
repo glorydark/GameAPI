@@ -24,11 +24,15 @@ import cn.nukkit.event.entity.*;
 import cn.nukkit.event.inventory.CraftItemEvent;
 import cn.nukkit.event.inventory.InventoryPickupArrowEvent;
 import cn.nukkit.event.inventory.InventoryPickupItemEvent;
+import cn.nukkit.event.level.ChunkLoadEvent;
+import cn.nukkit.event.level.ChunkUnloadEvent;
 import cn.nukkit.event.player.*;
 import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.format.FullChunk;
+import cn.nukkit.level.format.LevelProvider;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.PlayerAuthInputPacket;
@@ -38,6 +42,8 @@ import gameapi.commands.WorldEditCommand;
 import gameapi.commands.defaults.dev.HideChatCommand;
 import gameapi.entity.GameProjectileEntity;
 import gameapi.event.block.*;
+import gameapi.event.chunk.RoomChunkLoadEvent;
+import gameapi.event.chunk.RoomChunkUnloadEvent;
 import gameapi.event.entity.*;
 import gameapi.event.extra.EntityDamageByEntityByItemEvent;
 import gameapi.event.inventory.RoomInventoryPickupArrowEvent;
@@ -1280,6 +1286,35 @@ public class BaseEventListener implements Listener {
             rev.call();
             if (rev.isCancelled()) {
                 event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent event) {
+        FullChunk chunk = event.getChunk();
+        LevelProvider levelProvider = chunk.getProvider();
+        if (levelProvider != null) {
+            Level level = levelProvider.getLevel();
+            for (Room room : RoomManager.getRooms(level)) {
+                RoomChunkUnloadEvent rev = new RoomChunkUnloadEvent(room, event.getChunk());
+                rev.call();
+                if (rev.isCancelled()) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onChunkLoad(ChunkLoadEvent event) {
+        FullChunk chunk = event.getChunk();
+        LevelProvider levelProvider = chunk.getProvider();
+        if (levelProvider != null) {
+            Level level = levelProvider.getLevel();
+            for (Room room : RoomManager.getRooms(level)) {
+                RoomChunkLoadEvent rev = new RoomChunkLoadEvent(room, event.getChunk(), event.isNewChunk());
+                rev.call();
             }
         }
     }

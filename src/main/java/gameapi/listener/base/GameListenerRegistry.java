@@ -79,8 +79,8 @@ public class GameListenerRegistry {
     }
 
     public static void callEvent(Room room, RoomEvent event) {
-        callNewEvent(room, event); // call new event
         callOldEvent(room, event);
+        callNewEvent(room, event); // call new event
     }
 
     public static void callOldEvent(Room room, RoomEvent event) {

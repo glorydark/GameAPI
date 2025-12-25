@@ -3,8 +3,14 @@ package gameapi;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockID;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.event.Listener;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemID;
+import cn.nukkit.level.Level;
+import cn.nukkit.math.SimpleAxisAlignedBB;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
@@ -188,6 +194,31 @@ public class GameAPI extends PluginBase implements Listener {
                 GameAPI.getGameDebugManager().printError(t);
             }
         }, 0, 1, TimeUnit.SECONDS);
+        roomTaskExecutor.scheduleAtFixedRate(() -> {
+            for (Player value : Server.getInstance().getOnlinePlayers().values()) {
+                if (value.getInventory().getItemInHand().getId() != ItemID.EMERALD) {
+                    continue;
+                }
+                Level level = value.getLevel();
+                new SimpleAxisAlignedBB(value, value).expand(5, 5, 5).forEach((i, i1, i2) -> {
+                    if (i1 != 64) {
+                        return;
+                    }
+                    Vector3 pos = new Vector3(i, i1, i2);
+                    Block block = level.getBlock(pos);
+                    if (block.getId() != BlockID.PACKED_ICE && block.getId() != BlockID.GLOWSTONE) {
+                        if (block.west().getId() == BlockID.PACKED_ICE
+                                || block.east().getId() == BlockID.PACKED_ICE
+                                || block.north().getId() == BlockID.PACKED_ICE
+                                || block.south().getId() == BlockID.PACKED_ICE
+                        ) {
+                            level.setBlock(pos, Block.get(Block.GLOWSTONE_BLOCK));
+                            level.setBlock(pos.up(), Block.get(Block.GLOWSTONE_BLOCK));
+                        }
+                    }
+                });
+            }
+        }, 0, 1, TimeUnit.SECONDS);
         roomTaskExecutor.scheduleAtFixedRate(() -> new ArrayList<>(GameAPI.getGameDebugManager().getPlayers()).forEach(player -> {
             if (!player.isOnline() || player.getInventory() == null) {
                 return;
@@ -212,10 +243,34 @@ public class GameAPI extends PluginBase implements Listener {
                     Block under = PlayerTools.getBlockUnderPlayer(player);
                     if (under != null) {
                         //out += "所踩方块: " + under.toItem().getNamespaceId();
-                        out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under);
+                        out += "所踩方块: " + BlockTools.getIdentifierWithMeta(under) + "\n";
                     } else {
-                        out += "所踩方块: [无]";
+                        out += "所踩方块: [无]" + "\n";
                     }
+                    Entity entity = null;
+                    double dist = 9999d;
+                    if (player.temporalVector != null) {
+                        Entity[] nearbyEntities = player.level.getNearbyEntities(player.boundingBox.grow(32, 32, 32), player);
+                        for (Entity nearbyEntity : nearbyEntities) {
+                            if (nearbyEntity == null) {
+                                continue;
+                            }
+                            if (!nearbyEntity.isPlayer && nearbyEntity.distance(player) < 32) {
+                                double entityDist = nearbyEntity.distance(player);
+                                if (entityDist < dist) {
+                                    entity = nearbyEntity;
+                                    dist = entityDist;
+                                }
+                            }
+                        }
+                    }
+                    if (entity != null) {
+                        out += "附近实体及坐标: " + entity.getName() + "(" + df.format(entity.getX()) + ", " + df.format(entity.getY()) + ", " + df.format(entity.getZ()) + ")" + "\n";
+                        out += "附近实体朝向: " + df.format(entity.getYaw()) + ", " + df.format(entity.getPitch()) + ", " + df.format(entity.getHeadYaw());
+                    } else {
+                        out += "附近实体: 无";
+                    }
+
                     player.sendActionBar(out);
                 } else {
                     player.sendActionBar("x: " + player.getX()

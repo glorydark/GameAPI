@@ -5,9 +5,9 @@ import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
-import cn.nukkit.level.Location;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.tools.SpatialTools;
+import gameapi.utils.AdvancedLocation;
 
 /**
  * @author glorydark
@@ -40,10 +40,18 @@ public class TeleportCommand extends EasySubCommand {
         }
         StringBuilder str = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
-            str.append(args[i]).append(":");
+            if (i == args.length - 1) {
+                str.append(args[i]);
+            } else {
+                str.append(args[i]).append(":");
+            }
         }
-        Location location = SpatialTools.parseLocation(str.toString()).getLocation();
-        player.teleport(location);
+        AdvancedLocation location = SpatialTools.parseLocation(str.toString());
+        if (location == null) {
+            commandSender.sendMessage("[错误] 坐标存在问题！");
+            return false;
+        }
+        location.teleport(player);
         return false;
     }
 }

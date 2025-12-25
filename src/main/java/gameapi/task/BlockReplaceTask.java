@@ -66,7 +66,7 @@ public class BlockReplaceTask extends RecursiveTask<Long> {
                 if (this.checkDamage && blockAtPos.getDamage() != this.sourceBlock.getDamage()) {
                     continue;
                 }
-                this.level.setBlock(pos, this.targetBlock);
+                this.level.setBlock(pos, this.targetBlock, true, false);
                 this.proceedBlockCount++;
             }
         } else {

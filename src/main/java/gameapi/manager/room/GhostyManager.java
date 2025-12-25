@@ -6,6 +6,7 @@ import cn.nukkit.level.Level;
 import com.google.gson.JsonObject;
 import gameapi.GameAPI;
 import gameapi.room.Room;
+import gameapi.tools.DecimalTools;
 import lombok.Getter;
 import net.easecation.ghosty.LevelRecordPack;
 import net.easecation.ghosty.recording.LevelRecordEngine;
@@ -112,7 +113,7 @@ public class GhostyManager {
                 consumer.accept(metadata);
             }
             recordPack.packFile(file);
-            GameAPI.getInstance().getLogger().info("成功保存录像文件，文件名：" + file.getName() + "，游戏名：" + this.room.getGameName() + ", 参与玩家: " + playerNameList);
+            GameAPI.getInstance().getLogger().info("成功保存录像文件，文件名：" + file.getName() + "，游戏名：" + this.room.getGameName() + ", 参与玩家: " + playerNameList + ", 录制用时: " + + DecimalTools.getDouble(levelRecordEngine.getLevelRecord().iterator().getLastTick() * 0.05d, 2));
         } catch (Throwable t) {
             GameAPI.getGameDebugManager().printError(t);
         }

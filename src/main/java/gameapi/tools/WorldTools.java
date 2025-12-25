@@ -195,7 +195,6 @@ public class WorldTools {
         level.setThundering(false);
         level.setRaining(false);
         level.setAutoSave(false);
-        level.setSaveOnUnloadEnabled(false);
     }
 
     public static int getNewBackUpLoadId(String gameName) {

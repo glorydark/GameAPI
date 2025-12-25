@@ -55,7 +55,7 @@ public class BlockFillTask extends RecursiveTask<Long> {
     protected Long compute() {
         if (this.posList.size() <= THRESHOLD) {
             for (Vector3 pos : getImmutablePosList()) {
-                this.level.setBlock(pos, this.replacedBlock);
+                this.level.setBlock(pos, this.replacedBlock, true, false);
                 this.proceedBlockCount++;
             }
         } else {

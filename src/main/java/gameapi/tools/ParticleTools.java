@@ -11,6 +11,7 @@ import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.math.Vector3f;
 import cn.nukkit.network.protocol.SpawnParticleEffectPacket;
+import gameapi.utils.MolangVariableMap;
 
 /**
  * @author glorydark
@@ -87,12 +88,32 @@ public class ParticleTools {
         addParticleEffect(particleEffectId, level, new Vector3(bb.getMinX(), bb.getMinY(), bb.getMinZ()).asVector3f());
     }
 
-    public static void addParticleEffect(String particleEffectId, Level level, Vector3f vector3f, Player... players) {
-        level.addParticleEffect(vector3f, particleEffectId, -1, level.getDimension(), players);
+    public static void addParticleEffect(String particleEffectId, Level level, Vector3f position, MolangVariableMap molangVariables, Player... players) {
+        SpawnParticleEffectPacket pk = new SpawnParticleEffectPacket();
+        pk.identifier = particleEffectId;
+        pk.uniqueEntityId = -1;
+        pk.dimensionId = level.getDimension();
+        pk.position = position;
+        if (molangVariables != null && !molangVariables.isEmpty()) {
+            pk.molangVariablesJson = molangVariables.toJson().describeConstable();
+        }
+        if (players != null && players.length != 0) {
+            Server.broadcastPacket(players, pk);
+        } else {
+            level.addChunkPacket(position.getFloorX() >> 4, position.getFloorZ() >> 4, pk);
+        }
     }
 
-    public static void addParticleEffect(String particleEffectId, Level level, Vector3 vector3, Player... players) {
-        addParticleEffect(particleEffectId, level, vector3.asVector3f(), players);
+    public static void addParticleEffect(String particleEffectId, Level level, Vector3f position, Player... players) {
+        addParticleEffect(particleEffectId, level, position, null, players);
+    }
+
+    public static void addParticleEffect(String particleEffectId, Level level, Vector3 position, Player... players) {
+        addParticleEffect(particleEffectId, level, position.asVector3f(), players);
+    }
+
+    public static void addParticleEffect(String particleEffectId, Position position, MolangVariableMap molangVariables, Player... players) {
+        addParticleEffect(particleEffectId, position.getLevel(), position.asVector3f(), molangVariables, players);
     }
 
     public static void addParticleEffect(String particleEffectId, Position position, Player... players) {

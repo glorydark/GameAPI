@@ -102,6 +102,10 @@ public class SmartTools {
         return Math.round(millis / 50.0) * 50;
     }
 
+    public static String timeInTickToMillisString(int tick) {
+        return timeMillisToString(tick * 50L);
+    }
+
     public static String secToTime(int seconds) {
         int hour = seconds / 3600;
         int minute = (seconds - hour * 3600) / 60;
