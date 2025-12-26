@@ -14,6 +14,7 @@ import gameapi.form.inventory.BlockFakeInventoryType;
 import gameapi.form.response.BlockInventoryResponse;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.utils.FakeBlockCacheData;
+import gameapi.utils.NukkitTypeUtils;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -47,7 +48,11 @@ public abstract class AdvancedBlockFakeBlockInventoryImpl extends AdvancedBlockF
 
         // 往客户端生成一个虚假方块
         UpdateBlockPacket pk = new UpdateBlockPacket();
-        pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getGameVersion(), this.getFakeBlockFormType().getBlockId(), 0);
+        if (NukkitTypeUtils.getNukkitType() == NukkitTypeUtils.NukkitType.MOT) {
+            pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getGameVersion(), this.getFakeBlockFormType().getBlockId(), 0);
+        } else {
+            pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.getFakeBlockFormType().getBlockId(), 0);
+        }
         pk.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
         pk.x = position.getFloorX();
         pk.y = position.getFloorY();

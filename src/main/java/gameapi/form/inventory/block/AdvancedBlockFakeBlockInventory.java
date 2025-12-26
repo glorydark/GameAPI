@@ -16,6 +16,7 @@ import gameapi.form.inventory.AdvancedFakeBlockInventory;
 import gameapi.form.inventory.BlockFakeInventoryType;
 import gameapi.form.response.BlockInventoryResponse;
 import gameapi.utils.FakeBlockCacheData;
+import gameapi.utils.NukkitTypeUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -159,7 +160,11 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
             List<FakeBlockCacheData> cacheDataList = this.getFakeBlockList();
             for (FakeBlockCacheData cacheData : cacheDataList) {
                 UpdateBlockPacket pk = new UpdateBlockPacket();
-                pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getGameVersion(), cacheData.getBlock().getId(), cacheData.getBlock().getDamage());
+                if (NukkitTypeUtils.getNukkitType() == NukkitTypeUtils.NukkitType.MOT) {
+                    pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getGameVersion(), cacheData.getBlock().getId(), cacheData.getBlock().getDamage());
+                } else {
+                    pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, cacheData.getBlock().getId(), cacheData.getBlock().getDamage());
+                }
                 pk.flags = UpdateBlockPacket.FLAG_ALL;
                 pk.x = cacheData.getX();
                 pk.y = cacheData.getY();

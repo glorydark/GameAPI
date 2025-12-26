@@ -16,6 +16,7 @@ import gameapi.form.inventory.block.AdvancedBlockFakeBlockInventoryImpl;
 import gameapi.form.response.BlockInventoryResponse;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.utils.FakeBlockCacheData;
+import gameapi.utils.NukkitTypeUtils;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -58,7 +59,11 @@ public class AdvancedDoubleChestForm extends AdvancedBlockFakeBlockInventoryImpl
         Position position = getValidPosition(player);
 
         UpdateBlockPacket pk = new UpdateBlockPacket();
-        pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getGameVersion(), this.getFakeBlockFormType().getBlockId(), 0);
+        if (NukkitTypeUtils.getNukkitType() == NukkitTypeUtils.NukkitType.MOT) {
+            pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getGameVersion(), this.getFakeBlockFormType().getBlockId(), 0);
+        } else {
+            pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.getFakeBlockFormType().getBlockId(), 0);
+        }
         pk.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
         pk.x = position.getFloorX();
         pk.y = position.getFloorY();
@@ -66,7 +71,11 @@ public class AdvancedDoubleChestForm extends AdvancedBlockFakeBlockInventoryImpl
         player.dataPacket(pk);
 
         UpdateBlockPacket pk1 = new UpdateBlockPacket();
-        pk1.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getGameVersion(), this.getFakeBlockFormType().getBlockId(), 0);
+        if (NukkitTypeUtils.getNukkitType() == NukkitTypeUtils.NukkitType.MOT) {
+            pk1.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getGameVersion(), this.getFakeBlockFormType().getBlockId(), 0);
+        } else {
+            pk1.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.getFakeBlockFormType().getBlockId(), 0);
+        }
         pk1.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
         pk1.x = position.getFloorX() - 1;
         pk1.y = position.getFloorY();
