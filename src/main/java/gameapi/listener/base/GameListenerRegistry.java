@@ -3,11 +3,13 @@ package gameapi.listener.base;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.PluginException;
+import gameapi.annotation.Description;
 import gameapi.annotation.Experimental;
 import gameapi.event.RoomEvent;
 import gameapi.event.block.RoomBlockEvent;
 import gameapi.event.player.RoomPlayerInteractEvent;
 import gameapi.listener.base.annotations.GameEventHandler;
+import gameapi.listener.base.interfaces.ConsumerGameExecutor;
 import gameapi.listener.base.interfaces.GameListener;
 import gameapi.room.Room;
 import it.unimi.dsi.fastutil.Function;
@@ -25,12 +27,15 @@ public class GameListenerRegistry {
 
     private static ConcurrentHashMap<String, List<RoomListener>> listeners = new ConcurrentHashMap<>();
 
-    private static final Map<String, Map<Class<?>, List<Consumer<?>>>> newListeners = new LinkedHashMap<>();
+    private static final Map<String, Map<Class<?>, List<ConsumerGameExecutor>>> newListenersBeforeOld = new LinkedHashMap<>();
+
+    private static final Map<String, Map<Class<?>, List<ConsumerGameExecutor>>> newListenersAfterOld = new LinkedHashMap<>();
 
     public static void clearAllRegisters() {
         listeners = new ConcurrentHashMap<>();
     }
 
+    @Description(usage = "GameListener may lead to a lower performance, use ConsumerGameListener")
     public static void registerGlobalEvents(GameListener listener, Plugin plugin) {
         registerEvents(KEY_GLOBAL_LISTENER, listener, plugin);
     }
@@ -40,10 +45,36 @@ public class GameListenerRegistry {
     }
 
     public static <T> void registerEvents(String gameName, Class<T> eventType, Consumer<T> handler) {
-        newListeners
+        newListenersAfterOld
                 .computeIfAbsent(gameName, k -> new LinkedHashMap<>())
                 .computeIfAbsent(eventType, k -> new ArrayList<>())
-                .add(handler);
+                .add(new ConsumerGameExecutor(handler, EventPriority.NORMAL));
+    }
+
+    public static <T> void registerEvents(String gameName, Class<T> eventType, Consumer<T> handler, EventPriority priority) {
+        registerEvents(gameName, eventType, handler, priority, false);
+    }
+
+    /**
+     *
+     * @param gameName 游戏名称
+     * @param eventType 事件类型
+     * @param handler 事件处理
+     * @param priority 优先顺序
+     * @param beforeOld 是否在老监听器前（类似NK）执行
+     */
+    public static <T> void registerEvents(String gameName, Class<T> eventType, Consumer<T> handler, EventPriority priority, boolean beforeOld) {
+        if (beforeOld) {
+            newListenersBeforeOld
+                    .computeIfAbsent(gameName, k -> new LinkedHashMap<>())
+                    .computeIfAbsent(eventType, k -> new ArrayList<>())
+                    .add(new ConsumerGameExecutor(handler, priority));
+        } else {
+            newListenersAfterOld
+                    .computeIfAbsent(gameName, k -> new LinkedHashMap<>())
+                    .computeIfAbsent(eventType, k -> new ArrayList<>())
+                    .add(new ConsumerGameExecutor(handler, priority));
+        }
     }
 
     public static void registerEvents(String gameName, GameListener listener, Plugin plugin) {
@@ -79,8 +110,9 @@ public class GameListenerRegistry {
     }
 
     public static void callEvent(Room room, RoomEvent event) {
+        callNewEvent(room, event, true);
         callOldEvent(room, event);
-        callNewEvent(room, event); // call new event
+        callNewEvent(room, event, false); // call new event
     }
 
     public static void callOldEvent(Room room, RoomEvent event) {
@@ -102,15 +134,16 @@ public class GameListenerRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    protected static <T> void callNewEvent(Room room, T event) {
-        Map<Class<?>, List<Consumer<?>>> gameListeners = newListeners.get(room.getGameName());
+    protected static <T> void callNewEvent(Room room, T event, boolean isBeforeOld) {
+        Map<String, Map<Class<?>, List<ConsumerGameExecutor>>> newListeners = isBeforeOld? newListenersBeforeOld: newListenersAfterOld;
+        Map<Class<?>, List<ConsumerGameExecutor>> gameListeners = newListeners.get(room.getGameName());
         if (gameListeners == null) return;
 
-        List<Consumer<?>> handlers = gameListeners.getOrDefault(event.getClass(), new ArrayList<>());
+        List<ConsumerGameExecutor> handlers = gameListeners.getOrDefault(event.getClass(), new ArrayList<>());
         handlers.addAll(newListeners.getOrDefault(KEY_GLOBAL_LISTENER, new LinkedHashMap<>()).getOrDefault(event.getClass(), new ArrayList<>()));
-        for (Consumer<?> handler : handlers) {
-            if (handler != null) {
-                ((Consumer<T>) handler).accept(event);
+        for (ConsumerGameExecutor executor : handlers.stream().sorted(Comparator.comparingInt(o -> o.getPriority().getSlot())).toList()) {
+            if (executor.getConsumer() != null) {
+                ((Consumer<T>) executor.getConsumer()).accept(event);
             }
         }
     }
@@ -119,11 +152,17 @@ public class GameListenerRegistry {
         return listeners;
     }
 
-    public static Map<String, Map<Class<?>, List<Consumer<?>>>> getNewListeners() {
-        return newListeners;
+    public static Map<String, Map<Class<?>, List<ConsumerGameExecutor>>> getNewListenersBeforeOld() {
+        return newListenersBeforeOld;
+    }
+
+    public static Map<String, Map<Class<?>, List<ConsumerGameExecutor>>> getNewListenersAfterOld() {
+        return newListenersAfterOld;
     }
 
     public void unregisterAllEvents(String gameName) {
-        listeners.put(gameName, new ArrayList<>());
+        listeners.remove(gameName);
+        newListenersBeforeOld.remove(gameName);
+        newListenersAfterOld.remove(gameName);
     }
 }
