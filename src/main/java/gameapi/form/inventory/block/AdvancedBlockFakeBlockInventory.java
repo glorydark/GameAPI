@@ -159,7 +159,7 @@ public abstract class AdvancedBlockFakeBlockInventory extends AdvancedFakeBlockI
             List<FakeBlockCacheData> cacheDataList = this.getFakeBlockList();
             for (FakeBlockCacheData cacheData : cacheDataList) {
                 UpdateBlockPacket pk = new UpdateBlockPacket();
-                pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, cacheData.getBlock().getId(), cacheData.getBlock().getDamage());
+                pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getGameVersion(), cacheData.getBlock().getId(), cacheData.getBlock().getDamage());
                 pk.flags = UpdateBlockPacket.FLAG_ALL;
                 pk.x = cacheData.getX();
                 pk.y = cacheData.getY();

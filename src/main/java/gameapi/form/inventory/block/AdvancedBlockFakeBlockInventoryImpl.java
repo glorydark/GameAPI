@@ -47,7 +47,7 @@ public abstract class AdvancedBlockFakeBlockInventoryImpl extends AdvancedBlockF
 
         // 往客户端生成一个虚假方块
         UpdateBlockPacket pk = new UpdateBlockPacket();
-        pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.getFakeBlockFormType().getBlockId(), 0);
+        pk.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getGameVersion(), this.getFakeBlockFormType().getBlockId(), 0);
         pk.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
         pk.x = position.getFloorX();
         pk.y = position.getFloorY();
