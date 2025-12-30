@@ -19,6 +19,7 @@ import gameapi.commands.GameAPICommandMain;
 import gameapi.commands.VanillaFixCommand;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.defaults.room.HubCommand;
+import gameapi.extensions.projectileGun.ProjectileGunListener;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -59,6 +60,7 @@ public class GameAPI extends PluginBase implements Listener {
     // Since v_1_21_70, before opening another inventory, the action should wait at least 9 ticks to avoid lapping.
     public static int OPEN_INVENTORY_DELAY_TICKS = 9;
     public static boolean enableParticleWeapon = true;
+    public static boolean enableProjectileWeapon = true;
     protected static GameDebugManager gameDebugManager;
     protected static String path;
     protected static GameAPI instance;
@@ -291,6 +293,9 @@ public class GameAPI extends PluginBase implements Listener {
         if (enableParticleWeapon) {
             ParticleGunManager.init();
             this.getServer().getPluginManager().registerEvents(new ParticleGunManager(), this);
+        }
+        if (enableProjectileWeapon) {
+            this.getServer().getPluginManager().registerEvents(new ProjectileGunListener(), this);
         }
         this.getLogger().info("§aDGameAPI Enabled!");
     }
