@@ -377,7 +377,7 @@ public class EntityTools {
         }
 
         boolean useTransparent = transparent != null && !transparent.isEmpty();
-        LinkedList<Block> blocks = new LinkedList();
+        LinkedList<Block> blocks = new LinkedList<>();
         BlockIterator itr = new BlockIterator(entity.level, entity.getPosition(), entity.getDirectionVector(), entity.getEyeHeight(), maxDistance);
 
         while(itr.hasNext()) {

@@ -2,6 +2,8 @@ package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.data.LongEntityData;
 import cn.nukkit.entity.item.EntityFirework;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemFirework;
@@ -60,6 +62,7 @@ public class FireworkTools {
         }
         Level level = location.getLevel();
         EntityFirework entity = new EntityFirework(level.getChunk((int) location.x >> 4, (int) location.z >> 4), EntityFirework.getDefaultNBT(location));
+        entity.setDataProperty(new LongEntityData(Entity.DATA_HAS_DISPLAY, -1L));
         ItemFirework item = ((ItemFirework) Item.get(ItemFirework.FIREWORKS));
         item.clearExplosions();
         item.setFlight(1);
