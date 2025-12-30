@@ -39,6 +39,8 @@ public class WorldEditCommand extends EasyCommand {
 
         this.registerCommand(new WorldEditFindCommand("findblock"));
 
+        this.registerCommand(new WorldEditSpiralCommand("spiral"));
+
         this.registerCommand(new WorldEditSchematicCommand("loadschema"));
     }
 

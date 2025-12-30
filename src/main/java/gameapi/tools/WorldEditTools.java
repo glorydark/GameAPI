@@ -26,8 +26,7 @@ import gameapi.utils.NukkitTypeUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -648,5 +647,164 @@ public class WorldEditTools {
         System.out.println(v6);
         System.out.println(v7);
         System.out.println(v8);
+    }
+
+    public static void generateSpiralRing(
+            Level level,
+            int cx, int baseY, int cz,
+            int radius,
+            int thickness,
+            int spiralHeight,
+            int layerThickness,   // ★ 新增：螺旋层厚度
+            Block block
+    ) {
+        int outerR = radius;
+        int innerR = radius - thickness;
+
+        for (int x = cx - outerR; x <= cx + outerR; x++) {
+            for (int z = cz - outerR; z <= cz + outerR; z++) {
+
+                double dx = (x + 0.5) - cx;
+                double dz = (z + 0.5) - cz;
+                double dist = Math.sqrt(dx * dx + dz * dz);
+
+                // 圆滑的内外半径
+                double outer = outerR + 0.5;
+                double inner = innerR - 0.5;
+
+                if (dist < inner || dist > outer) {
+                    continue;
+                }
+
+                // 角度
+                double angle = Math.atan2(dz, dx);
+
+                // 映射到 0~1
+                double progress = (angle + Math.PI) / (2 * Math.PI);
+
+                // 当前螺旋层的基准高度
+                int y = baseY + (int) Math.floor(progress * spiralHeight);
+
+                // ★ 给螺旋“加厚”
+                for (int dy = 0; dy < layerThickness; dy++) {
+                    level.setBlock(new Vector3(x, y + dy, z), block, true, false);
+                }
+            }
+        }
+    }
+
+    public static void buildCylinder(
+            Level level,
+            Vector3 center,
+            int height,
+            int radius,
+            Block block
+    ) {
+        Set<Vector3> vector3s = new HashSet<>();
+
+        int cx = center.getFloorX();
+        int cy = center.getFloorY();
+        int cz = center.getFloorZ();
+
+        for (int y = 0; y < height; y++) {
+            int worldY = cy + y;
+
+            for (int x = cx - radius; x <= cx + radius; x++) {
+                for (int z = cz - radius; z <= cz + radius; z++) {
+                    double dx = x - cx + 0.5;
+                    double dz = z - cz + 0.5;
+                    if (dx * dx + dz * dz <= radius * radius) {
+                        vector3s.add(new Vector3(x, worldY, z));
+                    }
+                }
+            }
+        }
+        BlockFillTask fillTask = new BlockFillTask(level, block, vector3s);
+        GameAPI.WORLDEDIT_THREAD_POOL_EXECUTOR.invoke(fillTask);
+    }
+
+    /**
+     * 极坐标连续螺旋面
+     */
+    public static void createPolarSpiral(Position center, double minRadius, double maxRadius,
+                                         double height, double turns, Block block) {
+
+        Level level = center.level;
+
+        // 角度和半径的双重循环
+        int angleSteps = (int)(turns * 36); // 角度细分
+        int radiusSteps = 5; // 半径细分
+
+        for (int a = 0; a <= angleSteps; a++) {
+            double angle = 2 * Math.PI * turns * a / angleSteps;
+
+            for (int r = 0; r <= radiusSteps; r++) {
+                double radius = minRadius + (maxRadius - minRadius) * r / radiusSteps;
+                double y = center.y + height * a / angleSteps;
+
+                // 让高度也随半径变化一点，形成扭曲效果
+                y += radius * 0.1 * Math.sin(angle * 2);
+
+                double x = center.x + radius * Math.cos(angle);
+                double z = center.z + radius * Math.sin(angle);
+
+                level.setBlock(new Vector3(
+                        (int)Math.round(x),
+                        (int)Math.round(y),
+                        (int)Math.round(z)
+                ), block);
+            }
+        }
+    }
+
+    /**
+     * 简单螺旋上升生成器
+     * @param center 中心位置
+     * @param innerRadius 内圈半径
+     * @param outerRadius 外圈半径
+     * @param height 高度
+     * @param turns 圈数
+     * @param block 方块
+     */
+    public static void createSimpleSpiral(Position center, double innerRadius, double outerRadius,
+                                          double height, double turns, Block block) {
+
+        Level level = center.level;
+
+        // 自动计算：内圈转得快，外圈转得慢
+        double innerTurns = turns * 1.5;  // 内圈多转50%
+        double outerTurns = turns * 0.75; // 外圈少转25%
+
+        // 总点数
+        int points = 100;
+
+        Set<Vector3> vector3s = new HashSet<>();
+
+        for (int i = 0; i <= points; i++) {
+            double progress = (double)i / points;
+
+            // 当前高度
+            double y = center.y + height * progress;
+
+            // 计算内外圈角度
+            double innerAngle = 2 * Math.PI * innerTurns * progress;
+            double outerAngle = 2 * Math.PI * outerTurns * progress;
+
+            // 内外圈坐标
+            double innerX = center.x + innerRadius * Math.cos(innerAngle);
+            double innerZ = center.z + innerRadius * Math.sin(innerAngle);
+
+            double outerX = center.x + outerRadius * Math.cos(outerAngle);
+            double outerZ = center.z + outerRadius * Math.sin(outerAngle);
+
+            // 放置方块
+            vector3s.add(new Vector3((int)Math.round(innerX), (int)Math.round(y),
+                    (int)Math.round(innerZ)));
+            vector3s.add(new Vector3((int)Math.round(outerX), (int)Math.round(y),
+                    (int)Math.round(outerZ)));
+        }
+
+        BlockFillTask fillTask = new BlockFillTask(level, block, vector3s);
+        GameAPI.WORLDEDIT_THREAD_POOL_EXECUTOR.invoke(fillTask);
     }
 }
