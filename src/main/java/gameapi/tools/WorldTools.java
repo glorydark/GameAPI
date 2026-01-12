@@ -69,6 +69,10 @@ public class WorldTools {
     }
 
     public static boolean unloadLevel(Level level, boolean delete) {
+        return unloadLevel(level, delete, false, false);
+    }
+
+    public static boolean unloadLevel(Level level, boolean delete, boolean removeEntities, boolean removeBlockEntities) {
 
         if (level == null || level.getProvider() == null) {
             GameAPI.getGameDebugManager().error(GameAPI.getLanguage().getTranslation("world.load.not_found"));
@@ -80,19 +84,26 @@ public class WorldTools {
         // 移除玩家
         if (!level.getPlayers().values().isEmpty()) {
             for (Player p : level.getPlayers().values()) {
-                p.teleport(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                p.teleportImmediate(Server.getInstance().getDefaultLevel().getSafeSpawn().getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
         }
 
-        // 清除实体
-        for (Entity e : level.getEntities()) {
-            e.kill();
-            e.close();
-            level.removeEntity(e);
+        if (removeEntities) {
+            // 清除实体
+            for (Entity e : level.getEntities()) {
+                if (e.isPlayer) {
+                    continue;
+                }
+                e.kill();
+                e.close();
+                level.removeEntity(e);
+            }
         }
 
-        for (BlockEntity e : level.getBlockEntities().values()) {
-            level.removeBlockEntity(e);
+        if (removeBlockEntities) {
+            for (BlockEntity e : level.getBlockEntities().values()) {
+                level.removeBlockEntity(e);
+            }
         }
 
         if (delete) {

@@ -3,6 +3,9 @@ package gameapi.commands.worldedit;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandEnum;
+import cn.nukkit.command.data.CommandParamType;
+import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.utils.TextFormat;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.base.EasySubCommand;
@@ -17,6 +20,13 @@ public class WorldEditReplaceCommand extends EasySubCommand {
 
     public WorldEditReplaceCommand(String name) {
         super(name);
+
+        this.commandParameters.clear();
+        this.commandParameters.put("default", new CommandParameter[] {
+                CommandParameter.newType("originalBlockId", false, CommandParamType.STRING),
+                CommandParameter.newType("targetBlockId", false, CommandParamType.STRING),
+                CommandParameter.newEnum("checkDamage", true, CommandEnum.ENUM_BOOLEAN)
+        });
     }
 
     @Override

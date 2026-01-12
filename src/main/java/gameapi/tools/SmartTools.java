@@ -14,6 +14,11 @@ import java.util.function.Supplier;
 
 public class SmartTools {
 
+    private static final String PROGRESS_BAR_FILLED_CHAR = String.valueOf('▏');
+    private static final String PROGRESS_BAR_EMPTY_CHAR = String.valueOf('▏');
+    private static final String PROGRESS_BAR_COLORED = "§e";
+    private static final String PROGRESS_BAR_UNCOLORED = "§7";
+
     public static double tickToSecondString(int ticks, int scale) {
         return BigDecimal.valueOf(ticks / 20d).setScale(scale, RoundingMode.FLOOR).doubleValue();
     }
@@ -225,6 +230,11 @@ public class SmartTools {
             return name;
         }
     }
+
+    public static String getCountdownProgressBar(int currentProgress, int maxProgress, int maxChars) {
+        return getCountdownProgressBar(currentProgress, maxProgress, maxChars, PROGRESS_BAR_COLORED, PROGRESS_BAR_UNCOLORED, PROGRESS_BAR_FILLED_CHAR, PROGRESS_BAR_EMPTY_CHAR);
+    }
+
 
     public static String getCountdownProgressBar(int currentProgress, int maxProgress, int maxChars, String colored, String uncolored, String filledChar, String emptyChar) {
         double progress = (double) currentProgress / maxProgress;

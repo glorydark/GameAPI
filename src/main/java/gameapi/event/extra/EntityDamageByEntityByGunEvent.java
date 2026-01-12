@@ -15,7 +15,7 @@ public class EntityDamageByEntityByGunEvent extends EntityDamageByEntityByItemEv
         this.attackPos = attackPos;
     }
 
-    public static enum AttackPos {
+    public enum AttackPos {
         HEAD,
         CHEST,
         LEG,

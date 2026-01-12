@@ -22,7 +22,7 @@ public class EasyCommand extends Command {
     public void registerCommand(EasySubCommand easySubCommand) {
         this.easySubCommandMap.put(easySubCommand.getName(), easySubCommand);
         for (Map.Entry<String, CommandParameter[]> entry : easySubCommand.getCommandParameters().entrySet()) {
-            String name = easySubCommand.getName() + "-" + entry.getKey();
+            String name = this.getName() + "-" + easySubCommand.getName();
             List<CommandParameter> commandParameterList = Arrays.stream(entry.getValue()).collect(Collectors.toList());
             commandParameterList.add(0, CommandParameter.newEnum(easySubCommand.getName(), false, new String[]{easySubCommand.getName()}));
             this.getCommandParameters().put(name, commandParameterList.toArray(new CommandParameter[0]));
@@ -61,5 +61,15 @@ public class EasyCommand extends Command {
 
     public boolean hasPermission(CommandSender commandSender) {
         return true;
+    }
+
+    @Override
+    public boolean testPermission(CommandSender target) {
+        return this.hasPermission(target) && super.testPermission(target);
+    }
+
+    @Override
+    public boolean testPermissionSilent(CommandSender target) {
+        return this.hasPermission(target) && super.testPermissionSilent(target);
     }
 }

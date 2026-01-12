@@ -19,7 +19,11 @@ import gameapi.commands.GameAPICommandMain;
 import gameapi.commands.VanillaFixCommand;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.defaults.room.HubCommand;
+import gameapi.entity.EntityBulletSnowball;
+import gameapi.extensions.projectileGun.ProjectileGun;
 import gameapi.extensions.projectileGun.ProjectileGunListener;
+import gameapi.extensions.projectileGun.ProjectileGunManager;
+import gameapi.items.*;
 import gameapi.listener.AdvancedFormListener;
 import gameapi.listener.BaseEventListener;
 import gameapi.listener.base.GameListenerRegistry;
@@ -112,30 +116,39 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onLoad() {
+        this.saveDefaultConfig();
+        Config config = new Config(this.getDataFolder().getPath() + File.separator + "config.yml", Config.YAML);
+        this.glorydarkRelatedFeature = config.getBoolean("glorydark-feature", false);
+
+        if (this.glorydarkRelatedFeature) {
+            if (this.getServer().isRunning()) {
+                Entity.registerEntity("EntityBulletSnowball", EntityBulletSnowball.class);
+
+                Item.registerCustomItem(ProjectileGunWoodenHoe.class);
+                Item.registerCustomItem(ProjectileGunStoneHoe.class);
+                Item.registerCustomItem(ProjectileGunGoldenHoe.class);
+                Item.registerCustomItem(ProjectileGunIronHoe.class);
+                Item.registerCustomItem(ProjectileGunDiamondHoe.class);
+
+                ProjectileGunManager.registerProjectileGun(
+                        new ProjectileGun("test", "test", 10, 1.5f, 60, 1, 2f) {
+
+                            @Override
+                            public Item getItem(Player player) {
+                                return Item.fromString("gameapi:projectile_wooden_hoe");
+                            }
+                        });
+            }
+        }
+
         this.getLogger().info("§aDGameAPI OnLoad!");
         this.getLogger().info("§aAuthor:glorydark");
     }
 
     @Override
     public void onEnable() {
-        this.getLogger().info(TextFormat.YELLOW + "\n" +
-                "------------------------------------------------------------------------\n" +
-                "  _______      ___      .___  ___.  _______     ___      .______    __  \n" +
-                " /  _____|    /   \\     |   \\/   | |   ____|   /   \\     |   _  \\  |  | \n" +
-                "|  |  __     /  ^  \\    |  \\  /  | |  |__     /  ^  \\    |  |_)  | |  | \n" +
-                "|  | |_ |   /  /_\\  \\   |  |\\/|  | |   __|   /  /_\\  \\   |   ___/  |  | \n" +
-                "|  |__| |  /  _____  \\  |  |  |  | |  |____ /  _____  \\  |  |      |  | \n" +
-                " \\______| /__/     \\__\\ |__|  |__| |_______/__/     \\__\\ | _|      |__| \n" +
-                "                                                                        \n" +
-                "                            Author: Glorydark                           \n" +
-                "------------------------------------------------------------------------");
         path = this.getDataFolder().getPath();
         instance = this;
-        roomTaskExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE, threadFactory);
-        gameDebugManager = new GameDebugManager("gameapi_log", new File(path + File.separator + "logs" + File.separator), true);
-        gameDebugManager.setEnableConsoleDebug(true);
-        this.getDataFolder().mkdir();
-        this.saveDefaultConfig();
         this.saveResource("rankings.yml", false);
 
         new File(path + File.separator + "logs" + File.separator).mkdirs();
@@ -149,9 +162,23 @@ public class GameAPI extends PluginBase implements Listener {
         new File(path + File.separator + "global_settings" + File.separator).mkdirs();
         new File(path + File.separator + "player_caches_old" + File.separator).mkdirs();
 
+        this.getLogger().info(TextFormat.YELLOW + "\n" +
+                "------------------------------------------------------------------------\n" +
+                "  _______      ___      .___  ___.  _______     ___      .______    __  \n" +
+                " /  _____|    /   \\     |   \\/   | |   ____|   /   \\     |   _  \\  |  | \n" +
+                "|  |  __     /  ^  \\    |  \\  /  | |  |__     /  ^  \\    |  |_)  | |  | \n" +
+                "|  | |_ |   /  /_\\  \\   |  |\\/|  | |   __|   /  /_\\  \\   |   ___/  |  | \n" +
+                "|  |__| |  /  _____  \\  |  |  |  | |  |____ /  _____  \\  |  |      |  | \n" +
+                " \\______| /__/     \\__\\ |__|  |__| |_______/__/     \\__\\ | _|      |__| \n" +
+                "                                                                        \n" +
+                "                            Author: Glorydark                           \n" +
+                "------------------------------------------------------------------------");
+        roomTaskExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE, threadFactory);
+        gameDebugManager = new GameDebugManager("gameapi_log", new File(path + File.separator + "logs" + File.separator), true);
+        gameDebugManager.setEnableConsoleDebug(true);
+
         Config config = new Config(path + File.separator + "config.yml", Config.YAML);
         gameDebugManager.setEnableConsoleDebug(config.getBoolean("log_show_in_console", true));
-        this.glorydarkRelatedFeature = config.getBoolean("glorydark-feature", false);
         this.saveTempStates = config.getBoolean("save-temp-state", true);
         OPEN_INVENTORY_DELAY_TICKS = config.getInt("inventory-menu-open-delay-ticks");
         this.timestampApi = config.getString("timestamp-api", "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Shanghai");

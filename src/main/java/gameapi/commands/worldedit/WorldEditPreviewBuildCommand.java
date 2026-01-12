@@ -2,8 +2,8 @@ package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandParamType;
 import cn.nukkit.command.data.CommandParameter;
-import cn.nukkit.math.Vector3;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.tools.WorldEditTools;
@@ -12,26 +12,24 @@ import gameapi.utils.PosSet;
 /**
  * @author glorydark
  */
-public class WorldEditSaveBuildCommand extends EasySubCommand {
+public class WorldEditPreviewBuildCommand extends EasySubCommand {
 
-    public WorldEditSaveBuildCommand(String name) {
+    public WorldEditPreviewBuildCommand(String name) {
         super(name);
 
         this.commandParameters.clear();
-        this.commandParameters.put("default", new CommandParameter[0]);
+        this.commandParameters.put("default", new CommandParameter[] {
+                CommandParameter.newType("buildFileName", false, CommandParamType.STRING)
+        });
     }
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
-        Player player = asPlayer(commandSender);
-        if (WorldEditCommand.isTwoPosHasUndefined(player)) {
-            return false;
+        Player player = commandSender.asPlayer();
+        if (WorldEditCommand.isFirstPosSet(player)) {
+            PosSet posSet = WorldEditCommand.posSetLinkedHashMap.get(player);
+            WorldEditTools.previewBuild(player, args[0], posSet.getPos1());
         }
-        PosSet posSet = WorldEditCommand.posSetLinkedHashMap.get(player);
-        // /gameapi savebuild 631 71 -256
-        Vector3 p1 = posSet.getPos1();
-        Vector3 p2 = posSet.getPos2();
-        WorldEditTools.saveBuild(player, p1, p2, player.getLevel());
         return false;
     }
 

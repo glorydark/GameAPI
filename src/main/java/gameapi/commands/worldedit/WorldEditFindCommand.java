@@ -3,6 +3,9 @@ package gameapi.commands.worldedit;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandEnum;
+import cn.nukkit.command.data.CommandParamType;
+import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
@@ -26,6 +29,13 @@ public class WorldEditFindCommand extends EasySubCommand {
 
     public WorldEditFindCommand(String name) {
         super(name);
+
+        this.commandParameters.clear();
+        this.commandParameters.put("default", new CommandParameter[] {
+                CommandParameter.newType("blockId", false, CommandParamType.STRING),
+                CommandParameter.newEnum("checkDamage", true, CommandEnum.ENUM_BOOLEAN),
+                CommandParameter.newEnum("enableSummaryForm", true, CommandEnum.ENUM_BOOLEAN)
+        });
     }
 
     @Override

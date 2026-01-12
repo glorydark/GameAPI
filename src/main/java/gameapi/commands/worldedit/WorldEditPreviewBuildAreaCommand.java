@@ -3,17 +3,17 @@ package gameapi.commands.worldedit;
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.data.CommandParameter;
-import cn.nukkit.utils.TextFormat;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.base.EasySubCommand;
+import gameapi.tools.WorldEditTools;
 import gameapi.utils.PosSet;
 
 /**
  * @author glorydark
  */
-public class WorldEditPos1Command extends EasySubCommand {
+public class WorldEditPreviewBuildAreaCommand extends EasySubCommand {
 
-    public WorldEditPos1Command(String name) {
+    public WorldEditPreviewBuildAreaCommand(String name) {
         super(name);
 
         this.commandParameters.clear();
@@ -22,17 +22,17 @@ public class WorldEditPos1Command extends EasySubCommand {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] args) {
-        Player player = asPlayer(commandSender);
-        if (!WorldEditCommand.posSetLinkedHashMap.containsKey(player)) {
-            WorldEditCommand.posSetLinkedHashMap.put(player, new PosSet());
+        Player player = commandSender.asPlayer();
+        if (WorldEditCommand.isTwoPosHasUndefined(player)) {
+            PosSet posSet = WorldEditCommand.posSetLinkedHashMap.get(player);
+
+            WorldEditTools.previewBuild(player, posSet.getPos1(), posSet.getPos2());
         }
-        WorldEditCommand.posSetLinkedHashMap.get(player).setPos1(player.getLocation());
-        player.sendMessage(TextFormat.GREEN + "Successfully set pos1 to " + player.getX() + ":" + player.getY() + ":" + player.getZ());
         return false;
     }
 
     @Override
     public boolean hasPermission(CommandSender commandSender) {
-        return commandSender.isOp() && commandSender.isPlayer();
+        return commandSender.isPlayer() && commandSender.isOp();
     }
 }

@@ -126,10 +126,8 @@ public class GameEntityManager {
         for (Level level : Server.getInstance().getLevels().values()) {
             for (Entity entity : level.getEntities()) {
                 if (entity instanceof TextEntity textEntity) {
-                    textEntity.despawnFromAll();
                     textEntity.close();
                 } else if (entity instanceof ParticleGunFakeBullet entityFakeBullet) {
-                    entityFakeBullet.despawnFromAll();
                     entityFakeBullet.close();
                 }
             }

@@ -557,6 +557,9 @@ public class BaseEventListener implements Listener {
                         return;
                     }
                     Room room1 = RoomManager.getRoom((Player) entity);
+                    if (room1 == null) {
+                        continue;
+                    }
                     if (!room1.getRoomRule().isAllowEnderPearlDamage()) {
                         if (event.getDamager() instanceof EntityEnderPearl) {
                             event.setCancelled(true);

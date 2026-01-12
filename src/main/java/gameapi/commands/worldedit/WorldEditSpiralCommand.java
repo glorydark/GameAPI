@@ -3,6 +3,8 @@ package gameapi.commands.worldedit;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandParamType;
+import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.utils.TextFormat;
@@ -19,6 +21,12 @@ public class WorldEditSpiralCommand extends EasySubCommand {
 
     public WorldEditSpiralCommand(String name) {
         super(name);
+
+        this.commandParameters.clear();
+        this.commandParameters.put("default", new CommandParameter[] {
+                CommandParameter.newType("blockId", false, CommandParamType.STRING),
+                CommandParameter.newType("times", true, CommandParamType.INT)
+        });
     }
 
     @Override

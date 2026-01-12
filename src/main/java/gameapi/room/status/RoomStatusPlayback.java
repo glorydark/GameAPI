@@ -1,9 +1,9 @@
 package gameapi.room.status;
 
 import gameapi.GameAPI;
+import gameapi.room.Room;
 import gameapi.room.status.base.InternalRoomStatus;
 import gameapi.room.status.factory.RoomDefaultStatusFactory;
-import gameapi.room.Room;
 import gameapi.room.utils.reason.ResetAllReason;
 
 /**

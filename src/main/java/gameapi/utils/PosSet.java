@@ -15,4 +15,12 @@ public class PosSet {
     Location pos1 = null;
 
     Location pos2 = null;
+
+    public boolean isTwoPosHasUndefined() {
+        return this.pos1 == null || this.pos2 == null;
+    }
+
+    public boolean isFirstPosSet() {
+        return this.pos1 != null;
+    }
 }

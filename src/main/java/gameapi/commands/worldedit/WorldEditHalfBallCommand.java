@@ -3,6 +3,9 @@ package gameapi.commands.worldedit;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandEnum;
+import cn.nukkit.command.data.CommandParamType;
+import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.utils.TextFormat;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.base.EasySubCommand;
@@ -17,6 +20,13 @@ public class WorldEditHalfBallCommand extends EasySubCommand {
 
     public WorldEditHalfBallCommand(String name) {
         super(name);
+
+        this.commandParameters.clear();
+        this.commandParameters.put("default", new CommandParameter[] {
+                CommandParameter.newType("blockId", false, CommandParamType.STRING),
+                CommandParameter.newType("radius", false, CommandParamType.FLOAT),
+                CommandParameter.newEnum("fillInside", true, CommandEnum.ENUM_BOOLEAN)
+        });
     }
 
     @Override

@@ -2,6 +2,8 @@ package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandParamType;
+import cn.nukkit.command.data.CommandParameter;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.tools.WorldEditTools;
@@ -14,6 +16,10 @@ public class WorldEditCreateBuildCommand extends EasySubCommand {
 
     public WorldEditCreateBuildCommand(String name) {
         super(name);
+
+        this.commandParameters.put("default", new CommandParameter[] {
+                CommandParameter.newType("buildFileName", false, CommandParamType.STRING)
+        });
     }
 
     @Override
@@ -21,7 +27,7 @@ public class WorldEditCreateBuildCommand extends EasySubCommand {
         Player player = commandSender.asPlayer();
         if (WorldEditCommand.isFirstPosSet(player)) {
             PosSet posSet = WorldEditCommand.posSetLinkedHashMap.get(player);
-            WorldEditTools.generateBuild(player, args[0], posSet.getPos1());
+            WorldEditTools.generateBuild(player, args[0], posSet.getPos1(), player.getLevel(), args.length == 2? Integer.parseInt(args[1]) : 0);
         }
         return false;
     }

@@ -12,20 +12,28 @@ import cn.nukkit.level.Position;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.math.Vector3f;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
+import cn.nukkit.network.protocol.types.debugshape.DebugArrow;
+import cn.nukkit.network.protocol.types.debugshape.DebugBox;
+import cn.nukkit.network.protocol.types.debugshape.DebugText;
+import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.annotation.Internal;
 import gameapi.task.BlockFillTask;
 import gameapi.task.BlockReplaceTask;
+import gameapi.utils.BuildBounds;
 import gameapi.utils.IntegerAxisAlignBB;
 import gameapi.utils.NukkitTypeUtils;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -294,7 +302,6 @@ public class WorldEditTools {
         return false;
     }
 
-
     // 四面体体积（混合积）
     private static double tetraVolume(Vector3 a, Vector3 b, Vector3 c, Vector3 d) {
         double ax = a.x - d.x, ay = a.y - d.y, az = a.z - d.z;
@@ -310,21 +317,187 @@ public class WorldEditTools {
     }
 
     @Internal
+    public static void previewBuild(Player player, String fileName, Vector3 startPos) {
+        File jsonFile = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + fileName + File.separator + "build.json");
+        if (!jsonFile.exists()) {
+            player.sendMessage("build.json not found");
+            return;
+        }
+
+        Config config = new Config(jsonFile, Config.JSON);
+
+        List<Integer> rMax = config.getIntegerList("relativeMax");
+
+        int rx2 = rMax.get(0);
+        int ry2 = rMax.get(1);
+        int rz2 = rMax.get(2);
+
+        previewBuild(player, new BuildBounds(rx2, ry2, rz2), startPos);
+    }
+
+    @Internal
+    public static void previewBuild(Player player, Vector3 pos1, Vector3 pos2) {
+        IntegerAxisAlignBB bb = new IntegerAxisAlignBB(pos1, pos2);
+        Vector3 bounds = new Vector3(
+                bb.getMaxX() - bb.getMinX(),
+                bb.getMaxY() - bb.getMinY(),
+                bb.getMaxZ() - bb.getMinZ()
+        );
+        BuildBounds buildBounds = new BuildBounds(bounds);
+        Vector3 min = new Vector3(
+                bb.getMinX(),
+                bb.getMinY(),
+                bb.getMinZ()
+        );
+        previewBuild(player, buildBounds, min);
+    }
+
+    @Internal
+    public static void previewBuild(Player player, BuildBounds buildBounds, Vector3 startPos) {
+
+        Vector3 boundBox = buildBounds.getShapeBounds();
+        Vector3 bottomCenter = buildBounds.getShapeBottomCenter(startPos);
+
+        // 清旧预览
+        player.removeAllShapes();
+
+        Level level = player.getLevel();
+
+        player.addShape(
+                new DebugBox(
+                        1,
+                        level.getDimension(),
+                        startPos.asVector3f(),
+                        1.0f,
+                        new Vector3f(),
+                        60f,
+                        Color.WHITE,
+                        boundBox.asVector3f())
+        );
+
+        player.addShape(
+                new DebugArrow(
+                        2,
+                        level.getDimension(),
+                        bottomCenter.asVector3f(),
+                        1.0f,
+                        new Vector3f(),
+                        60f,
+                        Color.GREEN,
+                        bottomCenter.north(5).asVector3f(),
+                        1f,
+                        0.2f,
+                        1)
+        );
+
+        player.addShape(
+                new DebugArrow(
+                        3,
+                        level.getDimension(),
+                        bottomCenter.asVector3f(),
+                        1.0f,
+                        new Vector3f(),
+                        60f,
+                        Color.RED,
+                        bottomCenter.up(5).asVector3f(),
+                        1f,
+                        0.2f,
+                        1)
+        );
+
+        player.addShape(
+                new DebugArrow(
+                        4,
+                        level.getDimension(),
+                        bottomCenter.asVector3f(),
+                        1.0f,
+                        new Vector3f(),
+                        60f,
+                        Color.YELLOW,
+                        bottomCenter.east(5).asVector3f(),
+                        1f,
+                        0.2f,
+                        1)
+        );
+
+        player.addShape(
+                new DebugText(
+                        5,
+                        level.getDimension(),
+                        bottomCenter.north(5).asVector3f(),
+                        1.0f,
+                        new Vector3f(),
+                        60f,
+                        Color.GREEN,
+                        "X")
+        );
+
+        player.addShape(
+                new DebugText(
+                        6,
+                        level.getDimension(),
+                        bottomCenter.up(5).asVector3f(),
+                        1.0f,
+                        new Vector3f(),
+                        60f,
+                        Color.RED,
+                        "Y")
+        );
+
+        player.addShape(
+                new DebugText(
+                        7,
+                        level.getDimension(),
+                        bottomCenter.east(5).asVector3f(),
+                        1.0f,
+                        new Vector3f(),
+                        60f,
+                        Color.YELLOW,
+                        "Z")
+        );
+    }
+
+
+    @Internal
     public static void generateBuild(Player player, String fileName, Vector3 startPos) {
-        generateBuild(player, fileName, startPos, player.getLevel());
+        generateBuild(player, fileName, startPos, player.getLevel(), 0);
     }
 
     @Internal
     public static void generateBuild(CommandSender sender, String fileName, Vector3 startPos, Level level) {
+        generateBuild(sender, fileName, startPos, level, 0);
+    }
+
+    @Internal
+    public static void generateBuild(CommandSender sender, String fileName, Vector3 startPos, Level level, int rotationDegree) {
         if (generatingLargeBuild) {
             GameAPI.getInstance().getLogger().info("You have started a task of creating or saving build. Please wait...");
             return;
         }
+
         File[] files = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + fileName + File.separator).listFiles();
         if (files == null) {
             sender.sendMessage("Cannot find folder");
             return;
         }
+
+
+        File jsonFile = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + fileName + File.separator + "build.json");
+        if (!jsonFile.exists()) {
+            sender.sendMessage("build.json not found");
+            return;
+        }
+
+        Config config = new Config(jsonFile, Config.JSON);
+
+        List<Integer> rMax = config.getIntegerList("relativeMax");
+
+        int rx2 = rMax.get(0);
+        int ry2 = rMax.get(1);
+        int rz2 = rMax.get(2);
+
+        BuildBounds buildBounds = new BuildBounds(rx2, ry2, rz2);
+
         generatingLargeBuild = true;
         Position startPosition = Location.fromObject(startPos, level);
         long saveStartMillis = System.currentTimeMillis();
@@ -337,6 +510,9 @@ public class WorldEditTools {
             CompletableFuture.runAsync(() -> {
                 long startMillisForSection = System.currentTimeMillis();
                 for (File file : files) {
+                    if (!file.getName().endsWith(".nbt")) {
+                        continue;
+                    }
                     CompoundTag compoundTag;
                     try {
                         compoundTag = NBTIO.read(file);
@@ -349,9 +525,15 @@ public class WorldEditTools {
                     AtomicLong lastTipPercentage = new AtomicLong(0);
                     AtomicLong generated = new AtomicLong(0);
                     for (CompoundTag blocks : tags) {
-                        int x = startPosition.getFloorX() + blocks.getInt("x");
-                        int y = startPosition.getFloorY() + blocks.getInt("y");
-                        int z = startPosition.getFloorZ() + blocks.getInt("z");
+                        int rx = blocks.getInt("x");
+                        int ry = blocks.getInt("y");
+                        int rz = blocks.getInt("z");
+
+                        Vector3 rotated = buildBounds.getBlockPosAfterHorizontalRotatedByCenter(startPos, rx, ry, rz, rotationDegree);
+                        int x = rotated.getFloorX();
+                        int y = rotated.getFloorY();
+                        int z = rotated.getFloorZ();
+
                         if (y > level.getMaxBlockY() || y < level.getMinBlockY()) {
                             System.out.println("Out of world's bound!");
                             continue;
@@ -395,65 +577,23 @@ public class WorldEditTools {
         }
     }
 
-    public static void generateBuild(String fileName, Vector3 startPos, Level level) {
-        File[] files = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + fileName + File.separator).listFiles();
-        if (files == null) {
-            GameAPI.getInstance().getLogger().error("Cannot find folder");
-            return;
-        }
-        generatingLargeBuild = true;
-        Position startPosition = Location.fromObject(startPos, level);
-        AtomicInteger blockCount = new AtomicInteger();
-        AtomicInteger generateSectionCount = new AtomicInteger();
-        try {
-            CompletableFuture.runAsync(() -> {
-                for (File file : files) {
-                    CompoundTag compoundTag;
-                    try {
-                        compoundTag = NBTIO.read(file);
-                    } catch (IOException e) {
-                        GameAPI.getInstance().getLogger().error(e.toString());
-                        return;
-                    }
-                    List<CompoundTag> tags = compoundTag.getList("blocks", CompoundTag.class).getAll();
-                    long maxCount = tags.size();
-                    AtomicLong lastTipPercentage = new AtomicLong(0);
-                    AtomicLong generated = new AtomicLong(0);
-                    for (CompoundTag blocks : tags) {
-                        int x = startPosition.getFloorX() + blocks.getInt("x");
-                        int y = startPosition.getFloorY() + blocks.getInt("y");
-                        int z = startPosition.getFloorZ() + blocks.getInt("z");
-                        if (y > 256 || y < 0) {
-                            continue;
-                        }
-                        Block specificBlock = Block.get(blocks.getInt("blockId"), blocks.getInt("damage"));
-                        if (specificBlock == null) {
-                            specificBlock = new BlockUnknown(blocks.getInt("blockId"), blocks.getInt("damage"));
-                        }
-                        if (specificBlock.getId() != BlockID.AIR) {
-                            Vector3 pos = new Vector3(x, y, z);
-                            level.setBlock(pos, specificBlock, true, false);
-                            if (generated.get() >= (maxCount / 100) * (lastTipPercentage.get() + 5)) {
-                                lastTipPercentage.getAndAdd(5);
-                            }
-                            CompoundTag layer1 = blocks.getCompound("layer1");
-                            int blockLayer1Id = layer1.getInt("blockId");
-                            int blockLayer1Damage = layer1.getInt("damage");
-                            if (blockLayer1Id != 0) {
-                                level.setBlock(pos, 1, Block.get(blockLayer1Id, blockLayer1Damage), true, false);
-                            }
-                        }
-                        generated.getAndIncrement();
-                        blockCount.getAndIncrement();
-                    }
-                    generateSectionCount.getAndIncrement();
-                }
-            }).exceptionally(throwable -> {
-                GameAPI.getInstance().getLogger().error(throwable.toString());
-                return null;
-            });
-        } catch (CompletionException e) {
-            GameAPI.getInstance().getLogger().error(e.toString());
+    public static Vector3 rotateXZ(Vector3 vector3, int degree) {
+        degree = ((degree % 360) + 360) % 360;
+
+        double x = vector3.getX();
+        double y = vector3.getY();
+        double z = vector3.getZ();
+        switch (degree) {
+            case 0:
+                return new Vector3(x, y, z);
+            case 90:
+                return new Vector3(-z, y, x);
+            case 180:
+                return new Vector3(-x, y, -z);
+            case 270:
+                return new Vector3(z, y, -x);
+            default:
+                throw new IllegalArgumentException("Only 0,90,180,270 are supported");
         }
     }
 
@@ -467,7 +607,7 @@ public class WorldEditTools {
     }
 
     @Internal
-    public static void saveBuild(CommandSender sender, Vector3 centerPos, Vector3 pos1, Vector3 pos2, Level level) {
+    public static void saveBuild(CommandSender sender, Vector3 minPos, Vector3 pos1, Vector3 pos2, Level level) {
         if (generatingLargeBuild) {
             GameAPI.getInstance().getLogger().info("You have started a task of creating or saving build. Please wait...");
             return;
@@ -490,6 +630,46 @@ public class WorldEditTools {
 
         AtomicLong readBlockCountAll = new AtomicLong(0);
         AtomicInteger sectionCount = new AtomicInteger(0);
+        new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + "/").mkdirs();
+        File jsonFile = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + File.separator + "build.json");
+        if (jsonFile.exists()) {
+            try {
+                jsonFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        Config config = new Config(jsonFile, Config.JSON);
+
+        int cx = minPos.getFloorX();
+        int cy = minPos.getFloorY();
+        int cz = minPos.getFloorZ();
+
+        int minX = integerAxisAlignBB.getMinX();
+        int minY = integerAxisAlignBB.getMinY();
+        int minZ = integerAxisAlignBB.getMinZ();
+        int maxX = integerAxisAlignBB.getMaxX();
+        int maxY = integerAxisAlignBB.getMaxY();
+        int maxZ = integerAxisAlignBB.getMaxZ();
+
+        config.set("minPos", Arrays.asList(cx, cy, cz));
+        config.set("maxPos", Arrays.asList(maxX, maxY, maxZ));
+
+        config.set("relativeMin", Arrays.asList(
+                minX - cx,
+                minY - cy,
+                minZ - cz
+        ));
+
+        config.set("relativeMax", Arrays.asList(
+                maxX - cx,
+                maxY - cy,
+                maxZ - cz
+        ));
+
+        config.save();
+
         CompletableFuture.runAsync(() -> {
             try {
                 for (int bbsIndex = 0; bbsIndex < bbs.length; bbsIndex++) {
@@ -514,9 +694,9 @@ public class WorldEditTools {
                         }
                         Block blockAtPosition = level.getBlock(position, true);
                         if (blockAtPosition.getId() != Block.AIR) {
-                            int x = i - centerPos.getFloorX();
-                            int y = i1 - centerPos.getFloorY();
-                            int z = i2 - centerPos.getFloorZ();
+                            int x = i - minPos.getFloorX();
+                            int y = i1 - minPos.getFloorY();
+                            int z = i2 - minPos.getFloorZ();
                             CompoundTag addTag = new CompoundTag()
                                     .putInt("x", x)
                                     .putInt("y", y)
@@ -541,7 +721,6 @@ public class WorldEditTools {
                         }
                         if (queryBlockTimes.get() >= newBB.getSize()) {
                             if (readBlockCountForSection.get() != 0) {
-                                new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + "/").mkdirs();
                                 File file = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + File.separator + System.currentTimeMillis() + "_" + UUID.randomUUID() + ".nbt");
                                 if (file.exists()) {
                                     try {

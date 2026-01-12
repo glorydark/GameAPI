@@ -2,6 +2,8 @@ package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandEnum;
+import cn.nukkit.command.data.CommandParameter;
 import gameapi.GameAPI;
 import gameapi.commands.base.EasySubCommand;
 
@@ -12,6 +14,11 @@ public class WorldEditDebugCommand extends EasySubCommand {
 
     public WorldEditDebugCommand(String name) {
         super(name);
+
+        this.commandParameters.clear();
+        this.commandParameters.put("default", new CommandParameter[] {
+                CommandParameter.newEnum("debug", false, CommandEnum.ENUM_BOOLEAN)
+        });
     }
 
     @Override

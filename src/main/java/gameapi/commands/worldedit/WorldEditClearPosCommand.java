@@ -2,6 +2,7 @@ package gameapi.commands.worldedit;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandParameter;
 import cn.nukkit.utils.TextFormat;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.base.EasySubCommand;
@@ -13,6 +14,9 @@ public class WorldEditClearPosCommand extends EasySubCommand {
 
     public WorldEditClearPosCommand(String name) {
         super(name);
+
+        this.commandParameters.clear();
+        this.commandParameters.put("default", new CommandParameter[0]);
     }
 
     @Override

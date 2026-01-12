@@ -1,6 +1,8 @@
 package gameapi.commands.worldedit;
 
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandParamType;
+import cn.nukkit.command.data.CommandParameter;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.tools.SchematicConverter;
 
@@ -11,6 +13,11 @@ public class WorldEditSchematicCommand extends EasySubCommand {
 
     public WorldEditSchematicCommand(String name) {
         super(name);
+
+        this.commandParameters.clear();
+        this.commandParameters.put("default", new CommandParameter[] {
+                CommandParameter.newType("fileName", false, CommandParamType.STRING)
+        });
     }
 
     @Override

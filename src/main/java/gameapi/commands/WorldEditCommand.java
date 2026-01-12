@@ -1,6 +1,7 @@
 package gameapi.commands;
 
 import cn.nukkit.Player;
+import cn.nukkit.command.CommandSender;
 import gameapi.annotation.Experimental;
 import gameapi.commands.base.EasyCommand;
 import gameapi.commands.worldedit.*;
@@ -33,6 +34,8 @@ public class WorldEditCommand extends EasyCommand {
 
         this.registerCommand(new WorldEditSaveBuildCommand("savebuild"));
         this.registerCommand(new WorldEditCreateBuildCommand("createbuild"));
+        this.registerCommand(new WorldEditPreviewBuildCommand("previewbuild"));
+        this.registerCommand(new WorldEditPreviewBuildAreaCommand("previewbuildarea"));
 
         this.registerCommand(new WorldEditResetChunkCommand("resetc"));
         this.registerCommand(new WorldEditBWTestCommand("bwtest"));
@@ -68,5 +71,10 @@ public class WorldEditCommand extends EasyCommand {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean hasPermission(CommandSender commandSender) {
+        return commandSender.isPlayer() && commandSender.isOp();
     }
 }

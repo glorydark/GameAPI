@@ -5,9 +5,9 @@
 
     <groupId>glorydark.nukkit</groupId>
     <artifactId>GameAPI</artifactId>
-    <version>1.8.1</version>
-
+    <version>1.8.2</version>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
@@ -101,7 +101,6 @@
                             <include>org.jnbt.*</include>
                         </includes>
                     </artifactSet>
-                    <!-- put your configurations here -->
                 </configuration>
                 <executions>
                     <execution>
