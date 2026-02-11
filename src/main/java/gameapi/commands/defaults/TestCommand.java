@@ -2,6 +2,7 @@ package gameapi.commands.defaults;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.network.protocol.ClientboundDataDrivenUIShowScreenPacket;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.extensions.projectileGun.ProjectileGunManager;
 
@@ -30,7 +31,17 @@ public class TestCommand extends EasySubCommand {
 
         // commandSender.asPlayer().getInventory().addItem(ParticleGunManager.getParticleGun("gun:ak47").getItem());
 
-        player.getInventory().setItem(0, ProjectileGunManager.getProjectileGun("test").toWeaponItem(player));
+        switch (args[0]) {
+            case "gun":
+                player.getInventory().setItem(0, ProjectileGunManager.getProjectileGun("test").toWeaponItem(player));
+                break;
+            case "ddui":
+                // @since v26.10
+                ClientboundDataDrivenUIShowScreenPacket pk = new ClientboundDataDrivenUIShowScreenPacket();
+                pk.screenId = "minecraft:chest_screen";
+                player.dataPacket(pk);
+                break;
+        }
         return false;
     }
 

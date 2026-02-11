@@ -168,7 +168,6 @@ public class ProjectileGunInteractableItem extends ItemCustomProjectile implemen
                 item.setDamage(item.getMaxDurability() - 1);
                 player.getInventory().setItemInHand(item);
             }
-            player.sendMessage("8");
             ProjectileGunInteractableItem.reloadPlayers.add(player.getName());
             Server.getInstance().getScheduler().scheduleRepeatingTask(Server.getInstance().getPluginManager().getPlugin("GameAPI"), new ProjectileGunReloadTask(player, this), 1);
         }
@@ -190,7 +189,6 @@ public class ProjectileGunInteractableItem extends ItemCustomProjectile implemen
             int lastShootTick = ProjectileGunInteractableItem.lastShootTickMap.getOrDefault(player.getName(), 0);
             int currentTick = Server.getInstance().getTick();
             if (currentTick - lastShootTick >= tag.getInt("shootInterval")) {
-                player.sendMessage("3");
                 int count = item.getCount() - 1;
                 if (count < 1) {
                     count = 1;
@@ -200,10 +198,8 @@ public class ProjectileGunInteractableItem extends ItemCustomProjectile implemen
                 if (count == 1) {
                     item.setDamage(item.getMaxDurability() - 1);
                     player.getInventory().setItemInHand(item);
-                    player.sendMessage("5");
                     this.reload(player);
                 } else {
-                    player.sendMessage("4");
                     player.getInventory().setItemInHand(item);
                     ProjectileGunInteractableItem.lastShootTickMap.put(player.getName(), currentTick);
                 }

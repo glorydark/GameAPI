@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.player.PlayerTeleportEvent;
+import cn.nukkit.level.Location;
 import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
 import gameapi.manager.RoomManager;
@@ -31,6 +32,10 @@ public class HubCommand extends Command {
         super(name);
     }
 
+    public Location getSpawn() {
+        return Server.getInstance().getDefaultLevel().getSpawnLocation().getLocation();
+    }
+
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
         if (commandSender.isPlayer()) {
@@ -43,10 +48,10 @@ public class HubCommand extends Command {
                 if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
                     if (SURVIVAL_WORLDS.contains(player.getLevelName())) {
                         commandSender.sendMessage(TextFormat.GREEN + "已返回主城！");
-                        player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        player.teleport(getSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                     } else if (player.getLevelName().startsWith("SimpleParkour")) {
                         commandSender.sendMessage(TextFormat.GREEN + "已返回主城！");
-                        player.teleport(Server.getInstance().getDefaultLevel().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        player.teleport(getSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                     }
                 }
             }
