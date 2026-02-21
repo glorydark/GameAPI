@@ -1,6 +1,7 @@
 package gameapi.commands.defaults.achievement;
 
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.data.CommandParameter;
 import gameapi.achievement.AchievementManager;
 import gameapi.commands.base.EasySubCommand;
 
@@ -11,6 +12,9 @@ public class AchievementReloadCommand extends EasySubCommand {
 
     public AchievementReloadCommand(String name) {
         super(name);
+
+        this.commandParameters.clear();
+        this.commandParameters.put("default", new CommandParameter[0]);
     }
 
     @Override

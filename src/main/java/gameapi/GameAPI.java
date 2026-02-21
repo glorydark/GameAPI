@@ -147,8 +147,8 @@ public class GameAPI extends PluginBase implements Listener {
 
     @Override
     public void onEnable() {
-        path = this.getDataFolder().getPath();
         instance = this;
+        path = this.getDataFolder().getPath();
         this.saveResource("rankings.yml", false);
 
         new File(path + File.separator + "logs" + File.separator).mkdirs();

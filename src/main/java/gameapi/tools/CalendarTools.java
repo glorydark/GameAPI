@@ -50,6 +50,24 @@ public class CalendarTools {
         return year + "-" + week;
     }
 
+    public static String getLastMonthString(Calendar calendar) {
+        Calendar cal = (Calendar) calendar.clone();
+        cal.roll(Calendar.MONTH,-1);
+        return cal.get(Calendar.YEAR) + "-" + cal.get(Calendar.MONTH);
+    }
+
+    public static String getNextMonthString(Calendar calendar) {
+        Calendar cal = (Calendar) calendar.clone();
+        cal.roll(Calendar.MONTH,1);
+        return cal.get(Calendar.YEAR) + "-" + cal.get(Calendar.MONTH);
+    }
+
+    public static String getOffsetMonthString(Calendar calendar, int val) {
+        Calendar cal = (Calendar) calendar.clone();
+        cal.roll(Calendar.MONTH,val);
+        return cal.get(Calendar.YEAR) + "-" + cal.get(Calendar.MONTH);
+    }
+
     public static String getMonthString(Calendar calendar) {
         return calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH);
     }

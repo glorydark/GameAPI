@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author glorydark
@@ -45,8 +46,8 @@ public class ProjectileGunInteractableItem extends ItemCustomProjectile implemen
     @Override
     public boolean onClickAir(Player player, Vector3 directionVector) {
         if (this.isProjectileGun()) {
-            this.onGunItemTouch(player, this);
-            return false;
+            this.onGunItemTouch(player);
+            return true;
         } else {
             return super.onClickAir(player, directionVector);
         }
@@ -82,11 +83,25 @@ public class ProjectileGunInteractableItem extends ItemCustomProjectile implemen
 
     @Override
     public CustomItemDefinition getDefinition() {
-        return CustomItemDefinition.customBuilder(this, CreativeItemCategory.EQUIPMENT)
+        return CustomItemDefinition.customBuilder(this, CreativeItemCategory.ITEMS)
                 .handEquipped(true)
-                .creativeGroup("itemGroup.name.sword")
                 .canDestroyInCreative(true)
-                .build();
+                .customBuild(new Consumer<CompoundTag>() {
+                    @Override
+                    public void accept(CompoundTag compoundTag) {
+                        /*
+                        "minecraft:throwable": {
+                            "do_swing_animation": true
+                        },
+                         */
+                        compoundTag.getCompound("components")
+                                .put("minecraft:throwable", new CompoundTag()
+                                        .putBoolean("do_swing_animation", true))
+                                .putCompound("minecraft:durability", new CompoundTag()
+                                        .putInt("max_durability", getMaxDurability()))
+                                .getCompound("item_properties").putInt("damage", 1);
+                    }
+                });
     }
 
     public void shoot(Player player) {
@@ -140,7 +155,7 @@ public class ProjectileGunInteractableItem extends ItemCustomProjectile implemen
                                                         color.getBlue() / 255F)
                         );
                     },
-                    compoundTag -> compoundTag.putFloat("gameapi:gun_bullet_damage", tag.getFloat("damage")));
+                    compoundTag -> compoundTag.putFloat("gameapi:gun_bullet_damage", tag.getFloat("bulletDamage")));
         }
     }
 
@@ -173,34 +188,31 @@ public class ProjectileGunInteractableItem extends ItemCustomProjectile implemen
         }
     }
 
-    public void onGunItemTouch(Player player, Item item) {
+    public void onGunItemTouch(Player player) {
         if (ProjectileGunInteractableItem.reloadPlayers.contains(player.getName())) {
             return;
         }
-        if (item.hasCompoundTag() && item.getNamedTag().contains("gameapi:projectile_gun")) {
+        if (this.hasCompoundTag() && this.getNamedTag().contains("gameapi:projectile_gun")) {
             CompoundTag tag = getProjectileGunData();
             if (tag == null) {
                 return;
             }
-            if (item.getDamage() != 0) {
+            if (this.getDamage() != 0) {
                 this.reload(player);
                 return;
             }
             int lastShootTick = ProjectileGunInteractableItem.lastShootTickMap.getOrDefault(player.getName(), 0);
             int currentTick = Server.getInstance().getTick();
             if (currentTick - lastShootTick >= tag.getInt("shootInterval")) {
-                int count = item.getCount() - 1;
-                if (count < 1) {
-                    count = 1;
+                this.count--;
+                if (this.count < 1) {
+                    this.count = 1;
                 }
-                item.setCount(count);
                 this.shoot(player);
-                if (count == 1) {
-                    item.setDamage(item.getMaxDurability() - 1);
-                    player.getInventory().setItemInHand(item);
+                if (this.count == 1) {
+                    this.setDamage(this.getMaxDurability() - 1);
                     this.reload(player);
                 } else {
-                    player.getInventory().setItemInHand(item);
                     ProjectileGunInteractableItem.lastShootTickMap.put(player.getName(), currentTick);
                 }
             }

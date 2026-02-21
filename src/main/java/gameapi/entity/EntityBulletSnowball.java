@@ -2,7 +2,6 @@ package gameapi.entity;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.mob.EntityBlaze;
 import cn.nukkit.entity.projectile.EntitySnowball;
 import cn.nukkit.event.entity.*;
 import cn.nukkit.level.MovingObjectPosition;
@@ -44,7 +43,7 @@ public class EntityBulletSnowball extends EntitySnowball {
                               float gravity,
                               float motionMultiply,
                               Consumer<EntityBulletSnowball> particleEffectConsumer, Consumer<CompoundTag> tagConsumer) {
-        CompoundTag nbt = (new CompoundTag())
+        CompoundTag nbt = new CompoundTag()
                 .putList((new ListTag<>("Pos"))
                         .add(new DoubleTag("", player.x))
                         .add(new DoubleTag("", player.y + (double)player.getEyeHeight()))
@@ -116,7 +115,7 @@ public class EntityBulletSnowball extends EntitySnowball {
         ProjectileHitEvent hitEvent = new ProjectileHitEvent(this, MovingObjectPosition.fromEntity(entity));
         this.server.getPluginManager().callEvent(hitEvent);
         if (!hitEvent.isCancelled()) {
-            float damage = this instanceof EntitySnowball && entity instanceof EntityBlaze ? 3.0F : (float)this.getResultDamage();
+            float damage = this.namedTag.getFloat("gameapi:gun_bullet_damage");
             EntityDamageByEntityEvent ev;
             if (this.shootingEntity == null) {
                 ev = new EntityDamageByEntityEvent(this, entity, EntityDamageEvent.DamageCause.PROJECTILE, damage);
@@ -128,13 +127,6 @@ public class EntityBulletSnowball extends EntitySnowball {
             if (entity.attack(ev)) {
                 this.hadCollision = true;
                 this.onHit();
-                if (this.fireTicks > 0) {
-                    EntityCombustByEntityEvent event = new EntityCombustByEntityEvent(this, entity, 5);
-                    this.server.getPluginManager().callEvent(event);
-                    if (!event.isCancelled()) {
-                        entity.setOnFire(event.getDuration());
-                    }
-                }
             }
 
             this.close();

@@ -38,7 +38,7 @@ public class TestCommand extends EasySubCommand {
             case "ddui":
                 // @since v26.10
                 ClientboundDataDrivenUIShowScreenPacket pk = new ClientboundDataDrivenUIShowScreenPacket();
-                pk.screenId = "minecraft:chest_screen";
+                pk.screenId = args[1];
                 player.dataPacket(pk);
                 break;
         }
