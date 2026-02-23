@@ -2,8 +2,11 @@ package gameapi.tools;
 
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockEntityHolder;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.block.BlockUnknown;
+import cn.nukkit.blockentity.BlockEntity;
+import cn.nukkit.blockentity.BlockEntitySpawnable;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.level.Level;
@@ -28,6 +31,7 @@ import gameapi.task.BlockReplaceTask;
 import gameapi.utils.BuildBounds;
 import gameapi.utils.IntegerAxisAlignBB;
 import gameapi.utils.NukkitTypeUtils;
+import gameapi.utils.RotationType;
 
 import java.awt.*;
 import java.io.File;
@@ -460,16 +464,16 @@ public class WorldEditTools {
 
     @Internal
     public static void generateBuild(Player player, String fileName, Vector3 startPos) {
-        generateBuild(player, fileName, startPos, player.getLevel(), 0);
+        generateBuild(player, fileName, startPos, player.getLevel(), 0, RotationType.NONE);
     }
 
     @Internal
     public static void generateBuild(CommandSender sender, String fileName, Vector3 startPos, Level level) {
-        generateBuild(sender, fileName, startPos, level, 0);
+        generateBuild(sender, fileName, startPos, level, 0, RotationType.NONE);
     }
 
     @Internal
-    public static void generateBuild(CommandSender sender, String fileName, Vector3 startPos, Level level, int rotationDegree) {
+    public static void generateBuild(CommandSender sender, String fileName, Vector3 startPos, Level level, int rotationDegree, RotationType rotationType) {
         if (generatingLargeBuild) {
             GameAPI.getInstance().getLogger().info("You have started a task of creating or saving build. Please wait...");
             return;
@@ -499,9 +503,8 @@ public class WorldEditTools {
         BuildBounds buildBounds = new BuildBounds(rx2, ry2, rz2);
 
         generatingLargeBuild = true;
-        Position startPosition = Location.fromObject(startPos, level);
         long saveStartMillis = System.currentTimeMillis();
-        int maxGenerateSections = files.length;
+        int maxGenerateSections = (int) Arrays.stream(files).filter(file -> file.getName().endsWith(".nbt")).count();
         AtomicInteger blockCount = new AtomicInteger();
         AtomicInteger generateSectionCount = new AtomicInteger();
         sender.sendMessage("Start generating building task... [Count: " + maxGenerateSections + "]");
@@ -529,7 +532,19 @@ public class WorldEditTools {
                         int ry = blocks.getInt("y");
                         int rz = blocks.getInt("z");
 
-                        Vector3 rotated = buildBounds.getBlockPosAfterHorizontalRotatedByCenter(startPos, rx, ry, rz, rotationDegree);
+                        CompoundTag blockEntityTag = null;
+                        if (blocks.contains("blockEntityData")) {
+                            blockEntityTag = blocks.getCompound("blockEntityData");
+                        }
+
+                        Vector3 rotated = switch (rotationType) {
+                            case AROUND_CENTER ->
+                                    buildBounds.getBlockPosAfterHorizontalRotatedByCenter(startPos, rx, ry, rz, rotationDegree);
+                            case AROUND_START_POSITION -> rotateAroundPoint(startPos, rx, ry, rz, rotationDegree);
+                            default ->
+                                    new Vector3(startPos.getFloorX() + rx, startPos.getFloorY() + ry, startPos.getFloorZ() + rz);
+                        };
+
                         int x = rotated.getFloorX();
                         int y = rotated.getFloorY();
                         int z = rotated.getFloorZ();
@@ -544,7 +559,26 @@ public class WorldEditTools {
                         }
                         if (specificBlock.getId() != BlockID.AIR) {
                             Vector3 pos = new Vector3(x, y, z);
+
                             level.setBlock(pos, specificBlock, true, false);
+
+                            if (blockEntityTag != null) {
+                                Block createdBlock = level.getBlock(pos);
+                                BlockEntity oldEnt = createdBlock.getLevelBlockEntity();
+                                if (oldEnt != null) {
+                                    oldEnt.close();
+                                }
+                                if (createdBlock instanceof BlockEntityHolder container) {
+                                    BlockEntity blockEntity = container.createBlockEntity(blockEntityTag);
+                                    if (blockEntity instanceof BlockEntitySpawnable spawnable) {
+                                        spawnable.spawnToAll();
+                                        GameAPI.getInstance().getLogger().info("Creating blockEntity " + blockEntity.getSaveId()
+                                                + " at " + pos
+                                                + ", nbt: " + blockEntityTag.toSNBT());
+                                    }
+                                }
+                            }
+
                             if (generated.get() >= (maxCount / 100) * (lastTipPercentage.get() + 5)) {
                                 GameAPI.getInstance().getLogger().info("[" + blockCount + "] Generating block... §e" + lastTipPercentage.get() + "%");
                                 lastTipPercentage.getAndAdd(5);
@@ -595,6 +629,41 @@ public class WorldEditTools {
             default:
                 throw new IllegalArgumentException("Only 0,90,180,270 are supported");
         }
+    }
+
+    /**
+     * 围绕起始点旋转坐标
+     * @param startPos 起始位置（旋转中心）
+     * @param rx 相对x坐标
+     * @param ry 相对y坐标
+     * @param rz 相对z坐标
+     * @param rotationDegree 旋转角度（仅水平旋转）
+     * @return 旋转后的世界坐标
+     */
+    private static Vector3 rotateAroundPoint(Vector3 startPos, int rx, int ry, int rz, int rotationDegree) {
+        // 将相对坐标转换为以startPos为中心的绝对坐标
+        double x = startPos.getX() + rx;
+        double y = startPos.getY() + ry;
+        double z = startPos.getZ() + rz;
+
+        // 计算相对于startPos的偏移
+        double dx = x - startPos.getX();
+        double dz = z - startPos.getZ();
+
+        // 应用旋转
+        double radians = Math.toRadians(rotationDegree);
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+
+        double rotatedX = dx * cos - dz * sin;
+        double rotatedZ = dx * sin + dz * cos;
+
+        // 计算最终坐标
+        return new Vector3(
+                startPos.getX() + rotatedX,
+                y, // Y坐标不变（仅水平旋转）
+                startPos.getZ() + rotatedZ
+        );
     }
 
     @Internal
@@ -709,6 +778,15 @@ public class WorldEditTools {
                                         .putInt("blockId", blockLayer1.getId())
                                         .putInt("damage", blockLayer1.getDamage())
                                 );
+                            }
+                            if (blockAtPosition instanceof BlockEntityHolder holder) {
+                                BlockEntity blockEntity = holder.getBlockEntity();
+                                if (blockEntity != null) {
+                                    blockEntity.saveNBT();
+                                    CompoundTag save = blockEntity.namedTag;
+                                    addTag.putCompound("blockEntityData", save);
+                                    GameAPI.getInstance().getLogger().info("[" + finalBbsIndex + "] Save blockEntity " + blockEntity.getSaveId() + " at " + blockAtPosition.asBlockVector3().asVector3().toString() + ", nbt: " + save.toSNBT());
+                                }
                             }
                             tag.getList("blocks", CompoundTag.class).add(addTag);
                             readBlockCountAll.getAndIncrement();

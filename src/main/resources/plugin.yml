@@ -1,6 +1,6 @@
 name: GameAPI
 main: gameapi.GameAPI
-version: "1.8.4"
+version: "1.8.5"
 api: "1.0.0"
 author: glorydark
 description: GameAPI
