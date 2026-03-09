@@ -83,6 +83,7 @@ public class GameAPI extends PluginBase implements Listener {
     protected static boolean isFirstLaunch = true;
     protected boolean glorydarkRelatedFeature;
     protected boolean tipsEnabled;
+    protected boolean languageAPIEnabled;
     protected boolean saveTempStates = false;
     protected String timestampApi;
 
@@ -187,6 +188,7 @@ public class GameAPI extends PluginBase implements Listener {
         this.loadLanguage();
         language.setDefaultLanguage(config.getString("default-language", "zh_CN"));
         this.tipsEnabled = this.getServer().getPluginManager().getPlugin("Tips") != null;
+        this.languageAPIEnabled = this.getServer().getPluginManager().getPlugin("LanguageAPI") != null;
 
         this.loadAllPlayerGameData();
         this.loadRanking();
@@ -393,6 +395,10 @@ public class GameAPI extends PluginBase implements Listener {
 
     public boolean isTipsEnabled() {
         return this.tipsEnabled;
+    }
+
+    public boolean isLanguageAPIEnabled() {
+        return this.languageAPIEnabled;
     }
 
     public boolean isSaveTempStates() {

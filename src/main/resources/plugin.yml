@@ -1,6 +1,6 @@
 name: GameAPI
 main: gameapi.GameAPI
-version: "1.8.5"
+version: "1.8.6"
 api: "1.0.0"
 author: glorydark
 description: GameAPI
@@ -10,3 +10,4 @@ depend:
 softdepend:
   - Tips
   - Ghosty
+  - LanguageAPI

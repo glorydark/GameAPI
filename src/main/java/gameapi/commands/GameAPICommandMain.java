@@ -47,14 +47,15 @@ public class GameAPICommandMain extends EasyCommand {
         this.registerCommand(new SeeInventoryCommand("seeinv"));
 
         this.registerCommand(new SeeItemTagCommand("seeitemtag"));
+        this.registerCommand(new ShowNBTCommand("shownbt"));
+        this.registerCommand(new GetLoginChainCommand("loginchain"));
 
         this.registerCommand(new SeeSpeedCommand("seespeed"));
-
         this.registerCommand(new GetBlockPosCommand("blockpos"));
         this.registerCommand(new GetChestPosCommand("getchestpos"));
         this.registerCommand(new GetBlockSpaceCommand("blockspace"));
 
-        this.registerCommand(new GetLoginChainCommand("loginchain"));
+        this.registerCommand(new CapeCopyCommand("capecopy"));
         this.registerCommand(new SaveSkinCommand("saveskin"));
 
         // ranking system
@@ -100,10 +101,7 @@ public class GameAPICommandMain extends EasyCommand {
         if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
             this.registerCommand(new RankingMonthlyConclusionCommand("monthrank"));
             this.registerCommand(new ChangeToSnowBiomeCommand("snow"));
-
-            this.registerCommand(new CapeCopyCommand("capecopy"));
             this.registerCommand(new TestRoomCommand("testroom"));
-            this.registerCommand(new ShowNBTCommand("shownbt"));
         }
 
         this.registerCommand(new TestCommand("test"));

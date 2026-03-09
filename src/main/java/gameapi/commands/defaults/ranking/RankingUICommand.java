@@ -27,7 +27,7 @@ public class RankingUICommand extends EasySubCommand {
             AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("排行榜列表");
             for (Map.Entry<String, Ranking> entry : RankingManager.getRankingFactory().entrySet()) {
                 simple.addButton(
-                        new ResponsiveElementButton(entry.getValue().getTitle())
+                        new ResponsiveElementButton(entry.getValue().getTitle(commandSender))
                                 .onRespond(player1 -> Server.getInstance().dispatchCommand(player1, "gameapi rankui " + entry.getKey()))
                 );
             }
@@ -36,8 +36,8 @@ public class RankingUICommand extends EasySubCommand {
             Ranking ranking = RankingManager.getRankingFactory().get(args[0]);
             if (ranking != null) {
                 ranking.refreshRankingData();
-                AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple(ranking.getTitle());
-                simple.setContent(ranking.getDisplayContent(true));
+                AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple(ranking.getTitle(commandSender));
+                simple.setContent(ranking.getDisplayContent(commandSender, true));
                 simple.showToPlayer(player);
             }
         }

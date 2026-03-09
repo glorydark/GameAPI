@@ -5,7 +5,7 @@
 
     <groupId>glorydark.nukkit</groupId>
     <artifactId>GameAPI</artifactId>
-    <version>1.8.5</version>
+    <version>1.8.6</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
@@ -74,6 +74,13 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>24.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>glorydark.nukkit</groupId>
+            <artifactId>LanguageAPI</artifactId>
+            <version>1.2.3</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

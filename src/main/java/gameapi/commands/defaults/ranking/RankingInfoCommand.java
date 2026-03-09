@@ -22,7 +22,7 @@ public class RankingInfoCommand extends EasySubCommand {
             Ranking ranking = entry.getValue();
             ranking.refreshRankingData();
             commandSender.sendMessage(entry.getKey());
-            commandSender.sendMessage(ranking.getDisplayContent(true) + "\n");
+            commandSender.sendMessage(ranking.getDisplayContent(commandSender, true) + "\n");
         }
         return false;
     }

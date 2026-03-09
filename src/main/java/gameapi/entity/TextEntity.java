@@ -4,9 +4,15 @@ import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityArmorStand;
 import cn.nukkit.event.entity.EntityDamageEvent;
+import cn.nukkit.lang.TranslationContainer;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.network.protocol.AddEntityPacket;
+import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.RemoveEntityPacket;
+import gameapi.GameAPI;
+import glorydark.nukkit.languageapi.api.LanguageAPI;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -18,9 +24,11 @@ public class TextEntity extends Entity {
 
     private int maxShowDistance = -1;
 
+    public TranslationContainer rawText;
+
     public TextEntity(FullChunk chunk, String text, CompoundTag nbt) {
         super(chunk, nbt);
-        this.setNameTag(text);
+        this.rawText = new TranslationContainer(text);
     }
 
     protected void initEntity() {
@@ -87,11 +95,6 @@ public class TextEntity extends Entity {
         return false;
     }
 
-    @Override
-    public void spawnTo(Player player) {
-        super.spawnTo(player);
-    }
-
     public Map<String, Object> getExtraProperties() {
         return extraProperties;
     }
@@ -102,5 +105,40 @@ public class TextEntity extends Entity {
 
     public int getMaxShowDistance() {
         return maxShowDistance;
+    }
+
+    @Override
+    public void spawnTo(Player player) {
+        if (!this.hasSpawned.containsKey(player.getLoaderId()) && player.usedChunks.containsKey(Level.chunkHash(this.chunk.getX(), this.chunk.getZ()))) {
+            player.dataPacket(this.createAddEntityPacket(player));
+            this.hasSpawned.put(player.getLoaderId(), player);
+        }
+    }
+
+    public DataPacket createAddEntityPacket(Player player) {
+        AddEntityPacket pk = (AddEntityPacket) this.createAddEntityPacket();
+        if (GameAPI.getInstance().isLanguageAPIEnabled()) {
+            if (this.rawText.getParameters() == null) {
+                this.rawText.setParameters(new String[0]);
+            }
+            String[] params = this.rawText.getParameters().clone();
+            for (int i = 0; i < params.length; i++) {
+                params[i] = LanguageAPI.translate(
+                        "GameAPI",
+                        player,
+                        params[i]);
+            }
+            pk.metadata.putString(
+                    DATA_NAMETAG,
+                    LanguageAPI.translate("GameAPI", player, this.rawText.getText(),
+                            params)
+            );
+        } else {
+            pk.metadata.putString(
+                    DATA_NAMETAG,
+                    this.getNameTag()
+            );
+        }
+        return pk;
     }
 }

@@ -1,9 +1,12 @@
 package gameapi.ranking;
 
+import cn.nukkit.command.CommandSender;
+import cn.nukkit.lang.TranslationContainer;
 import gameapi.GameAPI;
 import gameapi.entity.RankingListEntity;
 import gameapi.ranking.simple.RankingValueType;
 import gameapi.tools.SmartTools;
+import glorydark.nukkit.languageapi.api.LanguageAPI;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -27,7 +30,7 @@ public class Ranking {
     // This only stores the inner compared values
     protected Map<String, ?> rankingData;
     private RankingSortSequence rankingSortSequence;
-    private String title;
+    private TranslationContainer title;
     private String noDataContent;
     private RankingFormat rankingFormat;
     @Setter(AccessLevel.NONE)
@@ -36,7 +39,7 @@ public class Ranking {
     private long lastUpdateMillis = 0L;
 
     public Ranking(RankingValueType valueType, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence, int maxDisplayCount) {
-        this.title = title;
+        this.title = new TranslationContainer(title);
         this.noDataContent = noDataContent;
         this.rankingFormat = rankingFormat;
         this.rankingData = new LinkedHashMap<>(); // sequential needs
@@ -68,15 +71,15 @@ public class Ranking {
         }
     }
 
-    public String getDisplayContent() {
-        return getDisplayContent(false);
+    public String getDisplayContent(CommandSender sender) {
+        return getDisplayContent(sender, false);
     }
 
-    public String getDisplayContent(boolean onlyContent) {
+    public String getDisplayContent(CommandSender sender, boolean onlyContent) {
         RankingFormat format = this.getRankingFormat();
         StringBuilder builder = new StringBuilder();
         if (!onlyContent) {
-            builder.append(this.getTitle().replace("\\n", "\n")).append("\n");
+            builder.append(this.getTitle(sender).replace("\\n", "\n")).append("\n");
         }
         this.refreshRankingData();
         if (!this.rankingData.isEmpty()) {
@@ -216,5 +219,23 @@ public class Ranking {
 
     public Map<String, ?> getRankingCache() {
         return rankingData;
+    }
+
+    public String getTitle(CommandSender sender) {
+        if (GameAPI.getInstance().isLanguageAPIEnabled()) {
+            String[] params = this.title.getParameters().clone();
+            if (params == null) {
+                params = new String[0];
+            }
+            for (int i = 0; i < this.title.getParameters().length; i++) {
+                params[i] = LanguageAPI.translate(
+                        "GameAPI",
+                        sender,
+                        params[i]);
+            }
+            return LanguageAPI.translate("GameAPI", sender, this.title.getText(), (Object[]) params);
+        } else {
+            return this.title.getText().replace("\\n", "\n");
+        }
     }
 }

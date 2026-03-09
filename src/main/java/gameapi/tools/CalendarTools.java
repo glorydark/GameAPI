@@ -3,6 +3,7 @@ package gameapi.tools;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import gameapi.GameAPI;
+import gameapi.annotation.Description;
 import gameapi.utils.TimestampData;
 
 import java.io.BufferedReader;
@@ -112,6 +113,7 @@ public class CalendarTools {
         }
     }
 
+    @Description(usage = "This method may cause delay in your services for its possibly slow connection to your time api.")
     public static long getBeijingTimeMillis(long defaultValue) {
         String apiUrl = GameAPI.getInstance().getTimestampApi();
         long startTime = System.currentTimeMillis(); // 记录请求发起的时间
