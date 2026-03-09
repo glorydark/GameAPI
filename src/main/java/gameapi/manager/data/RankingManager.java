@@ -135,6 +135,7 @@ public class RankingManager {
         }
         ranking.refreshRankingData();
         RankingListEntity entity = new RankingListEntity(ranking, chunk, RankingListEntity.getDefaultNBT(new Vector3(location.x, location.y, location.z)));
+        entity.setTranslationCategory(ranking.getTranslationCategory());
         entity.setMaxShowDistance(32);
         entity.setImmobile(true);
         entity.spawnToAll();
