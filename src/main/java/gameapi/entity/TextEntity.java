@@ -12,6 +12,7 @@ import cn.nukkit.network.protocol.AddEntityPacket;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.RemoveEntityPacket;
 import gameapi.GameAPI;
+import gameapi.annotation.Description;
 import glorydark.nukkit.languageapi.api.LanguageAPI;
 
 import java.util.ArrayList;
@@ -25,6 +26,9 @@ public class TextEntity extends Entity {
     private int maxShowDistance = -1;
 
     public TranslationContainer rawText;
+
+    @Description(usage = "used for LanguageAPI")
+    private String translationCategory = "GameAPI";
 
     public TextEntity(FullChunk chunk, String text, CompoundTag nbt) {
         super(chunk, nbt);
@@ -124,14 +128,14 @@ public class TextEntity extends Entity {
             String[] params = this.rawText.getParameters().clone();
             for (int i = 0; i < params.length; i++) {
                 params[i] = LanguageAPI.translate(
-                        "GameAPI",
+                        this.translationCategory,
                         player,
                         params[i]);
             }
             pk.metadata.putString(
                     DATA_NAMETAG,
-                    LanguageAPI.translate("GameAPI", player, this.rawText.getText(),
-                            params)
+                    LanguageAPI.translate(this.translationCategory, player, this.rawText.getText(),
+                            (Object[]) params)
             );
         } else {
             pk.metadata.putString(
@@ -140,5 +144,13 @@ public class TextEntity extends Entity {
             );
         }
         return pk;
+    }
+
+    public String getTranslationCategory() {
+        return translationCategory;
+    }
+
+    public void setTranslationCategory(String translationCategory) {
+        this.translationCategory = translationCategory;
     }
 }

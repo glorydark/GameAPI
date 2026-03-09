@@ -5,9 +5,12 @@ import cn.nukkit.block.Block;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.item.Item;
+import gameapi.GameAPI;
+import gameapi.annotation.Description;
 import gameapi.event.entity.RoomEntityDamageEvent;
 import gameapi.room.Room;
 import gameapi.tools.ItemTools;
+import glorydark.nukkit.languageapi.api.LanguageAPI;
 
 import java.util.Map;
 
@@ -17,9 +20,11 @@ import java.util.Map;
 public abstract class RoomItemBase {
 
     public static final String KEY_IDENTIFIER = "room_item";
-    protected Item item;
+    protected final Item item;
     protected String identifier;
     protected boolean isCancelBlockPlaceEvent = false;
+    @Description(usage = "used for LanguageAPI")
+    protected String translationCategory = "GameAPI";
 
     public RoomItemBase(String identifier, String name, Item item) {
         this(identifier, name, item, ItemLockType.NONE);
@@ -56,7 +61,15 @@ public abstract class RoomItemBase {
     }
 
     public Item toItem(Player player) {
-        return this.item.clone();
+        Item result = this.item.clone();
+        if (GameAPI.getInstance().isLanguageAPIEnabled()) {
+            String itemName = result.getCustomName();
+            String translatedName = LanguageAPI.translate(translationCategory, player, itemName);
+            if (!itemName.equals(translatedName)) {
+                result.setCustomName(translatedName);
+            }
+        }
+        return result;
     }
 
     public String getIdentifier() {
@@ -114,5 +127,13 @@ public abstract class RoomItemBase {
 
     public void setCancelBlockPlaceEvent(boolean cancelBlockPlaceEvent) {
         this.isCancelBlockPlaceEvent = cancelBlockPlaceEvent;
+    }
+
+    public String getTranslationCategory() {
+        return this.translationCategory;
+    }
+
+    public void setTranslationCategory(String translationCategory) {
+        this.translationCategory = translationCategory;
     }
 }

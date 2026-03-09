@@ -3,6 +3,7 @@ package gameapi.ranking;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.lang.TranslationContainer;
 import gameapi.GameAPI;
+import gameapi.annotation.Description;
 import gameapi.entity.RankingListEntity;
 import gameapi.ranking.simple.RankingValueType;
 import gameapi.tools.SmartTools;
@@ -37,6 +38,8 @@ public class Ranking {
     private RankingListEntity entity;
     private int maxDisplayCount;
     private long lastUpdateMillis = 0L;
+    @Description(usage = "used for LanguageAPI")
+    private String translationCategory = "GameAPI";
 
     public Ranking(RankingValueType valueType, String title, String noDataContent, RankingFormat rankingFormat, RankingSortSequence rankingSortSequence, int maxDisplayCount) {
         this.title = new TranslationContainer(title);
@@ -229,11 +232,11 @@ public class Ranking {
             }
             for (int i = 0; i < this.title.getParameters().length; i++) {
                 params[i] = LanguageAPI.translate(
-                        "GameAPI",
+                        this.translationCategory,
                         sender,
                         params[i]);
             }
-            return LanguageAPI.translate("GameAPI", sender, this.title.getText(), (Object[]) params);
+            return LanguageAPI.translate(this.translationCategory, sender, this.title.getText(), (Object[]) params);
         } else {
             return this.title.getText().replace("\\n", "\n");
         }
