@@ -548,7 +548,7 @@ public class Room {
         List<String> whitelists = this.getRoomRule().getAllowJoinPlayers();
         if (!whitelists.isEmpty()) {
             if (!whitelists.contains(player.getName())) {
-                player.sendMessage(GameAPI.getLanguage().getTranslation("room.game.no_access"));
+                player.sendMessage(GameAPI.getLanguage().getTranslation(player, "room.game.no_access"));
                 return;
             }
         }

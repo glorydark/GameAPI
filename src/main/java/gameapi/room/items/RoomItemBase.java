@@ -64,9 +64,11 @@ public abstract class RoomItemBase {
         Item result = this.item.clone();
         if (GameAPI.getInstance().isLanguageAPIEnabled()) {
             String itemName = result.getCustomName();
-            String translatedName = LanguageAPI.translate(translationCategory, player, itemName);
-            if (!itemName.equals(translatedName)) {
-                result.setCustomName(translatedName);
+            if (!itemName.isEmpty() && player != null) {
+                String translatedName = LanguageAPI.translate(this.translationCategory, player, itemName);
+                if (!itemName.equals(translatedName)) {
+                    result.setCustomName(translatedName);
+                }
             }
         }
         return result;
