@@ -370,4 +370,25 @@ public class PlayerTools {
 
         return null;
     }
+
+    public static void setItemIfAbsent(Player player, int slot, Item item) {
+        Item item1 = player.getInventory().getItem(slot);
+        if (item1.isNull()) {
+            player.getInventory().setItem(slot, item);
+        }
+    }
+
+    public static void setItemIfItemNameNotEqual(Player player, int slot, Item item) {
+        Item item1 = player.getInventory().getItem(slot);
+        if (item1.getName().equals(item.getName())) {
+            player.getInventory().setItem(slot, item);
+        }
+    }
+
+    public static void setItemIfItemNotEqual(Player player, int slot, Item item, boolean checkDamage, boolean checkCompound) {
+        Item item1 = player.getInventory().getItem(slot);
+        if (item1.equals(item, checkDamage, checkCompound)) {
+            player.getInventory().setItem(slot, item);
+        }
+    }
 }
