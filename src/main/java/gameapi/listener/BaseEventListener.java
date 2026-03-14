@@ -21,9 +21,7 @@ import cn.nukkit.event.block.BlockFallEvent;
 import cn.nukkit.event.block.BlockIgniteEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.*;
-import cn.nukkit.event.inventory.CraftItemEvent;
-import cn.nukkit.event.inventory.InventoryPickupArrowEvent;
-import cn.nukkit.event.inventory.InventoryPickupItemEvent;
+import cn.nukkit.event.inventory.*;
 import cn.nukkit.event.level.ChunkLoadEvent;
 import cn.nukkit.event.level.ChunkUnloadEvent;
 import cn.nukkit.event.player.*;
@@ -46,6 +44,7 @@ import gameapi.event.chunk.RoomChunkLoadEvent;
 import gameapi.event.chunk.RoomChunkUnloadEvent;
 import gameapi.event.entity.*;
 import gameapi.event.extra.EntityDamageByEntityByItemEvent;
+import gameapi.event.inventory.RoomInventoryOpenEvent;
 import gameapi.event.inventory.RoomInventoryPickupArrowEvent;
 import gameapi.event.inventory.RoomInventoryPickupItemEvent;
 import gameapi.event.player.*;
@@ -1177,6 +1176,19 @@ public class BaseEventListener implements Listener {
                 if (rev.isCancelled()) {
                     event.setCancelled(true);
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        Player player = event.getPlayer();
+        Room room = RoomManager.getRoom(player);
+        if (room != null) {
+            RoomInventoryOpenEvent rev = new RoomInventoryOpenEvent(room, player, event.getInventory());
+            GameListenerRegistry.callEvent(room, rev);
+            if (rev.isCancelled()) {
+                event.setCancelled(true);
             }
         }
     }

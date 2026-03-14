@@ -18,7 +18,7 @@ import java.util.List;
  * @author glorydark
  */
 @Data
-public class EasyNBTItem {
+public class EasyNBTItem implements Cloneable {
 
     private final String identifier;
 
@@ -170,5 +170,33 @@ public class EasyNBTItem {
             }
         }
         return item;
+    }
+
+    @Override
+    public EasyNBTItem clone() {
+        try {
+            EasyNBTItem cloned = (EasyNBTItem) super.clone();
+
+            if (this.compoundTag != null) {
+                cloned.compoundTag = this.compoundTag.copy();
+            }
+
+            if (this.lore != null) {
+                cloned.lore = this.lore.clone();
+            }
+
+            if (this.enchantments != null) {
+                cloned.enchantments = new ArrayList<>();
+                for (Enchantment ench : this.enchantments) {
+                    if (ench != null) {
+                        cloned.enchantments.add(ench);
+                    }
+                }
+            }
+
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError("Fail to clone EasyNBTItem", e);
+        }
     }
 }
