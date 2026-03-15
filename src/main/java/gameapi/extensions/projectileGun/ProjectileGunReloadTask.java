@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.scheduler.Task;
+import gameapi.GameAPI;
 import gameapi.items.ProjectileGunInteractableItem;
 import gameapi.tools.SmartTools;
 
@@ -53,9 +54,9 @@ public class ProjectileGunReloadTask extends Task {
                     if (nextDamage <= 0) {
                         nextDamage = 0;
                         finishReplenish = true;
-                        this.player.sendActionBar("§a换弹完毕");
+                        this.player.sendActionBar(GameAPI.getLanguage().translate(player, "message.projectile_gun.reload_finish"));
                     } else {
-                        this.player.sendActionBar("§a换弹中 " + SmartTools.getCountdownProgressBar(this.item.getMaxDurability() - nextDamage, this.item.getMaxDurability(), 20));
+                        this.player.sendActionBar(GameAPI.getLanguage().translate(player, "message.projectile_gun.reload_progress", SmartTools.getCountdownProgressBar(this.item.getMaxDurability() - nextDamage, this.item.getMaxDurability(), 20)));
                     }
                     currentItem.setDamage(nextDamage);
                     if (finishReplenish) {

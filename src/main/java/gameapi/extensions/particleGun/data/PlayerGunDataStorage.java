@@ -3,7 +3,7 @@ package gameapi.extensions.particleGun.data;
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.utils.TextFormat;
+import gameapi.GameAPI;
 import gameapi.extensions.particleGun.ParticleGun;
 import gameapi.manager.extension.ParticleGunManager;
 import gameapi.room.task.EasyTask;
@@ -91,7 +91,7 @@ public class PlayerGunDataStorage {
         ParticleGunManager.getPlayerParticleGunDataMap().computeIfAbsent(particleGunId, s -> new PlayerGunData(gun.getAmmo(), gun.getMaxAmmo()));
         PlayerGunData startPlayerGunData = ParticleGunManager.getPlayerParticleGunDataMap().get(particleGunId);
         if (startPlayerGunData.getMaxAmmo() <= 0) {
-            player.sendMessage(TextFormat.RED + "弹匣已空！");
+            player.sendMessage(GameAPI.getLanguage().translate(player, "message.particle_gun.ammo.empty"));
             return;
         }
         if (startPlayerGunData.getAmmo() == gun.getAmmo()) {
@@ -99,7 +99,7 @@ public class PlayerGunDataStorage {
         }
         this.setReloading(true);
         gun.onReload(player);
-        player.sendMessage("开始换弹!");
+        GameAPI.getLanguage().translate(player, "message.particle_gun.reload_start");
         final long startMillis = System.currentTimeMillis();
 
         PlayerGunDataStorage playerGunDataStorage = this;
@@ -114,7 +114,7 @@ public class PlayerGunDataStorage {
                     return;
                 }
                 if (!player.getInventory().getItemInHand().equals(item) || heldIndex != player.getInventory().getHeldItemIndex()) {
-                    player.sendMessage(TextFormat.RED + "换弹中断！");
+                    GameAPI.getLanguage().translate(player, "message.particle_gun.reload_interrupt");
                     playerGunDataStorage.setReloading(false);
                     this.cancel();
                     return;
@@ -125,7 +125,7 @@ public class PlayerGunDataStorage {
                 if (playerGunDataStorage.getInvalidateBeforeMillis() < startMillis) {
                     if (this.tick < gun.getReloadTick()) {
                         tick++;
-                        player.sendTip(TextFormat.GREEN + "Ammo: " + ammo + "/" + maxAmmo + "\n" + TextFormat.RED + "Reloading " + SmartTools.getCountdownProgressBar(tick, gun.getReloadTick(), 40, "§e", "§7", "▏", "▏") + " " + SmartTools.tickToSecondString(gun.getReloadTick() - this.tick, 1) + "s");
+                        player.sendTip(GameAPI.getLanguage().translate(player, "message.particle_gun.reload_tip", ammo, maxAmmo, SmartTools.getCountdownProgressBar(tick, gun.getReloadTick(), 40, "§e", "§7", "▏", "▏"), SmartTools.tickToSecondString(gun.getReloadTick() - this.tick, 1)));
                     } else {
                         playerGunData.setMaxAmmo(maxAmmo - (gun.getAmmo() - ammo));
                         playerGunData.setAmmo(gun.getAmmo());
@@ -134,7 +134,7 @@ public class PlayerGunDataStorage {
                         // item.setNamedTag(tag);
                         // player.getInventory().setItemInHand(item);
                         playerGunDataStorage.setReloading(false);
-                        player.sendMessage(TextFormat.GREEN + "换弹完毕!");
+                        GameAPI.getLanguage().translate(player, "message.particle_gun.reload_complete");
                         this.cancel();
                     }
                 } else {

@@ -4,7 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
-import cn.nukkit.utils.TextFormat;
+import gameapi.GameAPI;
 import gameapi.extensions.particleGun.ParticleGun;
 import gameapi.extensions.particleGun.data.PlayerGunData;
 import gameapi.extensions.particleGun.data.PlayerGunDataStorage;
@@ -58,7 +58,7 @@ public class ParticleGunUpdateTask extends EasyTask {
                         if (ammo <= 0) {
                             if (maxAmmo <= 0) {
                                 playerGunDataStorage.setShooting(false);
-                                player.sendMessage(TextFormat.RED + "弹匣已空！");
+                                GameAPI.getLanguage().translate(player, "message.particle_gun.ammo_empty");
                             } else {
                                 playerGunDataStorage.reload(player, item, heldIndex, gun);
                             }
@@ -67,17 +67,17 @@ public class ParticleGunUpdateTask extends EasyTask {
                                 return;
                             }
                             playerGunDataStorage.shoot(player, particleGunId, gun);
-                            player.sendTip(TextFormat.GREEN + "Ammo: " + (ammo - 1) + "/" + maxAmmo);
+                            player.sendTip(GameAPI.getLanguage().translate(player, "message.particle_gun.ammo_display", (ammo - 1), maxAmmo));
                         }
                     } else {
-                        player.sendTip(TextFormat.GREEN + "Ammo: " + ammo + "/" + maxAmmo);
+                        player.sendTip(GameAPI.getLanguage().translate(player, "message.particle_gun.ammo_display", ammo, maxAmmo));
                     }
                 } else {
                     int heldIndex = player.getInventory().getHeldItemIndex();
                     if (ammo <= 0) {
                         playerGunDataStorage.reload(player, item, heldIndex, gun);
                     } else {
-                        player.sendTip(TextFormat.GREEN + "Ammo: " + ammo + "/" + maxAmmo);
+                        player.sendTip(GameAPI.getLanguage().translate(player, "message.particle_gun.ammo_display", ammo, maxAmmo));
                     }
                 }
             }

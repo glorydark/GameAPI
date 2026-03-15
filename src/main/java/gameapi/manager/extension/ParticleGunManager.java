@@ -12,7 +12,7 @@ import cn.nukkit.event.server.DataPacketReceiveEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.AnimatePacket;
 import cn.nukkit.network.protocol.InventoryTransactionPacket;
-import cn.nukkit.utils.TextFormat;
+import gameapi.GameAPI;
 import gameapi.annotation.Description;
 import gameapi.extensions.particleGun.ParticleGun;
 import gameapi.extensions.particleGun.data.PlayerGunData;
@@ -82,7 +82,7 @@ public class ParticleGunManager implements Listener {
             if (System.currentTimeMillis() - playerGunDataStorage.getLastChangeStateMillis() > 50L) {
                 playerGunDataStorage.setShooting(true);
                 playerGunDataStorage.setLastChangeStateMillis(System.currentTimeMillis());
-                player.sendMessage(TextFormat.GREEN + "已开启自动射击！");
+                player.sendMessage(GameAPI.getLanguage().translate(player, "message.particle_gun.auto_shoot.enabled"));
             }
         } else {
             PlayerGunDataStorage playerGunDataStorage = new PlayerGunDataStorage();
@@ -102,7 +102,7 @@ public class ParticleGunManager implements Listener {
                         if (gun.isAutoShoot()) {
                             playerGunDataStorage.setShooting(false);
                             playerGunDataStorage.setLastChangeStateMillis(System.currentTimeMillis());
-                            player.sendMessage(TextFormat.RED + "已关闭自动射击！");
+                            player.sendMessage(GameAPI.getLanguage().translate(player, "message.particle_gun.auto_shoot.disabled"));
                         }
                     }
                 }
