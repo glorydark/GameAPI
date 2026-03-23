@@ -111,7 +111,7 @@ public class Room {
         return false;
     };
     private final long createMillis;
-    public long maxTempRoomWaitMillis = 1800000L;
+    public long maxTempRoomWaitMillis = 900000L; // 15 min = 15 * 60 * 1000 = 900000L
     @Setter(AccessLevel.NONE)
     protected ConcurrentHashMap<String, BaseTeam> teamCache = new ConcurrentHashMap<>();
     @Setter(AccessLevel.NONE)
@@ -130,8 +130,6 @@ public class Room {
     // Used as a temporary room and will be deleted after the game.
     private RoomExecutor statusExecutor = new BaseRoomExecutor(this);
     private boolean temporary = false;
-    @Deprecated
-    private boolean autoDestroy = false;
     private boolean resetMap = true;
     private String roomName = "";
     private RoomRule roomRule;

@@ -110,8 +110,6 @@ public class RoomRule {
      * Decide whether ceremony phase will exist or not.
      */
     private boolean hasCeremony = true;
-    private boolean autoDestroyWhenBelowMinPlayers = false;
-    private boolean autoResetOnEmptyAfterStart = false;
     private Set<TipElementType> tipHideElements;
 
     private boolean enableRoomChatSystem = true;
