@@ -227,7 +227,7 @@ public class Ranking {
     public String getTitle(CommandSender sender) {
         if (GameAPI.getInstance().isLanguageAPIEnabled()) {
             String[] params = this.title.getParameters().clone();
-            if (params == null) {
+            if (params == null || params.length < 1) {
                 params = new String[0];
             }
             for (int i = 0; i < this.title.getParameters().length; i++) {
