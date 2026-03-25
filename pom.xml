@@ -84,7 +84,6 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -101,8 +100,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
+                <version>3.5.1</version>
                 <configuration>
+                    <shadedArtifactAttached>false</shadedArtifactAttached>
+                    <createSourcesJar>false</createSourcesJar>
+                    <outputFile>${project.build.directory}/${project.build.finalName}.jar</outputFile>
                     <artifactSet>
                         <includes>
                             <include>org.jnbt.*</include>
