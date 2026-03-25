@@ -3,6 +3,7 @@ package gameapi.utils.music;
 import cn.nukkit.Player;
 import cn.nukkit.level.Sound;
 import cn.nukkit.network.protocol.PlaySoundPacket;
+import cn.nukkit.network.protocol.ProtocolInfo;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,19 +20,30 @@ import java.util.Map;
 @EqualsAndHashCode(of = {"songName", "title"})
 public class Song {
 
-    public static final Map<Integer, Sound> SOUNDS = new Int2ObjectOpenHashMap<Sound>() {{
-        put(0, Sound.NOTE_HARP);
-        put(1, Sound.NOTE_BASS);
-        put(2, Sound.NOTE_BD);
-        put(3, Sound.NOTE_SNARE);
-        put(4, Sound.NOTE_HAT);
-        put(5, Sound.NOTE_GUITAR);
-        put(6, Sound.NOTE_FLUTE);
-        put(7, Sound.NOTE_BELL);
-        put(8, Sound.NOTE_CHIME);
-        put(9, Sound.NOTE_XYLOPHONE);
+    public static final Map<Integer, InstrumentData> SOUNDS = new Int2ObjectOpenHashMap<>() {{
+        put(0, new InstrumentData(Sound.NOTE_HARP));
+        put(1, new InstrumentData(Sound.NOTE_BD));
+        put(2, new InstrumentData(Sound.NOTE_SNARE));
+        put(3, new InstrumentData(Sound.NOTE_HAT));
+        put(4, new InstrumentData(Sound.NOTE_BASS));
+        put(5, new InstrumentData(Sound.NOTE_BELL, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(6, new InstrumentData(Sound.NOTE_FLUTE, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(7, new InstrumentData(Sound.NOTE_CHIME, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(8, new InstrumentData(Sound.NOTE_GUITAR, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(9, new InstrumentData(Sound.NOTE_XYLOPHONE, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(10, new InstrumentData(Sound.NOTE_IRON_XYLOPHONE, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(11, new InstrumentData(Sound.NOTE_COW_BELL, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(12, new InstrumentData(Sound.NOTE_DIDGERIDOO, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(13, new InstrumentData(Sound.NOTE_BIT, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(14, new InstrumentData(Sound.NOTE_BANJO, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(15, new InstrumentData(Sound.NOTE_PLING, ProtocolInfo.v1_12_0, Sound.NOTE_HARP));
+        put(16, new InstrumentData("block.note_block.trumpet", ProtocolInfo.v1_26_10, Sound.NOTE_HARP));
+        put(17, new InstrumentData("block.note_block.trumpet_exposed", ProtocolInfo.v1_26_10, Sound.NOTE_HARP));
+        put(18, new InstrumentData("block.note_block.trumpet_weathered", ProtocolInfo.v1_26_10, Sound.NOTE_HARP));
+        put(19, new InstrumentData("block.note_block.trumpet_oxidized", ProtocolInfo.v1_26_10, Sound.NOTE_HARP));
     }};
-    private static final Map<Integer, Float> KEYS = new LinkedHashMap<Integer, Float>() {{
+
+    private static final Map<Integer, Float> KEYS = new LinkedHashMap<>() {{
         put(0, 0.5f);
         put(1, 0.529732f);
         put(2, 0.561231f);
@@ -58,6 +70,7 @@ public class Song {
         put(23, 1.887749f);
         put(24, 2.0f);
     }};
+
     private final Map<Integer, Layer> layerHashMap;
     private final short songHeight;
     private final short length;
@@ -100,12 +113,12 @@ public class Song {
             if (note == null) {
                 continue;
             }
-            Sound sound = SOUNDS.getOrDefault((int) note.getInstrument(), null);
+            InstrumentData sound = SOUNDS.getOrDefault((int) note.getInstrument(), null);
             float pitch = KEYS.getOrDefault(note.getKey() - 33, 0F);
             for (Player player : players) {
                 if (sound != null) {
                     PlaySoundPacket soundPk = new PlaySoundPacket();
-                    soundPk.name = sound.getSound();
+                    soundPk.name = sound.getSoundId(player);
                     soundPk.volume = layer.getVolume();
                     soundPk.pitch = pitch;
                     soundPk.x = player.getFloorX();

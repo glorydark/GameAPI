@@ -9,6 +9,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@Deprecated
 public class ActivityPlayerDataCache {
 
     protected static final long EXPIRE_MILLIS = 300000L;

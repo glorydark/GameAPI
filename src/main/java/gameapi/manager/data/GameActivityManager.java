@@ -2,6 +2,7 @@ package gameapi.manager.data;
 
 import cn.nukkit.Player;
 import gameapi.GameAPI;
+import gameapi.annotation.Description;
 import gameapi.form.AdvancedFormWindowSimple;
 import gameapi.form.element.ResponsiveElementButton;
 import gameapi.manager.data.activity.ActivityData;
@@ -15,6 +16,8 @@ import java.util.Map;
 /**
  * @author glorydark
  */
+@Deprecated
+@Description(usage = "Use standalone plugin instead of built-in one")
 public class GameActivityManager {
 
     public static String path;

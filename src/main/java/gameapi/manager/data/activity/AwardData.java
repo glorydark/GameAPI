@@ -17,6 +17,7 @@ import java.util.function.BiFunction;
  * @author glorydark
  */
 @Getter
+@Deprecated
 public class AwardData {
 
     public static final String PLAYER_REPLACEMENT = "{player}";

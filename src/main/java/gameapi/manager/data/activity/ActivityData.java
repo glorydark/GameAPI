@@ -20,6 +20,7 @@ import java.util.Map;
  * @author glorydark
  */
 @Getter
+@Deprecated
 public class ActivityData {
 
     private final String activityId;
