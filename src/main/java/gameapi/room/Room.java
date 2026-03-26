@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
 @Setter
 public class Room {
 
-    public List<CustomRoomStatus> roomStatusList = RoomDefaultStatusFactory.DEFAULT_ROOM_STATUS_LIST;
+    public List<CustomRoomStatus> roomStatusList = CustomRoomStatus.DEFAULT_LIST;
     public static final String INTERNAL_KEY_ROOM_INTERNAL = "room_internal";
     public static final String INTERNAL_KEY_VISIBLE_TO_PLAYERS = "visible_to_players";
     public static final BiFunction<Room, Player, Boolean> DEFAULT_ROOM_ADD_PLAYER_CHECK = (room, player) -> {
@@ -133,7 +133,7 @@ public class Room {
     private boolean resetMap = true;
     private String roomName = "";
     private RoomRule roomRule;
-    private CustomRoomStatus currentRoomStatus = RoomDefaultStatusFactory.ROOM_INITIALIZING;
+    private CustomRoomStatus currentRoomStatus = CustomRoomStatus.INITIALIZING;
     private List<Player> players = new ArrayList<>();
     private List<Player> spectators = new ArrayList<>();
     private int maxPlayer = 16;
@@ -717,10 +717,10 @@ public class Room {
     }
 
     public void resetAll(ResetAllReason resetAllReason) {
-        if (this.currentRoomStatus == RoomDefaultStatusFactory.ROOM_MAP_INITIALIZING) {
+        if (this.currentRoomStatus == CustomRoomStatus.MAP_INITIALIZING) {
             return;
         }
-        this.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_MAP_INITIALIZING, "internal");
+        this.setCurrentRoomStatus(CustomRoomStatus.MAP_INITIALIZING, "internal");
         if (this.getRoomTaskExecutor() != null) {
             this.getRoomUpdateTask().cancel();
             this.getRoomTaskExecutor().shutdownNow();
@@ -792,13 +792,13 @@ public class Room {
                 if (WorldTools.unloadAndReloadLevels(this)) {
                     this.roomTaskExecutor = Executors.newScheduledThreadPool(4);
                     this.getRoomTaskExecutor().scheduleAtFixedRate(this.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
-                    this.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_WAIT, "internal");
+                    this.setCurrentRoomStatus(CustomRoomStatus.WAIT, "internal");
                 }
             } else {
                 GameAPI.getInstance().getLogger().alert(GameAPI.getLanguage().getTranslation("room.reset.only_room", this.getRoomName()));
                 this.roomTaskExecutor = Executors.newScheduledThreadPool(4);
                 this.getRoomTaskExecutor().scheduleAtFixedRate(this.getRoomUpdateTask(), 0, GameAPI.GAME_TASK_INTERVAL * 50, TimeUnit.MILLISECONDS);
-                this.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_WAIT, "internal");
+                this.setCurrentRoomStatus(CustomRoomStatus.WAIT, "internal");
             }
         }
     }

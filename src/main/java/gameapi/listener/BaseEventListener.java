@@ -1333,30 +1333,4 @@ public class BaseEventListener implements Listener {
             }
         }
     }
-
-    /*
-    @EventHandler
-    public void DataPacketReceiveEvent(DataPacketReceiveEvent event) {
-        Player player = event.getPlayer();
-        Room room = RoomManager.getRoom(player);
-        if (room != null && room.getPlayers().contains(player)) {
-            if ((room.getRoomStatus() == RoomStatus.ROOM_STATUS_READY_START
-                    || room.getRoomStatus() == RoomStatus.ROOM_STATUS_NEXT_ROUND_PRESTART)
-                    && !room.getRoomRule().isAllowReadyStartWalk()) {
-                if (event.getPacket() instanceof MovePlayerPacket) {
-                    MovePlayerPacket pk = (MovePlayerPacket) event.getPacket();
-                    if (new Vector3(pk.x, player.y, pk.z).distance(player) == 0d) {
-                        return;
-                    }
-                    Location location = player.getLocation();
-                    location.setYaw(pk.yaw);
-                    location.setPitch(pk.pitch);
-                    location.setHeadYaw(pk.headYaw);
-                    player.teleport(location);
-                    event.setCancelled(true);
-                }
-            }
-        }
-    }
-     */
 }

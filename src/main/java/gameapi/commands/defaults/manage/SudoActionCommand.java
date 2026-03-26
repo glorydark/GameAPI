@@ -35,7 +35,7 @@ public class SudoActionCommand extends EasySubCommand {
             AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("快捷整蛊");
             simple.addButton(
                     new ResponsiveElementButton("假装/取消卡顿")
-                            .onRespond(player1 -> player.setImmobile(!player.isImmobile()))
+                            .onRespond(player1 -> player.setLockMovementInput(!player.isLockMovementInput()))
             );
             simple.addButton(
                     new ResponsiveElementButton("闪电降临")
@@ -77,7 +77,7 @@ public class SudoActionCommand extends EasySubCommand {
         } else {
             switch (args[1]) {
                 case "lag":
-                    player.setImmobile(!player.isImmobile());
+                    player.setLockMovementInput(!player.isLockMovementInput());
                     break;
                 case "lightning":
                     Server.getInstance().getScheduler().scheduleRepeatingTask(GameAPI.getInstance(), new Task() {

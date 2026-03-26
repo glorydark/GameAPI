@@ -5,6 +5,7 @@ import gameapi.event.room.RoomGameStartEvent;
 import gameapi.event.room.RoomGameStartTickEvent;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
+import gameapi.room.status.base.CustomRoomStatus;
 import gameapi.room.status.base.InternalRoomStatus;
 import gameapi.room.status.factory.RoomDefaultStatusFactory;
 import gameapi.room.utils.reason.ResetAllReason;
@@ -43,9 +44,9 @@ public class RoomStatusGameStart extends InternalRoomStatus {
     public void onStateUpdate(Room room) {
         if (!room.getRoomRule().isNoTimeLimit() && room.getTime() >= room.getGameTime()) {
             if (room.getRound() >= room.getMaxRound()) {
-                room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_GAME_END, "internal");
+                room.setCurrentRoomStatus(CustomRoomStatus.GAME_END, "internal");
             } else {
-                room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_NEXT_ROUND_PRESTART, "internal");
+                room.setCurrentRoomStatus(CustomRoomStatus.NEXT_ROUND_PRESTART, "internal");
             }
         } else {
             room.getStatusExecutor().onGameStart();

@@ -6,6 +6,7 @@ import gameapi.GameAPI;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.manager.RoomManager;
 import gameapi.room.Room;
+import gameapi.room.status.base.CustomRoomStatus;
 import gameapi.room.status.factory.RoomDefaultStatusFactory;
 
 /**
@@ -21,9 +22,9 @@ public class RoomFastCommand extends EasySubCommand {
     public boolean execute(CommandSender commandSender, String s, String[] args) {
         Room room = RoomManager.getRoom((Player) commandSender);
         if (room != null) {
-            if (room.getCurrentRoomStatus() == RoomDefaultStatusFactory.ROOM_STATUS_PRESTART) {
+            if (room.getCurrentRoomStatus() == CustomRoomStatus.PRESTART) {
                 room.setTime(room.getWaitTime() - 1);
-            } else if (room.getCurrentRoomStatus() == RoomDefaultStatusFactory.ROOM_STATUS_READY_START) {
+            } else if (room.getCurrentRoomStatus() == CustomRoomStatus.READY_START) {
                 room.setTime(room.getGameWaitTime() - 1);
             }
         } else {

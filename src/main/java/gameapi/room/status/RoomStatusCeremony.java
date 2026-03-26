@@ -39,7 +39,7 @@ public class RoomStatusCeremony extends InternalRoomStatus {
         if (room.getTime() >= room.getCeremonyTime()) {
             CustomRoomStatus status = this.getNextRoomStatus(room);
             if (status == null) {
-                status = RoomDefaultStatusFactory.ROOM_STATUS_ROOM_END;
+                status = CustomRoomStatus.ROOM_END;
             }
             room.setCurrentRoomStatus(status, "internal");
         } else {

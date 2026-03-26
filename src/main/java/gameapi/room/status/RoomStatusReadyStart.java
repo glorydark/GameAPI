@@ -39,7 +39,7 @@ public class RoomStatusReadyStart extends InternalRoomStatus {
         if (room.getTime() >= room.getGameWaitTime()) {
             CustomRoomStatus status = this.getNextRoomStatus(room);
             if (status == null) {
-                status = RoomDefaultStatusFactory.ROOM_STATUS_GAME_START;
+                status = CustomRoomStatus.GAME_START;
             }
             room.setCurrentRoomStatus(status, "internal");
         } else {

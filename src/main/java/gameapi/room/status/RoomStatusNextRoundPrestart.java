@@ -4,6 +4,7 @@ import gameapi.event.room.RoomNextRoundPreStartEvent;
 import gameapi.event.room.RoomNextRoundPreStartTickEvent;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
+import gameapi.room.status.base.CustomRoomStatus;
 import gameapi.room.status.base.InternalRoomStatus;
 import gameapi.room.status.factory.RoomDefaultStatusFactory;
 import gameapi.room.utils.reason.ResetAllReason;
@@ -36,7 +37,7 @@ public class RoomStatusNextRoundPrestart extends InternalRoomStatus {
 
     public void onStateUpdate(Room room) {
         if (room.getTime() >= room.getNextRoundPreStartTime()) {
-            room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_GAME_START, "internal");
+            room.setCurrentRoomStatus(CustomRoomStatus.GAME_START, "internal");
         } else {
             room.getStatusExecutor().onNextRoundPreStart();
             room.setTime(room.getTime() + 1);

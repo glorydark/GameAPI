@@ -1,5 +1,7 @@
 package gameapi.room.status.factory;
 
+import gameapi.annotation.Description;
+import gameapi.annotation.Internal;
 import gameapi.room.status.*;
 import gameapi.room.status.base.CustomRoomStatus;
 import gameapi.room.status.base.DefaultCustomRoomStatus;
@@ -13,6 +15,8 @@ import java.util.Map;
 /**
  * @author glorydark
  */
+@Internal
+@Description(usage = "Used for default room statuses internally.")
 public class RoomDefaultStatusFactory {
 
     public static final Map<String, CustomRoomStatus> REGISTRY = new HashMap<>();

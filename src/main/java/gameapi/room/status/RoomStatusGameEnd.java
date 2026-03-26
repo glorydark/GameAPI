@@ -4,6 +4,7 @@ import gameapi.event.room.RoomGameEndEvent;
 import gameapi.event.room.RoomGameEndTickEvent;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.room.Room;
+import gameapi.room.status.base.CustomRoomStatus;
 import gameapi.room.status.base.InternalRoomStatus;
 import gameapi.room.status.factory.RoomDefaultStatusFactory;
 import gameapi.room.utils.reason.ResetAllReason;
@@ -36,9 +37,9 @@ public class RoomStatusGameEnd extends InternalRoomStatus {
     public boolean onStateUpdate(Room room) {
         if (room.getTime() >= room.getGameEndTime()) {
             if (room.getRoomRule().isHasCeremony()) {
-                room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_CEREMONY, "internal");
+                room.setCurrentRoomStatus(CustomRoomStatus.CEREMONY, "internal");
             } else {
-                room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_ROOM_END, "internal");
+                room.setCurrentRoomStatus(CustomRoomStatus.ROOM_END, "internal");
                 room.resetAll(ResetAllReason.ROOM_GAME_FINISH);
             }
             return true;

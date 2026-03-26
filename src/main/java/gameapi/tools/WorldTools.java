@@ -10,6 +10,7 @@ import cn.nukkit.level.Level;
 import gameapi.GameAPI;
 import gameapi.annotation.Internal;
 import gameapi.room.Room;
+import gameapi.room.status.base.CustomRoomStatus;
 import gameapi.room.status.factory.RoomDefaultStatusFactory;
 import gameapi.utils.AdvancedLocation;
 
@@ -61,7 +62,7 @@ public class WorldTools {
                 }
             } else {
                 GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.not_found", room.getRoomName()));
-                room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_MAP_LOAD_FAILED, "internal");
+                room.setCurrentRoomStatus(CustomRoomStatus.MAP_LOAD_FAILED, "internal");
                 return false;
             }
         }
@@ -145,21 +146,21 @@ public class WorldTools {
                         for (AdvancedLocation advancedLocation : room.getSpectatorSpawn()) {
                             advancedLocation.setLevel(loadLevel);
                         }
-                        room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_STATUS_WAIT, "internal");
+                        room.setCurrentRoomStatus(CustomRoomStatus.WAIT, "internal");
                         GameAPI.getInstance().getLogger().info(GameAPI.getLanguage().getTranslation("world.load.success", worldLoadName));
                         return true;
                     }
                 } else {
                     GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", worldLoadName));
-                    room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_MAP_LOAD_FAILED, "internal");
+                    room.setCurrentRoomStatus(CustomRoomStatus.MAP_LOAD_FAILED, "internal");
                 }
             } else {
                 GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", worldLoadName));
-                room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_MAP_LOAD_FAILED, "internal");
+                room.setCurrentRoomStatus(CustomRoomStatus.MAP_LOAD_FAILED, "internal");
             }
         } else {
             GameAPI.getInstance().getLogger().error(GameAPI.getLanguage().getTranslation("world.load.failed", worldLoadName));
-            room.setCurrentRoomStatus(RoomDefaultStatusFactory.ROOM_MAP_LOAD_FAILED, "internal");
+            room.setCurrentRoomStatus(CustomRoomStatus.MAP_LOAD_FAILED, "internal");
         }
         return false;
     }

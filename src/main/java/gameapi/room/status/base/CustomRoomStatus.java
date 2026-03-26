@@ -11,6 +11,23 @@ import java.util.List;
  */
 public abstract class CustomRoomStatus {
 
+    public static final CustomRoomStatus WAIT = RoomDefaultStatusFactory.ROOM_STATUS_WAIT;
+    public static final CustomRoomStatus PRESTART = RoomDefaultStatusFactory.ROOM_STATUS_PRESTART;
+    public static final CustomRoomStatus READY_START = RoomDefaultStatusFactory.ROOM_STATUS_READY_START;
+    public static final CustomRoomStatus GAME_START = RoomDefaultStatusFactory.ROOM_STATUS_GAME_START;
+    public static final CustomRoomStatus GAME_END = RoomDefaultStatusFactory.ROOM_STATUS_GAME_END;
+    public static final CustomRoomStatus CEREMONY = RoomDefaultStatusFactory.ROOM_STATUS_CEREMONY;
+    public static final CustomRoomStatus NEXT_ROUND_PRESTART = RoomDefaultStatusFactory.ROOM_STATUS_NEXT_ROUND_PRESTART;
+    public static final CustomRoomStatus ROOM_END = RoomDefaultStatusFactory.ROOM_STATUS_ROOM_END;
+    public static final CustomRoomStatus MAP_INITIALIZING = RoomDefaultStatusFactory.ROOM_MAP_INITIALIZING;
+    public static final CustomRoomStatus MAP_LOAD_FAILED = RoomDefaultStatusFactory.ROOM_MAP_LOAD_FAILED;
+    public static final CustomRoomStatus HALTED = RoomDefaultStatusFactory.ROOM_HALTED;
+    public static final CustomRoomStatus STOPPED = RoomDefaultStatusFactory.ROOM_STOPPED;
+    public static final CustomRoomStatus PLAYBACK = RoomDefaultStatusFactory.ROOM_PLAYBACK;
+    public static final CustomRoomStatus EDIT = RoomDefaultStatusFactory.ROOM_EDIT;
+    public static final CustomRoomStatus INITIALIZING = RoomDefaultStatusFactory.ROOM_INITIALIZING;
+    public static final List<CustomRoomStatus> DEFAULT_LIST = RoomDefaultStatusFactory.DEFAULT_ROOM_STATUS_LIST;
+
     private final String identifier;
     private final boolean allowSpectatorJoin;
 

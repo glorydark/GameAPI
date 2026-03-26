@@ -39,7 +39,7 @@ public class RoomStatusWait extends InternalRoomStatus {
             if (room.isAllowedToStart()) {
                 CustomRoomStatus status = this.getNextRoomStatus(room);
                 if (status == null) {
-                    status = RoomDefaultStatusFactory.ROOM_STATUS_PRESTART;
+                    status = CustomRoomStatus.PRESTART;
                 }
                 room.setCurrentRoomStatus(status, "internal");
             } else {
