@@ -10,6 +10,8 @@ import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.TextFormat;
+import cn.nukkit.utils.Utils;
+import gameapi.GameAPI;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.form.AdvancedFormWindowSimple;
@@ -17,6 +19,7 @@ import gameapi.form.element.ResponsiveElementButton;
 import gameapi.tools.BlockTools;
 import gameapi.utils.PosSet;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -45,11 +48,10 @@ public class WorldEditFindCommand extends EasySubCommand {
             if (player == null) {
                 return false;
             }
-            boolean metaCheck = args.length == 2 && Boolean.parseBoolean(args[1]);
-            boolean summary = args.length == 3 && Boolean.parseBoolean(args[2]);
+            boolean metaCheck = args.length >= 2 && Boolean.parseBoolean(args[1]);
+            boolean summary = args.length >= 3 && Boolean.parseBoolean(args[2]);
             if (!WorldEditCommand.isTwoPosHasUndefined(player)) {
                 PosSet posSet = WorldEditCommand.posSetLinkedHashMap.get(player);
-
                 if (args.length > 0) {
                     Block fillFiller = BlockTools.getBlockfromString(args[0]);
                     List<Vector3> vector3s = new ArrayList<>();
@@ -62,8 +64,13 @@ public class WorldEditFindCommand extends EasySubCommand {
                                 count.addAndGet(1);
                                 Block b = player.getLevel().getBlock(i, i1, i2);
                                 if (b.getId() == fillFiller.getId()) {
-                                    if (metaCheck && b.getDamage() != fillFiller.getDamage()) {
-                                        return;
+                                    if (metaCheck) {
+                                        if (b.getDamage() != fillFiller.getDamage()) {
+                                            return;
+                                        }
+                                        if (!b.getName().equals(fillFiller.getName())) {
+                                            return;
+                                        }
                                     }
                                     posList.add(i + ":" + i1 + ":" + i2);
                                     vector3s.add(new Vector3(i, i1, i2));
@@ -72,8 +79,17 @@ public class WorldEditFindCommand extends EasySubCommand {
 
                             if (summary) {
                                 AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("Result");
-                                simple.setContent("Check " + count.get() + " blocks. Results are as follows: \n" + String.join("\n", posList));
+                                String result = String.join("\n", posList);
+                                simple.setContent("Check " + count.get() + " blocks. Results are as follows: \n" + result);
                                 simple.showToPlayer(player);
+
+                                File dir = new File(GameAPI.getPath() + "/find_block_debug/");
+                                dir.mkdirs();
+
+                                String fileName = commandSender.getName() + "_" + fillFiller.getName() + "_" + System.currentTimeMillis();
+                                Utils.writeFile(dir.toPath().resolve(fileName + ".txt").toFile(), result);
+
+                                commandSender.sendMessage("Result saved successfully at: " + fileName);
                             } else {
                                 AdvancedFormWindowSimple simple = new AdvancedFormWindowSimple("Result", "Find " + posList.size() + " specific blocks. The top 50 are listed below!");
                                 for (int i = 0; i < Math.min(50, vector3s.size() - 1); i++) {

@@ -37,7 +37,7 @@ public class BuildBounds {
     }
 
     public Vector3 getShapeBounds() {
-        return this.getBounds(1, 0, 1);
+        return this.getBounds(1, 1, 1);
     }
 
     public Vector3 getBounds(double offsetX, double offsetY, double offsetZ) {

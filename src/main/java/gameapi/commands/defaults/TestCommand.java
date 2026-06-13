@@ -1,8 +1,13 @@
 package gameapi.commands.defaults;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
-import cn.nukkit.network.protocol.ClientboundDataDrivenUIShowScreenPacket;
+import cn.nukkit.ddui.CustomForm;
+import cn.nukkit.ddui.DataDrivenScreen;
+import cn.nukkit.ddui.Observable;
+import cn.nukkit.scheduler.Task;
+import gameapi.GameAPI;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.extensions.projectileGun.ProjectileGunManager;
 
@@ -37,9 +42,34 @@ public class TestCommand extends EasySubCommand {
                 break;
             case "ddui":
                 // @since v26.10
-                ClientboundDataDrivenUIShowScreenPacket pk = new ClientboundDataDrivenUIShowScreenPacket();
-                pk.screenId = args[1];
-                player.dataPacket(pk);
+                Observable<String> observable = new Observable<>("剩余时间: 10 s");
+                CustomForm form = new CustomForm("答题界面")
+                        .label(observable)
+                        .label("test")
+                        .button("1", p -> {})
+                        .button("2", p -> {})
+                        .button("3", p -> {})
+                        .button("4", p -> {})
+                        .button("close", player1 -> {
+                            DataDrivenScreen.removeActiveScreen(player1);
+                            player1.sendMessage("111");
+                        })
+                        .closeButton();
+                Server.getInstance().getScheduler().scheduleRepeatingTask(GameAPI.getInstance(), new Task() {
+
+                    int countdown = 10;
+
+                    @Override
+                    public void onRun(int i) {
+                        countdown--;
+                        observable.setValue("剩余时间: " + countdown + " s");
+                        if (countdown == 0) {
+                            this.cancel();
+                            form.close(player);
+                        }
+                    }
+                }, 20);
+                form.show(player);
                 break;
         }
         return false;

@@ -85,6 +85,7 @@ public class GameAPI extends PluginBase implements Listener {
     protected boolean tipsEnabled;
     protected boolean languageAPIEnabled;
     protected boolean saveTempStates = false;
+    public static boolean debugWhileGameDataConvert = true;
     protected String timestampApi;
 
     public static void addRoomEdit(EditProcess editProcess) {
@@ -120,7 +121,7 @@ public class GameAPI extends PluginBase implements Listener {
         this.saveDefaultConfig();
         Config config = new Config(this.getDataFolder().getPath() + File.separator + "config.yml", Config.YAML);
         this.glorydarkRelatedFeature = config.getBoolean("glorydark-feature", false);
-
+        debugWhileGameDataConvert = config.getBoolean("debug_while_game_data_convert", false);
         if (this.glorydarkRelatedFeature) {
             if (this.getServer().isRunning()) {
                 Entity.registerEntity("EntityBulletSnowball", EntityBulletSnowball.class);

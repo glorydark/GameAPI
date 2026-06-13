@@ -13,7 +13,7 @@ import cn.nukkit.utils.TextFormat;
 import gameapi.commands.WorldEditCommand;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.tools.BlockTools;
-import gameapi.tools.WorldEditTools;
+import gameapi.tools.FastWorldEditTools;
 import gameapi.utils.PosSet;
 
 /**
@@ -43,11 +43,11 @@ public class WorldEditFillCommand extends EasySubCommand {
                         commandSender.sendMessage(TextFormat.RED + "Unable to find the block identifier: " + args[0]);
                         return false;
                     }
-                    WorldEditTools.fill(player,
+                    FastWorldEditTools.fastFill(player.getLevel(),
                             posSet.getPos1(),
                             posSet.getPos2(),
                             fillFiller,
-                            args.length != 2 || Boolean.parseBoolean(args[1]));
+                            args.length == 2 && Boolean.parseBoolean(args[1]));
                     return false;
                 }
             }
@@ -58,17 +58,16 @@ public class WorldEditFillCommand extends EasySubCommand {
             Level level;
             if (commandSender.isPlayer()) {
                 Player player = commandSender.asPlayer();
-                WorldEditTools.fill(player,
+                FastWorldEditTools.fastFill(player.getLevel(),
                         pos1,
                         pos2,
                         BlockTools.getBlockfromString(args[6]),
                         true);
             } else {
                 level = Server.getInstance().getLevelByName(args[6]);
-                WorldEditTools.fill(commandSender,
+                FastWorldEditTools.fastFill(level,
                         pos1,
                         pos2,
-                        level,
                         BlockTools.getBlockfromString(args[7]),
                         true);
             }

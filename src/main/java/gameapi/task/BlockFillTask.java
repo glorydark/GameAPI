@@ -98,7 +98,9 @@ public class BlockFillTask extends RecursiveTask<Long> {
         if (this.posList.size() <= THRESHOLD) {
             // 优化2：直接使用Set的迭代器，避免创建新集合
             for (Vector3 pos : this.posList) {
-                this.level.setBlock(pos, this.replacedBlock, true, false);
+                synchronized (this.level) {
+                    this.level.setBlock(pos, this.replacedBlock, true, false);
+                }
                 this.proceedBlockCount++;
             }
         } else {

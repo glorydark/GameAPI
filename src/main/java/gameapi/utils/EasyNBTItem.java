@@ -117,9 +117,11 @@ public class EasyNBTItem implements Cloneable {
     }
 
     public EasyNBTItem lockType(RoomItemBase.ItemLockType lockType) {
-        if (lockType == RoomItemBase.ItemLockType.NONE) {
-            return this;
-        }
+        this.compoundTag.putByte("minecraft:item_lock", lockType.ordinal());
+        return this;
+    }
+
+    public EasyNBTItem lockType(Item.ItemLockMode lockType) {
         this.compoundTag.putByte("minecraft:item_lock", lockType.ordinal());
         return this;
     }

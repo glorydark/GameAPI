@@ -359,19 +359,23 @@ public class WorldEditTools {
     @Internal
     public static void previewBuild(Player player, BuildBounds buildBounds, Vector3 startPos) {
 
+        // generateBuild 使用 getFloorX/Y/Z，preview 需取整对齐
+        Vector3 origin = new Vector3(startPos.getFloorX(), startPos.getFloorY(), startPos.getFloorZ());
         Vector3 boundBox = buildBounds.getShapeBounds();
-        Vector3 bottomCenter = buildBounds.getShapeBottomCenter(startPos);
+        Vector3 bottomCenter = buildBounds.getShapeBottomCenter(origin);
 
         // 清旧预览
         player.removeAllShapes();
 
         Level level = player.getLevel();
 
+        // DebugBox 的 position 是中心点，boxBounds 是完整尺寸
+        Vector3 boxCenter = origin.add(boundBox.clone().multiply(0.5));
         player.addShape(
                 new DebugBox(
                         1,
                         level.getDimension(),
-                        startPos.asVector3f(),
+                        boxCenter.asVector3f(),
                         1.0f,
                         new Vector3f(),
                         60f,

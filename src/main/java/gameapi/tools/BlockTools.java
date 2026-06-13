@@ -100,7 +100,7 @@ public class BlockTools {
     }
 
     public static Block getBlockfromString(String string) {
-        return Item.fromString(string).getBlockUnsafe();
+        return Item.fromString(string).getBlock();
     }
 
     public static void placeBlock(Block block, Vector3 vector3, Level level) {
