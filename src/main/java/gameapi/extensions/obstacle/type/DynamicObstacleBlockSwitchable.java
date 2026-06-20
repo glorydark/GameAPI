@@ -9,9 +9,13 @@ import java.util.List;
  */
 public interface DynamicObstacleBlockSwitchable {
 
+    default Block getDefaultBlock() {
+        return Block.get(0);
+    }
+
     default Block getCurrentSwitchBlock() {
         if (this.getSwitchBlock().isEmpty()) {
-            return Block.get(0); // todo: temp default set to air
+            return this.getDefaultBlock();
         }
         if (this.getSwitchBlock().size() == 1 || this.getBlockChangeStateIndex() + 1 >= this.getSwitchBlock().size()) {
             this.setBlockChangeStateIndex(0);

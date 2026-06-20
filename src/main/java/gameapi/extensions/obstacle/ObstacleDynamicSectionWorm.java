@@ -44,12 +44,13 @@ public class ObstacleDynamicSectionWorm extends AbstractDynamicObstacleBlockSwit
                 }
                 showIndexList.add(realIndex);
             }
+            Block switchBlock = this.getCurrentSwitchBlock();
             for (int i = 0; i < this.getBlocks().size(); i++) {
                 Block block = this.getBlocks().get(i);
                 if (showIndexList.contains(i)) {
                     this.getLevel().setBlock(block, block, true, true);
                 } else {
-                    this.getLevel().setBlock(block, this.getCurrentSwitchBlock(), true, true);
+                    this.getLevel().setBlock(block, switchBlock, true, true);
                 }
             }
             this.nodeIndex += 1;

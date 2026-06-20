@@ -21,6 +21,8 @@ public abstract class DynamicObstacle {
 
     private int startCoolDownTick;
 
+    private int initialCoolDownTick;
+
     private boolean enabled;
 
     public DynamicObstacle(int startCoolDownTick, Level level, List<BlockInfoAndVecData> blockInfoAndVecDataList) {
@@ -42,8 +44,9 @@ public abstract class DynamicObstacle {
             }
         }
         this.startCoolDownTick = startCoolDownTick;
+        this.initialCoolDownTick = startCoolDownTick;
         this.level = level;
-        this.enabled = true;
+        this.enabled = false;
     }
 
     public void onTick() {
@@ -52,6 +55,18 @@ public abstract class DynamicObstacle {
 
     public void onTread(Block block) {
 
+    }
+
+    public void restoreBlocks() {
+        for (Block block : this.blocks) {
+            this.level.setBlock(block.getLocation(), block, true, true);
+        }
+    }
+
+    public void reset() {
+        this.restoreBlocks();
+        this.startCoolDownTick = this.initialCoolDownTick;
+        this.enabled = false;
     }
 
     public List<Block> getBlocks() {

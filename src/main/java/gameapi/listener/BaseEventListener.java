@@ -37,6 +37,7 @@ import cn.nukkit.network.protocol.PlayerAuthInputPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import gameapi.GameAPI;
 import gameapi.commands.WorldEditCommand;
+import gameapi.commands.base.EasySubCommand;
 import gameapi.commands.defaults.dev.HideChatCommand;
 import gameapi.entity.GameProjectileEntity;
 import gameapi.event.block.*;
@@ -227,6 +228,17 @@ public class BaseEventListener implements Listener {
                         WorldEditCommand.posSetLinkedHashMap.get(player).setPos2(block.getLocation());
                         player.sendMessage("Successfully set pos2 to " + block.getX() + ":" + block.getY() + ":" + block.getZ());
                         event.setCancelled(true);
+                        break;
+                    case Block.LAPIS_BLOCK:
+                        event.setCancelled(true);
+                        WorldEditCommand.pendingExtraPosition.put(player, block.getLocation());
+                        WorldEditCommand worldEditCommand = (WorldEditCommand) player.getServer().getCommandMap().getCommand("worldedit");
+                        if (worldEditCommand != null) {
+                            EasySubCommand extraCommand = worldEditCommand.getSubCommand("extra");
+                            if (extraCommand != null) {
+                                extraCommand.execute(player, "worldedit", new String[]{"gui"});
+                            }
+                        }
                         break;
                 }
             } else {

@@ -18,6 +18,7 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.math.Vector3f;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.nbt.tag.IntTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.network.protocol.types.debugshape.DebugArrow;
 import cn.nukkit.network.protocol.types.debugshape.DebugBox;
@@ -483,7 +484,7 @@ public class WorldEditTools {
             return;
         }
 
-        File[] files = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + fileName + File.separator).listFiles();
+        File[] files = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + fileName + File.separator).listFiles((dir, name) -> name.endsWith(".nbt") && !name.equals("extra.nbt"));
         if (files == null) {
             sender.sendMessage("Cannot find folder");
             return;
@@ -508,7 +509,7 @@ public class WorldEditTools {
 
         generatingLargeBuild = true;
         long saveStartMillis = System.currentTimeMillis();
-        int maxGenerateSections = (int) Arrays.stream(files).filter(file -> file.getName().endsWith(".nbt")).count();
+        int maxGenerateSections = files.length;
         AtomicInteger blockCount = new AtomicInteger();
         AtomicInteger generateSectionCount = new AtomicInteger();
         sender.sendMessage("Start generating building task... [Count: " + maxGenerateSections + "]");
@@ -517,9 +518,6 @@ public class WorldEditTools {
             CompletableFuture.runAsync(() -> {
                 long startMillisForSection = System.currentTimeMillis();
                 for (File file : files) {
-                    if (!file.getName().endsWith(".nbt")) {
-                        continue;
-                    }
                     CompoundTag compoundTag;
                     try {
                         compoundTag = NBTIO.read(file);
@@ -615,6 +613,67 @@ public class WorldEditTools {
         }
     }
 
+    public static CompoundTag loadBuildExtraData(String folderName) {
+        return loadBuildExtraData(new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + folderName + File.separator));
+    }
+
+    public static CompoundTag loadBuildExtraData(File folder) {
+        try {
+            File extraFile = new File(folder, "extra.nbt");
+            if (extraFile.exists()) {
+                return NBTIO.read(extraFile);
+            }
+        } catch (IOException e) {
+            GameAPI.getGameDebugManager().printError(e);
+        }
+        return null;
+    }
+
+    /**
+     * 将 extraTag 中的指定 ListTag 字段从绝对坐标转为相对坐标
+     * extra 里有 {"endPoint": [I: 100, 5, 200]}，选区 minPos = (90, 5, 185)
+     * 转换后变成 {"endPoint": [I: 10, 0, 15]}
+     */
+    public static CompoundTag relativizeExtraTag(CompoundTag extra, Vector3 minPos, String... listKeys) {
+        if (extra == null) return null;
+        CompoundTag result = extra.clone();
+        int mx = minPos.getFloorX();
+        int my = minPos.getFloorY();
+        int mz = minPos.getFloorZ();
+        for (String key : listKeys) {
+            if (result.contains(key)) {
+                ListTag<IntTag> list = result.getList(key, IntTag.class);
+                if (list.size() >= 3) {
+                    ListTag<IntTag> newList = new ListTag<>(key);
+                    newList.add(new IntTag("", list.get(0).getData() - mx));
+                    newList.add(new IntTag("", list.get(1).getData() - my));
+                    newList.add(new IntTag("", list.get(2).getData() - mz));
+                    result.put(key, newList);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 将 extraTag 中指定 x/y/z 三个 int 字段从绝对坐标转为相对坐标
+     * extra 里有 {endX: 100, endY: 5, endZ: 200}，选区 minPos = (90, 5, 185)
+     * 转换后变成 {endX: 10, endY: 0, endZ: 15}
+     */
+    public static CompoundTag relativizeExtraTag(CompoundTag extra, Vector3 minPos, String xKey, String yKey, String zKey) {
+        if (extra == null) return null;
+        CompoundTag result = extra.clone();
+        if (result.contains(xKey) && result.contains(yKey) && result.contains(zKey)) {
+            int mx = minPos.getFloorX();
+            int my = minPos.getFloorY();
+            int mz = minPos.getFloorZ();
+            result.putInt(xKey, result.getInt(xKey) - mx);
+            result.putInt(yKey, result.getInt(yKey) - my);
+            result.putInt(zKey, result.getInt(zKey) - mz);
+        }
+        return result;
+    }
+
     public static Vector3 rotateXZ(Vector3 vector3, int degree) {
         degree = ((degree % 360) + 360) % 360;
 
@@ -676,11 +735,23 @@ public class WorldEditTools {
                 new Vector3(Math.min(pos1.getFloorX(), pos2.getFloorX()),
                         Math.min(pos1.getFloorY(), pos2.getFloorY()),
                         Math.min(pos1.getFloorZ(), pos2.getFloorZ())),
-                pos1, pos2, level);
+                pos1, pos2, level, null);
+    }
+
+    public static void saveBuild(CommandSender sender, Vector3 pos1, Vector3 pos2, Level level, CompoundTag extraTag) {
+        saveBuild(sender,
+                new Vector3(Math.min(pos1.getFloorX(), pos2.getFloorX()),
+                        Math.min(pos1.getFloorY(), pos2.getFloorY()),
+                        Math.min(pos1.getFloorZ(), pos2.getFloorZ())),
+                pos1, pos2, level, extraTag);
     }
 
     @Internal
     public static void saveBuild(CommandSender sender, Vector3 minPos, Vector3 pos1, Vector3 pos2, Level level) {
+        saveBuild(sender, minPos, pos1, pos2, level, null);
+    }
+
+    public static void saveBuild(CommandSender sender, Vector3 minPos, Vector3 pos1, Vector3 pos2, Level level, CompoundTag extraTag) {
         if (generatingLargeBuild) {
             GameAPI.getInstance().getLogger().info("You have started a task of creating or saving build. Please wait...");
             return;
@@ -742,6 +813,15 @@ public class WorldEditTools {
         ));
 
         config.save();
+
+        if (extraTag != null) {
+            File extraFile = new File(GameAPI.getPath() + File.separator + "buildings" + File.separator + name + File.separator + "extra.nbt");
+            try (FileOutputStream fileOutputStream = new FileOutputStream(extraFile)) {
+                fileOutputStream.write(NBTIO.write(extraTag));
+            } catch (IOException e) {
+                GameAPI.getGameDebugManager().printError(e);
+            }
+        }
 
         CompletableFuture.runAsync(() -> {
             try {

@@ -712,6 +712,24 @@ public class Room {
         this.currentRoomStatus = status;
     }
 
+    public void resetDynamicObstacles() {
+        for (DynamicObstacle obstacle : this.dynamicObstacles) {
+            obstacle.reset();
+        }
+    }
+
+    public void startDynamicObstacles() {
+        for (DynamicObstacle obstacle : this.dynamicObstacles) {
+            obstacle.setEnabled(true);
+        }
+    }
+
+    public void setDynamicObstacles(boolean value) {
+        for (DynamicObstacle obstacle : this.dynamicObstacles) {
+            obstacle.setEnabled(value);
+        }
+    }
+
     public void resetAll() {
         resetAll(ResetAllReason.DEFAULT);
     }

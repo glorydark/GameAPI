@@ -19,6 +19,10 @@ public class EasyCommand extends Command {
         this.getCommandParameters().clear();
     }
 
+    public EasySubCommand getSubCommand(String name) {
+        return this.easySubCommandMap.get(name);
+    }
+
     public void registerCommand(EasySubCommand easySubCommand) {
         this.easySubCommandMap.put(easySubCommand.getName(), easySubCommand);
         for (Map.Entry<String, CommandParameter[]> entry : easySubCommand.getCommandParameters().entrySet()) {

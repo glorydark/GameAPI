@@ -2,12 +2,16 @@ package gameapi.commands;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.math.Vector3;
+import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.nbt.tag.IntTag;
+import cn.nukkit.nbt.tag.ListTag;
 import gameapi.annotation.Experimental;
 import gameapi.commands.base.EasyCommand;
 import gameapi.commands.worldedit.*;
 import gameapi.utils.PosSet;
 
-import java.util.LinkedHashMap;
+import java.util.*;
 
 /**
  * @author glorydark
@@ -16,6 +20,28 @@ import java.util.LinkedHashMap;
 public class WorldEditCommand extends EasyCommand {
 
     public static LinkedHashMap<Player, PosSet> posSetLinkedHashMap = new LinkedHashMap<>();
+
+    public static Map<Player, Map<String, Vector3>> extraTagCache = new HashMap<>();
+
+    public static Map<Player, Vector3> pendingExtraPosition = new HashMap<>();
+
+    public static CompoundTag buildExtraTagFromCache(Player player) {
+        Map<String, Vector3> points = extraTagCache.get(player);
+        if (points == null || points.isEmpty()) return null;
+        CompoundTag tag = new CompoundTag();
+        for (Map.Entry<String, Vector3> entry : points.entrySet()) {
+            ListTag<IntTag> list = new ListTag<>(entry.getKey());
+            list.add(new IntTag("", entry.getValue().getFloorX()));
+            list.add(new IntTag("", entry.getValue().getFloorY()));
+            list.add(new IntTag("", entry.getValue().getFloorZ()));
+            tag.put(entry.getKey(), list);
+        }
+        return tag;
+    }
+
+    public static void clearExtraTagCache(Player player) {
+        extraTagCache.remove(player);
+    }
 
     public WorldEditCommand(String name) {
         super(name);

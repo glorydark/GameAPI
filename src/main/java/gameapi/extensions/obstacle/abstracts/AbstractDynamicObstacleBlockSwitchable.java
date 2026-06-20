@@ -20,21 +20,39 @@ public abstract class AbstractDynamicObstacleBlockSwitchable extends DynamicObst
 
     private int blockChangeStateIndex = 0;
 
+    private Block defaultBlock = Block.get(0);
+
     public AbstractDynamicObstacleBlockSwitchable(int startCoolDownTick, Level level, List<BlockInfoAndVecData> blockInfoAndVecDataList) {
         super(startCoolDownTick, level, blockInfoAndVecDataList);
     }
 
     @Override
+    public Block getDefaultBlock() {
+        return this.defaultBlock;
+    }
+
+    public void setDefaultBlock(Block block) {
+        this.defaultBlock = block;
+    }
+
+    @Override
     public Block getCurrentSwitchBlock() {
         if (this.switchBlock.isEmpty()) {
-            return Block.get(0); // todo: temp default set to air
+            return this.defaultBlock;
         }
-        if (this.switchBlock.size() == 1 || this.blockChangeStateIndex + 1 >= switchBlock.size()) {
+        Block result = this.switchBlock.get(this.blockChangeStateIndex);
+        if (this.blockChangeStateIndex + 1 >= this.switchBlock.size()) {
             this.blockChangeStateIndex = 0;
         } else {
             this.blockChangeStateIndex++;
         }
-        return switchBlock.get(this.blockChangeStateIndex);
+        return result;
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.blockChangeStateIndex = 0;
     }
 
     @Override

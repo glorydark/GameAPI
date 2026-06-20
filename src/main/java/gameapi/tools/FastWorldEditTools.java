@@ -11,16 +11,18 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.utils.TextFormat;
 import gameapi.GameAPI;
+import gameapi.utils.BlockWeightEntry;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 高性能世界编辑工具
  * 相比 WorldEditTools，使用更底层的 API 跳过事件/回调，大幅提升性能
- *
+ * <p>
  * 性能对比（16x16x16 = 4096 方块）：
  * - WorldEditTools (setBlock + 事件/回调): ~200-500ms
  * - FastWorldEditTools (setBlockAtLayer): ~50-100ms
@@ -225,13 +227,89 @@ public class FastWorldEditTools {
                 ForkJoinPool.commonPool().awaitQuiescence(30, java.util.concurrent.TimeUnit.SECONDS);
                 directSetBlocks(sender, level, toReplace, targetBlock);
             } catch (Exception e) {
-                e.printStackTrace();
+                GameAPI.getGameDebugManager().printError(e);
                 sender.sendMessage(TextFormat.RED + "[FastWorldEdit] AsyncReplace error: " + e.getMessage());
             }
             if (onComplete != null) {
                 onComplete.run();
             }
         }, false);
+    }
+
+    // ==================== fastFillRandom ====================
+
+    public static void fastFillRandom(Level level, Vector3 pos1, Vector3 pos2, List<BlockWeightEntry> entries) {
+        fastFillRandom(new ConsoleCommandSender(), level, pos1, pos2, entries, false);
+    }
+
+    public static void fastFillRandom(Level level, Vector3 pos1, Vector3 pos2, List<BlockWeightEntry> entries, boolean hollow) {
+        fastFillRandom(new ConsoleCommandSender(), level, pos1, pos2, entries, hollow);
+    }
+
+    public static void fastFillRandom(CommandSender sender, Level level, Vector3 pos1, Vector3 pos2, List<BlockWeightEntry> entries) {
+        fastFillRandom(sender, level, pos1, pos2, entries, false);
+    }
+
+    public static void fastFillRandom(CommandSender sender, Level level, Vector3 pos1, Vector3 pos2, List<BlockWeightEntry> entries, boolean hollow) {
+        long startMillis = System.currentTimeMillis();
+
+        if (entries == null || entries.isEmpty()) {
+            sender.sendMessage(TextFormat.YELLOW + "[FastWorldEdit] FillRandom failed: No block entries specified.");
+            return;
+        }
+
+        // Parse entries into parallel arrays
+        int count = entries.size();
+        int[] choiceIds = new int[count];
+        int[] choiceDatas = new int[count];
+        int[] cumulativeWeights = new int[count];
+        int totalWeight = 0;
+        for (int idx = 0; idx < count; idx++) {
+            BlockWeightEntry entry = entries.get(idx);
+            Block block = entry.toBlock();
+            choiceIds[idx] = block.getId();
+            choiceDatas[idx] = block.getDamage();
+            totalWeight += entry.getWeight();
+            cumulativeWeights[idx] = totalWeight;
+        }
+
+        if (totalWeight <= 0) {
+            sender.sendMessage(TextFormat.YELLOW + "[FastWorldEdit] FillRandom failed: Total weight must be positive.");
+            return;
+        }
+
+        // Collect positions
+        SimpleAxisAlignedBB bb = new SimpleAxisAlignedBB(pos1, pos2);
+        List<Vector3> allPositions = new ArrayList<>();
+        bb.forEach((x, y, z) -> {
+            if (hollow) {
+                boolean isOnXFace = (x == bb.getMinX() || x == bb.getMaxX());
+                boolean isOnYFace = (y == bb.getMinY() || y == bb.getMaxY());
+                boolean isOnZFace = (z == bb.getMinZ() || z == bb.getMaxZ());
+                if (!(isOnXFace || isOnYFace || isOnZFace)) return;
+            }
+            allPositions.add(new Vector3(x, y, z));
+        });
+
+        if (allPositions.isEmpty()) {
+            sender.sendMessage(TextFormat.YELLOW + "[FastWorldEdit] FillRandom failed: No positions to process.");
+            return;
+        }
+
+        // Parallel weighted fill
+        ForkJoinPool pool = ForkJoinPool.commonPool();
+        pool.invoke(new WeightedSetBlockAction(level, allPositions, choiceIds, choiceDatas, cumulativeWeights, totalWeight, 0, allPositions.size()));
+
+        // Batch send
+        sendBlocksToPlayers(level, allPositions);
+
+        long endMillis = System.currentTimeMillis();
+        long costMillis = endMillis - startMillis;
+
+        sender.sendMessage(TextFormat.GREEN + "[FastWorldEdit] FillRandom completed!"
+                + TextFormat.GRAY + " Blocks: " + TextFormat.WHITE + allPositions.size()
+                + TextFormat.GRAY + " | Cost: " + TextFormat.WHITE + costMillis + "ms"
+                + TextFormat.GRAY + " | Choices: " + TextFormat.AQUA + count);
     }
 
     // ==================== 内部方法 ====================
@@ -353,6 +431,60 @@ public class FastWorldEditTools {
                 int mid = start + length / 2;
                 FilterAction left = new FilterAction(level, positions, sourceBlock, checkDamage, result, start, mid);
                 FilterAction right = new FilterAction(level, positions, sourceBlock, checkDamage, result, mid, end);
+                invokeAll(left, right);
+            }
+        }
+    }
+
+    /**
+     * 并行按权重随机填充方块的 Action
+     */
+    private static class WeightedSetBlockAction extends RecursiveAction {
+        private final Level level;
+        private final List<Vector3> positions;
+        private final int[] choiceIds;
+        private final int[] choiceDatas;
+        private final int[] cumulativeWeights;
+        private final int totalWeight;
+        private final int start;
+        private final int end;
+
+        WeightedSetBlockAction(Level level, List<Vector3> positions, int[] choiceIds, int[] choiceDatas, int[] cumulativeWeights, int totalWeight, int start, int end) {
+            this.level = level;
+            this.positions = positions;
+            this.choiceIds = choiceIds;
+            this.choiceDatas = choiceDatas;
+            this.cumulativeWeights = cumulativeWeights;
+            this.totalWeight = totalWeight;
+            this.start = start;
+            this.end = end;
+        }
+
+        @Override
+        protected void compute() {
+            int length = end - start;
+            if (length <= TASK_THRESHOLD) {
+                ThreadLocalRandom random = ThreadLocalRandom.current();
+                for (int i = start; i < end; i++) {
+                    Vector3 pos = positions.get(i);
+                    int y = pos.getFloorY();
+                    if (y < level.getMinBlockY() || y > level.getMaxBlockY()) continue;
+
+                    int r = random.nextInt(totalWeight);
+                    int choice = 0;
+                    for (int j = 0; j < cumulativeWeights.length; j++) {
+                        if (r < cumulativeWeights[j]) {
+                            choice = j;
+                            break;
+                        }
+                    }
+
+                    level.setBlockAtLayer(pos.getFloorX(), y, pos.getFloorZ(), 0, choiceIds[choice], choiceDatas[choice]);
+                }
+            } else {
+                int mid = start + length / 2;
+                WeightedSetBlockAction left = new WeightedSetBlockAction(level, positions, choiceIds, choiceDatas, cumulativeWeights, totalWeight, start, mid);
+                WeightedSetBlockAction right = new WeightedSetBlockAction(level, positions, choiceIds, choiceDatas, cumulativeWeights, totalWeight, mid, end);
                 invokeAll(left, right);
             }
         }
