@@ -1,3 +1,7 @@
 /.idea/
 /target/
 /old/
+GameAPI小游戏开发规范.md
+CLAUDE.md
+/src/main/resources/test/
+/.claude/
