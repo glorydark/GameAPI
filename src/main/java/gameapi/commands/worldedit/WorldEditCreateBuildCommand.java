@@ -10,6 +10,8 @@ import gameapi.tools.WorldEditTools;
 import gameapi.utils.PosSet;
 import gameapi.utils.RotationType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -33,8 +35,22 @@ public class WorldEditCreateBuildCommand extends EasySubCommand {
         if (WorldEditCommand.isFirstPosSet(player)) {
             PosSet posSet = WorldEditCommand.posSetLinkedHashMap.get(player);
             RotationType rotationType = RotationType.AROUND_CENTER;
+            boolean forceFast = false;
+            String format = "nbt";
+            List<String> filtered = new ArrayList<>();
+            for (int i = 0; i < args.length; i++) {
+                String arg = args[i];
+                if (arg.equalsIgnoreCase("-forceFast") || arg.equalsIgnoreCase("-ff")) {
+                    forceFast = true;
+                } else if (arg.toLowerCase().startsWith("--format=")) {
+                    format = arg.substring(8).toLowerCase();
+                } else {
+                    filtered.add(arg);
+                }
+            }
+            args = filtered.toArray(new String[0]);
             try {
-                if (args.length == 3) {
+                if (args.length >= 3) {
                     rotationType = RotationType.valueOf(args[2].toUpperCase(Locale.ROOT));
                 }
             } catch (IllegalArgumentException e) {
@@ -43,7 +59,7 @@ public class WorldEditCreateBuildCommand extends EasySubCommand {
             }
             int rotDegree = args.length >= 2? Integer.parseInt(args[1]) : 0;
             commandSender.sendMessage("Set Rotation Type to " + rotationType.name().toLowerCase(Locale.ROOT));
-            WorldEditTools.generateBuild(player, args[0], posSet.getPos1(), player.getLevel(), rotDegree, rotationType);
+            WorldEditTools.generateBuild(player, args[0], posSet.getPos1(), player.getLevel(), rotDegree, rotationType, forceFast, format);
         }
         return false;
     }

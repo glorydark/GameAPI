@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 public class GameDebugManager {
 
     private final Logger logger;
-    protected List<Player> players = new ArrayList<>();
+    protected Set<Player> players = new HashSet<>();
     private boolean enableConsoleDebug = false;
 
     public GameDebugManager(String name, File savePath) {
@@ -133,7 +133,7 @@ public class GameDebugManager {
         this.players.remove(player);
     }
 
-    public List<Player> getPlayers() {
+    public Set<Player> getPlayers() {
         return players;
     }
 

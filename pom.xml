@@ -5,7 +5,7 @@
 
     <groupId>glorydark.nukkit</groupId>
     <artifactId>GameAPI</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.1</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
@@ -105,6 +105,14 @@
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <createSourcesJar>false</createSourcesJar>
                     <outputFile>${project.build.directory}/${project.build.finalName}.jar</outputFile>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>test/**</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                     <artifactSet>
                         <includes>
                             <include>org.jnbt.*</include>

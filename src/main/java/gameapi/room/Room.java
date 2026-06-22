@@ -12,7 +12,6 @@ import cn.nukkit.math.BlockVector3;
 import cn.nukkit.network.protocol.CreativeContentPacket;
 import gameapi.GameAPI;
 import gameapi.annotation.Description;
-import gameapi.commands.defaults.dev.HideChatCommand;
 import gameapi.entity.TextEntity;
 import gameapi.event.player.*;
 import gameapi.event.room.RoomCustomStatusChangeEvent;
@@ -46,8 +45,6 @@ import gameapi.tools.WorldTools;
 import gameapi.tools.type.TipElementType;
 import gameapi.utils.AdvancedLocation;
 import gameapi.utils.EntityDamageSource;
-import gameapi.utils.TitleData;
-import gameapi.utils.text.GameTextContainer;
 import it.unimi.dsi.fastutil.Function;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -65,7 +62,7 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Setter
-public class Room {
+public class Room implements Broadcastable {
 
     public List<CustomRoomStatus> roomStatusList = CustomRoomStatus.DEFAULT_LIST;
     public static final String INTERNAL_KEY_ROOM_INTERNAL = "room_internal";
@@ -1177,118 +1174,6 @@ public class Room {
     public void showAllPlayers(Player player) {
         for (Player other : Server.getInstance().getOnlinePlayers().values()) {
             player.showPlayer(other);
-        }
-    }
-
-    // Message, Tips, Actionbars & Titles
-    public void sendMessageToAll(String string) {
-        this.sendMessageToAll(string, true);
-    }
-
-    public void sendMessageToAll(String string, boolean includeSpectators) {
-        PlayerTools.sendMessage(this.players, string);
-        if (includeSpectators) {
-            PlayerTools.sendMessage(this.spectators, string);
-        }
-        //GameAPI.getInstance().getLogger().info(string);
-    }
-
-    public void sendMessageToAll(GameTextContainer text) {
-        this.sendMessageToAll(text, true);
-    }
-
-    public void sendMessageToAll(GameTextContainer text, boolean includeSpectators) {
-        for (Player player : this.players) {
-            if (HideChatCommand.hideMessagePlayers.contains(player)) {
-                continue;
-            }
-            player.sendMessage(text.getText(player));
-        }
-        if (includeSpectators) {
-            for (Player spectator : this.spectators) {
-                if (HideChatCommand.hideMessagePlayers.contains(spectator)) {
-                    continue;
-                }
-                spectator.sendMessage(text.getText(spectator));
-            }
-        }
-    }
-
-    public void sendActionbarToAll(String string) {
-        this.sendActionbarToAll(string, true);
-    }
-
-    public void sendActionbarToAll(String string, boolean includeSpectators) {
-        PlayerTools.sendActionbar(this.players, string);
-        if (includeSpectators) {
-            PlayerTools.sendActionbar(this.spectators, string);
-        }
-    }
-
-    public void sendActionbarToAll(GameTextContainer text) {
-        this.sendActionbarToAll(text, true);
-    }
-
-    public void sendActionbarToAll(GameTextContainer text, boolean includeSpectators) {
-        for (Player player : this.players) {
-            player.sendActionBar(text.getText(player));
-        }
-        if (includeSpectators) {
-            for (Player spectator : this.spectators) {
-                spectator.sendActionBar(text.getText(spectator));
-            }
-        }
-    }
-
-    public void sendTitleToAll(String string) {
-        this.sendTitleToAll(string, "", true);
-    }
-
-    public void sendTitleToAll(String string, String subtitle) {
-        this.sendTitleToAll(string, subtitle, true);
-    }
-
-    public void sendTitleToAll(String string, String subtitle, boolean includeSpectators) {
-        PlayerTools.sendTitle(this.players, string, subtitle);
-        if (includeSpectators) {
-            PlayerTools.sendTitle(this.spectators, string, subtitle);
-        }
-    }
-
-    public void sendTitleToAll(TitleData titleData) {
-        this.sendTitleToAll(titleData, true);
-    }
-
-    public void sendTitleToAll(TitleData titleData, boolean includeSpectators) {
-        PlayerTools.sendTitle(this.players, titleData);
-        if (includeSpectators) {
-            PlayerTools.sendTitle(this.spectators, titleData);
-        }
-    }
-
-    public void sendTipToAll(String string) {
-        this.sendTipToAll(string, true);
-    }
-
-    public void sendTipToAll(String string, boolean includeSpectators) {
-        PlayerTools.sendTip(this.players, string);
-        if (includeSpectators) {
-            PlayerTools.sendTip(this.spectators, string);
-        }
-    }
-
-    public void sendTipToAll(GameTextContainer text) {
-        this.sendTipToAll(text, true);
-    }
-
-    public void sendTipToAll(GameTextContainer text, boolean includeSpectators) {
-        for (Player player : this.players) {
-            player.sendTip(text.getText(player));
-        }
-        if (includeSpectators) {
-            for (Player spectator : this.spectators) {
-                spectator.sendTip(text.getText(spectator));
-            }
         }
     }
 

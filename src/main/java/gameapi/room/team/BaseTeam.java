@@ -3,6 +3,7 @@ package gameapi.room.team;
 import cn.nukkit.Player;
 import cn.nukkit.utils.DyeColor;
 import gameapi.GameAPI;
+import gameapi.room.Broadcastable;
 import gameapi.room.Room;
 import gameapi.tools.PlayerTools;
 import gameapi.utils.AdvancedLocation;
@@ -14,7 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Data
 @ToString
-public class BaseTeam {
+public class BaseTeam implements Broadcastable {
     protected Map<Player, Map<String, Object>> playerProperties = new LinkedHashMap<>();
     private String registryName;
     private int score = 0;
@@ -117,25 +118,10 @@ public class BaseTeam {
         return true;
     }
 
+    @Override
     public void sendMessageToAll(String string) {
         PlayerTools.sendMessage(this.players, string);
         GameAPI.getInstance().getLogger().info(string);
-    }
-
-    public void sendActionbarToAll(String string) {
-        PlayerTools.sendActionbar(players, string);
-    }
-
-    public void sendTitleToAll(String title) {
-        PlayerTools.sendTitle(players, title);
-    }
-
-    public void sendTitleToAll(String title, String subtitle) {
-        PlayerTools.sendTitle(players, title, subtitle);
-    }
-
-    public void sendTipToAll(String string) {
-        PlayerTools.sendTip(players, string);
     }
 
     public <T> T getTeamProperty(String key, T value) {
