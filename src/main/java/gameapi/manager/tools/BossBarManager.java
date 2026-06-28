@@ -10,11 +10,17 @@ import java.util.HashMap;
  * @author Glorydark
  */
 public class BossBarManager {
-    public static HashMap<Player, Long> bossBars;
+    public static HashMap<Player, Long> bossBars = new HashMap<>();
 
     public static void createBossBar(Player player, String text, float length, BossBarColor bossBarColor) {
-        if (bossBars.getOrDefault(player, null) != null) {
-            player.removeBossBar(bossBars.get(player));
+        Long id = bossBars.get(player);
+        if (id != null) {
+            DummyBossBar existing = player.getDummyBossBar(id);
+            if (existing != null) {
+                player.updateBossBar(text, (int) length, id);
+                return;
+            }
+            player.removeBossBar(id);
         }
         DummyBossBar bossBar = new DummyBossBar.Builder(player).text(text).color(bossBarColor).length(length).build();
         bossBars.put(player, bossBar.getBossBarId());
@@ -22,7 +28,10 @@ public class BossBarManager {
     }
 
     public static void removeBossBar(Player player) {
-        player.removeBossBar(bossBars.getOrDefault(player, 0L));
+        Long id = bossBars.remove(player);
+        if (id != null) {
+            player.removeBossBar(id);
+        }
     }
 
 }

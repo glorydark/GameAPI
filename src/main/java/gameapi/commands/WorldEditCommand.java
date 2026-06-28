@@ -67,6 +67,7 @@ public class WorldEditCommand extends EasyCommand {
         this.registerCommand(new WorldEditBWTestCommand("bwtest"));
 
         this.registerCommand(new WorldEditFindCommand("findblock"));
+        this.registerCommand(new WorldEditScanNewBlockCommand("scannew"));
 
         this.registerCommand(new WorldEditSpiralCommand("spiral"));
 

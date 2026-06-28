@@ -19,6 +19,10 @@ import gameapi.utils.MolangVariableMap;
 public class ParticleTools {
 
     public static void drawCircle(Particle particle, Location location, double horizontalRadius) {
+        drawCircle(particle, location, horizontalRadius, location.getLevel().getPlayers().values().toArray(new Player[0]));
+    }
+
+    public static void drawCircle(Particle particle, Location location, double horizontalRadius, Player... players) {
         for (int angle = 1; angle <= 360; angle++) {
             if (angle % 30 == 0) {
                 double x1 = location.getX() + horizontalRadius * Math.cos(angle * 3.14 / 180);
@@ -27,7 +31,11 @@ public class ParticleTools {
                 particle_temp.setX(x1);
                 particle_temp.setY(location.getY());
                 particle_temp.setZ(z1);
-                location.getLevel().addParticle(particle_temp);
+                if (players == null) {
+                    location.getLevel().addParticle(particle_temp);
+                } else {
+                    location.getLevel().addParticle(particle_temp, players);
+                }
             }
         }
     }

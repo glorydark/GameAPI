@@ -3,6 +3,7 @@ package gameapi.room;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.item.Item;
@@ -133,6 +134,7 @@ public class Room implements Broadcastable {
     private CustomRoomStatus currentRoomStatus = CustomRoomStatus.INITIALIZING;
     private List<Player> players = new ArrayList<>();
     private List<Player> spectators = new ArrayList<>();
+    private Map<String, RoomPlayer> roomPlayers = new LinkedHashMap<>();
     private int maxPlayer = 16;
     private int minPlayer = 1;
     private int waitTime = 10;
@@ -570,6 +572,7 @@ public class Room implements Broadcastable {
                     this.roomUpdateTask.setPlayerLastLocation(player, player.getLocation());
                     this.playerProperties.computeIfAbsent(player.getName(), (Function<String, LinkedHashMap<String, Object>>) o -> new LinkedHashMap<>());
                     this.players.add(player);
+                    this.roomPlayers.put(player.getName(), new PlayerRoomPlayer(player, this));
                     this.waitSpawn.teleport(player);
                     player.setGamemode(2);
                     player.getFoodData().reset();
@@ -642,6 +645,7 @@ public class Room implements Broadcastable {
                 this.getOggMusicManager().onQuit(player);
             }
             this.players.remove(player);
+            this.roomPlayers.remove(player.getName());
             player.setCheckMovement(false);
 
             RoomManager.getPlayerRoomHashMap().remove(player);
@@ -753,6 +757,7 @@ public class Room implements Broadcastable {
         //因为某些原因无法正常传送走玩家，就全部踹出服务器！
         this.getLastEntityReceiveDamageSource().clear();
         this.players = new ArrayList<>();
+        this.roomPlayers = new LinkedHashMap<>();
         this.round = 0;
         this.time = 0;
         this.playerProperties = new LinkedHashMap<>();
@@ -902,6 +907,7 @@ public class Room implements Broadcastable {
         this.resetSpeed(player);
         player.sendMessage(GameAPI.getLanguage().getTranslation("room.spectator.quit"));
         this.spectators.remove(player);
+        this.roomPlayers.remove(player.getName());
         RoomManager.getPlayerRoomHashMap().remove(player);
         this.removeHideStatus(player);
         player.teleport(roomSpectatorLeaveEvent.getReturnLocation());
@@ -951,6 +957,7 @@ public class Room implements Broadcastable {
             return;
         }
         this.spectators.add(player);
+        this.roomPlayers.put(player.getName(), new PlayerRoomPlayer(player, this));
         player.removeAllEffects();
         player.setNameTagVisible(false);
         player.setNameTagAlwaysVisible(false);
@@ -1236,5 +1243,50 @@ public class Room implements Broadcastable {
         });
         List<EntityDamageSource> result = entityDamageSources.stream().filter(entityDamageSource -> entityDamageSource.getDamager().isPlayer).toList();
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(result.size() - 1));
+    }
+
+    // ─── RoomPlayer API ──────────────────────────────────────────────
+
+    public List<RoomPlayer> getRoomPlayers() {
+        return new ArrayList<>(this.roomPlayers.values());
+    }
+
+    @Nullable
+    public RoomPlayer getRoomPlayer(String name) {
+        return this.roomPlayers.get(name);
+    }
+
+    @Nullable
+    public RoomPlayer getRoomPlayer(Player player) {
+        return this.roomPlayers.get(player.getName());
+    }
+
+    public List<RoomPlayer> getFakePlayers() {
+        return this.roomPlayers.values().stream()
+                .filter(RoomPlayer::isFake)
+                .collect(Collectors.toList());
+    }
+
+    public boolean hasRoomPlayer(String name) {
+        return this.roomPlayers.containsKey(name);
+    }
+
+    public boolean addFakePlayer(EntityHuman entity) {
+        String name = entity.getName();
+        if (this.roomPlayers.containsKey(name)) return false;
+        FakeRoomPlayer rp = new FakeRoomPlayer(entity, this);
+        this.roomPlayers.put(name, rp);
+        return true;
+    }
+
+    public boolean removeFakePlayer(String name) {
+        RoomPlayer rp = this.roomPlayers.get(name);
+        if (rp == null || !rp.isFake()) return false;
+        this.roomPlayers.remove(name);
+        return true;
+    }
+
+    public boolean removeFakePlayer(EntityHuman entity) {
+        return this.removeFakePlayer(entity.getName());
     }
 }

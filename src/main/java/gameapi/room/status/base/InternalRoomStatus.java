@@ -24,7 +24,7 @@ public abstract class InternalRoomStatus extends CustomRoomStatus {
     }
 
     public boolean hasEnoughPlayerWithTeam(Room room) {
-        if (room.getPlayersWithoutCreate().isEmpty()) {
+        if (room.getPlayersWithoutCreate().isEmpty() && room.getFakePlayers().isEmpty()) {
             return false;
         } else {
             if (room.getTeams().size() > 1) {
@@ -34,18 +34,18 @@ public abstract class InternalRoomStatus extends CustomRoomStatus {
                         hasPlayer.addAndGet(1);
                     }
                 });
-                return hasPlayer.get() > 1;
+                return hasPlayer.get() + room.getFakePlayers().size() > 1;
             } else {
-                return room.getPlayers().size() >= room.getMinPlayer();
+                return room.getPlayers().size() + room.getFakePlayers().size() >= room.getMinPlayer();
             }
         }
     }
 
     public boolean hasEnoughPlayer(Room room) {
-        if (room.getPlayersWithoutCreate().isEmpty()) {
+        if (room.getPlayersWithoutCreate().isEmpty() && room.getFakePlayers().isEmpty()) {
             return false;
         } else {
-            return room.getPlayers().size() >= room.getMinPlayer();
+            return room.getPlayers().size() + room.getFakePlayers().size() >= room.getMinPlayer();
         }
     }
 }
