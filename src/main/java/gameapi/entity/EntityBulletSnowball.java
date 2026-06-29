@@ -27,6 +27,10 @@ public class EntityBulletSnowball extends EntitySnowball {
     protected float gravity = 0F;
     protected Consumer<EntityBulletSnowball> particleEffectConsumer;
 
+    public EntityBulletSnowball(FullChunk chunk, CompoundTag nbt) {
+        super(chunk, nbt);
+    }
+
     public EntityBulletSnowball(FullChunk chunk, CompoundTag nbt, Entity shootingEntity) {
         super(chunk, nbt, shootingEntity);
     }

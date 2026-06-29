@@ -4,8 +4,10 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityEffectRemoveEvent;
 import cn.nukkit.event.entity.EntityEffectUpdateEvent;
+import cn.nukkit.event.entity.EntityPotionEffectEvent;
 import gameapi.event.entity.RoomEntityEffectRemoveEvent;
 import gameapi.event.entity.RoomEntityEffectUpdateEvent;
+import gameapi.event.entity.RoomEntityPotionEffectEvent;
 import gameapi.listener.base.GameListenerRegistry;
 import gameapi.manager.RoomManager;
 import gameapi.room.Room;
@@ -32,6 +34,17 @@ public class BaseEventListenerMOTPatch implements Listener {
             RoomEntityEffectRemoveEvent roomEntityEffectRemoveEvent = new RoomEntityEffectRemoveEvent(room, event.getEntity(), event.getRemoveEffect());
             GameListenerRegistry.callEvent(room, roomEntityEffectRemoveEvent);
             if (roomEntityEffectRemoveEvent.isCancelled()) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void EntityPotionEffectEvent(EntityPotionEffectEvent event) {
+        for (Room room : RoomManager.getRooms(event.getEntity().getLevel())) {
+            RoomEntityPotionEffectEvent roomEntityPotionEffectEvent = new RoomEntityPotionEffectEvent(room, event.getEntity(), event.getOldEffect(), event.getNewEffect(), event.getAction(), event.getCause());
+            GameListenerRegistry.callEvent(room, roomEntityPotionEffectEvent);
+            if (roomEntityPotionEffectEvent.isCancelled()) {
                 event.setCancelled(true);
             }
         }

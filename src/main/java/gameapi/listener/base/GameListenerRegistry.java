@@ -45,6 +45,9 @@ public class GameListenerRegistry {
     }
 
     public static <T> void registerEvents(String gameName, Class<T> eventType, Consumer<T> handler) {
+        if (eventType.isAnnotationPresent(Deprecated.class)) {
+            cn.nukkit.Server.getInstance().getLogger().warning("Plugin \"" + gameName + "\" has registered a listener for \"" + eventType.getName() + "\", but the event is Deprecated.");
+        }
         newListenersAfterOld
                 .computeIfAbsent(gameName, k -> new LinkedHashMap<>())
                 .computeIfAbsent(eventType, k -> new ArrayList<>())
@@ -52,6 +55,9 @@ public class GameListenerRegistry {
     }
 
     public static <T> void registerEvents(String gameName, Class<T> eventType, Consumer<T> handler, EventPriority priority) {
+        if (eventType.isAnnotationPresent(Deprecated.class)) {
+            cn.nukkit.Server.getInstance().getLogger().warning("Plugin \"" + gameName + "\" has registered a listener for \"" + eventType.getName() + "\", but the event is Deprecated.");
+        }
         registerEvents(gameName, eventType, handler, priority, false);
     }
 
@@ -64,6 +70,9 @@ public class GameListenerRegistry {
      * @param beforeOld 是否在老监听器前（类似NK）执行
      */
     public static <T> void registerEvents(String gameName, Class<T> eventType, Consumer<T> handler, EventPriority priority, boolean beforeOld) {
+        if (eventType.isAnnotationPresent(Deprecated.class)) {
+            cn.nukkit.Server.getInstance().getLogger().warning("Plugin \"" + gameName + "\" has registered a listener for \"" + eventType.getName() + "\", but the event is Deprecated.");
+        }
         if (beforeOld) {
             newListenersBeforeOld
                     .computeIfAbsent(gameName, k -> new LinkedHashMap<>())
@@ -103,6 +112,10 @@ public class GameListenerRegistry {
                     evl = new RoomListener(gameName, listener, new MethodGameEventExecutor(method), eh.priority(), plugin, eh.ignoreCancelled());
                 } else {
                     evl = new RoomListener(gameName, listener, new MethodGameEventExecutor(method), EventPriority.NORMAL, plugin, false);
+                }
+                Class<?> eventType = method.getParameterTypes()[0];
+                if (eventType.isAnnotationPresent(Deprecated.class)) {
+                    cn.nukkit.Server.getInstance().getLogger().warning("Plugin \"" + plugin.getName() + "\" has registered a listener for \"" + eventType.getName() + "\" on method \"" + listener.getClass().getName() + "." + method.getName() + "()\", but the event is Deprecated.");
                 }
                 listeners.computeIfAbsent(gameName, (Function<String, List<RoomListener>>) o -> new ArrayList<>()).add(evl);
             }

@@ -6,8 +6,9 @@ import cn.nukkit.potion.Effect;
 import gameapi.room.Room;
 
 /**
- * @author glorydark
+ * deprecated use {@link RoomEntityPotionEffectEvent} instead
  */
+@Deprecated
 public class RoomEntityEffectRemoveEvent extends RoomEntityEvent implements Cancellable {
 
     private final Effect removeEffect;

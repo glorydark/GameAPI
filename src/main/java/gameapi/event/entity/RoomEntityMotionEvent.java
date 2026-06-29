@@ -5,10 +5,6 @@ import cn.nukkit.event.Cancellable;
 import cn.nukkit.math.Vector3;
 import gameapi.room.Room;
 
-/**
- * @author MagicDroidX
- * Nukkit Project
- */
 public class RoomEntityMotionEvent extends RoomEntityEvent implements Cancellable {
 
     private final Vector3 motion;

@@ -1,17 +1,13 @@
 package gameapi.event.player;
 
 import cn.nukkit.Player;
-import cn.nukkit.event.HandlerList;
 import gameapi.room.Room;
 
 /**
- * @author glorydark
- * @date {2023/12/28} {20:43}
+ * eprecated use {@link gameapi.event.entity.RoomEntityDamageByEntityEvent} instead
  */
 @Deprecated
 public class RoomPlayerInteractPlayerEvent extends RoomPlayerEvent {
-
-    private static final HandlerList handlers = new HandlerList();
 
     private final Player interactedPlayer;
 
