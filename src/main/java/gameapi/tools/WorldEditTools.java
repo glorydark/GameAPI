@@ -559,7 +559,14 @@ public class WorldEditTools {
                         if (y > level.getMaxBlockY() || y < level.getMinBlockY()) continue;
                         if (entry.blockId() == BlockID.AIR) continue;
 
-                        CompoundTag beTag = entry.blockEntityData() != null ? NBTIO.read(entry.blockEntityData()) : null;
+                        CompoundTag beTag = null;
+                        if (entry.blockEntityData() != null) {
+                            try {
+                                beTag = NBTIO.read(entry.blockEntityData());
+                            } catch (IOException e) {
+                                GameAPI.getInstance().getLogger().warning("Failed to parse blockEntityData at [" + entry.x() + "," + entry.y() + "," + entry.z() + "]: " + e.getMessage());
+                            }
+                        }
 
                         sectionEntries.add(new BuildBlockEntry(x, y, z, entry.blockId(), entry.damage(), beTag, entry.layer1Id(), entry.layer1Damage()));
                     }
@@ -1157,6 +1164,37 @@ public class WorldEditTools {
         }
         BlockFillTask fillTask = new BlockFillTask(level, block, vector3s);
         GameAPI.WORLDEDIT_THREAD_POOL_EXECUTOR.invoke(fillTask);
+    }
+
+    public static void buildCylinder(CommandSender sender, Vector3 centerPos, Level level, int height, double radius, Block block, boolean hollow) {
+        final Vector3 centerPosFloored = centerPos.floor();
+        int cx = centerPosFloored.getFloorX();
+        int cy = centerPosFloored.getFloorY();
+        int cz = centerPosFloored.getFloorZ();
+
+        BlockFillTask fillTask = new BlockFillTask(level, block);
+
+        int radiusCeil = (int) Math.ceil(radius);
+        for (int y = 0; y < height; y++) {
+            int worldY = cy + y;
+            for (int x = cx - radiusCeil; x <= cx + radiusCeil; x++) {
+                for (int z = cz - radiusCeil; z <= cz + radiusCeil; z++) {
+                    double dx = x - cx + 0.5;
+                    double dz = z - cz + 0.5;
+                    double distSq = dx * dx + dz * dz;
+                    if (distSq <= radius * radius) {
+                        if (!hollow || distSq > (radius - 1) * (radius - 1)) {
+                            fillTask.addPos(new Vector3(x, worldY, z));
+                        }
+                    }
+                }
+            }
+        }
+
+        GameAPI.WORLDEDIT_THREAD_POOL_EXECUTOR.invoke(fillTask);
+        if (sender != null) {
+            sender.sendMessage(TextFormat.GREEN + "Already fill " + fillTask.join() + "/" + fillTask.getImmutablePosList().size() + " blocks with " + block.getName() + ", cost: " + (SmartTools.timeDiffMillisToString(System.currentTimeMillis(), fillTask.getEndMillis())));
+        }
     }
 
     /**

@@ -20,6 +20,7 @@ public class RawNbtParser {
     }
 
     public List<BlockEntry> parseBlocks() {
+        if (data.length < 2) return List.of();
         byte type = readByte();
         if (type != 10) throw new IllegalArgumentException("Root must be TAG_Compound");
         skipString();
@@ -33,7 +34,12 @@ public class RawNbtParser {
                 byte elementType = readByte();
                 int length = readInt();
                 for (int i = 0; i < length; i++) {
-                    entries.add(parseBlockCompound());
+                    if (offset >= data.length) break;
+                    try {
+                        entries.add(parseBlockCompound());
+                    } catch (IndexOutOfBoundsException e) {
+                        return entries;
+                    }
                 }
             } else {
                 skipPayload(tagType);
@@ -49,6 +55,7 @@ public class RawNbtParser {
 
         while (offset < data.length) {
             if (data[offset] == 0) { offset++; break; }
+            int tagStart = offset;
             byte tagType = readByte();
             String name = readString();
             switch (name) {
@@ -57,7 +64,7 @@ public class RawNbtParser {
                 case "z" -> z = readInt();
                 case "blockId" -> blockId = readInt();
                 case "damage" -> damage = readInt();
-                case "blockEntityData" -> beData = readRawBytes();
+                case "blockEntityData" -> beData = readRawBytes(tagType, tagStart);
                 case "layer1" -> {
                     int[] l1 = parseLayer1Compound();
                     l1Id = l1[0];
@@ -84,13 +91,12 @@ public class RawNbtParser {
         return new int[]{blockId, damage};
     }
 
-    private byte[] readRawBytes() {
-        int start = offset;
-        skipPayload((byte) 10);
-        return Arrays.copyOfRange(data, start, offset);
+    private byte[] readRawBytes(int tagType, int tagStart) {
+        skipPayload(tagType);
+        return Arrays.copyOfRange(data, tagStart, offset);
     }
 
-    private void skipPayload(byte tagType) {
+    private void skipPayload(int tagType) {
         switch (tagType) {
             case 1 -> offset += 1;
             case 2 -> offset += 2;
@@ -98,40 +104,67 @@ public class RawNbtParser {
             case 4 -> offset += 8;
             case 5 -> offset += 4;
             case 6 -> offset += 8;
-            case 7 -> { int len = readInt(); offset += len; }
-            case 8 -> offset += readUnsignedShort();
-            case 9 -> {
-                byte eType = readByte();
+            case 7 -> {
                 int len = readInt();
-                for (int i = 0; i < len; i++) skipPayload(eType);
+                if (len < 0) len = 0;
+                offset += len;
+            }
+            case 8 -> {
+                int v = readUnsignedShort();
+                offset += v;
+            }
+            case 9 -> {
+                int eType = readByte() & 0xFF;
+                int len = readInt();
+                if (len < 0) len = 0;
+                for (int i = 0; i < len && offset < data.length; i++) {
+                    skipPayload(eType);
+                }
             }
             case 10 -> {
-                while (offset < data.length && data[offset] != 0) {
+                int guard = 0;
+                while (offset < data.length && data[offset] != 0 && guard < 100000) {
                     byte innerType = data[offset++];
                     skipNamedEntry(innerType);
+                    guard++;
                 }
                 if (offset < data.length) offset++;
             }
-            case 11 -> { int len = readInt(); offset += len * 4; }
-            case 12 -> { int len = readInt(); offset += len * 8; }
+            case 11 -> {
+                int len = readInt();
+                if (len < 0) len = 0;
+                offset += len * 4;
+            }
+            case 12 -> {
+                int len = readInt();
+                if (len < 0) len = 0;
+                offset += len * 8;
+            }
+            default -> {
+            }
         }
     }
 
-    private void skipNamedEntry(byte tagType) {
+    private void skipNamedEntry(int tagType) {
         if (tagType == 0) return;
         skipString();
         skipPayload(tagType);
     }
 
-    private byte readByte() { return data[offset++]; }
+    private byte readByte() {
+        if (offset >= data.length) throw new IndexOutOfBoundsException("Unexpected end of data at offset " + offset);
+        return data[offset++];
+    }
 
     private int readUnsignedShort() {
+        if (offset + 1 >= data.length) throw new IndexOutOfBoundsException("Unexpected end of data at offset " + offset);
         int r = (data[offset] & 0xFF) << 8 | (data[offset + 1] & 0xFF);
         offset += 2;
         return r;
     }
 
     private int readInt() {
+        if (offset + 3 >= data.length) throw new IndexOutOfBoundsException("Unexpected end of data at offset " + offset);
         int r = (data[offset] & 0xFF) << 24 | (data[offset + 1] & 0xFF) << 16
               | (data[offset + 2] & 0xFF) << 8  | (data[offset + 3] & 0xFF);
         offset += 4;
@@ -140,6 +173,7 @@ public class RawNbtParser {
 
     private String readString() {
         int len = readUnsignedShort();
+        if (offset + len > data.length) throw new IndexOutOfBoundsException("String length " + len + " exceeds data at offset " + offset);
         String r = new String(data, offset, len, StandardCharsets.UTF_8);
         offset += len;
         return r;
@@ -147,6 +181,7 @@ public class RawNbtParser {
 
     private void skipString() {
         int len = readUnsignedShort();
+        if (offset + len > data.length) throw new IndexOutOfBoundsException("String length " + len + " exceeds data at offset " + offset);
         offset += len;
     }
 }

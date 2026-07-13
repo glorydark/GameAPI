@@ -40,7 +40,8 @@ public class MapSortTools {
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValueAscAndLimitAmount(Map<K, V> map, int limit) {
         return map.entrySet()
                 .stream()
-                .limit(limit) // 关键：限制最多取4个
+                .sorted(Map.Entry.comparingByValue())
+                .limit(limit)
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
