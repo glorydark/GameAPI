@@ -15,6 +15,8 @@ import java.util.function.Supplier;
 
 public class AdvancedFormWindowCustom extends FormWindowCustom implements AdvancedForm {
 
+    protected volatile boolean responded = false;
+
     protected BiConsumer<Player, FormResponseCustom> responseExecutor = null;
 
     protected Consumer<Player> noResponseExecutor = null;
@@ -37,6 +39,10 @@ public class AdvancedFormWindowCustom extends FormWindowCustom implements Advanc
     }
 
     public void dealResponse(Player player, FormResponse response) {
+        if (this.responded) {
+            return;
+        }
+        this.responded = true;
         FormResponseCustom custom = (FormResponseCustom) response;
         if (this.wasClosed() || custom == null) {
             if (this.noResponseExecutor != null) {

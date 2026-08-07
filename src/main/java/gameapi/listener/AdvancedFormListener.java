@@ -79,10 +79,14 @@ public class AdvancedFormListener implements Listener {
     public void PlayerFormRespondedEvent(PlayerFormRespondedEvent event) {
         Player player = event.getPlayer();
         if (playerFormWindows.containsKey(player)) {
-            FormWindow window = playerFormWindows.getOrDefault(player, new LinkedHashMap<>()).get(event.getFormID());
+            Map<Integer, FormWindow> formMap = playerFormWindows.get(player);
+            FormWindow window = formMap.remove(event.getFormID());
             if (window != null) {
                 if (window instanceof AdvancedForm) {
                     ((AdvancedForm) window).dealResponse(player, event.getResponse());
+                }
+                if (formMap.isEmpty()) {
+                    playerFormWindows.remove(player);
                 }
             }
         }
@@ -184,7 +188,9 @@ public class AdvancedFormListener implements Listener {
 
     @EventHandler
     public void PlayerQuitEvent(PlayerQuitEvent event) {
-        removeChestMenuCache(event.getPlayer());
+        Player player = event.getPlayer();
+        removeChestMenuCache(player);
+        playerFormWindows.remove(player);
     }
 
     @EventHandler

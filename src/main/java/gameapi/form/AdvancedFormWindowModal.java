@@ -11,6 +11,8 @@ import java.util.function.Supplier;
 
 public class AdvancedFormWindowModal extends FormWindowModal implements AdvancedForm {
 
+    protected volatile boolean responded = false;
+
     protected Consumer<Player> trueButtonResponseExecutor = null;
 
     protected Consumer<Player> falseButtonResponseExecutor = null;
@@ -59,6 +61,10 @@ public class AdvancedFormWindowModal extends FormWindowModal implements Advanced
     }
 
     public void dealResponse(Player player, FormResponse response) {
+        if (this.responded) {
+            return;
+        }
+        this.responded = true;
         FormResponseModal responseModal = (FormResponseModal) response;
         if (this.wasClosed() || responseModal == null) {
             if (this.noResponseExecutor != null) {

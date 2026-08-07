@@ -11,22 +11,11 @@ import gameapi.GameAPI;
 import gameapi.manager.RoomManager;
 import gameapi.room.Room;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Glorydark
  * For in-game test
  */
 public class HubCommand extends Command {
-
-    public final List<String> SURVIVAL_WORLDS = new ArrayList<>(){
-        {
-            this.add("sc1");
-            this.add("nether");
-            this.add("the_end");
-        }
-    };
 
     public HubCommand(String name) {
         super(name);
@@ -46,10 +35,7 @@ public class HubCommand extends Command {
                 room.removeSpectator(player);
             } else {
                 if (GameAPI.getInstance().isGlorydarkRelatedFeature()) {
-                    if (SURVIVAL_WORLDS.contains(player.getLevelName())) {
-                        commandSender.sendMessage(TextFormat.GREEN + "已返回主城！");
-                        player.teleport(getSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    } else if (player.getLevelName().startsWith("SimpleParkour")) {
+                    if (player.getLevelName().startsWith("SimpleParkour")) {
                         commandSender.sendMessage(TextFormat.GREEN + "已返回主城！");
                         player.teleport(getSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                     }

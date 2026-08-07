@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 public class AdvancedFormWindowSimple extends FormWindowSimple implements AdvancedForm {
 
     protected long sentMillis;
+    protected volatile boolean responded = false;
 
     protected BiConsumer<Player, FormResponseSimple> responseExecutor = null;
 
@@ -51,6 +52,10 @@ public class AdvancedFormWindowSimple extends FormWindowSimple implements Advanc
     }
 
     public void dealResponse(Player player, FormResponse response) {
+        if (this.responded) {
+            return;
+        }
+        this.responded = true;
         FormResponseSimple responseSimple = (FormResponseSimple) response;
         if (this.wasClosed() || response == null) {
             if (this.noResponseExecutor != null) {
