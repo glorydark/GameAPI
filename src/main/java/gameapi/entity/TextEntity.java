@@ -16,12 +16,16 @@ import gameapi.annotation.Description;
 import glorydark.nukkit.languageapi.api.LanguageAPI;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class TextEntity extends Entity {
 
     private final Map<String, Object> extraProperties = new LinkedHashMap<>();
+
+    private final Set<String> hiddenPlayers = new HashSet<>();
 
     private int maxShowDistance = -1;
 
@@ -53,21 +57,17 @@ public class TextEntity extends Entity {
         if (this.isClosed()) {
             return false;
         }
-        /*
-        if (Arrays.stream(this.level.getEntities()).noneMatch(entity -> entity == this)) {
-            this.getLevel().addEntity(this);
-        }
-         */
         for (Player player : new ArrayList<>(this.getLevel().getPlayers().values())) {
+            boolean hidden = this.hiddenPlayers.contains(player.getName());
             if (this.getViewers().containsKey(player.getLoaderId())) {
-                if (!player.isOnline() || player.getLevel() != this.getLevel() || (this.maxShowDistance != -1 && player.distance(this) > this.maxShowDistance)) {
+                if (!player.isOnline() || player.getLevel() != this.getLevel() || hidden || (this.maxShowDistance != -1 && player.distance(this) > this.maxShowDistance)) {
                     this.despawnFrom(player);
                     RemoveEntityPacket pk = new RemoveEntityPacket();
                     pk.eid = this.id;
                     player.dataPacket(pk);
                 }
             } else {
-                if (player.getLevel() == this.getLevel() && (this.maxShowDistance == -1 || player.distance(this) <= this.maxShowDistance)) {
+                if (!hidden && player.getLevel() == this.getLevel() && (this.maxShowDistance == -1 || player.distance(this) <= this.maxShowDistance)) {
                     this.spawnTo(player);
                 }
             }
@@ -109,6 +109,27 @@ public class TextEntity extends Entity {
 
     public int getMaxShowDistance() {
         return maxShowDistance;
+    }
+
+    public void hideFrom(Player player) {
+        this.hiddenPlayers.add(player.getName());
+        if (this.getViewers().containsKey(player.getLoaderId())) {
+            this.despawnFrom(player);
+            RemoveEntityPacket pk = new RemoveEntityPacket();
+            pk.eid = this.id;
+            player.dataPacket(pk);
+        }
+    }
+
+    public void showTo(Player player) {
+        this.hiddenPlayers.remove(player.getName());
+        if (!this.getViewers().containsKey(player.getLoaderId()) && player.getLevel() == this.getLevel()) {
+            this.spawnTo(player);
+        }
+    }
+
+    public boolean isHiddenFrom(Player player) {
+        return this.hiddenPlayers.contains(player.getName());
     }
 
     @Override

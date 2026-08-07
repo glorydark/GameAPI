@@ -115,23 +115,24 @@ public class RankingManager {
         }
     }
 
-    public static void spawnRankingListEntity(Location location, Ranking ranking) {
+    @org.jetbrains.annotations.Nullable
+    public static RankingListEntity spawnRankingListEntity(Location location, Ranking ranking) {
         FullChunk chunk = location.getChunk();
         if (chunk == null) {
-            return;
+            return null;
         }
         if (!chunk.isLoaded() || chunk.getProvider() == null) {
             try {
                 location.getLevel().loadChunk(location.getChunkX(), location.getChunkZ());
             } catch (Throwable e) {
                 GameAPI.getGameDebugManager().printError(e);
-                return;
+                return null;
             }
         }
         chunk = location.getLevel().getChunk(location.getChunkX(), location.getChunkZ());
         if (!chunk.isLoaded() || chunk.getProvider() == null) {
             GameAPI.getGameDebugManager().error("Failed to summon ranking entity at " + location.asVector3f());
-            return;
+            return null;
         }
         ranking.refreshRankingData();
         RankingListEntity entity = new RankingListEntity(ranking, chunk, RankingListEntity.getDefaultNBT(new Vector3(location.x, location.y, location.z)));
@@ -140,6 +141,7 @@ public class RankingManager {
         entity.setImmobile(true);
         entity.spawnToAll();
         GameEntityManager.textEntityDataList.add(new RankingEntityData(ranking, entity, location));
+        return entity;
     }
 
     public static void addRankingList(Location location, String valueType, String gameName, String dataName, String title, RankingSortSequence rankingSortSequence) {
