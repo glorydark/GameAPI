@@ -559,16 +559,29 @@ public class WorldEditTools {
                         if (y > level.getMaxBlockY() || y < level.getMinBlockY()) continue;
                         if (entry.blockId() == BlockID.AIR) continue;
 
+                        int damage = entry.damage();
+                        int layer1Damage = entry.layer1Damage();
+                        if (rotationDegree != 0) {
+                            damage = FaceableBlockRotationBehavior.rotate(entry.blockId(), damage, rotationDegree);
+                            if (entry.layer1Id() != 0) {
+                                layer1Damage = FaceableBlockRotationBehavior.rotate(entry.layer1Id(), layer1Damage, rotationDegree);
+                            }
+                            GameAPI.getInstance().getLogger().info("BLOCK orig=(" + entry.x() + "," + entry.y() + "," + entry.z() + ") id=" + entry.blockId() + " dmg=" + entry.damage() + " -> new=(" + x + "," + y + "," + z + ") dmg=" + damage);
+                        }
+
                         CompoundTag beTag = null;
                         if (entry.blockEntityData() != null) {
                             try {
                                 beTag = NBTIO.read(entry.blockEntityData());
+                                if (rotationDegree != 0 && beTag != null) {
+                                    FaceableBlockRotationBehavior.rotateNbtData(entry.blockId(), beTag, rotationDegree);
+                                }
                             } catch (IOException e) {
                                 GameAPI.getInstance().getLogger().warning("Failed to parse blockEntityData at [" + entry.x() + "," + entry.y() + "," + entry.z() + "]: " + e.getMessage());
                             }
                         }
 
-                        sectionEntries.add(new BuildBlockEntry(x, y, z, entry.blockId(), entry.damage(), beTag, entry.layer1Id(), entry.layer1Damage()));
+                        sectionEntries.add(new BuildBlockEntry(x, y, z, entry.blockId(), damage, beTag, entry.layer1Id(), layer1Damage));
                     }
                     GameAPI.getInstance().getLogger().info("Parsed section [" + (sectionIdx + 1) + "/" + maxGenerateSections + "] (" + sectionEntries.size() + " blocks, " + (System.currentTimeMillis() - sectionStart) + "ms)");
                     return Map.entry(sectionIdx, sectionEntries);

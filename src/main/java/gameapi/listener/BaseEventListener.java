@@ -3,9 +3,22 @@ package gameapi.listener;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockCandle;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.block.BlockRedstoneLamp;
+import cn.nukkit.block.BlockShulkerBox;
+import cn.nukkit.block.BlockTerracottaStained;
 import cn.nukkit.block.BlockTrapdoor;
+import cn.nukkit.block.BlockUndyedShulkerBox;
+import cn.nukkit.block.BlockWool;
+import cn.nukkit.block.BlockGlassStained;
+import cn.nukkit.block.BlockGlassPaneStained;
+import cn.nukkit.block.BlockConcrete;
+import cn.nukkit.block.BlockConcretePowder;
+import cn.nukkit.utils.DyeColor;
+import cn.nukkit.blockentity.BlockEntity;
+import cn.nukkit.blockentity.BlockEntitySpawnable;
+import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityLiving;
@@ -64,6 +77,7 @@ import gameapi.room.utils.reason.JoinRoomReason;
 import gameapi.room.utils.reason.QuitRoomReason;
 import gameapi.tools.DecimalTools;
 import gameapi.tools.EntityTools;
+import gameapi.tools.rotation.DyeColorBehavior;
 import gameapi.tools.PlayerTools;
 import gameapi.utils.PosSet;
 
@@ -922,8 +936,63 @@ public class BaseEventListener implements Listener {
                 event.setCancelled(true);
             }
         } else {
+            Item item = player.getInventory().getItemInHand();
+            if (item.getId() == Item.DYE) {
+                Block dyeTarget = event.getBlock();
+                if ((dyeTarget == null || dyeTarget.getId() == BlockID.AIR) && event.getTouchVector() != null) {
+                    dyeTarget = player.getLevel().getBlock(event.getTouchVector());
+                }
+                if (dyeTarget != null && dyeTarget.getId() != BlockID.AIR) {
+                    DyeColor targetDye = DyeColor.getByDyeData(item.getDamage());
+                    if (targetDye != null) {
+                        int targetColorDamage = targetDye.getWoolData();
+
+                        if (dyeTarget instanceof BlockShulkerBox) {
+                            BlockEntity oldBe = dyeTarget.getLevel().getBlockEntity(dyeTarget);
+                            CompoundTag oldNbt = oldBe != null ? oldBe.namedTag.clone()
+                                    : BlockEntity.getDefaultCompound(dyeTarget, BlockEntity.SHULKER_BOX);
+                            if (oldBe != null) oldBe.close();
+
+                            int newBlockId = dyeTarget instanceof BlockUndyedShulkerBox ? BlockID.SHULKER_BOX : dyeTarget.getId();
+                            Block newBox = Block.get(newBlockId, targetColorDamage);
+                            dyeTarget.getLevel().setBlock(dyeTarget, newBox, true, true);
+
+                            BlockEntity be = BlockEntity.createBlockEntity(BlockEntity.SHULKER_BOX, dyeTarget.getChunk(), oldNbt);
+                            if (be instanceof BlockEntitySpawnable spawnable) {
+                                spawnable.spawnToAll();
+                            }
+                            event.setCancelled(true);
+                            player.sendMessage("§aDyed shulker box to " + targetDye.getName());
+                        } else if (dyeTarget instanceof BlockCandle) {
+                            int candleId = DyeColorBehavior.getCandleBlockId(targetDye);
+                            if (dyeTarget.getId() != candleId) {
+                                int count = ((BlockCandle) dyeTarget).getCandles();
+                                boolean lit = ((BlockCandle) dyeTarget).isLit();
+                                Block newCandle = Block.get(candleId, 0);
+                                if (newCandle instanceof BlockCandle bc) {
+                                    bc.setCandles(count);
+                                    bc.setLit(lit);
+                                }
+                                dyeTarget.getLevel().setBlock(dyeTarget, newCandle, true, true);
+                                player.sendMessage("§aDyed candle to " + targetDye.getName());
+                                event.setCancelled(true);
+                            }
+                        } else if (dyeTarget instanceof BlockWool
+                                || dyeTarget instanceof BlockGlassStained
+                                || dyeTarget instanceof BlockGlassPaneStained
+                                || dyeTarget instanceof BlockTerracottaStained
+                                || dyeTarget instanceof BlockConcrete
+                                || dyeTarget instanceof BlockConcretePowder) {
+                            dyeTarget.setDamage(targetColorDamage);
+                            dyeTarget.getLevel().setBlock(dyeTarget, dyeTarget, true, true);
+                            player.sendMessage("§aDyed block to " + targetDye.getName());
+                            event.setCancelled(true);
+                        }
+                    }
+                }
+                return;
+            }
             if (GameAPI.worldEditPlayers.contains(player)) {
-                Item item = player.getInventory().getItemInHand();
                 switch (item.getId()) {
                     case Item.DIAMOND_SWORD:
                         if (event.getBlock() != null) {
