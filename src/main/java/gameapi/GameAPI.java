@@ -35,8 +35,10 @@ import gameapi.manager.data.GlobalSettingsManager;
 import gameapi.manager.data.PlayerGameDataManager;
 import gameapi.manager.data.RankingManager;
 import gameapi.manager.extension.ParticleGunManager;
+import gameapi.manager.tools.DebugTextManager;
 import gameapi.manager.tools.GameEntityManager;
 import gameapi.room.edit.EditProcess;
+import gameapi.task.DebugTextCleanupTask;
 import gameapi.task.RoomTask;
 import gameapi.tools.BlockTools;
 import gameapi.tools.ItemTools;
@@ -207,6 +209,7 @@ public class GameAPI extends PluginBase implements Listener {
         this.getServer().getPluginManager().registerEvents(new AdvancedFormListener(), this);
         if (NukkitTypeUtils.getNukkitType() == NukkitTypeUtils.NukkitType.MOT) {
             this.getServer().getPluginManager().registerEvents(new BaseEventListenerMOTPatch(), this);
+            this.getServer().getScheduler().scheduleRepeatingTask(this, new DebugTextCleanupTask(this), 5);
         }
 
         // this.getServer().getCommandMap().register("", new BaseCommand("gameapi"));
@@ -318,6 +321,7 @@ public class GameAPI extends PluginBase implements Listener {
             }
         }), 0, 200, TimeUnit.MILLISECONDS);
         roomTaskExecutor.scheduleAtFixedRate(GameEntityManager::onUpdate, 0, 2, TimeUnit.SECONDS);
+        roomTaskExecutor.scheduleAtFixedRate(DebugTextManager::onUpdate, 0, 2, TimeUnit.SECONDS);
         WORLDEDIT_THREAD_POOL_EXECUTOR = (ForkJoinPool) Executors.newWorkStealingPool();
 
         if (enableParticleWeapon) {
@@ -344,6 +348,11 @@ public class GameAPI extends PluginBase implements Listener {
         GameListenerRegistry.clearAllRegisters();
         try {
             GameEntityManager.closeAll();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        try {
+            DebugTextManager.closeAll();
         } catch (Throwable t) {
             t.printStackTrace();
         }

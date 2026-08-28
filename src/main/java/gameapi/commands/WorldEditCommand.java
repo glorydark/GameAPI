@@ -62,6 +62,7 @@ public class WorldEditCommand extends EasyCommand {
         this.registerCommand(new WorldEditCreateBuildCommand("createbuild"));
         this.registerCommand(new WorldEditPreviewBuildCommand("previewbuild"));
         this.registerCommand(new WorldEditPreviewBuildAreaCommand("previewbuildarea"));
+        this.registerCommand(new WorldEditExtraCommand("extra"));
 
         this.registerCommand(new WorldEditResetChunkCommand("resetc"));
         this.registerCommand(new WorldEditBWTestCommand("bwtest"));
