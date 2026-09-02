@@ -15,7 +15,11 @@ public class EasyCommand extends Command {
     protected Map<String, EasySubCommand> easySubCommandMap = new LinkedHashMap<>();
 
     public EasyCommand(String name) {
-        super(name);
+        this(name, "", "");
+    }
+
+    public EasyCommand(String name, String description, String usage) {
+        super(name, description, usage);
         this.getCommandParameters().clear();
     }
 

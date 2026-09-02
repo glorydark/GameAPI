@@ -47,7 +47,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
  * @author glorydark
@@ -758,6 +757,37 @@ public class WorldEditTools {
     }
 
     /**
+     * 将 extraTag 中的指定 ListTag 字段从旧相对坐标转为新相对坐标
+     * 先用 oldMinPos 转回绝对坐标，再用 newMinPos 重新相对化
+     */
+    public static CompoundTag relativizeExtraTag(CompoundTag extra, Vector3 oldMinPos, Vector3 newMinPos, String... listKeys) {
+        if (extra == null) return null;
+        CompoundTag result = extra.clone();
+        int omx = oldMinPos.getFloorX();
+        int omy = oldMinPos.getFloorY();
+        int omz = oldMinPos.getFloorZ();
+        int nmx = newMinPos.getFloorX();
+        int nmy = newMinPos.getFloorY();
+        int nmz = newMinPos.getFloorZ();
+        for (String key : listKeys) {
+            if (result.contains(key)) {
+                ListTag<IntTag> list = result.getList(key, IntTag.class);
+                if (list.size() >= 3) {
+                    int absX = list.get(0).getData() + omx;
+                    int absY = list.get(1).getData() + omy;
+                    int absZ = list.get(2).getData() + omz;
+                    ListTag<IntTag> newList = new ListTag<>(key);
+                    newList.add(new IntTag("", absX - nmx));
+                    newList.add(new IntTag("", absY - nmy));
+                    newList.add(new IntTag("", absZ - nmz));
+                    result.put(key, newList);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * 将 extraTag 中指定 x/y/z 三个 int 字段从绝对坐标转为相对坐标
      * extra 里有 {endX: 100, endY: 5, endZ: 200}，选区 minPos = (90, 5, 185)
      * 转换后变成 {endX: 10, endY: 0, endZ: 15}
@@ -825,9 +855,9 @@ public class WorldEditTools {
 
         // 计算最终坐标
         return new Vector3(
-                startPos.getX() + rotatedX,
+                startPos.getX() + Math.round(rotatedX),
                 y, // Y坐标不变（仅水平旋转）
-                startPos.getZ() + rotatedZ
+                startPos.getZ() + Math.round(rotatedZ)
         );
     }
 
@@ -848,6 +878,14 @@ public class WorldEditTools {
                 pos1, pos2, level, extraTag, format);
     }
 
+    public static void saveBuild(CommandSender sender, String buildName, Vector3 pos1, Vector3 pos2, Level level, CompoundTag extraTag, String format) {
+        saveBuild(sender,
+                new Vector3(Math.min(pos1.getFloorX(), pos2.getFloorX()),
+                        Math.min(pos1.getFloorY(), pos2.getFloorY()),
+                        Math.min(pos1.getFloorZ(), pos2.getFloorZ())),
+                pos1, pos2, level, extraTag, format, buildName);
+    }
+
     @Internal
     public static void saveBuild(CommandSender sender, Vector3 minPos, Vector3 pos1, Vector3 pos2, Level level) {
         saveBuild(sender, minPos, pos1, pos2, level, null);
@@ -857,15 +895,19 @@ public class WorldEditTools {
         saveBuild(sender, minPos, pos1, pos2, level, extraTag, "nbt");
     }
 
-    @Internal
     public static void saveBuild(CommandSender sender, Vector3 minPos, Vector3 pos1, Vector3 pos2, Level level, CompoundTag extraTag, String format) {
+        saveBuild(sender, minPos, pos1, pos2, level, extraTag, format, null);
+    }
+
+    @Internal
+    public static void saveBuild(CommandSender sender, Vector3 minPos, Vector3 pos1, Vector3 pos2, Level level, CompoundTag extraTag, String format, String buildName) {
         if (generatingLargeBuild) {
             GameAPI.getInstance().getLogger().info("You have started a task of creating or saving build. Please wait...");
             return;
         }
         generatingLargeBuild = true;
         IntegerAxisAlignBB integerAxisAlignBB = new IntegerAxisAlignBB(pos1, pos2);
-        String name = String.valueOf(System.currentTimeMillis());
+        String name = (buildName != null && !buildName.isEmpty()) ? buildName : String.valueOf(System.currentTimeMillis());
         long saveStartMillis = System.currentTimeMillis();
 
         IntegerAxisAlignBB[] bbs = integerAxisAlignBB.splitAABB(64, 64, 64);
@@ -1293,5 +1335,39 @@ public class WorldEditTools {
 
         BlockFillTask fillTask = new BlockFillTask(level, block, vector3s);
         GameAPI.WORLDEDIT_THREAD_POOL_EXECUTOR.invoke(fillTask);
+    }
+
+    public static CompoundTag relocateRelativeExtraTag(CompoundTag extra, Vector3 oldMinPos, Vector3 newMinPos, String... listKeys) {
+        if (extra == null) return null;
+
+        CompoundTag result = extra.clone();
+
+        int oldX = oldMinPos.getFloorX();
+        int oldY = oldMinPos.getFloorY();
+        int oldZ = oldMinPos.getFloorZ();
+
+        int newX = newMinPos.getFloorX();
+        int newY = newMinPos.getFloorY();
+        int newZ = newMinPos.getFloorZ();
+
+        for (String key : listKeys) {
+            if (!result.contains(key)) continue;
+
+            ListTag<IntTag> list = result.getList(key, IntTag.class);
+            if (list.size() < 3) continue;
+
+            int absoluteX = oldX + list.get(0).getData();
+            int absoluteY = oldY + list.get(1).getData();
+            int absoluteZ = oldZ + list.get(2).getData();
+
+            ListTag<IntTag> newList = new ListTag<>(key);
+            newList.add(new IntTag("", absoluteX - newX));
+            newList.add(new IntTag("", absoluteY - newY));
+            newList.add(new IntTag("", absoluteZ - newZ));
+
+            result.put(key, newList);
+        }
+
+        return result;
     }
 }

@@ -72,13 +72,13 @@ public class SmartTools {
         }
         if (second > 0) {
             if (second < 10) {
-                sb.append("0").append(second).append(":");
+                sb.append("0").append(second).append(".");
             } else {
-                sb.append(second).append(":");
+                sb.append(second).append(".");
             }
         } else if (second == 0) {
             if (saveMillis) {
-                sb.append("00:");
+                sb.append("00.");
             } else {
                 sb.append("00");
                 return sb.toString();

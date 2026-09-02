@@ -36,10 +36,13 @@ public class WorldEditSaveBuildCommand extends EasySubCommand {
         Vector3 p2 = posSet.getPos2();
 
         String format = "nbt";
+        String buildName = null;
         List<String> filtered = new ArrayList<>();
         for (int i = 0; i < args.length; i++) {
             if (args[i].toLowerCase().startsWith("--format=")) {
-                format = args[i].substring(8).toLowerCase();
+                format = args[i].substring(9).toLowerCase();
+            } else if (args[i].toLowerCase().startsWith("--name=")) {
+                buildName = args[i].substring(7);
             } else {
                 filtered.add(args[i]);
             }
@@ -58,7 +61,11 @@ public class WorldEditSaveBuildCommand extends EasySubCommand {
                             .toArray(new String[0]));
         }
 
-        WorldEditTools.saveBuild(player, p1, p2, player.getLevel(), extra, format);
+        if (buildName != null && !buildName.isEmpty()) {
+            WorldEditTools.saveBuild(player, buildName, p1, p2, player.getLevel(), extra, format);
+        } else {
+            WorldEditTools.saveBuild(player, p1, p2, player.getLevel(), extra, format);
+        }
         WorldEditCommand.clearExtraTagCache(player);
         player.sendMessage(TextFormat.GRAY + "标记点缓存已清空");
         return false;
