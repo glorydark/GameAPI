@@ -14,11 +14,7 @@ public abstract class FaceableBlockRotationBehavior {
     private static final Map<Integer, FaceableBlockRotationBehavior> CACHE = new HashMap<>();
 
     static {
-        try {
-            if (GameAPI.getGameDebugManager().isEnableConsoleDebug()) {
-                GameAPI.getInstance().getLogger().info("[FRB] static init");
-            }
-        } catch (Throwable ignored) {}
+        try { GameAPI.getInstance().getLogger().info("[FRB] static init"); } catch (Throwable ignored) {}
         try { register(BlockDoor.class, new DoorBehavior()); } catch (Throwable ignored) {}
         try { register(BlockTrapdoor.class, new TrapdoorBehavior()); } catch (Throwable ignored) {}
         try { register(BlockStairs.class, new StairsBehavior()); } catch (Throwable ignored) {}
@@ -66,6 +62,7 @@ public abstract class FaceableBlockRotationBehavior {
         try { register(BlockBone.class, new AxisBehavior()); } catch (Throwable ignored) {}
         try { register(BlockShulkerBox.class, new ShulkerBoxBehavior()); } catch (Throwable ignored) {}
         try { register(BlockEnderChest.class, new BlockFaceIndexBehavior()); } catch (Throwable ignored) {}
+        try { register(BlockWall.class, new WallBehavior()); } catch (Throwable ignored) {}
     }
 
     public static void register(Class<? extends Block> clazz, FaceableBlockRotationBehavior behavior) {
@@ -83,9 +80,7 @@ public abstract class FaceableBlockRotationBehavior {
         if (behavior == null && !CACHE.containsKey(blockId)) {
             behavior = resolveBehavior(blockId);
             CACHE.put(blockId, behavior);
-            if (GameAPI.getGameDebugManager().isEnableConsoleDebug()) {
-                log("Cached blockId=" + blockId + " -> " + (behavior != null ? behavior.getClass().getSimpleName() : "null"));
-            }
+            log("Cached blockId=" + blockId + " -> " + (behavior != null ? behavior.getClass().getSimpleName() : "null"));
         }
         if (behavior == null) {
             return damage;

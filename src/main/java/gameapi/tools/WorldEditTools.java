@@ -21,6 +21,7 @@ import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.IntTag;
 import cn.nukkit.nbt.tag.ListTag;
+import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import cn.nukkit.network.protocol.types.debugshape.DebugArrow;
 import cn.nukkit.network.protocol.types.debugshape.DebugBox;
@@ -31,10 +32,7 @@ import gameapi.GameAPI;
 import gameapi.annotation.Internal;
 import gameapi.task.BlockFillTask;
 import gameapi.task.BlockReplaceTask;
-import gameapi.utils.BuildBounds;
-import gameapi.utils.IntegerAxisAlignBB;
-import gameapi.utils.NukkitTypeUtils;
-import gameapi.utils.RotationType;
+import gameapi.utils.*;
 
 import java.awt.*;
 import java.io.File;
@@ -517,6 +515,10 @@ public class WorldEditTools {
         Config config = new Config(jsonFile, Config.JSON);
         List<Integer> rMax = config.getIntegerList("relativeMax");
         BuildBounds buildBounds = new BuildBounds(rMax.get(0), rMax.get(1), rMax.get(2));
+        // 存档协议号 < 1.26.50(v2193)（或缺失）时，damage 不含连接位，需服务端补算
+        int savedProtocol = config.getInt("serverProtocol", 0);
+        boolean needsConnectionFix = savedProtocol < ProtocolInfo.v1_26_50;
+        GameAPI.getInstance().getLogger().info("Build [" + fileName + "] savedProtocol=" + savedProtocol + ", needsConnectionFix=" + needsConnectionFix);
 
         generatingLargeBuild = true;
         long totalStart = System.currentTimeMillis();
@@ -624,7 +626,7 @@ public class WorldEditTools {
                     List<List<BuildBlockEntry>> finalSectionsRef = finalSections;
                     int finalSectionCountRef = finalSectionCount;
                     Server.getInstance().getScheduler().scheduleTask(GameAPI.getInstance(), () -> {
-                        scheduleBuildPlacement(sender, level, finalSectionsRef, 0, totalStart, new AtomicInteger(0), finalSectionCountRef, fileName);
+                        scheduleBuildPlacement(sender, level, finalSectionsRef, 0, totalStart, new AtomicInteger(0), finalSectionCountRef, fileName, needsConnectionFix);
                     }, false);
                 }).exceptionally(throwable -> {
                     GameAPI.getGameDebugManager().printError(throwable);
@@ -638,8 +640,22 @@ public class WorldEditTools {
 
     private static void scheduleBuildPlacement(CommandSender sender, Level level, List<List<BuildBlockEntry>> sections,
                                                 int sectionIdx, long totalStart,
-                                                AtomicInteger completedSections, int totalSections, String fileName) {
+                                                AtomicInteger completedSections, int totalSections, String fileName,
+                                                boolean needsConnectionFix) {
         if (sectionIdx >= sections.size()) {
+            // 全部方块就位后再统一补算一次：分区放置时邻居可能尚未放置，
+            // 只有此时按邻居重算才能得到正确连接（手动指令能修好也是因为此时已全部就位）
+            Set<ChunkId> allChunkPositions = new HashSet<>();
+            for (List<BuildBlockEntry> section : sections) {
+                for (BuildBlockEntry entry : section) {
+                    allChunkPositions.add(new ChunkId(entry.x >> 4, entry.z >> 4));
+                }
+            }
+            int totalChanged = 0;
+            for (ChunkId chunkPosition : allChunkPositions) {
+                totalChanged += BlockTools.fixChunkConnectionsAround(level, chunkPosition.x(), chunkPosition.z()).size();
+            }
+            GameAPI.getInstance().getLogger().info("Final connection fix [" + fileName + "]: chunks=" + allChunkPositions.size() + ", changed=" + totalChanged);
             generatingLargeBuild = false;
             int totalBlocks = sections.stream().mapToInt(List::size).sum();
             sender.sendMessage("Finish all building tasks! [" + fileName + "] Total blocks: " + totalBlocks + ". Section Count: " + completedSections.get() + ". Time cost: " + SmartTools.timeDiffMillisToString(System.currentTimeMillis(), totalStart));
@@ -678,6 +694,15 @@ public class WorldEditTools {
             }
         }
 
+        Set<ChunkId> chunkPositions = new HashSet<>();
+        for (Vector3 allPosition : allPositions) {
+            chunkPositions.add(new ChunkId(allPosition.getChunkX(), allPosition.getChunkZ()));
+        }
+        for (ChunkId chunkPosition : chunkPositions) {
+            // 按邻居重算该区块（及其相邻区块）内的连接/角落位，模仿 MOT Level.fixLegacyBlockConnections
+            BlockTools.fixChunkConnectionsAround(level, chunkPosition.x(), chunkPosition.z());
+        }
+
         sendBuildBlocksToPlayers(level, allPositions);
 
         completedSections.incrementAndGet();
@@ -687,7 +712,7 @@ public class WorldEditTools {
         GameAPI.getInstance().getLogger().info("Finish generating building task [" + completedSections.get() + "/" + totalSections + "]! (" + entries.size() + " blocks, " + sectionTime + "ms)");
 
         Server.getInstance().getScheduler().scheduleDelayedTask(GameAPI.getInstance(),
-            () -> scheduleBuildPlacement(sender, level, sections, sectionIdx + 1, totalStart, completedSections, totalSections, fileName), 1);
+            () -> scheduleBuildPlacement(sender, level, sections, sectionIdx + 1, totalStart, completedSections, totalSections, fileName, needsConnectionFix), 1);
     }
 
     private static void sendBuildBlocksToPlayers(Level level, List<Vector3> positions) {
@@ -909,6 +934,8 @@ public class WorldEditTools {
         IntegerAxisAlignBB integerAxisAlignBB = new IntegerAxisAlignBB(pos1, pos2);
         String name = (buildName != null && !buildName.isEmpty()) ? buildName : String.valueOf(System.currentTimeMillis());
         long saveStartMillis = System.currentTimeMillis();
+        // 记录存档时的服务端协议号：加载时据此判断是否需要补算连接位（>= 1.26.50/v2193 无需补算）
+        int serverProtocol = BlockTools.getServerProtocol();
 
         IntegerAxisAlignBB[] bbs = integerAxisAlignBB.splitAABB(64, 64, 64);
         GameAPI.getGameDebugManager().info("Start building save task in {" + integerAxisAlignBB + "}");
@@ -954,6 +981,8 @@ public class WorldEditTools {
                 maxZ - cz
         ));
 
+        config.set("serverProtocol", serverProtocol);
+
         config.save();
 
         if (extraTag != null) {
@@ -976,7 +1005,9 @@ public class WorldEditTools {
                     long maxCount = newBB.getSize();
                     AtomicLong lastTipPercentage = new AtomicLong(0);
                     AtomicLong readBlockCountForSection = new AtomicLong(0);
-                    CompoundTag tag = isCbd ? null : new CompoundTag().putList(new ListTag<>("blocks"));
+                    CompoundTag tag = isCbd ? null : new CompoundTag()
+                            .putList(new ListTag<>("blocks"))
+                            .putInt("serverProtocol", serverProtocol);
                     List<RawNbtParser.BlockEntry> cbdBlocks = isCbd ? new ArrayList<>() : null;
                     int finalBbsIndex = bbsIndex;
                     int rxMin = minPos.getFloorX();

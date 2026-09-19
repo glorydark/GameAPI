@@ -10,6 +10,7 @@ import cn.nukkit.scheduler.Task;
 import gameapi.GameAPI;
 import gameapi.commands.base.EasySubCommand;
 import gameapi.extensions.projectileGun.ProjectileGunManager;
+import gameapi.tools.BlockTools;
 
 public class TestCommand extends EasySubCommand {
 
@@ -25,6 +26,13 @@ public class TestCommand extends EasySubCommand {
             case "gun":
                 player.getInventory().setItem(0, ProjectileGunManager.getProjectileGun("test").toWeaponItem(player));
                 break;
+            case "fixconnection": {
+                int chunkX = player.getFloorX() >> 4;
+                int chunkZ = player.getFloorZ() >> 4;
+                int changed = BlockTools.fixChunkConnectionsAround(player.getLevel(), chunkX, chunkZ).size();
+                player.sendMessage("Connection fix done: " + changed + " blocks updated around chunk [" + chunkX + ", " + chunkZ + "]");
+                break;
+            }
             case "ddui":
                 Observable<String> observable = new Observable<>("剩余时间: 10 s");
                 CustomForm form = new CustomForm("答题界面")
